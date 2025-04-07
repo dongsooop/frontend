@@ -1,4 +1,5 @@
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
+import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,7 +15,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/home',
       routes: {
         // 특정 페이지 확인용
-        '/home': (context) => HomePageScreen()
+        '/home': (context) => HomePageScreen(),
+        '/mypage': (context) => MyPageScreen()
       },
     );
   }
