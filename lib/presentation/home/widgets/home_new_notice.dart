@@ -1,7 +1,6 @@
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeNewNotice extends StatefulWidget {
   const HomeNewNotice({super.key});
@@ -64,36 +63,51 @@ class _State extends State<HomeNewNotice> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 44,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '새로운 공지',
-                  style: TextStyles.titleTextBold.copyWith(
-                    color: ColorStyles.black,
+          // 헤더 영역
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '새로운 공지',
+                style: TextStyles.titleTextBold.copyWith(
+                  color: ColorStyles.black,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  // 더보기 클릭 시 동작
+                },
+                child: Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    children: [
+                      Text(
+                        '더보기',
+                        style: TextStyles.normalTextRegular.copyWith(
+                          color: ColorStyles.gray3,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: ColorStyles.gray3,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Row(
-                  children: [
-                    Text(
-                      '더보기',
-                      style: TextStyles.normalTextRegular.copyWith(
-                        color: ColorStyles.gray3,
-                      ),
-                    ),
-                    SvgPicture.asset(
-                      'assets/icons/arrow.svg',
-                      width: 24,
-                      height: 24,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+
           const SizedBox(height: 16),
+
+          // 공지 리스트 카드 영역
           Container(
             width: double.infinity,
             decoration: BoxDecoration(

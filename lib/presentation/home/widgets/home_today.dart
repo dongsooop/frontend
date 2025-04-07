@@ -1,7 +1,6 @@
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeToday extends StatelessWidget {
   const HomeToday({super.key});
@@ -94,13 +93,8 @@ class HomeToday extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.only(right: 24),
-              child: SvgPicture.asset(
-                'assets/icons/book.svg',
-                width: 24,
-                height: 24,
-              ),
-            ),
+                padding: const EdgeInsets.only(right: 24),
+                child: Icon(Icons.import_contacts)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,10 +127,10 @@ class HomeToday extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 24),
-              child: SvgPicture.asset(
-                'assets/icons/arrow.svg',
-                width: 24,
-                height: 24,
+              child: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: ColorStyles.gray3,
               ),
             ),
           ],
@@ -164,10 +158,10 @@ class HomeToday extends StatelessWidget {
                     color: ColorStyles.black,
                   ),
                 ),
-                SvgPicture.asset(
-                  'assets/icons/arrow.svg',
-                  width: 24,
-                  height: 24,
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: ColorStyles.gray3,
                 ),
               ],
             ),

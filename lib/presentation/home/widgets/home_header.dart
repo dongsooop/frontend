@@ -1,3 +1,4 @@
+import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -20,10 +21,10 @@ class MainHeader extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              SvgPicture.asset(
-                'assets/icons/alarm.svg',
-                width: 24,
-                height: 24,
+              Icon(
+                Icons.notifications_none,
+                size: 24.00,
+                color: ColorStyles.black,
               ),
               Positioned(
                 top: -4,
@@ -42,7 +43,7 @@ class MainHeader extends StatelessWidget {
                   child: const Text(
                     '99+',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: ColorStyles.white,
                       fontSize: 6,
                       fontWeight: FontWeight.w500,
                       height: 2,
