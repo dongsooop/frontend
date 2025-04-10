@@ -8,14 +8,14 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
-class RecruitPageScreen extends StatefulWidget {
-  const RecruitPageScreen({super.key});
+class RecruitListPageScreen extends StatefulWidget {
+  const RecruitListPageScreen({super.key});
 
   @override
-  State<RecruitPageScreen> createState() => _State();
+  State<RecruitListPageScreen> createState() => _State();
 }
 
-class _State extends State<RecruitPageScreen> {
+class _State extends State<RecruitListPageScreen> {
   int selectedIndex = 0; // 모집(0), 장터(1)
   int selectedRecruitIndex = 0; // 튜터링(0), 스터디(1), 프로젝트(2)
 
