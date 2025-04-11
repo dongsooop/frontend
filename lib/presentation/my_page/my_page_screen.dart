@@ -71,7 +71,7 @@ class MyPageScreen extends StatelessWidget {
                       children: [
                         ClipOval(
                           child: Image.asset(
-                            'assets/images/test.png', // 너의 이미지 경로로 변경!
+                            'assets/images/test.png',
                             width: 48,
                             height: 48,
                             fit: BoxFit.cover,
