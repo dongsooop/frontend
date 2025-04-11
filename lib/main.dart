@@ -1,4 +1,5 @@
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePageScreen(),
         '/mypage': (context) => MyPageScreen(),
         '/recruit': (context) => RecruitListPageScreen(),
+        '/recruit_write': (context) => RecruitWritePageScreen()
       },
     );
   }
