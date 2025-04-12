@@ -1,7 +1,7 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/presentation/board/common/board_require_label.dart';
-import 'package:dongsoop/presentation/board/recruit/write/widget/recruit_bottom_sheet.dart';
+import 'package:dongsoop/presentation/board/recruit/write/widget/major_tag_section.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -19,13 +19,15 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
   List<String> selectedMajors = [];
-  List<String> tagList = [];
+  List<String> manualTagList = [];
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
   final contentController = TextEditingController();
   final tagController = TextEditingController();
   bool isFormValid = false;
+
+  final String writerMajor = '컴퓨터소프트웨어공학과';
 
   Future<void> _pickDate(BuildContext context, bool isStart) async {
     final DateTime? picked = await showDatePicker(
@@ -60,33 +62,25 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
     });
   }
 
-  Widget _buildDateBox(DateTime? date) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: ColorStyles.gray2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.calendar_month, size: 24, color: ColorStyles.gray3),
-          const SizedBox(width: 8),
-          Text(
-            date != null
-                ? '${date.year}. ${date.month}. ${date.day}.'
-                : '${DateTime.now().year}. ${DateTime.now().month}. ${DateTime.now().day}.',
-            style:
-                TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-          ),
-        ],
-      ),
-    );
+  void _handleMajorSelection(List<String> selected) {
+    setState(() {
+      if (selected.contains('전체 학과')) {
+        selectedMajors = ['전체 학과'];
+      } else {
+        selectedMajors = selected;
+      }
+    });
+    _updateFormValidState();
   }
 
   void _addTag(String text) {
-    if (text.trim().isNotEmpty && !tagList.contains(text.trim())) {
+    final trimmed = text.trim();
+    if (trimmed.isNotEmpty &&
+        !manualTagList.contains(trimmed) &&
+        trimmed.length <= 8 &&
+        manualTagList.length < 3) {
       setState(() {
-        tagList.add(text.trim());
+        manualTagList.add(trimmed);
         tagController.clear();
       });
     }
@@ -94,7 +88,8 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
 
   void _removeTag(String tag) {
     setState(() {
-      tagList.remove(tag);
+      manualTagList.remove(tag);
+      selectedMajors.remove(tag);
     });
   }
 
@@ -103,9 +98,9 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: const DetailHeader(title: '모집 개설'),
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(44),
+          child: DetailHeader(title: '모집 개설'),
         ),
         bottomNavigationBar: PrimaryBottomButton(
           label: '모집 시작하기',
@@ -133,31 +128,25 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: '자기소개',
-                          style: TextStyles.largeTextBold
-                              .copyWith(color: ColorStyles.black),
-                        ),
+                            text: '자기소개',
+                            style: TextStyles.largeTextBold
+                                .copyWith(color: ColorStyles.black)),
                         TextSpan(
-                          text: ' 및 ',
-                          style: TextStyles.largeTextRegular
-                              .copyWith(color: ColorStyles.gray4),
-                        ),
+                            text: ' 및 ',
+                            style: TextStyles.largeTextRegular
+                                .copyWith(color: ColorStyles.gray4)),
                         TextSpan(
-                          text: '지원 동기',
-                          style: TextStyles.largeTextBold
-                              .copyWith(color: ColorStyles.black),
-                        ),
+                            text: '지원 동기',
+                            style: TextStyles.largeTextBold
+                                .copyWith(color: ColorStyles.black)),
                         TextSpan(
-                          text: '를 확인할 수 있어요',
-                          style: TextStyles.largeTextRegular
-                              .copyWith(color: ColorStyles.gray4),
-                        ),
+                            text: '를 확인할 수 있어요',
+                            style: TextStyles.largeTextRegular
+                                .copyWith(color: ColorStyles.gray4)),
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
                   RequiredLabel('모집 유형'),
                   const SizedBox(height: 16),
                   Wrap(
@@ -194,9 +183,7 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                       );
                     }),
                   ),
-
                   const SizedBox(height: 40),
-
                   RequiredLabel('모집 기간'),
                   const SizedBox(height: 16),
                   Row(
@@ -219,9 +206,7 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 40),
-
                   RequiredLabel('제목'),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -245,9 +230,7 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
                   RequiredLabel('내용'),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -272,120 +255,46 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
-                  RequiredLabel('모집 학과'),
-                  const SizedBox(height: 16),
-                  InkWell(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(16)),
-                        ),
-                        builder: (_) => RecruitBottomSheet(
-                          selected: selectedMajors,
-                          onSelected: (value) {
-                            setState(() {
-                              selectedMajors = value;
-                            });
-                            _updateFormValidState();
-                          },
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            color: selectedMajors.isNotEmpty
-                                ? ColorStyles.primary100
-                                : ColorStyles.gray2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            selectedMajors.isNotEmpty
-                                ? '학과 선택하기 (${selectedMajors.length})'
-                                : '학과 선택하기',
-                            style: TextStyles.normalTextRegular.copyWith(
-                              color: selectedMajors.isNotEmpty
-                                  ? ColorStyles.primary100
-                                  : ColorStyles.gray4,
-                            ),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            size: 24,
-                            color: selectedMajors.isNotEmpty
-                                ? ColorStyles.primary100
-                                : ColorStyles.gray4,
-                          ),
-                        ],
-                      ),
-                    ),
+                  MajorTagSection(
+                    selectedMajors: selectedMajors,
+                    manualTags: manualTagList,
+                    onMajorChanged: _handleMajorSelection,
+                    onTagAdded: _addTag,
+                    onTagRemoved: _removeTag,
+                    tagController: tagController,
+                    isTutorType: selectedIndex == 0,
+                    writerMajor: writerMajor,
                   ),
-
-                  const SizedBox(height: 40),
-
-                  // 태그
-                  Row(
-                    children: [
-                      Text('태그', style: TextStyles.largeTextBold),
-                      const SizedBox(width: 8),
-                      Text('작성자의 학과와 모집 학과는 자동으로 입력돼요',
-                          style: TextStyles.normalTextRegular
-                              .copyWith(color: ColorStyles.gray3)),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: tagController,
-                    onSubmitted: _addTag,
-                    decoration: InputDecoration(
-                      hintText: '최대 n글자까지 입력 가능해요',
-                      hintStyle: TextStyles.normalTextRegular.copyWith(
-                        color: ColorStyles.gray3,
-                      ),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () => _addTag(tagController.text),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorStyles.gray2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorStyles.primary100),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: tagList.map((tag) {
-                      return Chip(
-                        label: Text(tag),
-                        deleteIcon: Icon(Icons.close),
-                        onDeleted: () => _removeTag(tag),
-                        backgroundColor: ColorStyles.gray3,
-                      );
-                    }).toList(),
-                  ),
-
                   const SizedBox(height: 80),
                 ],
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDateBox(DateTime? date) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        border: Border.all(color: ColorStyles.gray2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.calendar_month, size: 24, color: ColorStyles.gray3),
+          const SizedBox(width: 8),
+          Text(
+            date != null
+                ? '${date.year}. ${date.month}. ${date.day}.'
+                : '${DateTime.now().year}. ${DateTime.now().month}. ${DateTime.now().day}.',
+            style:
+                TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+          ),
+        ],
       ),
     );
   }

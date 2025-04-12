@@ -17,11 +17,9 @@ class RequiredLabel extends StatelessWidget {
             style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
           ),
           TextSpan(
-            text: label == '태그' ? '    작성자의 학과와 모집 학과는 자동으로 입력돼요' : ' *',
-            style: label == '태그'
-                ? TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4)
-                : TextStyles.largeTextBold
-                    .copyWith(color: ColorStyles.primary100),
+            text: label == '태그' ? '' : ' *',
+            style: TextStyles.largeTextBold
+                .copyWith(color: ColorStyles.primary100),
           ),
         ],
       ),

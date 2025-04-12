@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 class RecruitBottomSheet extends StatefulWidget {
   final List<String> selected;
   final void Function(List<String>) onSelected;
+  final String writerMajor;
 
   const RecruitBottomSheet({
     super.key,
     required this.selected,
     required this.onSelected,
+    required this.writerMajor,
   });
 
   @override
@@ -45,45 +47,49 @@ class _RecruitBottomSheetState extends State<RecruitBottomSheet> {
   ];
 
   late Set<String> selectedDepartments;
+  bool isAllSelected = false;
 
   @override
   void initState() {
     super.initState();
-    selectedDepartments = {...widget.selected};
+    isAllSelected = widget.selected.contains('전체 학과');
+    selectedDepartments = isAllSelected
+        ? {...departments, widget.writerMajor}
+        : {...widget.selected, widget.writerMajor};
   }
-
-  bool get isAllSelected => selectedDepartments.length == departments.length;
 
   void toggleAll(bool? value) {
     setState(() {
       if (value == true) {
-        selectedDepartments = departments.toSet();
+        isAllSelected = true;
+        selectedDepartments = {...departments, widget.writerMajor};
       } else {
-        selectedDepartments.clear();
+        isAllSelected = false;
+        selectedDepartments = {widget.writerMajor};
       }
     });
   }
 
   void toggleItem(String item) {
+    if (item == widget.writerMajor) return;
     setState(() {
       if (selectedDepartments.contains(item)) {
         selectedDepartments.remove(item);
       } else {
         selectedDepartments.add(item);
       }
+      isAllSelected = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isEmpty = selectedDepartments.isEmpty;
+    final bool isEmpty = selectedDepartments.length <= 1;
 
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(8),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
       child: SafeArea(
         child: SizedBox(
@@ -91,7 +97,6 @@ class _RecruitBottomSheetState extends State<RecruitBottomSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 👇 인디케이터 바 (흰 배경 위에 회색 막대)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Center(
@@ -105,8 +110,6 @@ class _RecruitBottomSheetState extends State<RecruitBottomSheet> {
                   ),
                 ),
               ),
-
-              // 👇 타이틀
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -116,14 +119,11 @@ class _RecruitBottomSheetState extends State<RecruitBottomSheet> {
                       .copyWith(color: ColorStyles.black),
                 ),
               ),
-
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Divider(height: 1, color: ColorStyles.gray2),
               ),
-
-              // 👇 리스트
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -139,35 +139,46 @@ class _RecruitBottomSheetState extends State<RecruitBottomSheet> {
                       contentPadding: EdgeInsets.zero,
                       visualDensity: const VisualDensity(horizontal: -4),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
                       child: Divider(height: 1, color: ColorStyles.gray2),
                     ),
                     ...departments.map((dept) {
+                      final isWriterMajor = dept == widget.writerMajor;
+                      final isSelected = selectedDepartments.contains(dept);
                       return CheckboxListTile(
-                        value: selectedDepartments.contains(dept),
-                        onChanged: (_) => toggleItem(dept),
-                        title: Text(dept,
-                            style: TextStyles.largeTextRegular
-                                .copyWith(color: ColorStyles.black)),
+                        value: isSelected,
+                        onChanged:
+                            isWriterMajor ? null : (_) => toggleItem(dept),
+                        title: Text(
+                          dept,
+                          style: TextStyles.largeTextRegular
+                              .copyWith(color: ColorStyles.black),
+                        ),
                         activeColor: ColorStyles.primaryColor,
+                        checkColor: ColorStyles.white,
                         controlAffinity: ListTileControlAffinity.leading,
                         contentPadding: EdgeInsets.zero,
                         visualDensity: const VisualDensity(horizontal: -4),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
-
-              // 👇 하단 버튼
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: ElevatedButton(
                   onPressed: isEmpty
                       ? null
                       : () {
-                          widget.onSelected(selectedDepartments.toList());
+                          final selected = isAllSelected
+                              ? ['전체 학과']
+                              : [
+                                  widget.writerMajor,
+                                  ...selectedDepartments
+                                      .where((e) => e != widget.writerMajor)
+                                ];
+                          widget.onSelected(selected);
                           Navigator.pop(context);
                         },
                   style: ElevatedButton.styleFrom(
@@ -188,7 +199,6 @@ class _RecruitBottomSheetState extends State<RecruitBottomSheet> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
             ],
           ),
