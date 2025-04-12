@@ -1,4 +1,5 @@
 import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryBottomButton extends StatelessWidget {
@@ -17,6 +18,7 @@ class PrimaryBottomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
+        height: 56,
         color: ColorStyles.white,
         child: SizedBox(
           width: double.infinity,
@@ -26,7 +28,11 @@ class PrimaryBottomButton extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor:
                   isEnabled ? ColorStyles.primary100 : ColorStyles.gray3,
-              foregroundColor: isEnabled ? Colors.white : ColorStyles.gray4,
+              textStyle: isEnabled
+                  ? TextStyles.largeTextBold
+                  : TextStyles.largeTextRegular,
+              foregroundColor:
+                  isEnabled ? ColorStyles.white : ColorStyles.gray4,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(0),
