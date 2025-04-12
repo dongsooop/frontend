@@ -14,22 +14,31 @@ class RecruitWritePageScreen extends StatefulWidget {
 }
 
 class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
+  // 모집 유형 리스트
   final List<String> types = ['튜터링', '스터디', '프로젝트'];
-  int? selectedIndex;
+  int? selectedIndex; // 선택된 모집 유형 인덱스
+
+  // 모집 시작일/마감일
   DateTime? _startDate;
   DateTime? _endDate;
+
+  // 선택된 학과 및 직접 추가한 태그
   List<String> selectedMajors = [];
   List<String> manualTagList = [];
 
+  // 입력 컨트롤러들
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
   final contentController = TextEditingController();
   final tagController = TextEditingController();
+
+  // 전체 폼 유효성 여부
   bool isFormValid = false;
 
-  // 작성자 학과 임시 값
+  // 작성자의 학과 (자동 포함)
   final String writerMajor = '컴퓨터소프트웨어공학과';
 
+  // 날짜 선택 함수 (isStart가 true면 시작일 선택)
   Future<void> _pickDate(BuildContext context, bool isStart) async {
     final now = DateTime.now();
 
@@ -47,9 +56,9 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
               backgroundColor: Colors.white,
             ),
             colorScheme: ColorScheme.light(
-              primary: ColorStyles.primaryColor, // 선택된 날짜 색상
-              onPrimary: ColorStyles.white, // 선택된 날짜 텍스트 색상
-              onSurface: ColorStyles.black, // 일반 텍스트 색상
+              primary: ColorStyles.primaryColor,
+              onPrimary: ColorStyles.white,
+              onSurface: ColorStyles.black,
             ),
           ),
           child: child!,
@@ -61,37 +70,57 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
       setState(() {
         if (isStart) {
           _startDate = picked;
-
-          // 마감일이 없거나 시작일보다 이전이면 → 마감일도 시작일로 세팅
           if (_endDate == null || _endDate!.isBefore(picked)) {
-            _endDate = picked;
+            _endDate = picked; // 마감일 자동 보정
           }
         } else {
           _endDate = picked;
-
-          // 마감일이 시작일보다 빠르면 → 시작일을 맞춰줌
           if (_startDate != null && picked.isBefore(_startDate!)) {
-            _startDate = picked;
+            _startDate = picked; // 시작일 자동 보정
           }
         }
-
         _updateFormValidState();
       });
     }
   }
 
+  // 날짜 박스 UI
+  Widget _buildDateBox(DateTime? date) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        border: Border.all(color: ColorStyles.gray2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.calendar_month, size: 24, color: ColorStyles.gray3),
+          const SizedBox(width: 8),
+          Text(
+            date != null
+                ? '${date.year}. ${date.month}. ${date.day}.'
+                : '${DateTime.now().year}. ${DateTime.now().month}. ${DateTime.now().day}.',
+            style:
+                TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 전체 유효성 검사
   void _updateFormValidState() {
     final hasType = selectedIndex != null;
     final hasDates = _startDate != null && _endDate != null;
     final hasTitle = titleController.text.trim().isNotEmpty;
     final hasContent = contentController.text.trim().isNotEmpty;
-    final hasMajor = selectedMajors.isNotEmpty;
 
     setState(() {
-      isFormValid = hasType && hasDates && hasTitle && hasContent && hasMajor;
+      isFormValid = hasType && hasDates && hasTitle && hasContent;
     });
   }
 
+  // 학과 선택 결과 처리
   void _handleMajorSelection(List<String> selected) {
     setState(() {
       if (selected.contains('전체 학과')) {
@@ -103,6 +132,7 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
     _updateFormValidState();
   }
 
+  // 태그 추가 처리
   void _addTag(String text) {
     final trimmed = text.trim();
     if (trimmed.isNotEmpty &&
@@ -116,6 +146,7 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
     }
   }
 
+  // 태그 삭제 처리
   void _removeTag(String tag) {
     setState(() {
       manualTagList.remove(tag);
@@ -149,6 +180,7 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 안내 문구
                   Text(
                     '모집이 시작되면 지원자가 작성한',
                     style: TextStyles.largeTextRegular
@@ -176,7 +208,10 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 40),
+
+                  // 모집 유형 선택
                   RequiredLabel('모집 유형'),
                   const SizedBox(height: 16),
                   Wrap(
@@ -213,7 +248,10 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                       );
                     }),
                   ),
+
                   const SizedBox(height: 40),
+
+                  // 모집 기간
                   RequiredLabel('모집 기간'),
                   const SizedBox(height: 16),
                   Row(
@@ -236,7 +274,10 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 40),
+
+                  // 제목 입력
                   RequiredLabel('제목'),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -260,7 +301,10 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 40),
+
+                  // 내용 입력
                   RequiredLabel('내용'),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -285,7 +329,10 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 40),
+
+                  // 학과 및 태그 섹션
                   MajorTagSection(
                     selectedMajors: selectedMajors,
                     manualTags: manualTagList,
@@ -296,35 +343,13 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                     isTutorType: selectedIndex == 0,
                     writerMajor: writerMajor,
                   ),
+
                   const SizedBox(height: 80),
                 ],
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDateBox(DateTime? date) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: ColorStyles.gray2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.calendar_month, size: 24, color: ColorStyles.gray3),
-          const SizedBox(width: 8),
-          Text(
-            date != null
-                ? '${date.year}. ${date.month}. ${date.day}.'
-                : '${DateTime.now().year}. ${DateTime.now().month}. ${DateTime.now().day}.',
-            style:
-                TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-          ),
-        ],
       ),
     );
   }
