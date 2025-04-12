@@ -27,13 +27,17 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
   final tagController = TextEditingController();
   bool isFormValid = false;
 
+  // 작성자 학과 임시 값
   final String writerMajor = '컴퓨터소프트웨어공학과';
 
   Future<void> _pickDate(BuildContext context, bool isStart) async {
+    final now = DateTime.now();
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
+      initialDate:
+          isStart ? (_startDate ?? now) : (_endDate ?? _startDate ?? now),
+      firstDate: isStart ? now : (_startDate ?? now),
       lastDate: DateTime(2030),
       locale: const Locale('ko', 'KR'),
     );
@@ -42,11 +46,22 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
       setState(() {
         if (isStart) {
           _startDate = picked;
+
+          // ✅ 마감일이 없거나 시작일보다 이전이면 → 마감일도 시작일로 세팅
+          if (_endDate == null || _endDate!.isBefore(picked)) {
+            _endDate = picked;
+          }
         } else {
           _endDate = picked;
+
+          // ✅ 마감일이 시작일보다 빠르면 → 시작일을 맞춰줌
+          if (_startDate != null && picked.isBefore(_startDate!)) {
+            _startDate = picked;
+          }
         }
+
+        _updateFormValidState();
       });
-      _updateFormValidState();
     }
   }
 
