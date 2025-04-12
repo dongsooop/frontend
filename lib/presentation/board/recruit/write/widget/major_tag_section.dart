@@ -182,7 +182,7 @@ class MajorTagSection extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -226,6 +226,14 @@ class MajorTagSection extends StatelessWidget {
                   deleteIcon: isDeletable ? const Icon(Icons.close) : null,
                   onDeleted: isDeletable ? () => onTagRemoved(tag) : null,
                   backgroundColor: backgroundColor,
+                  elevation: 0,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(32)),
+                    side: BorderSide(
+                      color: Colors.transparent, // 투명 테두리
+                      width: 0,
+                    ),
+                  ),
                 ),
               );
             }).toList(),

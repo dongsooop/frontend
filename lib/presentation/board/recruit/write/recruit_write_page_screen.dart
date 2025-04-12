@@ -40,6 +40,21 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
       firstDate: isStart ? now : (_startDate ?? now),
       lastDate: DateTime(2030),
       locale: const Locale('ko', 'KR'),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogTheme: DialogTheme(
+              backgroundColor: Colors.white,
+            ),
+            colorScheme: ColorScheme.light(
+              primary: ColorStyles.primaryColor, // 선택된 날짜 색상
+              onPrimary: ColorStyles.white, // 선택된 날짜 텍스트 색상
+              onSurface: ColorStyles.black, // 일반 텍스트 색상
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (picked != null) {
@@ -47,14 +62,14 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
         if (isStart) {
           _startDate = picked;
 
-          // ✅ 마감일이 없거나 시작일보다 이전이면 → 마감일도 시작일로 세팅
+          // 마감일이 없거나 시작일보다 이전이면 → 마감일도 시작일로 세팅
           if (_endDate == null || _endDate!.isBefore(picked)) {
             _endDate = picked;
           }
         } else {
           _endDate = picked;
 
-          // ✅ 마감일이 시작일보다 빠르면 → 시작일을 맞춰줌
+          // 마감일이 시작일보다 빠르면 → 시작일을 맞춰줌
           if (_startDate != null && picked.isBefore(_startDate!)) {
             _startDate = picked;
           }
