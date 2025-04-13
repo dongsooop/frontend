@@ -32,8 +32,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePageScreen(),
         '/mypage': (context) => MyPageScreen(),
         '/chat': (context) => ChatScreen(),
-        '/recruit': (context) => RecruitListPageScreen(),
-        '/recruit_write': (context) => RecruitWritePageScreen()
+        '/recruit/list': (context) => RecruitListPageScreen(),
+        '/recruit/write': (context) => RecruitWritePageScreen()
       },
     );
   }
