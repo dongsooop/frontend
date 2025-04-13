@@ -1,6 +1,6 @@
-import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
+import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // 👇 추가: date picker 등에서 로케일 에러 방지
+      // date picker 등에서 로케일 에러 방지(한국어 사용을 위함)
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('ko', 'KR'), // 한국어
       ],
-      initialRoute: '/recruit_write',
+      initialRoute: '/home',
       routes: {
         // 특정 페이지 확인용
         '/home': (context) => HomePageScreen(),
