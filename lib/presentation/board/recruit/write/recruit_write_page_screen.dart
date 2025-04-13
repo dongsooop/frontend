@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/presentation/board/common/board_require_label.dart';
@@ -167,9 +168,19 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
           label: '모집 시작하기',
           isEnabled: isFormValid,
           onPressed: () {
-            if (isFormValid) {
-              // 제출 처리 로직
-            }
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '모집 개설',
+                content: '작성한 글은 수정할 수 없어요\n모집 시작할까요?',
+                cancelText: '취소',
+                confirmText: '제출',
+                onConfirm: () {
+                  // 제출 처리 로직
+                  Navigator.pop(context);
+                },
+              ),
+            );
           },
         ),
         body: Padding(
