@@ -170,6 +170,7 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
           onPressed: () {
             showDialog(
               context: context,
+              // 제출 확인용 dialog
               builder: (_) => CustomConfirmDialog(
                 title: '모집 개설',
                 content: '작성한 글은 수정할 수 없어요\n모집 시작할까요?',
