@@ -1,3 +1,4 @@
+import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_page_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePageScreen(),
         '/mypage': (context) => MyPageScreen(),
         '/chat': (context) => ChatScreen(),
+        '/chatDetail': (context) => ChatDetailScreen(),
         '/recruit': (context) => RecruitListPageScreen(),
       },
     );
