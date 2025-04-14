@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('ko', 'KR'), // 한국어
       ],
-      initialRoute: '/market/list',
+      initialRoute: '/home',
       routes: {
         // 특정 페이지 확인용
         '/home': (context) => HomePageScreen(),
