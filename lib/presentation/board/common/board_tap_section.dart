@@ -85,7 +85,7 @@ class BoardTabSection extends StatelessWidget {
 
   Widget _buildUnderlineTab(String label, bool isSelected) {
     return Container(
-      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      constraints: const BoxConstraints(minHeight: 44),
       alignment: Alignment.bottomCenter,
       child: Stack(
         alignment: Alignment.bottomCenter,
