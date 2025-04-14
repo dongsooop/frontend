@@ -27,12 +27,10 @@ class PrimaryBottomButton extends StatelessWidget {
             onPressed: isEnabled ? onPressed : null,
             style: ElevatedButton.styleFrom(
               backgroundColor:
-                  isEnabled ? ColorStyles.primary100 : ColorStyles.gray3,
-              textStyle: isEnabled
-                  ? TextStyles.largeTextBold
-                  : TextStyles.largeTextRegular,
+                  isEnabled ? ColorStyles.primary100 : ColorStyles.gray1,
+              textStyle: TextStyles.largeTextRegular,
               foregroundColor:
-                  isEnabled ? ColorStyles.white : ColorStyles.gray4,
+                  isEnabled ? ColorStyles.white : ColorStyles.gray3,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(0),
