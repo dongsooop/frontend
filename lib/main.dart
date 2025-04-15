@@ -1,4 +1,5 @@
 import 'package:dongsoop/presentation/board/market/list/market_list_page_screen.dart';
+import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/recruit/list': (context) => RecruitListPageScreen(),
         '/recruit/write': (context) => RecruitWritePageScreen(),
         '/market/list': (context) => MarketListPageScreen(),
+        '/market/write': (context) => MarketWritePageScreen(),
       },
     );
   }
