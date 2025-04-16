@@ -1,9 +1,10 @@
+// full_calendar_screen.dart
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_data.dart';
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class CalendarPageScreen extends StatefulWidget {
   const CalendarPageScreen({super.key});
@@ -14,14 +15,6 @@ class CalendarPageScreen extends StatefulWidget {
 
 class _CalendarPageScreenState extends State<CalendarPageScreen> {
   DateTime _focusedDay = DateTime.now();
-  DateTime _selectedDate = DateTime.now();
-
-  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    setState(() {
-      _selectedDate = selectedDay;
-      _focusedDay = focusedDay;
-    });
-  }
 
   void _goToPreviousMonth() => setState(() {
         _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
@@ -31,16 +24,23 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
         _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
       });
 
-  List<ScheduleEvent> getEventsForDay(DateTime day) {
-    return tempCalendarData.where((event) {
-      final start =
-          DateTime(event.start.year, event.start.month, event.start.day);
-      final end = DateTime(event.end.year, event.end.month, event.end.day);
-      final selected = DateTime(day.year, day.month, day.day);
+  DateTime getStartOfWeek(DateTime date) =>
+      date.subtract(Duration(days: date.weekday % 7));
 
-      return selected.isAtSameMomentAs(start) ||
-          (selected.isAfter(start) && selected.isBefore(end)) ||
-          selected.isAtSameMomentAs(end);
+  List<ScheduleEvent> getEventsForWeek(DateTime weekStart) {
+    final weekEnd = weekStart.add(const Duration(days: 6));
+    return tempCalendarData.where((event) {
+      return !(event.end.isBefore(weekStart) || event.start.isAfter(weekEnd));
+    }).toList();
+  }
+
+  List<ScheduleEvent> getEventsForDay(DateTime day) {
+    final dayOnly = DateTime(day.year, day.month, day.day);
+    return tempCalendarData.where((event) {
+      final startDate =
+          DateTime(event.start.year, event.start.month, event.start.day);
+      final endDate = DateTime(event.end.year, event.end.month, event.end.day);
+      return !dayOnly.isBefore(startDate) && !dayOnly.isAfter(endDate);
     }).toList();
   }
 
@@ -50,128 +50,184 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
     return ColorStyles.black;
   }
 
-  Widget _buildDayBox({
-    required DateTime day,
-    required Color textColor,
-    Color? backgroundColor,
-    BoxBorder? border,
-  }) {
-    final events = getEventsForDay(day);
+  Widget _buildWeekRow(DateTime weekStart) {
+    final days = List.generate(7, (i) => weekStart.add(Duration(days: i)));
+    final events = getEventsForWeek(weekStart);
 
-    return Container(
-      width: double.infinity,
+    final List<List<ScheduleEvent>> layeredRows = [];
+
+    for (final event in events) {
+      bool placed = false;
+      for (final row in layeredRows) {
+        if (row.every(
+            (e) => e.end.isBefore(event.start) || e.start.isAfter(event.end))) {
+          row.add(event);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) layeredRows.add([event]);
+    }
+
+    final maxVisible = 3;
+    final visibleRows = layeredRows.take(maxVisible).toList();
+
+    return SizedBox(
       height: 120,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        border: border,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${day.day}',
-            style: TextStyles.smallTextRegular.copyWith(color: textColor),
+          Row(
+            children: days
+                .map((day) => Expanded(
+                      child: Center(
+                        child: Text(
+                          '${day.day}',
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: day.month != _focusedDay.month
+                                ? ColorStyles.gray3
+                                : _getTextColor(day),
+                          ),
+                        ),
+                      ),
+                    ))
+                .toList(),
           ),
-          const SizedBox(height: 8),
-          ...events.take(3).map((event) {
-            final duration = event.end.difference(event.start).inDays + 1;
-            final bgColor = event.type == ScheduleType.school
-                ? ColorStyles.primary100
-                : ColorStyles.warning100;
-
+          const SizedBox(height: 2),
+          ...visibleRows.map((row) {
             return Row(
-              children: [
-                Expanded(
-                  flex: duration,
+              children: List.generate(7, (index) {
+                final day = days[index];
+                final dayOnly = DateTime(day.year, day.month, day.day);
+                final event = row.firstWhere(
+                  (e) {
+                    final start =
+                        DateTime(e.start.year, e.start.month, e.start.day);
+                    final end = DateTime(e.end.year, e.end.month, e.end.day);
+                    return !dayOnly.isBefore(start) && !dayOnly.isAfter(end);
+                  },
+                  orElse: () => ScheduleEvent(
+                    title: '',
+                    start: DateTime(_focusedDay.year),
+                    end: DateTime(_focusedDay.year),
+                    isAllDay: true,
+                    type: ScheduleType.personal,
+                  ),
+                );
+
+                if (event.title.isEmpty)
+                  return const Expanded(child: SizedBox());
+                if (!dayOnly.isAtSameMomentAs(DateTime(
+                    event.start.year, event.start.month, event.start.day)))
+                  return const SizedBox.shrink();
+
+                final spanEnd =
+                    event.end.isAfter(days.last) ? days.last : event.end;
+                final spanLength = spanEnd.difference(day).inDays + 1;
+
+                return Expanded(
+                  flex: spanLength,
                   child: Container(
-                    margin: const EdgeInsets.only(bottom: 2),
-                    padding: const EdgeInsets.all(2),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 1, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
-                      color: bgColor,
-                      borderRadius: BorderRadius.circular(6),
+                      color: event.type == ScheduleType.school
+                          ? ColorStyles.primary100
+                          : ColorStyles.warning100,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       event.title,
-                      style: TextStyles.smallTextRegular
-                          .copyWith(color: Colors.white),
+                      style: TextStyles.smallTextRegular.copyWith(
+                        color: ColorStyles.white,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-              ],
+                );
+              }),
             );
           }),
-          if (events.length > 3)
-            Text(
-              '+${events.length - 3}',
-              style: TextStyles.smallTextRegular
-                  .copyWith(color: ColorStyles.gray3),
-            ),
+          Row(
+            children: List.generate(7, (index) {
+              final day = days[index];
+              final eventsForDay = getEventsForDay(day);
+              if (eventsForDay.length > maxVisible) {
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      '+${eventsForDay.length - maxVisible}개',
+                      style: TextStyles.smallTextRegular
+                          .copyWith(color: ColorStyles.gray3),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
+              return const Expanded(child: SizedBox());
+            }),
+          ),
         ],
       ),
     );
   }
 
+  List<Widget> _buildWeeks() {
+    final firstDay = DateTime(_focusedDay.year, _focusedDay.month, 1);
+    final start = getStartOfWeek(firstDay);
+    return List.generate(
+        6, (i) => _buildWeekRow(start.add(Duration(days: i * 7))));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: AppBar(
-            backgroundColor: ColorStyles.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            centerTitle: false,
-            titleSpacing: 0,
-            title: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${DateTime.now().year}년',
-                    style: TextStyles.smallTextBold
-                        .copyWith(color: ColorStyles.primaryColor),
-                  ),
-                  const SizedBox(height: 4),
-                  Text('캘린더',
-                      style: TextStyles.titleTextBold
-                          .copyWith(color: ColorStyles.black)),
-                ],
-              ),
-            ),
-          ),
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(44),
+          child: DetailHeader(title: '캘린더'),
         ),
         body: Column(
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    onPressed:
-                        _focusedDay.month == 1 ? null : _goToPreviousMonth,
-                    icon: const Icon(Icons.chevron_left, size: 24),
-                    color: _focusedDay.month == 1
-                        ? Colors.transparent
-                        : ColorStyles.black,
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                  ),
-                  Text('${_focusedDay.month}월',
-                      style: TextStyles.largeTextBold
-                          .copyWith(color: ColorStyles.black)),
-                  IconButton(
-                    onPressed: _focusedDay.month == 12 ? null : _goToNextMonth,
-                    icon: const Icon(Icons.chevron_right, size: 24),
-                    color: _focusedDay.month == 12
-                        ? Colors.transparent
-                        : ColorStyles.black,
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed:
+                            _focusedDay.month == 1 ? null : _goToPreviousMonth,
+                        icon: const Icon(Icons.chevron_left, size: 24),
+                        color: _focusedDay.month == 1
+                            ? Colors.transparent
+                            : ColorStyles.black,
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                      ),
+                      Text('${_focusedDay.year}년 ${_focusedDay.month}월',
+                          style: TextStyles.largeTextBold
+                              .copyWith(color: ColorStyles.black)),
+                      IconButton(
+                        onPressed:
+                            _focusedDay.month == 12 ? null : _goToNextMonth,
+                        icon: const Icon(Icons.chevron_right, size: 24),
+                        color: _focusedDay.month == 12
+                            ? Colors.transparent
+                            : ColorStyles.black,
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -181,73 +237,29 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Container(
-                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     border: Border.all(color: ColorStyles.gray2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: TableCalendar(
-                    eventLoader: getEventsForDay,
-                    rowHeight: 120,
-                    daysOfWeekHeight: 44,
-                    focusedDay: _focusedDay,
-                    firstDay: DateTime(_focusedDay.year - 1, 12, 1),
-                    lastDay: DateTime(_focusedDay.year + 1, 1, 31),
-                    locale: 'ko-KR',
-                    headerVisible: false,
-                    onDaySelected: _onDaySelected,
-                    selectedDayPredicate: (day) =>
-                        isSameDay(_selectedDate, day),
-                    calendarStyle: const CalendarStyle(
-                      markerSize: 0,
-                      markersAlignment: Alignment.bottomCenter,
-                      markerDecoration: BoxDecoration(),
-                    ),
-                    calendarBuilders: CalendarBuilders(
-                      dowBuilder: (context, day) {
-                        final text = [
-                          '일',
-                          '월',
-                          '화',
-                          '수',
-                          '목',
-                          '금',
-                          '토'
-                        ][day.weekday % 7];
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Align(
-                            alignment: Alignment.topCenter,
-                            child: Text(
-                              text,
-                              style: TextStyles.smallTextRegular
-                                  .copyWith(color: _getTextColor(day)),
-                            ),
-                          ),
-                        );
-                      },
-                      todayBuilder: (context, day, _) => _buildDayBox(
-                        day: day,
-                        textColor: _getTextColor(day),
-                        backgroundColor: ColorStyles.gray1,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 44,
+                        child: Row(
+                          children: weekDays
+                              .map((day) => Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        day,
+                                        style: TextStyles.smallTextRegular,
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                        ),
                       ),
-                      selectedBuilder: (context, day, _) => _buildDayBox(
-                        day: day,
-                        textColor: _getTextColor(day),
-                        border: Border.all(color: ColorStyles.black),
-                        backgroundColor: isSameDay(day, DateTime.now())
-                            ? ColorStyles.gray1
-                            : null,
-                      ),
-                      outsideBuilder: (context, day, _) => _buildDayBox(
-                        day: day,
-                        textColor: ColorStyles.gray3,
-                      ),
-                      defaultBuilder: (context, day, _) => _buildDayBox(
-                        day: day,
-                        textColor: _getTextColor(day),
-                      ),
-                    ),
+                      ..._buildWeeks(),
+                    ],
                   ),
                 ),
               ),
