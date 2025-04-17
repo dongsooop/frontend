@@ -39,50 +39,47 @@ class _State extends State<RecruitListPageScreen> {
         backgroundColor: ColorStyles.white,
         floatingActionButton: WriteButton(
             onPressed: () => Navigator.pushNamed(context, '/recruit/write')),
-        body: selectedIndex == 0
-            ? ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: recruitData.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return BoardTabSection(
-                      selectedCategoryIndex: selectedIndex,
-                      selectedSubTabIndex: selectedRecruitIndex,
-                      subTabs: ['튜터링', '스터디', '프로젝트'],
-                      onCategorySelected: (index) {
-                        setState(() {
-                          selectedIndex = index;
-                        });
-                      },
-                      onSubTabSelected: (index) {
-                        setState(() {
-                          selectedRecruitIndex = index;
-                        });
-                      },
-                    );
-                  }
-
-                  final recruit = recruitData[index - 1];
-                  final isLastItem = index - 1 == recruitData.length - 1;
-                  return RecruitListItem(
-                    recruit: recruit,
-                    isLastItem: isLastItem,
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/recruit/detail',
-                        arguments: {'id': recruit['id']},
-                      );
-                    },
-                  );
+        body: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: recruitData.length + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return BoardTabSection(
+                selectedCategoryIndex: selectedIndex,
+                selectedSubTabIndex: selectedRecruitIndex,
+                subTabs: ['튜터링', '스터디', '프로젝트'],
+                onCategorySelected: (index) {
+                  setState(() {
+                    selectedIndex = index;
+                    if (index == 1) {
+                      // 장터 페이지로 이동
+                      Navigator.pushReplacementNamed(context, '/market/list');
+                    }
+                  });
                 },
-              )
-            : Center(
-                child: Text(
-                  '장터 페이지',
-                  style: TextStyles.largeTextRegular,
-                ),
-              ),
+                onSubTabSelected: (index) {
+                  setState(() {
+                    selectedRecruitIndex = index;
+                  });
+                },
+              );
+            }
+
+            final recruit = recruitData[index - 1];
+            final isLastItem = index - 1 == recruitData.length - 1;
+            return RecruitListItem(
+              recruit: recruit,
+              isLastItem: isLastItem,
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/recruit/detail',
+                  arguments: {'id': recruit['id']},
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

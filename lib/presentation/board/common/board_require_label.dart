@@ -17,7 +17,7 @@ class RequiredLabel extends StatelessWidget {
             style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
           ),
           TextSpan(
-            text: label == '태그' ? '' : ' *',
+            text: (label == '태그' || label == '사진') ? '' : ' *',
             style: TextStyles.largeTextBold
                 .copyWith(color: ColorStyles.primary100),
           ),
