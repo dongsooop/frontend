@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -146,6 +147,16 @@ class _CalendarDetailPageScreenState extends State<CalendarDetailPageScreen> {
     );
   }
 
+  // 액션 시트
+  void _showDeleteActionSheet(BuildContext context) {
+    customActionSheet(
+      context,
+      onDelete: () {
+        // 삭제 로직 추후에 구현
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditMode = widget.event != null;
@@ -206,7 +217,7 @@ class _CalendarDetailPageScreenState extends State<CalendarDetailPageScreen> {
             ? PrimaryBottomButton(
                 label: '일정 삭제',
                 onPressed: () {
-                  // 삭제 로직 추후에 추가
+                  _showDeleteActionSheet(context);
                 },
               )
             : null,
