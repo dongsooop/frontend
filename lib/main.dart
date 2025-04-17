@@ -3,11 +3,13 @@ import 'package:dongsoop/presentation/board/market/write/market_write_page_scree
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
+import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:logger/logger.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,12 +31,14 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('ko', 'KR'), // 한국어
       ],
-      initialRoute: '/calendar',
+      initialRoute: '/home',
       routes: {
         // 특정 페이지 확인용
         '/home': (context) => HomePageScreen(),
         '/mypage': (context) => MyPageScreen(),
         '/chat': (context) => ChatScreen(),
+        '/chatDetail': (context) => ChatDetailScreen(),
+        '/recruit': (context) => RecruitListPageScreen(),
         '/recruit/list': (context) => RecruitListPageScreen(),
         '/recruit/write': (context) => RecruitWritePageScreen(),
         '/market/list': (context) => MarketListPageScreen(),
@@ -44,3 +48,11 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+var logger = Logger(
+  printer: PrettyPrinter(),
+);
+
+var loggerNoStack = Logger(
+  printer: PrettyPrinter(methodCount: 0),
+);
