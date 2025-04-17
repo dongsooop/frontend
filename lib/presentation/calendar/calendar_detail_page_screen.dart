@@ -62,6 +62,7 @@ class _CalendarDetailPageScreenState extends State<CalendarDetailPageScreen> {
         onDateTimeChanged: onDateTimeChanged,
         use24hFormat: true,
         minuteInterval: 5,
+        itemExtent: 45.0,
       ),
     );
   }
