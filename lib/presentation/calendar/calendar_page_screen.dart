@@ -1,4 +1,3 @@
-// full_calendar_screen.dart
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_data.dart';
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_model.dart';
