@@ -15,161 +15,185 @@ class CalendarPageScreen extends StatefulWidget {
 
 class _CalendarPageScreenState extends State<CalendarPageScreen> {
   DateTime _focusedDay = DateTime.now();
+  DateTime _selectedDay = DateTime.now();
 
+  // 월 이동 처리
   void _goToPreviousMonth() => setState(() {
         _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
       });
-
   void _goToNextMonth() => setState(() {
         _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
       });
 
+  // 주 시작일 계산
   DateTime getStartOfWeek(DateTime date) =>
       date.subtract(Duration(days: date.weekday % 7));
 
+  // 주간 일정 필터링
   List<ScheduleEvent> getEventsForWeek(DateTime weekStart) {
-    final weekEnd = weekStart.add(const Duration(days: 6));
+    final weekEnd = weekStart.add(const Duration(days: 7));
     return tempCalendarData.where((event) {
       return !(event.end.isBefore(weekStart) || event.start.isAfter(weekEnd));
     }).toList();
   }
 
-  List<ScheduleEvent> getEventsForDay(DateTime day) {
-    final dayOnly = DateTime(day.year, day.month, day.day);
-    return tempCalendarData.where((event) {
-      final startDate =
-          DateTime(event.start.year, event.start.month, event.start.day);
-      final endDate = DateTime(event.end.year, event.end.month, event.end.day);
-      return !dayOnly.isBefore(startDate) && !dayOnly.isAfter(endDate);
-    }).toList();
-  }
-
+  // 요일별 텍스트 색상 지정
   Color _getTextColor(DateTime day) {
     if (day.weekday == DateTime.saturday) return ColorStyles.primary100;
     if (day.weekday == DateTime.sunday) return ColorStyles.warning100;
     return ColorStyles.black;
   }
 
+  // 주 단위 UI 생성
   Widget _buildWeekRow(DateTime weekStart) {
     final days = List.generate(7, (i) => weekStart.add(Duration(days: i)));
-    final events = getEventsForWeek(weekStart);
+    final weekEvents = getEventsForWeek(weekStart);
 
-    final List<List<ScheduleEvent>> layeredRows = [];
+    // 정렬: school 우선, 시작 시간순
+    weekEvents.sort((a, b) {
+      if (a.type == ScheduleType.school && b.type != ScheduleType.school)
+        return -1;
+      if (a.type != ScheduleType.school && b.type == ScheduleType.school)
+        return 1;
+      return a.start.compareTo(b.start);
+    });
 
-    for (final event in events) {
-      bool placed = false;
-      for (final row in layeredRows) {
-        if (row.every(
-            (e) => e.end.isBefore(event.start) || e.start.isAfter(event.end))) {
-          row.add(event);
-          placed = true;
+    // 줄 중복 방지를 위한 occupancy 추적
+    final calendarWidth = MediaQuery.of(context).size.width - 32;
+    List<List<bool>> rowOccupancy = [];
+    List<Widget> eventWidgets = [];
+    List<int> hiddenCountByDay = List.filled(7, 0);
+
+    // 각 이벤트 배치 처리
+    for (final event in weekEvents) {
+      // 이벤트 시작/끝 날짜 기준 인덱스 계산
+      final startDate =
+          DateTime(event.start.year, event.start.month, event.start.day);
+      final endDate = DateTime(event.end.year, event.end.month, event.end.day);
+
+      int startIndex = days.indexWhere((d) => !d.isBefore(startDate));
+      int endIndex = days.lastIndexWhere((d) => !d.isAfter(endDate));
+      if (startIndex == -1 || endIndex == -1) continue;
+
+      // 배치 가능한 줄 찾기
+      int row = -1;
+      for (int i = 0; i < rowOccupancy.length; i++) {
+        bool canPlace = true;
+        for (int j = startIndex; j <= endIndex; j++) {
+          if (rowOccupancy[i][j]) {
+            canPlace = false;
+            break;
+          }
+        }
+        if (canPlace) {
+          row = i;
           break;
         }
       }
-      if (!placed) layeredRows.add([event]);
+
+      // 새로운 줄이 필요한 경우
+      if (row == -1) {
+        if (rowOccupancy.length >= 3) {
+          hiddenCountByDay[startIndex]++;
+          continue;
+        }
+        row = rowOccupancy.length;
+        rowOccupancy.add(List.filled(7, false));
+      }
+
+      // 해당 줄에 점유 표시
+      for (int j = startIndex; j <= endIndex; j++) {
+        rowOccupancy[row][j] = true;
+      }
+
+      // 이벤트 위젯 생성 및 추가
+      eventWidgets.add(
+        Positioned(
+          top: 24.0 + row * 22.0,
+          left: (startIndex / 7) * calendarWidth,
+          width: ((endIndex - startIndex + 1) / 7) * calendarWidth - 4,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+            decoration: BoxDecoration(
+              color: event.type == ScheduleType.school
+                  ? ColorStyles.primary100
+                  : ColorStyles.warning100,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              event.title,
+              style: TextStyles.smallTextRegular
+                  .copyWith(color: ColorStyles.white),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      );
     }
 
-    final maxVisible = 3;
-    final visibleRows = layeredRows.take(maxVisible).toList();
+    // 일정 초과시 +n 텍스트 추가
+    for (int i = 0; i < 7; i++) {
+      if (hiddenCountByDay[i] > 0) {
+        eventWidgets.add(
+          Positioned(
+            top: 24.0 + 6 * 22.0,
+            left: (i / 7) * calendarWidth + 6,
+            child: Text(
+              '+${hiddenCountByDay[i]}',
+              style: TextStyles.smallTextRegular
+                  .copyWith(color: ColorStyles.gray3),
+            ),
+          ),
+        );
+      }
+    }
 
+    // 최종 위젯 리턴
     return SizedBox(
       height: 120,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
+          ...eventWidgets,
           Row(
-            children: days
-                .map((day) => Expanded(
-                      child: Center(
-                        child: Text(
-                          '${day.day}',
-                          style: TextStyles.smallTextRegular.copyWith(
-                            color: day.month != _focusedDay.month
-                                ? ColorStyles.gray3
-                                : _getTextColor(day),
-                          ),
-                        ),
-                      ),
-                    ))
-                .toList(),
-          ),
-          const SizedBox(height: 2),
-          ...visibleRows.map((row) {
-            return Row(
-              children: List.generate(7, (index) {
-                final day = days[index];
-                final dayOnly = DateTime(day.year, day.month, day.day);
-                final event = row.firstWhere(
-                  (e) {
-                    final start =
-                        DateTime(e.start.year, e.start.month, e.start.day);
-                    final end = DateTime(e.end.year, e.end.month, e.end.day);
-                    return !dayOnly.isBefore(start) && !dayOnly.isAfter(end);
-                  },
-                  orElse: () => ScheduleEvent(
-                    title: '',
-                    start: DateTime(_focusedDay.year),
-                    end: DateTime(_focusedDay.year),
-                    isAllDay: true,
-                    type: ScheduleType.personal,
-                  ),
-                );
+            children: days.map((day) {
+              final isToday = DateTime.now().year == day.year &&
+                  DateTime.now().month == day.month &&
+                  DateTime.now().day == day.day;
+              final isSelected = _selectedDay.year == day.year &&
+                  _selectedDay.month == day.month &&
+                  _selectedDay.day == day.day;
 
-                if (event.title.isEmpty)
-                  return const Expanded(child: SizedBox());
-                if (!dayOnly.isAtSameMomentAs(DateTime(
-                    event.start.year, event.start.month, event.start.day)))
-                  return const SizedBox.shrink();
+              final backgroundColor =
+                  isToday ? ColorStyles.gray2.withOpacity(0.4) : null;
+              final border = isSelected
+                  ? Border.all(color: ColorStyles.black, width: 1.5)
+                  : null;
 
-                final spanEnd =
-                    event.end.isAfter(days.last) ? days.last : event.end;
-                final spanLength = spanEnd.difference(day).inDays + 1;
-
-                return Expanded(
-                  flex: spanLength,
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedDay = day),
                   child: Container(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 1, vertical: 2),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    margin: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
-                      color: event.type == ScheduleType.school
-                          ? ColorStyles.primary100
-                          : ColorStyles.warning100,
-                      borderRadius: BorderRadius.circular(4),
+                      color: backgroundColor,
+                      border: border,
                     ),
+                    alignment: Alignment.topCenter,
+                    padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      event.title,
+                      '${day.day}',
                       style: TextStyles.smallTextRegular.copyWith(
-                        color: ColorStyles.white,
+                        color: day.month != _focusedDay.month
+                            ? ColorStyles.gray3
+                            : _getTextColor(day),
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                );
-              }),
-            );
-          }),
-          Row(
-            children: List.generate(7, (index) {
-              final day = days[index];
-              final eventsForDay = getEventsForDay(day);
-              if (eventsForDay.length > maxVisible) {
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      '+${eventsForDay.length - maxVisible}개',
-                      style: TextStyles.smallTextRegular
-                          .copyWith(color: ColorStyles.gray3),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                );
-              }
-              return const Expanded(child: SizedBox());
-            }),
-          ),
+                ),
+              );
+            }).toList(),
+          )
         ],
       ),
     );
@@ -177,9 +201,17 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
 
   List<Widget> _buildWeeks() {
     final firstDay = DateTime(_focusedDay.year, _focusedDay.month, 1);
+    final lastDay = DateTime(_focusedDay.year, _focusedDay.month + 1, 0);
     final start = getStartOfWeek(firstDay);
-    return List.generate(
-        6, (i) => _buildWeekRow(start.add(Duration(days: i * 7))));
+    final end = getStartOfWeek(lastDay.add(const Duration(days: 7)));
+
+    final weeks = <Widget>[];
+    DateTime current = start;
+    while (current.isBefore(end)) {
+      weeks.add(_buildWeekRow(current));
+      current = current.add(const Duration(days: 7));
+    }
+    return weeks;
   }
 
   @override
@@ -189,77 +221,79 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
+        // 공용 디테일 헤더
         appBar: const PreferredSize(
           preferredSize: Size.fromHeight(44),
-          child: DetailHeader(title: '캘린더'),
+          child: DetailHeader(title: '일정 관리'),
         ),
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 16),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text('${_focusedDay.year}년 ${_focusedDay.month}월',
+                      style: TextStyles.smallTextBold
+                          .copyWith(color: ColorStyles.primaryColor)),
                   const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed:
-                            _focusedDay.month == 1 ? null : _goToPreviousMonth,
-                        icon: const Icon(Icons.chevron_left, size: 24),
-                        color: _focusedDay.month == 1
-                            ? Colors.transparent
-                            : ColorStyles.black,
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                      ),
-                      Text('${_focusedDay.year}년 ${_focusedDay.month}월',
-                          style: TextStyles.largeTextBold
-                              .copyWith(color: ColorStyles.black)),
-                      IconButton(
-                        onPressed:
-                            _focusedDay.month == 12 ? null : _goToNextMonth,
-                        icon: const Icon(Icons.chevron_right, size: 24),
-                        color: _focusedDay.month == 12
-                            ? Colors.transparent
-                            : ColorStyles.black,
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                      ),
-                    ],
-                  ),
+                  Text('캘린더',
+                      style: TextStyles.titleTextBold
+                          .copyWith(color: ColorStyles.black)),
                 ],
               ),
             ),
+            const SizedBox(height: 8),
             Expanded(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyles.gray2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 44,
-                        child: Row(
-                          children: weekDays
-                              .map((day) => Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        day,
-                                        style: TextStyles.smallTextRegular,
+              child: GestureDetector(
+                onHorizontalDragEnd: (details) {
+                  if (details.primaryVelocity != null) {
+                    if (details.primaryVelocity! < 0) {
+                      _goToNextMonth();
+                    } else if (details.primaryVelocity! > 0) {
+                      _goToPreviousMonth();
+                    }
+                  }
+                },
+                child: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: ColorStyles.gray2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 44,
+                          child: Row(
+                            children: weekDays
+                                .asMap()
+                                .entries
+                                .map((entry) => Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          entry.value,
+                                          style: TextStyles.smallTextRegular
+                                              .copyWith(
+                                            color: entry.key == 0
+                                                ? ColorStyles.warning100
+                                                : entry.key == 6
+                                                    ? ColorStyles.primary100
+                                                    : ColorStyles.black,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ))
-                              .toList(),
+                                    ))
+                                .toList(),
+                          ),
                         ),
-                      ),
-                      ..._buildWeeks(),
-                    ],
+                        ..._buildWeeks(),
+                      ],
+                    ),
                   ),
                 ),
               ),

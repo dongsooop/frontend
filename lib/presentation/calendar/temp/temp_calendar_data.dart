@@ -1,6 +1,6 @@
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_model.dart';
 
-final List<ScheduleEvent> tempCalendarData = [
+final List<ScheduleEvent> tempCalendarData = <ScheduleEvent>[
   ScheduleEvent(
     title: '1차 강의평가',
     start: DateTime.parse('2025-04-01'),
@@ -37,7 +37,7 @@ final List<ScheduleEvent> tempCalendarData = [
     type: ScheduleType.personal,
   ),
   ScheduleEvent(
-    title: '점심약속',
+    title: '점심 약속',
     start: DateTime.parse('2025-04-16T12:30:00'),
     end: DateTime.parse('2025-04-16T13:30:00'),
     isAllDay: false,
@@ -58,14 +58,21 @@ final List<ScheduleEvent> tempCalendarData = [
     type: ScheduleType.personal,
   ),
   ScheduleEvent(
-    title: '술약속',
+    title: '술 약속',
     start: DateTime.parse('2025-04-16T20:00:00'),
     end: DateTime.parse('2025-04-16T23:30:00'),
     isAllDay: false,
     type: ScheduleType.personal,
   ),
   ScheduleEvent(
-    title: '술약속',
+    title: '과 엠티',
+    start: DateTime.parse('2025-05-08T08:00:00'),
+    end: DateTime.parse('2025-05-10T19:30:00'),
+    isAllDay: false,
+    type: ScheduleType.personal,
+  ),
+  ScheduleEvent(
+    title: '행사 준비',
     start: DateTime.parse('2025-05-03T20:00:00'),
     end: DateTime.parse('2025-05-03T23:30:00'),
     isAllDay: false,

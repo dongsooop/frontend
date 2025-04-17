@@ -15,4 +15,8 @@ class ScheduleEvent {
     required this.isAllDay,
     required this.type,
   });
+  bool get isMultiDay =>
+      start.year != end.year ||
+      start.month != end.month ||
+      start.day != end.day;
 }
