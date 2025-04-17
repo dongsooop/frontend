@@ -94,7 +94,9 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
       // 새로운 줄이 필요한 경우
       if (row == -1) {
         if (rowOccupancy.length >= 3) {
-          hiddenCountByDay[startIndex]++;
+          for (int i = startIndex; i <= endIndex; i++) {
+            hiddenCountByDay[i]++;
+          }
           continue;
         }
         row = rowOccupancy.length;
@@ -125,30 +127,33 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
               event.title,
               style: TextStyles.smallTextRegular
                   .copyWith(color: ColorStyles.white),
-              overflow: TextOverflow.ellipsis,
+              overflow: TextOverflow.clip,
+              softWrap: false,
             ),
           ),
         ),
       );
     }
 
-    // 일정 초과시 +n 텍스트 추가
+    // 일정 초과 시 +n 텍스트 추가 (startIndex 위치 기준)
     for (int i = 0; i < 7; i++) {
       if (hiddenCountByDay[i] > 0) {
         eventWidgets.add(
           Positioned(
-            top: 24.0 + 6 * 22.0,
-            left: (i / 7) * calendarWidth + 6,
-            child: Text(
-              '+${hiddenCountByDay[i]}',
-              style: TextStyles.smallTextRegular
-                  .copyWith(color: ColorStyles.gray3),
+            top: 24.0 + 3 * 25.0,
+            left: (i / 7) * calendarWidth,
+            width: calendarWidth / 7,
+            child: Center(
+              child: Text(
+                '+${hiddenCountByDay[i]}',
+                style: TextStyles.smallTextRegular
+                    .copyWith(color: ColorStyles.gray3),
+              ),
             ),
           ),
         );
       }
     }
-
     // 최종 위젯 리턴
     return SizedBox(
       height: 120,
