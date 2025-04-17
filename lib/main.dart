@@ -8,6 +8,7 @@ import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:logger/logger.dart';
 
 void main() {
   runApp(const MyApp());
@@ -45,3 +46,11 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+var logger = Logger(
+  printer: PrettyPrinter(),
+);
+
+var loggerNoStack = Logger(
+  printer: PrettyPrinter(methodCount: 0),
+);

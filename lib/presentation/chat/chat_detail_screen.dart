@@ -1,7 +1,9 @@
+import 'package:dongsoop/presentation/chat/chat_bubble_screen.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:dongsoop/main.dart';
 
 class ChatDetailScreen extends StatefulWidget {
   const ChatDetailScreen({super.key});
@@ -16,24 +18,29 @@ class ChatDetailScreenState extends State<ChatDetailScreen> {
   final TextEditingController textController = TextEditingController();
 
   // 더미데이터
+  final String uid = '1';
   final List<Map<String, dynamic>> fakeMessages = [
     {
-      'sender': 'me',
+      'userId': '1',
+      'nickname': '익명1',
       'message': '얼마까지 알아보고 오셨어요?',
       'timestamp': '오전 10:15',
     },
     {
-      'sender': 'other',
+      'userId': '2',
+      'nickname': '익명2',
       'message': '운영체제 실습 족보 판매 보고 연락 드렸습니다.',
       'timestamp': '오전 10:14',
     },
     {
-      'sender': 'me',
+      'userId': '1',
+      'nickname': '익명1',
       'message': '안녕하세요!',
       'timestamp': '오전 10:13',
     },
     {
-      'sender': 'other',
+      'userId': '2',
+      'nickname': '익명2',
       'message': '안녕하세요',
       'timestamp': '오전 10:12',
     },
@@ -85,7 +92,8 @@ class ChatDetailScreenState extends State<ChatDetailScreen> {
           )
         ),
         body: Container(
-          padding: EdgeInsets.all(16),
+          margin: EdgeInsets.symmetric(vertical: 24),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
               Expanded(
@@ -101,10 +109,15 @@ class ChatDetailScreenState extends State<ChatDetailScreen> {
                       controller: scrollController, // 스크롤 위치 컨트롤러
                       itemCount: fakeMessages.length,
                       itemBuilder: (BuildContext context, int index) {
-                        return Text(fakeMessages[index]['message']);
+                        return ChatBubbleScreen(
+                          fakeMessages[index]['nickname'],
+                          fakeMessages[index]['message'],
+                          fakeMessages[index]['timestamp'],
+                          fakeMessages[index]['userId'].toString() == uid,
+                        );
                       },
                       separatorBuilder: (_, __) => const SizedBox(
-                        height: 8,
+                        height: 16,
                       ),
                     ),
                   ),
@@ -112,16 +125,21 @@ class ChatDetailScreenState extends State<ChatDetailScreen> {
               ),
               Container(
                 width: double.infinity,
-                height: 44,
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                height: 52,
+                margin: EdgeInsets.only(top: 16),
+                padding: EdgeInsets.only(left: 16, right: 8),
                 decoration: ShapeDecoration(
                   color: ColorStyles.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: TextFormField(
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
                         controller: textController,
                         style: TextStyles.normalTextRegular.copyWith(
                           color: ColorStyles.black
@@ -134,15 +152,23 @@ class ChatDetailScreenState extends State<ChatDetailScreen> {
                         },
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        sendMessage;
-                      },
-                      icon: Icon(
-                        Icons.send,
-                        size: 24,
+                    SizedBox(
+                      height: 44,
+                      width: 44,
+                      child: IconButton(
+                        onPressed: () {
+                          sendMessage();
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/icons/send.svg',
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(
+                            ColorStyles.primaryColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                       ),
-                      color: ColorStyles.primaryColor,
                     )
                   ],
                 ),
@@ -160,9 +186,10 @@ class ChatDetailScreenState extends State<ChatDetailScreen> {
 
     setState(() {
       fakeMessages.insert(0, {
-        'sender': 'me',
+        'userId': '1',
+        'nickname': '익명1',
         'message': message,
-        'timestamp': '오전 9:22',
+        'timestamp': '오후 9:22',
       });
     });
 
@@ -174,5 +201,6 @@ class ChatDetailScreenState extends State<ChatDetailScreen> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
+    logger.i(fakeMessages);
   }
 }
