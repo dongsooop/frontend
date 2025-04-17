@@ -17,15 +17,17 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
 
-  // 월 이동 처리
+  // 이전 달로 이동
   void _goToPreviousMonth() => setState(() {
         _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
       });
+
+  // 다음 달로 이동
   void _goToNextMonth() => setState(() {
         _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
       });
 
-  // 주 시작일 계산
+  // 해당 날짜가 속한 주의 시작 날짜 계산
   DateTime getStartOfWeek(DateTime date) =>
       date.subtract(Duration(days: date.weekday % 7));
 
@@ -37,7 +39,7 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
     }).toList();
   }
 
-  // 요일별 텍스트 색상 지정
+  // 요일 텍스트 색상 지정
   Color _getTextColor(DateTime day) {
     if (day.weekday == DateTime.saturday) return ColorStyles.primary100;
     if (day.weekday == DateTime.sunday) return ColorStyles.warning100;
@@ -49,7 +51,7 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
     final days = List.generate(7, (i) => weekStart.add(Duration(days: i)));
     final weekEvents = getEventsForWeek(weekStart);
 
-    // 정렬: school 우선, 시작 시간순
+    // 학사일정 우선 정렬, 그 외는 시작시간 순
     weekEvents.sort((a, b) {
       if (a.type == ScheduleType.school && b.type != ScheduleType.school)
         return -1;
@@ -58,15 +60,13 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
       return a.start.compareTo(b.start);
     });
 
-    // 줄 중복 방지를 위한 occupancy 추적
     final calendarWidth = MediaQuery.of(context).size.width - 32;
     List<List<bool>> rowOccupancy = [];
     List<Widget> eventWidgets = [];
     List<int> hiddenCountByDay = List.filled(7, 0);
 
-    // 각 이벤트 배치 처리
+    // 일정 위젯 배치 처리
     for (final event in weekEvents) {
-      // 이벤트 시작/끝 날짜 기준 인덱스 계산
       final startDate =
           DateTime(event.start.year, event.start.month, event.start.day);
       final endDate = DateTime(event.end.year, event.end.month, event.end.day);
@@ -103,39 +103,44 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
         rowOccupancy.add(List.filled(7, false));
       }
 
-      // 해당 줄에 점유 표시
       for (int j = startIndex; j <= endIndex; j++) {
         rowOccupancy[row][j] = true;
       }
 
-      // 이벤트 위젯 생성 및 추가
+      // 해당 월이 아닌 이벤트 위젯
+      final isOutOfMonth = event.start.month != _focusedDay.month;
+
+      // 이벤트 표시 위젯 추가
       eventWidgets.add(
         Positioned(
           top: 24.0 + row * 22.0,
           left: (startIndex / 7) * calendarWidth,
           width: ((endIndex - startIndex + 1) / 7) * calendarWidth - 4,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-            decoration: BoxDecoration(
-              color: event.type == ScheduleType.school
-                  ? ColorStyles.primary100
-                  : ColorStyles.warning100,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              event.title,
-              style: TextStyles.smallTextRegular
-                  .copyWith(color: ColorStyles.white),
-              overflow: TextOverflow.clip,
-              softWrap: false,
+          child: Opacity(
+            opacity: isOutOfMonth ? 0.4 : 1.0,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+              decoration: BoxDecoration(
+                color: event.type == ScheduleType.school
+                    ? ColorStyles.primary100
+                    : ColorStyles.warning100,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                event.title,
+                style: TextStyles.smallTextRegular
+                    .copyWith(color: ColorStyles.white),
+                overflow: TextOverflow.clip,
+                softWrap: false,
+              ),
             ),
           ),
         ),
       );
     }
 
-    // 일정 초과 시 +n 텍스트 추가 (startIndex 위치 기준)
+    // +N 표시
     for (int i = 0; i < 7; i++) {
       if (hiddenCountByDay[i] > 0) {
         eventWidgets.add(
@@ -154,82 +159,80 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
         );
       }
     }
-    // 최종 위젯 리턴
+
+    // 날짜 셀 UI 구성
+    final dayCells = days.map((day) {
+      final isToday = DateTime.now().year == day.year &&
+          DateTime.now().month == day.month &&
+          DateTime.now().day == day.day;
+      final isSelected = _selectedDay.year == day.year &&
+          _selectedDay.month == day.month &&
+          _selectedDay.day == day.day;
+
+      final backgroundColor = isToday ? ColorStyles.gray1 : null;
+      final border =
+          isSelected ? Border.all(color: ColorStyles.black, width: 1.5) : null;
+
+      return Expanded(
+        child: GestureDetector(
+          onTap: () {
+            setState(() => _selectedDay = day);
+
+            final selectedEvents = tempCalendarData.where((event) {
+              final start = DateTime(
+                  event.start.year, event.start.month, event.start.day);
+              final end =
+                  DateTime(event.end.year, event.end.month, event.end.day);
+              final target = DateTime(day.year, day.month, day.day);
+
+              return !target.isBefore(start) && !target.isAfter(end);
+            }).toList();
+
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              builder: (_) => CalendarBottomSheet(
+                selectedDate: day,
+                events: selectedEvents,
+              ),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              border: border,
+            ),
+            alignment: Alignment.topCenter,
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              '${day.day}',
+              style: TextStyles.smallTextRegular.copyWith(
+                color: day.month != _focusedDay.month
+                    ? ColorStyles.gray3
+                    : _getTextColor(day),
+              ),
+            ),
+          ),
+        ),
+      );
+    }).toList();
+
     return SizedBox(
       height: 120,
       child: Stack(
         children: [
+          Row(children: dayCells),
           ...eventWidgets,
-          Row(
-            children: days.map((day) {
-              final isToday = DateTime.now().year == day.year &&
-                  DateTime.now().month == day.month &&
-                  DateTime.now().day == day.day;
-              final isSelected = _selectedDay.year == day.year &&
-                  _selectedDay.month == day.month &&
-                  _selectedDay.day == day.day;
-
-              final backgroundColor =
-                  isToday ? ColorStyles.gray2.withOpacity(0.4) : null;
-              final border = isSelected
-                  ? Border.all(color: ColorStyles.black, width: 1.5)
-                  : null;
-
-              return Expanded(
-                child: GestureDetector(
-                  // 일정이 있는 날짜 클릭하면 바텀시트 표시
-                  onTap: () {
-                    setState(() => _selectedDay = day);
-
-                    final selectedEvents = tempCalendarData.where((event) {
-                      final start = DateTime(
-                          event.start.year, event.start.month, event.start.day);
-                      final end = DateTime(
-                          event.end.year, event.end.month, event.end.day);
-                      final target = DateTime(day.year, day.month, day.day);
-
-                      return !target.isBefore(start) && !target.isAfter(end);
-                    }).toList();
-
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(16)),
-                      ),
-                      builder: (_) => CalendarBottomSheet(
-                        selectedDate: day,
-                        events: selectedEvents,
-                      ),
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: backgroundColor,
-                      border: border,
-                    ),
-                    alignment: Alignment.topCenter,
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      '${day.day}',
-                      style: TextStyles.smallTextRegular.copyWith(
-                        color: day.month != _focusedDay.month
-                            ? ColorStyles.gray3
-                            : _getTextColor(day),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          )
         ],
       ),
     );
   }
 
+  // 한 달 기준 주차 리스트 생성
   List<Widget> _buildWeeks() {
     final firstDay = DateTime(_focusedDay.year, _focusedDay.month, 1);
     final lastDay = DateTime(_focusedDay.year, _focusedDay.month + 1, 0);
@@ -252,7 +255,6 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        // 공용 디테일 헤더
         appBar: const PreferredSize(
           preferredSize: Size.fromHeight(44),
           child: DetailHeader(title: '일정 관리'),
