@@ -31,6 +31,7 @@ final List<ScheduleEvent> tempCalendarData = <ScheduleEvent>[
   ),
   ScheduleEvent(
     title: '프로젝트 회의',
+    content: '제주 몰빵',
     start: DateTime.parse('2025-04-16T09:00:00'),
     end: DateTime.parse('2025-04-16T12:00:00'),
     isAllDay: false,

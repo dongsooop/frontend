@@ -3,6 +3,7 @@ enum ScheduleType { school, personal }
 
 class ScheduleEvent {
   final String title;
+  final String? content;
   final DateTime start;
   final DateTime end;
   final bool isAllDay;
@@ -10,6 +11,7 @@ class ScheduleEvent {
 
   ScheduleEvent({
     required this.title,
+    this.content,
     required this.start,
     required this.end,
     required this.isAllDay,

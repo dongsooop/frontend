@@ -2,6 +2,7 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_data.dart';
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_model.dart';
+import 'package:dongsoop/presentation/calendar/widget/calendar_bottom_sheet.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -177,7 +178,36 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
 
               return Expanded(
                 child: GestureDetector(
-                  onTap: () => setState(() => _selectedDay = day),
+                  // 일정이 있는 날짜 클릭하면 바텀시트 표시
+                  onTap: () {
+                    setState(() => _selectedDay = day);
+
+                    final selectedEvents = tempCalendarData.where((event) {
+                      final start = DateTime(
+                          event.start.year, event.start.month, event.start.day);
+                      final end = DateTime(
+                          event.end.year, event.end.month, event.end.day);
+                      final target = DateTime(day.year, day.month, day.day);
+
+                      return !target.isBefore(start) && !target.isAfter(end);
+                    }).toList();
+
+                    // 일정이 있을 때만 바텀시트 표시
+                    if (selectedEvents.isNotEmpty) {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(16)),
+                        ),
+                        builder: (_) => CalendarBottomSheet(
+                          selectedDate: day,
+                          events: selectedEvents,
+                        ),
+                      );
+                    }
+                  },
                   child: Container(
                     margin: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
