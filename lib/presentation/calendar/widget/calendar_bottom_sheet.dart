@@ -1,4 +1,4 @@
-import 'package:dongsoop/presentation/calendar/calendar_add_page_screen.dart';
+import 'package:dongsoop/presentation/calendar/calendar_detail_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -63,7 +63,7 @@ class CalendarBottomSheet extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => CalendarAddPageScreen(
+                              builder: (_) => CalendarDetailPageScreen(
                                 selectedDate: selectedDate,
                                 event: event,
                               ),
@@ -221,7 +221,7 @@ class CalendarBottomSheet extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => CalendarAddPageScreen(
+                      builder: (_) => CalendarDetailPageScreen(
                         selectedDate: selectedDate,
                       ),
                     ),

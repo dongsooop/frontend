@@ -191,21 +191,18 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
                       return !target.isBefore(start) && !target.isAfter(end);
                     }).toList();
 
-                    // 일정이 있을 때만 바텀시트 표시
-                    if (selectedEvents.isNotEmpty) {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(16)),
-                        ),
-                        builder: (_) => CalendarBottomSheet(
-                          selectedDate: day,
-                          events: selectedEvents,
-                        ),
-                      );
-                    }
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(16)),
+                      ),
+                      builder: (_) => CalendarBottomSheet(
+                        selectedDate: day,
+                        events: selectedEvents,
+                      ),
+                    );
                   },
                   child: Container(
                     margin: const EdgeInsets.all(2),

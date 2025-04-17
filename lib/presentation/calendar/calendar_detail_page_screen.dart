@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/presentation/calendar/temp/temp_calendar_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -5,8 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class CalendarAddPageScreen extends StatefulWidget {
-  const CalendarAddPageScreen({
+class CalendarDetailPageScreen extends StatefulWidget {
+  const CalendarDetailPageScreen({
     super.key,
     required this.selectedDate,
     this.event,
@@ -16,10 +17,11 @@ class CalendarAddPageScreen extends StatefulWidget {
   final ScheduleEvent? event;
 
   @override
-  State<CalendarAddPageScreen> createState() => _CalendarAddPageScreenState();
+  State<CalendarDetailPageScreen> createState() =>
+      _CalendarDetailPageScreenState();
 }
 
-class _CalendarAddPageScreenState extends State<CalendarAddPageScreen> {
+class _CalendarDetailPageScreenState extends State<CalendarDetailPageScreen> {
   late final bool isSchoolSchedule;
   final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
@@ -146,6 +148,9 @@ class _CalendarAddPageScreenState extends State<CalendarAddPageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditMode = widget.event != null;
+    final isSchoolSchedule = widget.event?.type == ScheduleType.school;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.gray1,
@@ -158,7 +163,11 @@ class _CalendarAddPageScreenState extends State<CalendarAddPageScreen> {
               elevation: 0,
               automaticallyImplyLeading: false,
               title: Text(
-                isSchoolSchedule ? '학사 일정' : '일정 추가',
+                isSchoolSchedule
+                    ? '학사 일정'
+                    : isEditMode
+                        ? '일정 편집'
+                        : '일정 추가',
                 style: TextStyles.largeTextBold.copyWith(
                   color: ColorStyles.black,
                 ),
@@ -193,6 +202,14 @@ class _CalendarAddPageScreenState extends State<CalendarAddPageScreen> {
             ),
           ),
         ),
+        bottomNavigationBar: isEditMode && !isSchoolSchedule
+            ? PrimaryBottomButton(
+                label: '일정 삭제',
+                onPressed: () {
+                  // 삭제 로직 추후에 추가
+                },
+              )
+            : null,
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
@@ -205,6 +222,10 @@ class _CalendarAddPageScreenState extends State<CalendarAddPageScreen> {
                   TextFormField(
                     controller: titleController,
                     enabled: !isSchoolSchedule,
+                    style: TextStyles.normalTextRegular.copyWith(
+                      color: ColorStyles.black,
+                    ),
+                    // 유효성 검사
                     validator: (value) =>
                         value == null || value.isEmpty ? '제목을 입력해주세요' : null,
                     decoration: InputDecoration(
@@ -226,6 +247,10 @@ class _CalendarAddPageScreenState extends State<CalendarAddPageScreen> {
                         borderSide: BorderSide(color: ColorStyles.gray2),
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      disabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: ColorStyles.gray2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -235,6 +260,9 @@ class _CalendarAddPageScreenState extends State<CalendarAddPageScreen> {
                   TextFormField(
                     controller: locationController,
                     enabled: !isSchoolSchedule,
+                    style: TextStyles.normalTextRegular.copyWith(
+                      color: ColorStyles.black,
+                    ),
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: ColorStyles.white,
@@ -248,6 +276,10 @@ class _CalendarAddPageScreenState extends State<CalendarAddPageScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: ColorStyles.gray2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      disabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: ColorStyles.gray2),
                         borderRadius: BorderRadius.circular(8),
                       ),
