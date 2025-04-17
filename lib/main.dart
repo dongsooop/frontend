@@ -1,9 +1,10 @@
-import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
-import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
+import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
+import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
+import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         '/recruit/write': (context) => RecruitWritePageScreen(),
         '/market/list': (context) => MarketListPageScreen(),
         '/market/write': (context) => MarketWritePageScreen(),
+        '/calendar': (context) => CalendarPageScreen(),
       },
     );
   }
