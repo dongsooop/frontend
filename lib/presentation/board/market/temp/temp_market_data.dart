@@ -1,6 +1,12 @@
 final List<Map<String, dynamic>> marketList = [
   {
-    "market_img": "assets/images/market_test.png",
+    "market_state": "거래 중",
+    "market_img": [
+      "assets/images/market_test.png",
+      "assets/images/market_test.png",
+      "assets/images/market_test.png",
+      "assets/images/market_test.png",
+    ],
     "market_title": "DB 프로그래밍 교재",
     "market_created_at": DateTime.now().subtract(Duration(hours: 5)),
     "market_prices": "10,000",
