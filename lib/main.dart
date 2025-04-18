@@ -1,5 +1,7 @@
 import 'package:dongsoop/presentation/board/market/list/market_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/detail/recruit_support_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
@@ -38,9 +40,10 @@ class MyApp extends StatelessWidget {
         '/mypage': (context) => MyPageScreen(),
         '/chat': (context) => ChatScreen(),
         '/chatDetail': (context) => ChatDetailScreen(),
-        '/recruit': (context) => RecruitListPageScreen(),
         '/recruit/list': (context) => RecruitListPageScreen(),
         '/recruit/write': (context) => RecruitWritePageScreen(),
+        '/recruit/detail': (context) => RecruitDetailPageScreen(),
+        '/recruit/support': (context) => RecruitSupportPageScreen(),
         '/market/list': (context) => MarketListPageScreen(),
         '/market/write': (context) => MarketWritePageScreen(),
         '/calendar': (context) => CalendarPageScreen(),

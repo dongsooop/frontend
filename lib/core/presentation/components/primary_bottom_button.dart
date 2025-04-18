@@ -28,7 +28,7 @@ class PrimaryBottomButton extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor:
                   isEnabled ? ColorStyles.primary100 : ColorStyles.gray1,
-              textStyle: TextStyles.largeTextRegular,
+              textStyle: TextStyles.largeTextBold,
               foregroundColor:
                   isEnabled ? ColorStyles.white : ColorStyles.gray3,
               elevation: 0,
