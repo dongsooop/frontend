@@ -7,7 +7,7 @@ Widget buildTag(String tag) {
   Color backColor;
   TextStyle textStyle;
 
-  if (tag == "컴퓨터소프트웨어공학과") {
+  if (tag == "컴퓨터소프트웨어공학과" || tag == "동양공지" || tag == "학과공지") {
     backColor = ColorStyles.primary5;
     textStyle =
         TextStyles.smallTextBold.copyWith(color: ColorStyles.primary100);
@@ -17,7 +17,9 @@ Widget buildTag(String tag) {
       tag == "자격증" ||
       tag == "Figma" ||
       tag == "프로젝트" ||
-      tag == "앱") {
+      tag == "앱" ||
+      tag == "학교생활" ||
+      tag == "학부") {
     backColor = ColorStyles.labelColorRed10;
     textStyle =
         TextStyles.smallTextBold.copyWith(color: ColorStyles.labelColorRed100);

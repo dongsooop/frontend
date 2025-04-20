@@ -1,12 +1,16 @@
-import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
-import 'package:dongsoop/presentation/chat/chat_screen.dart';
+import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/detail/recruit_support_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
+import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
+import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
+import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
+import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
-import 'package:dongsoop/presentation/schedule/schedule_add_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -36,6 +40,7 @@ class MyApp extends StatelessWidget {
       routes: {
         // 특정 페이지 확인용
         '/home': (context) => HomePageScreen(),
+        '/notice/list': (context) => NoticeListPageScreen(),
         '/mypage': (context) => MyPageScreen(),
         '/chat': (context) => ChatScreen(),
         '/chatDetail': (context) => ChatDetailScreen(),
@@ -43,8 +48,12 @@ class MyApp extends StatelessWidget {
         '/recruit': (context) => RecruitListPageScreen(),
         '/recruit/list': (context) => RecruitListPageScreen(),
         '/recruit/write': (context) => RecruitWritePageScreen(),
+        '/recruit/detail': (context) => RecruitDetailPageScreen(),
+        '/recruit/support': (context) => RecruitSupportPageScreen(),
         '/market/list': (context) => MarketListPageScreen(),
         '/market/write': (context) => MarketWritePageScreen(),
+        '/market/detail': (context) => MarketDetailPageScreen(),
+        '/calendar': (context) => CalendarPageScreen(),
       },
     );
   }
