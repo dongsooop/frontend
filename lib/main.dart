@@ -11,6 +11,7 @@ import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
+import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:logger/logger.dart';
@@ -43,6 +44,8 @@ class MyApp extends StatelessWidget {
         '/mypage': (context) => MyPageScreen(),
         '/chat': (context) => ChatScreen(),
         '/chatDetail': (context) => ChatDetailScreen(),
+        '/schedule' : (context) => ScheduleScreen(),
+        '/recruit': (context) => RecruitListPageScreen(),
         '/recruit/list': (context) => RecruitListPageScreen(),
         '/recruit/write': (context) => RecruitWritePageScreen(),
         '/recruit/detail': (context) => RecruitDetailPageScreen(),
