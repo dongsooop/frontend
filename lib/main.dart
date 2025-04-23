@@ -1,9 +1,8 @@
+import 'package:dongsoop/presentation/board/board_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
-import 'package:dongsoop/presentation/board/market/list/market_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_support_page_screen.dart';
-import 'package:dongsoop/presentation/board/recruit/list/recruit_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
@@ -36,7 +35,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('ko', 'KR'), // 한국어
       ],
-      initialRoute: '/home',
+      initialRoute: '/board/list',
       routes: {
         // 특정 페이지 확인용
         '/home': (context) => HomePageScreen(),
@@ -44,13 +43,11 @@ class MyApp extends StatelessWidget {
         '/mypage': (context) => MyPageScreen(),
         '/chat': (context) => ChatScreen(),
         '/chatDetail': (context) => ChatDetailScreen(),
-        '/schedule' : (context) => ScheduleScreen(),
-        '/recruit': (context) => RecruitListPageScreen(),
-        '/recruit/list': (context) => RecruitListPageScreen(),
+        '/schedule': (context) => ScheduleScreen(),
+        '/board/list': (context) => BoardListPageScreen(),
         '/recruit/write': (context) => RecruitWritePageScreen(),
         '/recruit/detail': (context) => RecruitDetailPageScreen(),
         '/recruit/support': (context) => RecruitSupportPageScreen(),
-        '/market/list': (context) => MarketListPageScreen(),
         '/market/write': (context) => MarketWritePageScreen(),
         '/market/detail': (context) => MarketDetailPageScreen(),
         '/calendar': (context) => CalendarPageScreen(),
