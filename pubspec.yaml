@@ -40,6 +40,7 @@ dependencies:
   textfield_tags: ^3.0.1
   flutter_localizations:
     sdk: flutter
+  go_router: ^15.1.1
 
 dev_dependencies:
   flutter_test:
