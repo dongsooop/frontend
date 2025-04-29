@@ -1,4 +1,5 @@
 import 'package:dongsoop/presentation/board/board_list_page_screen.dart';
+import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
@@ -9,6 +10,10 @@ import 'package:dongsoop/core/routing/route_paths.dart';
 final router = GoRouter(
   initialLocation: RoutePaths.home,
   routes: [
+    GoRoute(
+      path: RoutePaths.chatDetail,
+      builder: (context, state) => ChatDetailScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainScreen(
@@ -43,7 +48,11 @@ final router = GoRouter(
           routes: [
             GoRoute(
               path: RoutePaths.chat,
-              builder: (context, state) => const ChatScreen(),
+              builder: (context, state) => ChatScreen(
+                onTapChatDetail: () {
+                  context.push(RoutePaths.chatDetail);
+                }
+              ),
             ),
           ]
         ),

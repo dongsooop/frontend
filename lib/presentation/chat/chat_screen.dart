@@ -3,7 +3,8 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final VoidCallback onTapChatDetail;
+  const ChatScreen({super.key, required this.onTapChatDetail});
 
   @override
   ChatScreenState createState() => ChatScreenState();
@@ -229,9 +230,7 @@ class ChatScreenState extends State<ChatScreen> {
     required String messegeNum,
   }) {
     return GestureDetector(
-      onTap: () {
-        // 채팅방 세부 페이지 이동
-      },
+      onTap: widget.onTapChatDetail,
       child: SizedBox(
         width: double.infinity,
         height: 48,
