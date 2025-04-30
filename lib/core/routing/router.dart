@@ -1,15 +1,27 @@
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/board/board_list_page_screen.dart';
+import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
+import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
+import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:dongsoop/core/routing/route_paths.dart';
 
-final router = GoRouter(
-  initialLocation: RoutePaths.home,
-  routes: [
-    StatefulShellRoute.indexedStack(
+final router = GoRouter(initialLocation: RoutePaths.home, routes: [
+  // navbar x 페이지는 따로 분류
+  GoRoute(
+    path: '/scheduleList',
+    name: 'schedule',
+    builder: (context, state) => const ScheduleScreen(),
+  ),
+  GoRoute(
+    path: '/calendar',
+    name: 'calendar',
+    builder: (context, state) => const CalendarPageScreen(),
+  ),
+  StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainScreen(
           body: navigationShell,
@@ -23,39 +35,34 @@ final router = GoRouter(
         );
       },
       branches: [
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
+        StatefulShellBranch(routes: [
+          GoRoute(
               path: RoutePaths.home,
               builder: (context, state) => const HomePageScreen(),
-            ),
-          ]
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
+              routes: [
+                GoRoute(
+                  path: 'notice',
+                  name: 'noticeList',
+                  builder: (context, state) => const NoticeListPageScreen(),
+                ),
+              ]),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
               path: RoutePaths.board,
-              builder: (context, state) => const BoardListPageScreen()
-            ),
-          ]
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: RoutePaths.chat,
-              builder: (context, state) => const ChatScreen(),
-            ),
-          ]
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: RoutePaths.mypage,
-              builder: (context, state) => const MyPageScreen(),
-            ),
-          ]
-        )
-      ]
-    )
-  ]
-);
+              builder: (context, state) => const BoardListPageScreen()),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+            path: RoutePaths.chat,
+            builder: (context, state) => const ChatScreen(),
+          ),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+            path: RoutePaths.mypage,
+            builder: (context, state) => const MyPageScreen(),
+          ),
+        ]),
+      ])
+]);

@@ -1,6 +1,7 @@
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeNewNotice extends StatefulWidget {
   const HomeNewNotice({super.key});
@@ -75,7 +76,7 @@ class _State extends State<HomeNewNotice> {
               ),
               GestureDetector(
                 onTap: () {
-                  // 더보기 클릭 시 동작
+                  context.goNamed('noticeList');
                 },
                 child: Container(
                   height: 44,
