@@ -21,11 +21,7 @@ class MainHeader extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Icon(
-                Icons.notifications_none,
-                size: 24.00,
-                color: ColorStyles.black,
-              ),
+              SvgPicture.asset('assets/icons/alarm.svg', width: 24, height: 24),
               Positioned(
                 top: -4,
                 right: -6,

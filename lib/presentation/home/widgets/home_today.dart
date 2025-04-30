@@ -1,6 +1,7 @@
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // ✅ SVG 사용을 위해 추가
 
 class HomeToday extends StatelessWidget {
   const HomeToday({super.key});
@@ -93,9 +94,15 @@ class HomeToday extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-                padding: const EdgeInsets.only(right: 24),
-                child: Icon(Icons.import_contacts)),
+              padding: const EdgeInsets.only(right: 24),
+              child: SvgPicture.asset(
+                'assets/icons/book.svg',
+                width: 24,
+                height: 24,
+              ),
+            ),
             Expanded(
+              //
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -109,10 +116,11 @@ class HomeToday extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                            text: '도서관 스터디룸',
-                            style: TextStyles.smallTextBold.copyWith(
-                              color: ColorStyles.primaryColor,
-                            )),
+                          text: '도서관 스터디룸',
+                          style: TextStyles.smallTextBold.copyWith(
+                            color: ColorStyles.primaryColor,
+                          ),
+                        ),
                         TextSpan(
                           text: '을 예약해 보세요',
                           style: TextStyles.smallTextRegular.copyWith(
