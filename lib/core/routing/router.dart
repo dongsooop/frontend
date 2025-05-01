@@ -12,12 +12,12 @@ import 'package:go_router/go_router.dart';
 final router = GoRouter(initialLocation: RoutePaths.home, routes: [
   // navbar x 페이지는 따로 분류
   GoRoute(
-    path: '/scheduleList',
+    path: RoutePaths.schedule,
     name: 'schedule',
     builder: (context, state) => const ScheduleScreen(),
   ),
   GoRoute(
-    path: '/calendar',
+    path: RoutePaths.calendar,
     name: 'calendar',
     builder: (context, state) => const CalendarPageScreen(),
   ),
@@ -41,7 +41,7 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
               builder: (context, state) => const HomePageScreen(),
               routes: [
                 GoRoute(
-                  path: 'notice',
+                  path: RoutePaths.noticeList,
                   name: 'noticeList',
                   builder: (context, state) => const NoticeListPageScreen(),
                 ),
