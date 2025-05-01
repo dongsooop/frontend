@@ -124,10 +124,7 @@ class _NoticePageScreenState extends State<NoticeListPageScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: DetailHeader(title: '공지'),
-        ),
+        appBar: DetailHeader(title: '공지'),
         body: MediaQuery.removePadding(
           context: context,
           removeTop: true,
