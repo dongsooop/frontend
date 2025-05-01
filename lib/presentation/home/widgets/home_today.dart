@@ -168,7 +168,7 @@ class HomeToday extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (routeName != null) {
-          context.goNamed(routeName);
+          context.pushNamed(routeName);
         }
       },
       child: Container(
