@@ -124,10 +124,7 @@ class _NoticePageScreenState extends State<NoticeListPageScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: DetailHeader(title: '공지'),
-        ),
+        appBar: DetailHeader(title: '공지'),
         body: MediaQuery.removePadding(
           context: context,
           removeTop: true,
@@ -164,7 +161,8 @@ class _NoticePageScreenState extends State<NoticeListPageScreen> {
                 Expanded(
                   child: ListView.separated(
                     itemCount: noticeData.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    separatorBuilder: (_, __) =>
+                        const Divider(height: 1, color: ColorStyles.gray2),
                     itemBuilder: (context, index) {
                       final item = noticeData[index];
                       return Padding(
