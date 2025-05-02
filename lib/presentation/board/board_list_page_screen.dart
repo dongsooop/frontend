@@ -1,5 +1,5 @@
 import 'package:dongsoop/core/presentation/components/common_img_style.dart';
-import 'package:dongsoop/presentation/board/common/board_tap_section.dart';
+import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/presentation/board/common/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
 import 'package:dongsoop/presentation/board/recruit/temp/temp_project_data.dart';
@@ -40,6 +40,7 @@ class _BoardListPageScreenState extends State<BoardListPageScreen> {
           itemBuilder: (context, index) {
             if (index == 0) {
               return BoardTabSection(
+                categoryTabs: ['모집', '장터'],
                 selectedCategoryIndex: selectedIndex,
                 selectedSubTabIndex: selectedSubIndex,
                 subTabs: isRecruit ? ['튜터링', '스터디', '프로젝트'] : ['판매', '구매'],
