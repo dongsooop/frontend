@@ -14,29 +14,6 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePageScreen> {
-  int _currentIndex = 0;
-
-  final List<Widget> _pages = [
-    // 홈
-    SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const MainHeader(),
-          const HomeToday(),
-          const HomeNewNotice(),
-          const HomePopularRecruits()
-        ],
-      ),
-    ),
-    // 모여봐요
-    const Center(child: Text('모여봐요 페이지')),
-    // 채팅
-    const Center(child: Text('채팅 페이지')),
-    // 마이페이지
-    const Center(child: Text('마이페이지')),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -53,7 +30,17 @@ class _HomePageState extends State<HomePageScreen> {
               body: SafeArea(
                 top: false,
                 bottom: false,
-                child: _pages[_currentIndex],
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      MainHeader(),
+                      HomeToday(),
+                      HomeNewNotice(),
+                      HomePopularRecruits(),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

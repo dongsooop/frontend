@@ -41,6 +41,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   go_router: ^15.1.1
+  webview_flutter_wkwebview: ^3.20.0
+  webview_flutter: ^4.11.0
 
 dev_dependencies:
   flutter_test:
@@ -52,7 +54,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-  flutter_svg: ^2.0.17
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
