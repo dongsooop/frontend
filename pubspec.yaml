@@ -43,6 +43,8 @@ dependencies:
   go_router: ^15.1.1
   webview_flutter_wkwebview: ^3.20.0
   webview_flutter: ^4.11.0
+  dio: ^5.8.0+1
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:

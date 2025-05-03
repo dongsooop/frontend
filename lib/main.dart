@@ -3,12 +3,15 @@ import 'dart:io';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:logger/logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(); // .env 파일을 로드
   if (Platform.isIOS) {
     WebViewPlatform.instance = WebKitWebViewPlatform();
   }
