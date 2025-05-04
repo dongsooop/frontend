@@ -98,14 +98,14 @@ class _MarketDetailPageScreenState extends State<MarketDetailPageScreen> {
                           height: 120,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: market['market_img'].length,
+                            itemCount: market['images'].length,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.only(right: 16),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: Image.asset(
-                                    market['market_img'][index],
+                                    market['images'][index],
                                     width: 120,
                                     height: 120,
                                     fit: BoxFit.cover,
