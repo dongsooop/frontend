@@ -1,6 +1,8 @@
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePopularRecruits extends StatefulWidget {
   const HomePopularRecruits({super.key});
@@ -80,7 +82,7 @@ class _State extends State<HomePopularRecruits> {
               ),
               GestureDetector(
                 onTap: () {
-                  // 더보기 클릭 시 동작
+                  context.go(RoutePaths.board);
                 },
                 child: Container(
                   height: 44,

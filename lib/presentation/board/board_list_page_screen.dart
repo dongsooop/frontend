@@ -1,4 +1,5 @@
-import 'package:dongsoop/presentation/board/common/board_tap_section.dart';
+import 'package:dongsoop/core/presentation/components/common_img_style.dart';
+import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/presentation/board/common/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
 import 'package:dongsoop/presentation/board/recruit/temp/temp_project_data.dart';
@@ -8,7 +9,6 @@ import 'package:dongsoop/presentation/board/recruit/temp/temp_tutor_data.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class BoardListPageScreen extends StatefulWidget {
   const BoardListPageScreen({super.key});
@@ -40,6 +40,7 @@ class _BoardListPageScreenState extends State<BoardListPageScreen> {
           itemBuilder: (context, index) {
             if (index == 0) {
               return BoardTabSection(
+                categoryTabs: ['모집', '장터'],
                 selectedCategoryIndex: selectedIndex,
                 selectedSubTabIndex: selectedSubIndex,
                 subTabs: isRecruit ? ['튜터링', '스터디', '프로젝트'] : ['판매', '구매'],
@@ -193,7 +194,7 @@ class MarketListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageList = market['market_img'];
+    final imageList = market['images'];
     final hasImage =
         imageList != null && imageList is List && imageList.isNotEmpty;
     final firstImage = hasImage ? imageList.first : null;
@@ -208,33 +209,8 @@ class MarketListItem extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 88,
-                  height: 88,
-                  margin: const EdgeInsets.only(right: 16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: hasImage ? null : ColorStyles.gray1,
-                  ),
-                  child: hasImage
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            firstImage,
-                            width: 88,
-                            height: 88,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : Center(
-                          child: SvgPicture.asset(
-                            'assets/icons/image_not_supported.svg',
-                            width: 32,
-                            height: 32,
-                            colorFilter: const ColorFilter.mode(
-                                ColorStyles.gray3, BlendMode.srcIn),
-                          ),
-                        ),
+                CommonImgStyle(
+                  imagePath: hasImage ? firstImage : null,
                 ),
                 Expanded(
                   child: Column(

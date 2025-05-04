@@ -255,10 +255,7 @@ class _CalendarPageScreenState extends State<CalendarPageScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: DetailHeader(title: '일정 관리'),
-        ),
+        appBar: DetailHeader(title: '일정 관리'),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
