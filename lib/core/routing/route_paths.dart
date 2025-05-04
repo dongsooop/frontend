@@ -8,4 +8,5 @@ abstract class RoutePaths {
   static const String noticeList = '/noticeList';
   static const String schedule = '/schedule';
   static const String calendar = '/calendar';
+  static const String chatDetail = '/Chat/Detail';
 }

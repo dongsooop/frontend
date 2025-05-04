@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({
@@ -123,12 +124,14 @@ class MyPageScreen extends StatelessWidget {
                     _myPageMenuItem(
                       icon: Icons.browse_gallery_outlined,
                       label: '시간표 관리',
-                      routePath: ''
+                      routePath: 'schedule',
+                      context: context,
                     ),
                     _myPageMenuItem(
                       icon: Icons.calendar_month_outlined,
                       label: '일정 관리',
-                      routePath: ''
+                      routePath: 'calendar',
+                      context: context,
                     ),
                   ],
                 ),
@@ -175,11 +178,12 @@ class MyPageScreen extends StatelessWidget {
     required IconData icon,
     required String label,
     required String routePath,
+    required BuildContext context,
   }) {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          // context.go(routePath);
+          context.pushNamed(routePath);
         },
         child: SizedBox(
           height: 44,

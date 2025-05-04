@@ -6,6 +6,7 @@ import 'package:dongsoop/presentation/schedule/temp/schedule_model.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
+import 'package:go_router/go_router.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({this.yearSemester, super.key});
@@ -57,6 +58,7 @@ class ScheduleScreenState extends State<ScheduleScreen> {
             leading: IconButton(
               onPressed: () {
                 // 뒤로 가기
+                context.pop();
               },
               icon: Icon(
                 Icons.chevron_left_outlined,
