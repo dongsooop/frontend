@@ -1,9 +1,12 @@
+import 'package:dongsoop/presentation/chat/temp/chat_data.dart';
+import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final VoidCallback onTapChatDetail;
+  const ChatScreen({super.key, required this.onTapChatDetail});
 
   @override
   ChatScreenState createState() => ChatScreenState();
@@ -125,22 +128,19 @@ class ChatScreenState extends State<ChatScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 16),
               // 채팅방
-              _buildChat(
-                title: 'DB 프로그래밍',
-                tag: '#컴퓨터소프트웨어공학과 #DB #A+',
-                num: '12',
-                time: '오후 12:45',
-                messegeNum: '99+'
-              ),
-              SizedBox(height: 32),
-              _buildChat(
-                  title: 'SQLD 자격증 취득 스터디',
-                  tag: '#컴퓨터소프트웨어공학과 #자격증 #SQLD',
-                  num: '3',
-                  time: '어제',
-                  messegeNum: '1'
+              Expanded(
+                child: ListView.builder(
+                  itemCount: dummyChats.length,
+                  itemBuilder: (context, index) {
+                    final chat = dummyChats[index];
+                    return GestureDetector(
+                      onTap: widget.onTapChatDetail,
+                      child: ChatCard(chat: chat),
+                    );
+                  },
+                ),
               )
             ],
           ),
@@ -216,106 +216,6 @@ class ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  // 채팅방
-  Widget _buildChat({
-    required String title,
-    required String tag,
-    required String num,
-    required String time,
-    required String messegeNum,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        // 채팅방 세부 페이지 이동
-      },
-      child: SizedBox(
-        width: double.infinity,
-        height: 48,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: 16,
-          children: [
-            ClipOval(
-              child: Image.asset(
-                'assets/images/test.png',
-                width: 48,
-                height: 48,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Expanded(
-              child: Column(
-                // mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 8,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyles.normalTextBold.copyWith(
-                          color: ColorStyles.black
-                        ),
-                      ),
-                      Text(
-                        num,
-                        style: TextStyles.smallTextRegular.copyWith(
-                          color: ColorStyles.gray4
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    tag,
-                    style: TextStyles.smallTextRegular.copyWith(
-                      color: ColorStyles.gray4
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              spacing: 8,
-              children: [
-                Text(
-                  time,
-                  style: TextStyles.smallTextRegular.copyWith(
-                    color: ColorStyles.gray4
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-                  decoration: ShapeDecoration(
-                    color: ColorStyles.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32)
-                    )
-                  ),
-                  child: Text(
-                    messegeNum,
-                    style: TextStyles.smallTextBold.copyWith(
-                      color: ColorStyles.white
-                    ),
-                    textAlign: TextAlign.center,
-                  )
-                )
-              ],
-            ),
-          ],
-        )
       ),
     );
   }

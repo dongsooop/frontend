@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/board/board_list_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
+import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
@@ -21,6 +22,10 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
     path: RoutePaths.calendar,
     name: 'calendar',
     builder: (context, state) => const CalendarPageScreen(),
+  ),
+  GoRoute(
+    path: RoutePaths.chatDetail,
+    builder: (context, state) => ChatDetailScreen(),
   ),
   StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -62,7 +67,11 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.chat,
-            builder: (context, state) => const ChatScreen(),
+            builder: (context, state) => ChatScreen(
+              onTapChatDetail: () {
+                context.push(RoutePaths.chatDetail);
+              },
+            ),
           ),
         ]),
         StatefulShellBranch(routes: [

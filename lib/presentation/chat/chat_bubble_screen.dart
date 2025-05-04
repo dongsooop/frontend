@@ -40,7 +40,6 @@ class ChatBubbleScreen extends StatelessWidget {
     );
   }
 
-  // message bubble contaiber widget
   Widget buildMessageBubble(double bubbleMaxWidth) {
     return Container(
       decoration: BoxDecoration(
@@ -58,7 +57,7 @@ class ChatBubbleScreen extends StatelessWidget {
     );
   }
 
-  // timestamp Text widget
+  // timestamp Text widgets
   Widget buildTimestampText() {
     return Text(
       timestamp,

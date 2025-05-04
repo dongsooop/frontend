@@ -8,7 +8,7 @@ class SearchBarComponent extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 44,
-      child: (TextField(
+      child: TextField(
         decoration: InputDecoration(
             filled: true,
             fillColor: ColorStyles.gray1,
@@ -25,7 +25,7 @@ class SearchBarComponent extends StatelessWidget {
               size: 24.00,
               color: ColorStyles.gray3,
             )),
-      )),
+      ),
     );
   }
 }
