@@ -1,5 +1,6 @@
 import 'package:dongsoop/core/presentation/components/common_img_style.dart';
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/board/common/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
 import 'package:dongsoop/presentation/board/recruit/temp/temp_project_data.dart';
@@ -9,6 +10,7 @@ import 'package:dongsoop/presentation/board/recruit/temp/temp_tutor_data.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class BoardPageScreen extends StatefulWidget {
   const BoardPageScreen({super.key});
@@ -30,8 +32,8 @@ class _BoardPageScreenState extends State<BoardPageScreen> {
         backgroundColor: ColorStyles.white,
         floatingActionButton: WriteButton(
           onPressed: () {
-            final route = isRecruit ? '/recruit/write' : '/market/write';
-            Navigator.pushNamed(context, route);
+            final route = isRecruit ? RoutePaths.recruitWrite : '/market/write';
+            context.push(route);
           },
         ),
         body: ListView.builder(
