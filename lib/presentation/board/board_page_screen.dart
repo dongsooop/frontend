@@ -10,14 +10,14 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
-class BoardListPageScreen extends StatefulWidget {
-  const BoardListPageScreen({super.key});
+class BoardPageScreen extends StatefulWidget {
+  const BoardPageScreen({super.key});
 
   @override
-  State<BoardListPageScreen> createState() => _BoardListPageScreenState();
+  State<BoardPageScreen> createState() => _BoardPageScreenState();
 }
 
-class _BoardListPageScreenState extends State<BoardListPageScreen> {
+class _BoardPageScreenState extends State<BoardPageScreen> {
   int selectedIndex = 0; // 모집(0), 장터(1)
   int selectedSubIndex = 0; // 모집: 튜터링(0), 스터디(1), 프로젝트(2), 장터: 판매(0), 구매(1)
 
