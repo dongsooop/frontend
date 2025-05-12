@@ -2,7 +2,7 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/presentation/board/common/board_require_label.dart';
-import 'package:dongsoop/presentation/board/recruit/write/viewmodels/providers/date_time_provider.dart';
+import 'package:dongsoop/presentation/board/recruit/write/providers/date_time_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/date_time_bottom_sheet.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/major_tag_section.dart';
 import 'package:dongsoop/ui/color_styles.dart';
