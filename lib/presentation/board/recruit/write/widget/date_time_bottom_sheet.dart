@@ -1,9 +1,8 @@
-import 'package:dongsoop/presentation/board/recruit/write/viewmodels/data_time_viemodel.dart';
-import 'package:dongsoop/presentation/board/recruit/write/viewmodels/providers/date_time_provider.dart';
+import 'package:dongsoop/presentation/board/recruit/write/providers/date_time_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/bottom_custom_calendar.dart';
+import 'package:dongsoop/presentation/board/recruit/write/widget/bottom_custom_time_spinner.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,24 +16,14 @@ class DateTimeBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
-  late DateTime selectedDateTime;
-  bool showTimePicker = false;
-  DateTime currentMonth = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    final state = ref.read(dateTimeSelectorProvider);
-    selectedDateTime = widget.isStart ? state.startDateTime : state.endDateTime;
-    currentMonth = DateTime(selectedDateTime.year, selectedDateTime.month);
-  }
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(dateTimeSelectorProvider);
     final notifier = ref.read(dateTimeSelectorProvider.notifier);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final roundedNow = DateTimeSelectorViewModel.roundUpTo10(now);
+    final selectedDateTime =
+        widget.isStart ? state.startDateTime : state.endDateTime;
 
     return SafeArea(
       child: SizedBox(
@@ -52,108 +41,55 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                       style: TextStyles.titleTextBold,
                     ),
                     const SizedBox(height: 24),
+
                     // 커스텀 캘린더
                     BottomCustomCalendar(
                       selectedDate: selectedDateTime,
-                      currentMonth: currentMonth,
+                      currentMonth: state.currentMonth,
                       onMonthChanged: (month) {
-                        setState(() => currentMonth = month);
+                        notifier.tryMoveToMonth(month, widget.isStart);
                       },
                       onDateSelected: (date) {
-                        setState(() {
-                          selectedDateTime = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            selectedDateTime.hour,
-                            selectedDateTime.minute,
-                          );
-                        });
-                        if (widget.isStart) {
-                          notifier.updateStartDate(selectedDateTime);
-                        } else {
-                          notifier.updateEndDate(selectedDateTime);
-                        }
+                        setState(() => _errorMessage = null);
+                        notifier.updateSelectedDate(date, widget.isStart);
                       },
+                      isDateEnabled: (date) =>
+                          notifier.isDateEnabled(date, widget.isStart),
+                      canMoveToPreviousMonth: (month) =>
+                          notifier.canMoveToPreviousMonth(month),
+                      canMoveToNextMonth: (month) =>
+                          notifier.canMoveToNextMonth(month, widget.isStart),
                     ),
                     const SizedBox(height: 24),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: ColorStyles.gray2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
+
+                    // 커스텀 타임 스피너
+                    BottomCustomTimeSpinner(
+                      initialDateTime: selectedDateTime,
+                      isStart: widget.isStart,
+                      onDateTimeChanged: (picked) {
+                        setState(() => _errorMessage = null);
+                        notifier.updateSelectedTime(
+                          picked.hour,
+                          picked.minute,
+                          widget.isStart,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    if (_errorMessage != null) ...[
+                      Row(
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() => showTimePicker = !showTimePicker);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    widget.isStart ? '시작 시간' : '마감 시간',
-                                    style: TextStyles.normalTextRegular
-                                        .copyWith(color: ColorStyles.black),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        '${_twoDigits(selectedDateTime.hour)}:${_twoDigits(selectedDateTime.minute)}',
-                                        style: TextStyles.normalTextRegular
-                                            .copyWith(color: ColorStyles.black),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        showTimePicker
-                                            ? Icons.keyboard_arrow_up
-                                            : Icons.keyboard_arrow_down,
-                                        color: ColorStyles.gray4,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
+                          Icon(Icons.warning_amber,
+                              color: ColorStyles.warning100, size: 20),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(_errorMessage!,
+                                style: TextStyles.normalTextRegular
+                                    .copyWith(color: ColorStyles.warning100)),
                           ),
-                          if (showTimePicker)
-                            const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: ColorStyles.gray2),
-                          if (showTimePicker)
-                            SizedBox(
-                              height: 200,
-                              child: CupertinoDatePicker(
-                                mode: CupertinoDatePickerMode.time,
-                                use24hFormat: true,
-                                initialDateTime: selectedDateTime,
-                                minuteInterval: 10,
-                                itemExtent: 45.0,
-                                minimumDate: selectedDateTime.day == today.day
-                                    ? roundedNow
-                                    : null,
-                                onDateTimeChanged: (picked) {
-                                  setState(() {
-                                    selectedDateTime = DateTime(
-                                      selectedDateTime.year,
-                                      selectedDateTime.month,
-                                      selectedDateTime.day,
-                                      picked.hour,
-                                      picked.minute,
-                                    );
-                                  });
-                                },
-                              ),
-                            ),
                         ],
                       ),
-                    ),
+                    ],
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -163,10 +99,29 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () {
+                  setState(() => _errorMessage = null);
+
+                  if (widget.isStart && !notifier.validateStartTime()) {
+                    setState(() {
+                      _errorMessage = '지금보다 이른 시간은 선택할 수 없어요';
+                    });
+                    return;
+                  }
+
+                  if (!widget.isStart && !notifier.validateEndTime()) {
+                    setState(() {
+                      _errorMessage = '모집 기간은 최소 1일(24시간) 이상이어야 해요';
+                    });
+                    return;
+                  }
+
                   Navigator.pop(context);
-                  widget.isStart
-                      ? notifier.updateStartTime(selectedDateTime)
-                      : notifier.updateEndTime(selectedDateTime);
+
+                  if (widget.isStart) {
+                    notifier.confirmStartTime();
+                  } else {
+                    notifier.confirmEndTime();
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),
@@ -184,6 +139,4 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
       ),
     );
   }
-
-  String _twoDigits(int n) => n.toString().padLeft(2, '0');
 }

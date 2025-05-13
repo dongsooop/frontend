@@ -25,16 +25,13 @@ class _BottomCustomTimeSpinnerState extends State<BottomCustomTimeSpinner> {
   late FixedExtentScrollController _hourController;
   late FixedExtentScrollController _minuteController;
 
-  late DateTime selectedDateTime;
   bool showTimePicker = false;
 
   @override
   void initState() {
     super.initState();
-    selectedDateTime = widget.initialDateTime;
-
-    final hour = selectedDateTime.hour;
-    final minute = selectedDateTime.minute;
+    final hour = widget.initialDateTime.hour;
+    final minute = widget.initialDateTime.minute;
 
     final amPmIndex = hour < 12 ? 0 : 1;
     final hourIndex = _to12Hour(hour) - 1;
@@ -72,7 +69,7 @@ class _BottomCustomTimeSpinnerState extends State<BottomCustomTimeSpinner> {
                   Row(
                     children: [
                       Text(
-                        '${_twoDigits(selectedDateTime.hour)}:${_twoDigits(selectedDateTime.minute)}',
+                        '${_twoDigits(widget.initialDateTime.hour)}:${_twoDigits(widget.initialDateTime.minute)}',
                         style: TextStyles.normalTextRegular
                             .copyWith(color: ColorStyles.black),
                       ),
@@ -194,14 +191,13 @@ class _BottomCustomTimeSpinnerState extends State<BottomCustomTimeSpinner> {
         : (hour12 == 12 ? 12 : hour12 + 12);
 
     final result = DateTime(
-      selectedDateTime.year,
-      selectedDateTime.month,
-      selectedDateTime.day,
+      widget.initialDateTime.year,
+      widget.initialDateTime.month,
+      widget.initialDateTime.day,
       hour24,
       minute,
     );
 
-    setState(() => selectedDateTime = result);
     widget.onDateTimeChanged(result);
   }
 
