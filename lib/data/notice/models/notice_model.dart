@@ -1,4 +1,4 @@
-import 'package:dongsoop/domain/entites/home/notice_entity.dart';
+import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
 
 /// 백엔드에서 내려주는 공지 데이터를 표현하는 데이터 모델
 class NoticeModel {

@@ -1,6 +1,6 @@
-import 'package:dongsoop/domain/entites/home/notice_entity.dart';
-import 'package:dongsoop/domain/usecases/home/notice_usecase.dart';
-import 'package:dongsoop/presentation/home/viewmodels/providers/notice_providers.dart';
+import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
+import 'package:dongsoop/domain/notice/usecases/notice_usecase.dart';
+import 'package:dongsoop/presentation/home/providers/notice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // /// 필터 타입 정의

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:dongsoop/data/models/home/notice_model.dart';
-import 'package:dongsoop/domain/entites/home/notice_entity.dart';
-import 'package:dongsoop/domain/repositories/home/notice_repository.dart';
+import 'package:dongsoop/data/notice/models/notice_model.dart';
+import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
+import 'package:dongsoop/domain/notice/repositories/notice_repository.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// 공지사항 데이터를 백엔드 API에서 가져오는 Repository 구현체

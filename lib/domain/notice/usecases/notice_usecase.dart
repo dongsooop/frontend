@@ -1,5 +1,5 @@
-import 'package:dongsoop/domain/entites/home/notice_entity.dart';
-import 'package:dongsoop/domain/repositories/home/notice_repository.dart';
+import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
+import 'package:dongsoop/domain/notice/repositories/notice_repository.dart';
 
 /// 공지사항 관련 비즈니스 로직을 담당하는 UseCase 클래스
 /// 외부에서는 이 클래스를 통해 공지사항 목록을 가져올 수 있음

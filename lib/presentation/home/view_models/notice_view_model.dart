@@ -1,6 +1,6 @@
-import 'package:dongsoop/domain/entites/home/notice_entity.dart';
-import 'package:dongsoop/domain/usecases/home/notice_usecase.dart';
-import 'package:dongsoop/presentation/home/viewmodels/providers/notice_providers.dart';
+import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
+import 'package:dongsoop/domain/notice/usecases/notice_usecase.dart';
+import 'package:dongsoop/presentation/home/providers/notice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 홈 화면에서 공지 데이터를 관리하는 ViewModel의 Provider

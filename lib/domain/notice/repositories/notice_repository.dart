@@ -1,4 +1,4 @@
-import 'package:dongsoop/domain/entites/home/notice_entity.dart';
+import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
 
 /// 공지사항 데이터를 가져오기 위한 Repository 추상 클래스
 /// 데이터 소스(API, 로컬 DB 등)와 무관하게 일관된 인터페이스를 제공
