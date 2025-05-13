@@ -18,6 +18,8 @@ class WriteButton extends StatelessWidget {
         height: 56,
         child: FloatingActionButton(
           backgroundColor: ColorStyles.primary100,
+          elevation: 0,
+          highlightElevation: 0,
           onPressed: onPressed,
           shape: const CircleBorder(),
           child: Icon(
