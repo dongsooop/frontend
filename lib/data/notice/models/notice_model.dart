@@ -16,11 +16,12 @@ class NoticeModel {
 
   /// JSON 데이터를 NoticeModel 객체로 변환하는 팩토리 생성자
   factory NoticeModel.fromJson(Map<String, dynamic> json) {
+    print('json: $json');
     return NoticeModel(
-      id: json['id'],
-      create_at: DateTime.parse(json['create_at']),
-      title: json['title'],
-      link: json['link'],
+      id: json['id'] ?? 0,
+      create_at: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      title: json['title'] as String? ?? '제목 없음',
+      link: json['link'] as String? ?? '',
     );
   }
 }

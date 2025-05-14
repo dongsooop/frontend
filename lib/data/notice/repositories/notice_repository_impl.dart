@@ -15,13 +15,11 @@ class NoticeRepositoryImpl implements NoticeRepository {
   /// 공지사항 목록을 비동기로 가져오는 함수
   @override
   Future<List<NoticeEntity>> fetchNotices({required int page}) async {
-    // .env 파일에서 API 기본 URL과 엔드포인트 로딩
     final baseUrl = dotenv.get('BASE_URL');
-    final endpoint = dotenv.get('NOTICE_ENDPOINT');
-    final fullUrl = '$baseUrl$endpoint';
+    final schoolPath = dotenv.get('SCHOOL_NOTICE_ENDPOINT');
+    final fullUrl = '$baseUrl$schoolPath';
 
     try {
-      // Dio를 사용해 GET 요청 전송 (헤더 제거됨)
       final response = await dio.get(
         fullUrl,
         queryParameters: {
