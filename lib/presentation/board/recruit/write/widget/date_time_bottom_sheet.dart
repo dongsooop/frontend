@@ -30,34 +30,43 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
         height: 584,
         child: Column(
           children: [
+            // 상단 고정 제목 및 안내문
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.isStart ? '모집 시작일 선택하기' : '모집 마감일 선택하기',
+                    style: TextStyles.titleTextBold,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.info_outline,
+                          color: ColorStyles.gray5, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.isStart
+                            ? '오늘 기준 3개월 이내의 날짜만 선택 가능해요'
+                            : '시작일 기준 최소 24시간, 최대 28일 이내로 선택 가능해요',
+                        style: TextStyles.smallTextRegular.copyWith(
+                          color: ColorStyles.gray4,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+
+            // 스크롤 가능한 영역
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.isStart ? '모집 시작일 선택하기' : '모집 마감일 선택하기',
-                      style: TextStyles.titleTextBold,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(Icons.info_outline,
-                            color: ColorStyles.gray5, size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          widget.isStart
-                              ? '오늘 기준 3개월 이내의 날짜만 선택 가능해요'
-                              : '시작일 기준 최소 24시간, 최대 28일 이내로 선택 가능해요',
-                          style: TextStyles.smallTextRegular
-                              .copyWith(color: ColorStyles.gray4),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-
-                    // 커스텀 캘린더
                     BottomCustomCalendar(
                       selectedDate: selectedDateTime,
                       currentMonth: state.currentMonth,
@@ -76,8 +85,6 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                           notifier.canMoveToNextMonth(month, widget.isStart),
                     ),
                     const SizedBox(height: 24),
-
-                    // 커스텀 타임 스피너
                     BottomCustomTimeSpinner(
                       initialDateTime: selectedDateTime,
                       isStart: widget.isStart,
@@ -98,18 +105,23 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                               color: ColorStyles.warning100, size: 16),
                           const SizedBox(width: 4),
                           Expanded(
-                            child: Text(_errorMessage!,
-                                style: TextStyles.smallTextRegular
-                                    .copyWith(color: ColorStyles.warning100)),
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyles.smallTextRegular.copyWith(
+                                color: ColorStyles.warning100,
+                              ),
+                            ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 24),
                     ],
-                    const SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
+
+            // 하단 고정 버튼
             Padding(
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(

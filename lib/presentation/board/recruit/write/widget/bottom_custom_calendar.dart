@@ -139,7 +139,7 @@ class BottomCustomCalendar extends StatelessWidget {
                   ),
                   child: Text(
                     '${date.day}',
-                    style: TextStyles.smallTextRegular.copyWith(
+                    style: TextStyles.normalTextRegular.copyWith(
                       color: isCurrentMonth
                           ? (isEnabled
                               ? (isSelected
