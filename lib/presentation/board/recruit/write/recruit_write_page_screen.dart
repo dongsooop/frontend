@@ -2,19 +2,24 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/presentation/board/common/board_require_label.dart';
+import 'package:dongsoop/presentation/board/recruit/write/providers/date_time_provider.dart';
+import 'package:dongsoop/presentation/board/recruit/write/widget/date_time_bottom_sheet.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/major_tag_section.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RecruitWritePageScreen extends StatefulWidget {
+class RecruitWritePageScreen extends ConsumerStatefulWidget {
   const RecruitWritePageScreen({super.key});
 
   @override
-  State<RecruitWritePageScreen> createState() => _RecruitWritePageScreenState();
+  ConsumerState<RecruitWritePageScreen> createState() =>
+      _RecruitWritePageScreenState();
 }
 
-class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
+class _RecruitWritePageScreenState
+    extends ConsumerState<RecruitWritePageScreen> {
   // 모집 유형 리스트
   final List<String> types = ['튜터링', '스터디', '프로젝트'];
   int? selectedIndex; // 선택된 모집 유형 인덱스
@@ -39,68 +44,22 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
   // 작성자의 학과 (자동 포함)
   final String writerMajor = '컴퓨터소프트웨어공학과';
 
-  // 날짜 선택 함수 (isStart가 true면 시작일 선택)
-  Future<void> _pickDate(BuildContext context, bool isStart) async {
-    final now = DateTime.now();
-
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate:
-          isStart ? (_startDate ?? now) : (_endDate ?? _startDate ?? now),
-      firstDate: isStart ? now : (_startDate ?? now),
-      lastDate: DateTime(2030),
-      locale: const Locale('ko', 'KR'),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            dialogTheme: DialogTheme(
-              backgroundColor: Colors.white,
-            ),
-            colorScheme: ColorScheme.light(
-              primary: ColorStyles.primaryColor,
-              onPrimary: ColorStyles.white,
-              onSurface: ColorStyles.black,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() {
-        if (isStart) {
-          _startDate = picked;
-          if (_endDate == null || _endDate!.isBefore(picked)) {
-            _endDate = picked; // 마감일 자동 보정
-          }
-        } else {
-          _endDate = picked;
-          if (_startDate != null && picked.isBefore(_startDate!)) {
-            _startDate = picked; // 시작일 자동 보정
-          }
-        }
-        _updateFormValidState();
-      });
-    }
-  }
-
   // 날짜 박스 UI
-  Widget _buildDateBox(DateTime? date) {
+  Widget buildDateTimeBox(String label, DateTime dateTime) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         border: Border.all(color: ColorStyles.gray2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(Icons.calendar_month, size: 24, color: ColorStyles.gray3),
-          const SizedBox(width: 8),
+          Text(label, style: TextStyles.normalTextRegular),
           Text(
-            date != null
-                ? '${date.year}. ${date.month}. ${date.day}.'
-                : '${DateTime.now().year}. ${DateTime.now().month}. ${DateTime.now().day}.',
+            '${dateTime.year}. ${dateTime.month}. ${dateTime.day}. ${dateTime.hour.toString().padLeft(2, '0')}'
+            ':${dateTime.minute.toString().padLeft(2, '0')}',
             style:
                 TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
           ),
@@ -157,6 +116,8 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(dateTimeSelectorProvider);
+    final notifier = ref.read(dateTimeSelectorProvider.notifier);
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
@@ -264,25 +225,50 @@ class _RecruitWritePageScreenState extends State<RecruitWritePageScreen> {
                   const SizedBox(height: 40),
 
                   // 모집 기간
-                  RequiredLabel('모집 기간'),
-                  const SizedBox(height: 16),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _pickDate(context, true),
-                          child: _buildDateBox(_startDate),
+                      RequiredLabel('모집 기간'),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          '모집 기간은 최대 4주(28일)까지 가능해요',
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: ColorStyles.gray4,
+                          ),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text('~'),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _pickDate(context, false),
-                          child: _buildDateBox(_endDate),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () => showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(16)),
+                          ),
+                          builder: (_) =>
+                              const DateTimeBottomSheet(isStart: true),
                         ),
+                        child: buildDateTimeBox('모집 시작일', state.startDateTime),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () => showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(16)),
+                          ),
+                          builder: (_) =>
+                              const DateTimeBottomSheet(isStart: false),
+                        ),
+                        child: buildDateTimeBox('모집 마감일', state.endDateTime),
                       ),
                     ],
                   ),

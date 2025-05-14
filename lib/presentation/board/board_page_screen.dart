@@ -1,5 +1,6 @@
 import 'package:dongsoop/core/presentation/components/common_img_style.dart';
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/board/common/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
 import 'package:dongsoop/presentation/board/recruit/temp/temp_project_data.dart';
@@ -9,15 +10,16 @@ import 'package:dongsoop/presentation/board/recruit/temp/temp_tutor_data.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-class BoardListPageScreen extends StatefulWidget {
-  const BoardListPageScreen({super.key});
+class BoardPageScreen extends StatefulWidget {
+  const BoardPageScreen({super.key});
 
   @override
-  State<BoardListPageScreen> createState() => _BoardListPageScreenState();
+  State<BoardPageScreen> createState() => _BoardPageScreenState();
 }
 
-class _BoardListPageScreenState extends State<BoardListPageScreen> {
+class _BoardPageScreenState extends State<BoardPageScreen> {
   int selectedIndex = 0; // 모집(0), 장터(1)
   int selectedSubIndex = 0; // 모집: 튜터링(0), 스터디(1), 프로젝트(2), 장터: 판매(0), 구매(1)
 
@@ -30,8 +32,8 @@ class _BoardListPageScreenState extends State<BoardListPageScreen> {
         backgroundColor: ColorStyles.white,
         floatingActionButton: WriteButton(
           onPressed: () {
-            final route = isRecruit ? '/recruit/write' : '/market/write';
-            Navigator.pushNamed(context, route);
+            final route = isRecruit ? RoutePaths.recruitWrite : '/market/write';
+            context.push(route);
           },
         ),
         body: ListView.builder(
