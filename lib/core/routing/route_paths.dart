@@ -9,5 +9,6 @@ abstract class RoutePaths {
   static const String libraryWebView = '/libraryWebView';
   static const String schedule = '/schedule';
   static const String calendar = '/calendar';
+  static const String recruitWrite = '/recruitWrite';
   static const String chatDetail = '/Chat/Detail';
 }

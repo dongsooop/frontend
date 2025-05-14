@@ -36,12 +36,12 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routerConfig: router,
+
       debugShowCheckedModeBanner: false,
 
       // date picker 등에서 로케일 에러 방지(한국어 사용을 위함)
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
