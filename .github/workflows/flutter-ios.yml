@@ -1,0 +1,66 @@
+name: Flutter iOS CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-ios:
+    name: Build Flutter iOS App
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.27.1'
+        channel: 'stable'
+        architecture: x64
+    
+    - name: Get Flutter version
+      run: flutter --version
+    
+    - name: Install dependencies
+      run: flutter pub get
+    
+    - name: Analyze code
+      run: flutter analyze
+    
+    - name: Run tests
+      run: flutter test
+    
+    - name: Clean build
+      run: flutter clean
+    
+    - name: Build iOS (no codesign)
+      run: |
+        flutter build ios --release --no-codesign
+        echo "iOS build completed successfully!"
+    
+    - name: List build artifacts
+      run: |
+        echo "Build artifacts:"
+        ls -la build/ios/iphoneos/
+        du -sh build/ios/iphoneos/Runner.app
+    
+    - name: Upload iOS App as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dongsoop-ios-app-${{ github.run_number }}
+        path: build/ios/iphoneos/Runner.app
+        retention-days: 30
+    
+    - name: Build Success Summary
+      run: |
+        echo "🎉 Flutter iOS build completed successfully!"
+        echo "📱 iOS app built without code signing"
+        echo "📦 Artifacts uploaded to GitHub Actions"
+        echo "⬇️ Download from: Actions tab > Artifacts"
+        echo "🔗 Build #${{ github.run_number }}"
+        echo "📁 Artifact name: dongsoop-ios-app-${{ github.run_number }}"
+        echo "🍎 App name: Dongsoop (dongyang mirae university service)"
