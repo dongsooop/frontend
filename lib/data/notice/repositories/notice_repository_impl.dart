@@ -17,6 +17,7 @@ class NoticeRepositoryImpl implements NoticeRepository {
   Future<List<NoticeEntity>> fetchNotices({required int page}) async {
     final baseUrl = dotenv.get('BASE_URL');
     final schoolPath = dotenv.get('SCHOOL_NOTICE_ENDPOINT');
+    final userPrefix = dotenv.get('DEPARTMENT_NOTICE_ENDPOINT');
     final fullUrl = '$baseUrl$schoolPath';
 
     try {
