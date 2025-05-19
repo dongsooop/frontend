@@ -1,5 +1,5 @@
 import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
-import 'package:dongsoop/domain/notice/usecases/notice_usecase.dart';
+import 'package:dongsoop/domain/notice/use_cases/notice_usecase.dart';
 import 'package:dongsoop/presentation/home/providers/notice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

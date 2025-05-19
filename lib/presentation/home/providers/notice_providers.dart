@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/data/notice/repositories/notice_repository_impl.dart';
 import 'package:dongsoop/domain/notice/repositories/notice_repository.dart';
-import 'package:dongsoop/domain/notice/usecases/notice_usecase.dart';
+import 'package:dongsoop/domain/notice/use_cases/notice_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 공지사항 Repository Provider
