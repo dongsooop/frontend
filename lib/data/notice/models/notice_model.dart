@@ -1,39 +1,36 @@
 import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
 
-/// 백엔드에서 내려주는 공지 데이터를 표현하는 데이터 모델
 class NoticeModel {
-  final int id; // 공지 id
-  final DateTime create_at; // 공지 생성일자
-  final String title; // 공지 제목
-  final String link; // 공지 상세 링크
+  final int id;
+  final String title;
+  final String link;
+  final String createdAt;
 
   NoticeModel({
     required this.id,
-    required this.create_at,
     required this.title,
     required this.link,
+    required this.createdAt,
   });
 
-  /// JSON 데이터를 NoticeModel 객체로 변환하는 팩토리 생성자
   factory NoticeModel.fromJson(Map<String, dynamic> json) {
-    print('json: $json');
     return NoticeModel(
       id: json['id'] ?? 0,
-      create_at: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
-      title: json['title'] as String? ?? '제목 없음',
-      link: json['link'] as String? ?? '',
+      title: json['title'] ?? '',
+      link: json['link'] ?? '',
+      createdAt: json['createdAt'] ?? '',
     );
   }
 }
 
-/// NoticeModel을 도메인 계층의 NoticeEntity로 변환하는 매퍼(정의하는 객체나 함수)
 extension NoticeModelMapper on NoticeModel {
-  NoticeEntity toEntity() {
+  NoticeEntity toEntity({required bool isDepartment}) {
     return NoticeEntity(
       id: id,
-      createdAt: create_at,
       title: title,
       link: link,
+      createdAt: DateTime.parse(createdAt),
+      isDepartment: isDepartment,
     );
   }
 }

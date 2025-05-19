@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/providers/user_provider.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
 import 'package:dongsoop/presentation/home/widgets/home_new_notice.dart';
 import 'package:dongsoop/presentation/home/widgets/home_popular_recruits.dart';
@@ -5,19 +6,23 @@ import 'package:dongsoop/presentation/home/widgets/home_today.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePageScreen extends StatefulWidget {
+class HomePageScreen extends ConsumerStatefulWidget {
   const HomePageScreen({super.key});
 
   @override
-  State<HomePageScreen> createState() => _HomePageState();
+  ConsumerState<HomePageScreen> createState() => _HomePageScreenState();
 }
 
-class _HomePageState extends State<HomePageScreen> {
+class _HomePageScreenState extends ConsumerState<HomePageScreen> {
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(userProvider);
+    final nickname = user?.nickname ?? '게스트';
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark, // 상태바 아이콘 검정
+      value: SystemUiOverlayStyle.dark,
       child: Column(
         children: [
           Container(
@@ -33,11 +38,22 @@ class _HomePageState extends State<HomePageScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      MainHeader(),
-                      HomeToday(),
-                      HomeNewNotice(),
-                      HomePopularRecruits(),
+                    children: [
+                      const MainHeader(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        child: Text(
+                          '$nickname님, 환영합니다!',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      const HomeToday(),
+                      const HomeNewNotice(),
+                      const HomePopularRecruits(),
                     ],
                   ),
                 ),
