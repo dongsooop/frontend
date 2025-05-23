@@ -10,6 +10,7 @@ import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:dongsoop/presentation/webview/library_banner_webview_screen.dart';
+import 'package:dongsoop/presentation/webview/notice_webview_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(initialLocation: RoutePaths.home, routes: [
@@ -55,6 +56,14 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
                   path: RoutePaths.noticeList,
                   name: 'noticeList',
                   builder: (context, state) => const NoticeListPageScreen(),
+                ),
+                GoRoute(
+                  path: RoutePaths.noticeWebView,
+                  name: 'noticeWebView',
+                  builder: (context, state) {
+                    final path = state.uri.queryParameters['path'];
+                    return NoticeWebViewScreen(path: path ?? '');
+                  },
                 ),
                 GoRoute(
                   path: RoutePaths.libraryWebView,
