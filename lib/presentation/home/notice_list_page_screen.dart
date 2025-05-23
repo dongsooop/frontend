@@ -20,6 +20,7 @@ class NoticeListPageScreen extends ConsumerStatefulWidget {
 
 class _NoticeListPageScreenState extends ConsumerState<NoticeListPageScreen> {
   int selectedNoticeIndex = 0;
+  final ScrollController _scrollController = ScrollController();
 
   NoticeTab getSelectedTab(int index) {
     switch (index) {
@@ -32,6 +33,34 @@ class _NoticeListPageScreenState extends ConsumerState<NoticeListPageScreen> {
       default:
         return NoticeTab.school;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100) {
+        final user = ref.read(userProvider);
+        ref
+            .read(
+              noticeListViewModelProvider(
+                NoticeListArgs(
+                  tab: getSelectedTab(selectedNoticeIndex),
+                  departmentType: user?.departmentType,
+                ),
+              ).notifier,
+            )
+            .fetchNextPage();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Widget _buildUnderlineTab(String label, bool isSelected) {
@@ -70,14 +99,13 @@ class _NoticeListPageScreenState extends ConsumerState<NoticeListPageScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
-    final noticeState = ref.watch(
-      noticeListViewModelProvider(
-        NoticeListArgs(
-          tab: getSelectedTab(selectedNoticeIndex),
-          departmentType: user?.departmentType,
-        ),
-      ),
+    final args = NoticeListArgs(
+      tab: getSelectedTab(selectedNoticeIndex),
+      departmentType: user?.departmentType,
     );
+    final noticeState = ref.watch(noticeListViewModelProvider(args));
+    final viewModel = ref.watch(noticeListViewModelProvider(args).notifier);
+    final isLastPage = viewModel.isLastPage;
 
     return SafeArea(
       child: Scaffold(
@@ -107,6 +135,7 @@ class _NoticeListPageScreenState extends ConsumerState<NoticeListPageScreen> {
                           onTap: () {
                             setState(() {
                               selectedNoticeIndex = index;
+                              _scrollController.jumpTo(0);
                             });
                           },
                           child: _buildUnderlineTab(labels[index], isSelected),
@@ -122,12 +151,18 @@ class _NoticeListPageScreenState extends ConsumerState<NoticeListPageScreen> {
                         const Center(child: CircularProgressIndicator()),
                     error: (e, _) => Center(child: Text('에러: $e')),
                     data: (notices) => ListView.separated(
-                      itemCount: notices.length,
+                      controller: _scrollController,
+                      itemCount: notices.length + (isLastPage ? 0 : 1),
                       separatorBuilder: (_, __) => const Divider(
                         height: 1,
                         color: ColorStyles.gray2,
                       ),
                       itemBuilder: (context, index) {
+                        if (index == notices.length) {
+                          // 마지막 인덱스인데 isLastPage면 이 블럭 호출 안 됨
+                          return const SizedBox.shrink();
+                        }
+
                         final item = notices[index];
                         final tags = item.isDepartment
                             ? ['학과공지', '학부']
