@@ -24,7 +24,11 @@ jobs:
     
     - name: Get Flutter version
       run: flutter --version
-    
+
+    - name: Decode and create .env file
+      run: |
+        echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
+
     - name: Install dependencies
       run: |
         flutter clean
