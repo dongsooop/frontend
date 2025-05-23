@@ -15,7 +15,15 @@ class NoticeUseCase {
     final school = await repository.fetchSchoolNotices(page: page);
 
     if (departmentType == null) {
-      return (tab == NoticeTab.all || tab == NoticeTab.school) ? school : [];
+      final result = (tab == NoticeTab.all || tab == NoticeTab.school)
+          ? school
+          : <NoticeEntity>[];
+      result.sort((a, b) {
+        final dateCompare = b.createdAt.compareTo(a.createdAt);
+        if (dateCompare != 0) return dateCompare;
+        return a.title.compareTo(b.title);
+      });
+      return result;
     }
 
     final department = await repository.fetchDepartmentNotices(
@@ -23,11 +31,18 @@ class NoticeUseCase {
       departmentType: departmentType,
     );
 
-    return switch (tab) {
-      NoticeTab.all => [...school, ...department]
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
+    final result = switch (tab) {
+      NoticeTab.all => [...school, ...department],
       NoticeTab.school => school,
       NoticeTab.department => department,
     };
+
+    result.sort((a, b) {
+      final dateCompare = b.createdAt.compareTo(a.createdAt);
+      if (dateCompare != 0) return dateCompare;
+      return a.title.compareTo(b.title);
+    });
+
+    return result;
   }
 }

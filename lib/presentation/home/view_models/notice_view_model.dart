@@ -1,24 +1,22 @@
 import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
-import 'package:dongsoop/domain/notice/use_cases/notice_usecase.dart';
+import 'package:dongsoop/domain/notice/use_cases/notice_use_case.dart';
 import 'package:dongsoop/presentation/home/providers/notice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 상태 타입은 비동기 데이터 상태를 나타내는 AsyncValue<List<NoticeEntity>>
 final noticeViewModelProvider =
     StateNotifierProvider<NoticeViewModel, AsyncValue<List<NoticeEntity>>>(
   (ref) => NoticeViewModel(ref.watch(noticeUseCaseProvider)),
 );
 
-/// 최신 공지 3개만 보여주는 용도로 사용
 class NoticeViewModel extends StateNotifier<AsyncValue<List<NoticeEntity>>> {
   final NoticeUseCase useCase;
 
   NoticeViewModel(this.useCase) : super(const AsyncLoading()) {
-    fetchNotices();
+    fetchNotices(force: true); // 앱 실행 시 무조건 한 번 요청
   }
 
-  /// 오늘 날짜 기준으로 시간대 계산
+  // 하루 기준 요청 허용 시각 (10:10 / 14:10 / 18:10)
   List<DateTime> get _fetchTimeWindows {
     final now = DateTime.now();
     return [
@@ -28,8 +26,7 @@ class NoticeViewModel extends StateNotifier<AsyncValue<List<NoticeEntity>>> {
     ];
   }
 
-  bool _hasFetchedOnce = false;
-
+  // 이전 요청 시각 기준으로 이번 요청이 허용되는지 판단
   bool _isNeedToFetch(DateTime? lastFetchedTime) {
     final now = DateTime.now();
 
@@ -42,30 +39,40 @@ class NoticeViewModel extends StateNotifier<AsyncValue<List<NoticeEntity>>> {
     return false;
   }
 
-  Future<void> fetchNotices() async {
-    if (_hasFetchedOnce) return; // 앱 내에서 다시 접근한 경우 무시(중복 서버 요청 방지)
-    _hasFetchedOnce = true;
-
+  /// 서버에서 공지 3개 받아오거나 캐시 확인
+  Future<void> fetchNotices({bool force = false}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+
+      final hasFetchedOnce = prefs.getBool('notice_fetched_once') ?? false;
       final lastTimeStr = prefs.getString('notice_last_fetched_time');
       final lastFetchedTime =
           lastTimeStr != null ? DateTime.tryParse(lastTimeStr) : null;
 
-      if (!_isNeedToFetch(lastFetchedTime)) {
-        print('해당 시간대 x');
-        return;
+      final needFetch =
+          force || !hasFetchedOnce || _isNeedToFetch(lastFetchedTime);
+
+      if (needFetch) {
+        final notices = await useCase(
+          page: 0,
+          tab: NoticeTab.all,
+          departmentType: null,
+        );
+
+        final top3 = notices.take(3).toList();
+        state = AsyncValue.data(top3);
+
+        await prefs.setString(
+          'notice_last_fetched_time',
+          DateTime.now().toIso8601String(),
+        );
+        await prefs.setBool('notice_fetched_once', true);
+      } else {
+        // 조건 안 맞는 경우, 이전 데이터가 없다면 빈 리스트라도(임시)
+        if (state is! AsyncData) {
+          state = const AsyncValue.data([]);
+        }
       }
-
-      final notices = await useCase(page: 0);
-      final top3 = notices.take(3).toList();
-
-      state = AsyncValue.data(top3);
-      // 마지막 요청 시간 저장
-      prefs.setString(
-        'notice_last_fetched_time',
-        DateTime.now().toIso8601String(),
-      );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
