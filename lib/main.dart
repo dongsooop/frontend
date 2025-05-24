@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dongsoop/core/providers/user_provider.dart';
 import 'package:dongsoop/core/routing/router.dart';
+import 'package:dongsoop/core/utils/department_mapper.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -14,6 +15,7 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(); // .env 파일 로드
+  await DepartmentMapper.load();
 
   if (Platform.isIOS) {
     WebViewPlatform.instance = WebKitWebViewPlatform();
