@@ -24,23 +24,27 @@ jobs:
     
     - name: Get Flutter version
       run: flutter --version
-    
+
+    - name: Decode and create .env file
+      run: |
+        echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
+
     - name: Install dependencies
       run: |
         flutter clean
         flutter pub get
         flutter pub deps
-    
+
     # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
     - name: Analyze code
       run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
       continue-on-error: true
-    
+
     # 테스트 실행 (실패해도 빌드 계속 진행)
     - name: Run tests
       run: flutter test
       continue-on-error: true
-    
+
     - name: Clean build
       run: flutter clean
     

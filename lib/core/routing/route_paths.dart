@@ -6,6 +6,8 @@ abstract class RoutePaths {
 
   // sub
   static const String noticeList = '/noticeList';
+  static const String noticeWebView = '/noticeWebView';
+  static const String libraryWebView = '/libraryWebView';
   static const String schedule = '/schedule';
   static const String calendar = '/calendar';
   static const String recruitWrite = '/recruitWrite';

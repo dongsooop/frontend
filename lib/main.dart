@@ -1,11 +1,24 @@
+import 'dart:io';
+
+import 'package:dongsoop/core/providers/user_provider.dart';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(); // .env 파일 로드
+
+  if (Platform.isIOS) {
+    WebViewPlatform.instance = WebKitWebViewPlatform();
+  }
+
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -13,8 +26,23 @@ void main() {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
+
+  @override
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    // 앱 시작 시 유저 정보 (.env 또는 나중에 secure storage)
+    Future.microtask(() {
+      ref.read(userProvider.notifier).loadUser();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,15 +53,15 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routerConfig: router,
-
       debugShowCheckedModeBanner: false,
-      // date picker 등에서 로케일 에러 방지(한국어 사용을 위함)
+
+      // DatePicker 등에서 한국어 오류 방지
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('ko', 'KR'), // 한국어
+        Locale('ko', 'KR'),
       ],
     );
   }

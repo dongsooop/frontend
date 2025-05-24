@@ -100,7 +100,7 @@ class HomeToday extends StatelessWidget {
     if (type == 'banner') {
       return GestureDetector(
         onTap: () {
-          // context.goNamed('studyRoom'); // 예: 도서관 예약 웹뷰페이지
+          context.goNamed('libraryWebView');
         },
         child: Container(
           padding: const EdgeInsets.all(16),
