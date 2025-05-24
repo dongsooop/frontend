@@ -16,6 +16,7 @@ class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
       child: SafeArea(
         child: AppBar(
           backgroundColor: ColorStyles.white,
+          surfaceTintColor: ColorStyles.white,
           elevation: 0,
           automaticallyImplyLeading: false,
           leading: IconButton(

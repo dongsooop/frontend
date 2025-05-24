@@ -12,7 +12,7 @@ class WriteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(right: 16),
       child: SizedBox(
         width: 56,
         height: 56,
