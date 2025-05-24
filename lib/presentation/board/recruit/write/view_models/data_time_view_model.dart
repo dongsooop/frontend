@@ -1,4 +1,4 @@
-import 'package:dongsoop/domain/board/recruit/usecases/validate_write_use_case.dart';
+import 'package:dongsoop/domain/board/recruit/use_cases/write/validate_write_use_case.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/date_time_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,7 +54,11 @@ class DateTimeSelectorViewModel extends StateNotifier<DateTimeSelectorState> {
     final updated = DateTime(base.year, base.month, base.day, hour, minute);
 
     if (isStart) {
-      state = state.copyWith(startDateTime: updated);
+      final newEnd = updated.add(const Duration(hours: 24));
+      state = state.copyWith(
+        startDateTime: updated,
+        endDateTime: newEnd,
+      );
     } else {
       state = state.copyWith(endDateTime: updated);
     }
