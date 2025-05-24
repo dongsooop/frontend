@@ -8,6 +8,7 @@ class CustomConfirmDialog extends StatelessWidget {
   final String cancelText;
   final String confirmText;
   final VoidCallback onConfirm;
+  final bool isSingleAction;
 
   const CustomConfirmDialog({
     super.key,
@@ -16,6 +17,7 @@ class CustomConfirmDialog extends StatelessWidget {
     this.cancelText = '취소',
     this.confirmText = '확인',
     required this.onConfirm,
+    this.isSingleAction = false,
   });
 
   @override
@@ -40,31 +42,47 @@ class CustomConfirmDialog extends StatelessWidget {
             ),
           ),
         ),
-        actions: [
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              cancelText,
-              style: TextStyles.largeTextRegular.copyWith(
-                color: ColorStyles.warning100,
-              ),
-            ),
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () {
-              Navigator.of(context).pop();
-              onConfirm();
-            },
-            child: Text(
-              confirmText,
-              style: TextStyles.largeTextRegular.copyWith(
-                color: ColorStyles.primaryColor,
-              ),
-            ),
-          ),
-        ],
+        actions: isSingleAction
+            ? [
+                CupertinoDialogAction(
+                  isDefaultAction: true,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    onConfirm();
+                  },
+                  child: Text(
+                    confirmText,
+                    style: TextStyles.largeTextRegular.copyWith(
+                      color: ColorStyles.primaryColor,
+                    ),
+                  ),
+                ),
+              ]
+            : [
+                CupertinoDialogAction(
+                  isDestructiveAction: true,
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    cancelText,
+                    style: TextStyles.largeTextRegular.copyWith(
+                      color: ColorStyles.warning100,
+                    ),
+                  ),
+                ),
+                CupertinoDialogAction(
+                  isDefaultAction: true,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    onConfirm();
+                  },
+                  child: Text(
+                    confirmText,
+                    style: TextStyles.largeTextRegular.copyWith(
+                      color: ColorStyles.primaryColor,
+                    ),
+                  ),
+                ),
+              ],
       ),
     );
   }
