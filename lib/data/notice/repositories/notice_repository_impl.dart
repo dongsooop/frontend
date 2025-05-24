@@ -32,7 +32,7 @@ class NoticeRepositoryImpl implements NoticeRepository {
     try {
       final response = await dio.get(
         url,
-        queryParameters: {'page': page, 'size': 10},
+        queryParameters: {'page': page, 'size': 10, 'sort': 'id,desc'},
       );
 
       final data = response.data;
