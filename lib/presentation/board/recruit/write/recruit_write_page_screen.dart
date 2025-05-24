@@ -1,14 +1,21 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
+import 'package:dongsoop/core/providers/user_provider.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/core/utils/department_mapper.dart';
+import 'package:dongsoop/domain/board/recruit/entities/write/tutoring_write_entity.dart';
+import 'package:dongsoop/domain/board/recruit/use_cases/write/validate_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/common/board_require_label.dart';
 import 'package:dongsoop/presentation/board/recruit/write/providers/date_time_provider.dart';
+import 'package:dongsoop/presentation/board/recruit/write/providers/tutoring_write_view_model_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/date_time_bottom_sheet.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/major_tag_section.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class RecruitWritePageScreen extends ConsumerStatefulWidget {
   const RecruitWritePageScreen({super.key});
@@ -20,13 +27,8 @@ class RecruitWritePageScreen extends ConsumerStatefulWidget {
 
 class _RecruitWritePageScreenState
     extends ConsumerState<RecruitWritePageScreen> {
-  // 모집 유형 리스트
   final List<String> types = ['튜터링', '스터디', '프로젝트'];
   int? selectedIndex; // 선택된 모집 유형 인덱스
-
-  // 모집 시작일/마감일
-  DateTime? _startDate;
-  DateTime? _endDate;
 
   // 선택된 학과 및 직접 추가한 태그
   List<String> selectedMajors = [];
@@ -41,46 +43,16 @@ class _RecruitWritePageScreenState
   // 전체 폼 유효성 여부
   bool isFormValid = false;
 
-  // 작성자의 학과 (자동 포함)
-  final String writerMajor = '컴퓨터소프트웨어공학과';
-
-  // 날짜 박스 UI
-  Widget buildDateTimeBox(String label, DateTime dateTime) {
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        border: Border.all(color: ColorStyles.gray2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyles.normalTextRegular),
-          Text(
-            '${dateTime.year}. ${dateTime.month}. ${dateTime.day}. ${dateTime.hour.toString().padLeft(2, '0')}'
-            ':${dateTime.minute.toString().padLeft(2, '0')}',
-            style:
-                TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 전체 유효성 검사
   void _updateFormValidState() {
     final hasType = selectedIndex != null;
-    final hasDates = _startDate != null && _endDate != null;
     final hasTitle = titleController.text.trim().isNotEmpty;
     final hasContent = contentController.text.trim().isNotEmpty;
 
     setState(() {
-      isFormValid = hasType && hasDates && hasTitle && hasContent;
+      isFormValid = hasType && hasTitle && hasContent;
     });
   }
 
-  // 학과 선택 결과 처리
   void _handleMajorSelection(List<String> selected) {
     setState(() {
       if (selected.contains('전체 학과')) {
@@ -92,7 +64,6 @@ class _RecruitWritePageScreenState
     _updateFormValidState();
   }
 
-  // 태그 추가 처리
   void _addTag(String text) {
     final trimmed = text.trim();
     if (trimmed.isNotEmpty &&
@@ -106,7 +77,6 @@ class _RecruitWritePageScreenState
     }
   }
 
-  // 태그 삭제 처리
   void _removeTag(String tag) {
     setState(() {
       manualTagList.remove(tag);
@@ -114,10 +84,33 @@ class _RecruitWritePageScreenState
     });
   }
 
+  Widget buildDateTimeBox(String label, DateTime dateTime) {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        border: Border.all(color: ColorStyles.gray2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyles.normalTextRegular),
+          Text(
+            '${dateTime.year}. ${dateTime.month}. ${dateTime.day}. ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}',
+            style:
+                TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(dateTimeSelectorProvider);
-    final notifier = ref.read(dateTimeSelectorProvider.notifier);
+    final user = ref.watch(userProvider);
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
@@ -126,25 +119,72 @@ class _RecruitWritePageScreenState
           child: DetailHeader(title: '모집 개설'),
         ),
         bottomNavigationBar: PrimaryBottomButton(
-          label: '모집 시작하기',
-          isEnabled: isFormValid,
-          onPressed: () {
-            showDialog(
-              context: context,
-              // 제출 확인용 dialog
-              builder: (_) => CustomConfirmDialog(
-                title: '모집 개설',
-                content: '작성한 글은 수정할 수 없어요\n모집 시작할까요?',
-                cancelText: '취소',
-                confirmText: '제출',
-                onConfirm: () {
-                  // 제출 처리 로직
-                  Navigator.pop(context);
-                },
-              ),
-            );
-          },
-        ),
+            label: '모집 시작하기',
+            isEnabled: isFormValid,
+            onPressed: () {
+              final validator = ref.read(validateWriteUseCaseProvider);
+              final date = ref.read(dateTimeSelectorProvider);
+
+              // 유효성 검사
+              final isStartValid =
+                  validator.isValidStartTime(date.startDateTime);
+              final isEndValid = validator.isValidEndDateTime(
+                start: date.startDateTime,
+                end: date.endDateTime,
+              );
+
+              if (!isStartValid || !isEndValid) {
+                showDialog(
+                  context: context,
+                  builder: (_) => CustomConfirmDialog(
+                    title: '모집 기간 오류',
+                    content: !isStartValid
+                        ? '모집 시작일은 현재 시간 이후여야 해요.'
+                        : '모집 마감일은 시작일로부터\n최소 24시간 이후여야 해요.',
+                    isSingleAction: true,
+                    confirmText: '확인',
+                    onConfirm: () {},
+                  ),
+                );
+                return;
+              }
+
+              // 유효하면 원래의 제출 다이얼로그
+              showDialog(
+                context: context,
+                builder: (_) => CustomConfirmDialog(
+                  title: '모집 개설',
+                  content: '작성한 글은 수정할 수 없어요\n모집 시작할까요?',
+                  cancelText: '취소',
+                  confirmText: '제출',
+                  onConfirm: () async {
+                    final user = ref.read(userProvider);
+                    final notifier =
+                        ref.read(tutoringWriteViewModelProvider.notifier);
+                    final state = ref.read(tutoringWriteViewModelProvider);
+
+                    if (selectedIndex == 0 && !state.isLoading) {
+                      final entity = TutoringWriteEntity(
+                        title: titleController.text.trim(),
+                        content: contentController.text.trim(),
+                        tags: manualTagList.join(','),
+                        startAt: date.startDateTime,
+                        endAt: date.endDateTime,
+                        departmentType: user?.departmentType ?? '',
+                      );
+                      await notifier.submit(entity);
+                    }
+
+                    if (context.mounted) {
+                      context.pop();
+                      context.go(RoutePaths.board);
+                    }
+
+                    ref.invalidate(tutoringWriteViewModelProvider);
+                  },
+                ),
+              );
+            }),
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
           child: SingleChildScrollView(
@@ -339,7 +379,9 @@ class _RecruitWritePageScreenState
                     onTagRemoved: _removeTag,
                     tagController: tagController,
                     isTutorType: selectedIndex == 0,
-                    writerMajor: writerMajor,
+                    writerMajor:
+                        DepartmentMapper.getName(user?.departmentType ?? '') ??
+                            '',
                   ),
 
                   const SizedBox(height: 80),
