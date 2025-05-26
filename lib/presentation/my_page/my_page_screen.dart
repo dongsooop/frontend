@@ -5,8 +5,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class MyPageScreen extends StatelessWidget {
+  final VoidCallback onTapSignIn;
+
   const MyPageScreen({
-    super.key
+    super.key,
+    required this.onTapSignIn,
   });
 
   @override
@@ -51,6 +54,64 @@ class MyPageScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: ShapeDecoration(
+                  color: ColorStyles.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 16,
+                  children: [
+                    Text(
+                      '로그인으로 더 많은 동숲을 즐겨봐요',
+                      style: TextStyles.smallTextRegular.copyWith(
+                        color: ColorStyles.black
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: ShapeDecoration(
+                        color: ColorStyles.primaryColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                      ),
+                      child: GestureDetector(
+                        onTap: onTapSignIn,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 16,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/logo.svg',
+                              width: 24,
+                              height: 24,
+                              colorFilter: const ColorFilter.mode(
+                                ColorStyles.white,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            Text(
+                              '동숲 로그인하기',
+                              style: TextStyles.normalTextBold.copyWith(
+                                color: ColorStyles.white
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(height: 24,),
               Container(
                 width: double.infinity,
                 height: 88,
