@@ -1,4 +1,4 @@
-class TutoringWriteEntity {
+class RecruitWriteEntity {
   final String title;
   final String content;
   final String tags;
@@ -6,7 +6,7 @@ class TutoringWriteEntity {
   final DateTime endAt;
   final String departmentType;
 
-  TutoringWriteEntity({
+  RecruitWriteEntity({
     required this.title,
     required this.content,
     required this.tags,

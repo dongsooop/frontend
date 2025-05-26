@@ -4,11 +4,11 @@ import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart
 import 'package:dongsoop/core/providers/user_provider.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/core/utils/department_mapper.dart';
-import 'package:dongsoop/domain/board/recruit/entities/write/tutoring_write_entity.dart';
+import 'package:dongsoop/domain/board/recruit/entities/write/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/write/validate_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/common/board_require_label.dart';
 import 'package:dongsoop/presentation/board/recruit/write/providers/date_time_provider.dart';
-import 'package:dongsoop/presentation/board/recruit/write/providers/tutoring_write_view_model_provider.dart';
+import 'package:dongsoop/presentation/board/recruit/write/providers/recruit_write_view_model_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/date_time_bottom_sheet.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/major_tag_section.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -160,11 +160,11 @@ class _RecruitWritePageScreenState
                   onConfirm: () async {
                     final user = ref.read(userProvider);
                     final notifier =
-                        ref.read(tutoringWriteViewModelProvider.notifier);
-                    final state = ref.read(tutoringWriteViewModelProvider);
+                        ref.read(recruitWriteViewModelProvider.notifier);
+                    final state = ref.read(recruitWriteViewModelProvider);
 
                     if (selectedIndex == 0 && !state.isLoading) {
-                      final entity = TutoringWriteEntity(
+                      final entity = RecruitWriteEntity(
                         title: titleController.text.trim(),
                         content: contentController.text.trim(),
                         tags: manualTagList.join(','),
@@ -180,7 +180,7 @@ class _RecruitWritePageScreenState
                       context.go(RoutePaths.board);
                     }
 
-                    ref.invalidate(tutoringWriteViewModelProvider);
+                    ref.invalidate(recruitWriteViewModelProvider);
                   },
                 ),
               );

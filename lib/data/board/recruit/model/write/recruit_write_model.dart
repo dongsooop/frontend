@@ -1,6 +1,6 @@
-import 'package:dongsoop/domain/board/recruit/entities/write/tutoring_write_entity.dart';
+import 'package:dongsoop/domain/board/recruit/entities/write/recruit_write_entity.dart';
 
-class TutoringWriteModel {
+class RecruitWriteModel {
   final String title;
   final String content;
   final String tags;
@@ -8,7 +8,7 @@ class TutoringWriteModel {
   final DateTime endAt;
   final String departmentType;
 
-  TutoringWriteModel({
+  RecruitWriteModel({
     required this.title,
     required this.content,
     required this.tags,
@@ -26,8 +26,8 @@ class TutoringWriteModel {
         'departmentType': departmentType,
       };
 
-  factory TutoringWriteModel.fromEntity(TutoringWriteEntity entity) {
-    return TutoringWriteModel(
+  factory RecruitWriteModel.fromEntity(RecruitWriteEntity entity) {
+    return RecruitWriteModel(
       title: entity.title,
       content: entity.content,
       tags: entity.tags,

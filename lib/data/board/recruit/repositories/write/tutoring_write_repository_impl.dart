@@ -1,20 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/providers/user_provider.dart';
-import 'package:dongsoop/data/board/recruit/model/write/tutoring_write_model.dart';
-import 'package:dongsoop/domain/board/recruit/entities/write/tutoring_write_entity.dart';
-import 'package:dongsoop/domain/board/recruit/repositories/write/tutoring_write_repository.dart';
+import 'package:dongsoop/data/board/recruit/model/write/recruit_write_model.dart';
+import 'package:dongsoop/domain/board/recruit/entities/write/recruit_write_entity.dart';
+import 'package:dongsoop/domain/board/recruit/repositories/write/recruit_write_repository.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TutoringWriteRepositoryImpl implements TutoringRepository {
+class TutoringWriteRepositoryImpl implements RecruitWriteRepository {
   final Dio dio;
   final Ref ref;
   TutoringWriteRepositoryImpl(this.dio, this.ref);
 
   @override
-  Future<void> tutoringWrite(TutoringWriteEntity tutoring) async {
+  Future<void> recruitWrite(RecruitWriteEntity entity) async {
     final endpoint = dotenv.get('TUTORING_ENDPOINT');
-    final model = TutoringWriteModel.fromEntity(tutoring);
+    final model = RecruitWriteModel.fromEntity(entity);
 
     final user = ref.read(userProvider);
     final token = user?.accessToken;
