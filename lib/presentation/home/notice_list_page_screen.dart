@@ -1,74 +1,67 @@
+import 'package:dongsoop/core/presentation/components/common_tag.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/search_bar.dart';
-import 'package:dongsoop/presentation/board/recruit/temp/temp_tag_utils.dart';
+import 'package:dongsoop/core/providers/user_provider.dart';
+import 'package:dongsoop/domain/notice/use_cases/notice_use_case.dart';
+import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class NoticeListPageScreen extends StatefulWidget {
+class NoticeListPageScreen extends ConsumerStatefulWidget {
   const NoticeListPageScreen({super.key});
 
   @override
-  State<NoticeListPageScreen> createState() => _NoticePageScreenState();
+  ConsumerState<NoticeListPageScreen> createState() =>
+      _NoticeListPageScreenState();
 }
 
-class _NoticePageScreenState extends State<NoticeListPageScreen> {
+class _NoticeListPageScreenState extends ConsumerState<NoticeListPageScreen> {
   int selectedNoticeIndex = 0;
+  final ScrollController _scrollController = ScrollController();
 
-  final List<Map<String, dynamic>> noticeAllList = [
-    {
-      "title": "[선관위] 2025학년도 학과대표 보궐선거 선거일정 공고",
-      "tags": ["동양공지", "학교생활"]
-    },
-    {
-      "title": "2025학년도 신입생 캠퍼스커넥트 프로그램 토크콘서트 안내",
-      "tags": ["동양공지", "학교생활"]
-    },
-    {
-      "title": "2025학년도 신입생 캠퍼스커넥트 프로그램 토크콘서트 안내",
-      "tags": ["동양공지", "학교생활"]
-    },
-    {
-      "title": "[학부] 2025학년도 1학기 학습공동체(전공 튜터링) 프로그램 시행 안내",
-      "tags": ["학과공지", "학부"]
-    },
-    {
-      "title": "[학부] 2025학년도 1학기 학습공동체(전공 튜터링) 프로그램 시행 안내",
-      "tags": ["학과공지", "학부"]
-    },
-    {
-      "title": "[학부] 2025학년도 1학기 학습공동체(전공 튜터링) 프로그램 시행 안내",
-      "tags": ["학과공지", "학부"]
-    },
-  ];
-  final List<Map<String, dynamic>> noticeSchoolList = [
-    {
-      "title": "[학부] 2025학년도 1학기 학습공동체(전공 튜터링) 프로그램 시행 안내",
-      "tags": ["학과공지", "학부"]
-    },
-    {
-      "title": "[학부] 2025학년도 1학기 학습공동체(전공 튜터링) 프로그램 시행 안내",
-      "tags": ["학과공지", "학부"]
-    },
-    {
-      "title": "[학부] 2025학년도 1학기 학습공동체(전공 튜터링) 프로그램 시행 안내",
-      "tags": ["학과공지", "학부"]
-    },
-  ];
-  final List<Map<String, dynamic>> noticeUndergraduateList = [
-    {
-      "title": "[선관위] 2025학년도 학과대표 보궐선거 선거일정 공고",
-      "tags": ["동양공지", "학교생활"]
-    },
-    {
-      "title": "2025학년도 신입생 캠퍼스커넥트 프로그램 토크콘서트 안내",
-      "tags": ["동양공지", "학교생활"]
-    },
-    {
-      "title": "2025학년도 신입생 캠퍼스커넥트 프로그램 토크콘서트 안내",
-      "tags": ["동양공지", "학교생활"]
-    },
-  ];
+  NoticeTab getSelectedTab(int index) {
+    switch (index) {
+      case 0:
+        return NoticeTab.all;
+      case 1:
+        return NoticeTab.school;
+      case 2:
+        return NoticeTab.department;
+      default:
+        return NoticeTab.school;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100) {
+        final user = ref.read(userProvider);
+        ref
+            .read(
+              noticeListViewModelProvider(
+                NoticeListArgs(
+                  tab: getSelectedTab(selectedNoticeIndex),
+                  departmentType: user?.departmentType,
+                ),
+              ).notifier,
+            )
+            .fetchNextPage();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   Widget _buildUnderlineTab(String label, bool isSelected) {
     return Container(
@@ -105,21 +98,14 @@ class _NoticePageScreenState extends State<NoticeListPageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> noticeData;
-
-    switch (selectedNoticeIndex) {
-      case 0:
-        noticeData = noticeAllList;
-        break;
-      case 1:
-        noticeData = noticeSchoolList;
-        break;
-      case 2:
-        noticeData = noticeUndergraduateList;
-        break;
-      default:
-        noticeData = noticeAllList;
-    }
+    final user = ref.watch(userProvider);
+    final args = NoticeListArgs(
+      tab: getSelectedTab(selectedNoticeIndex),
+      departmentType: user?.departmentType,
+    );
+    final noticeState = ref.watch(noticeListViewModelProvider(args));
+    final viewModel = ref.watch(noticeListViewModelProvider(args).notifier);
+    final isLastPage = viewModel.isLastPage;
 
     return SafeArea(
       child: Scaffold(
@@ -149,6 +135,7 @@ class _NoticePageScreenState extends State<NoticeListPageScreen> {
                           onTap: () {
                             setState(() {
                               selectedNoticeIndex = index;
+                              _scrollController.jumpTo(0);
                             });
                           },
                           child: _buildUnderlineTab(labels[index], isSelected),
@@ -159,33 +146,63 @@ class _NoticePageScreenState extends State<NoticeListPageScreen> {
                 ),
                 const SizedBox(height: 16),
                 Expanded(
-                  child: ListView.separated(
-                    itemCount: noticeData.length,
-                    separatorBuilder: (_, __) =>
-                        const Divider(height: 1, color: ColorStyles.gray2),
-                    itemBuilder: (context, index) {
-                      final item = noticeData[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item['title'],
-                              style: TextStyles.largeTextBold.copyWith(
-                                color: ColorStyles.black,
-                              ),
+                  child: noticeState.when(
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (e, _) => Center(child: Text('에러: $e')),
+                    data: (notices) => ListView.separated(
+                      controller: _scrollController,
+                      itemCount: notices.length + (isLastPage ? 0 : 1),
+                      separatorBuilder: (_, __) => const Divider(
+                        height: 1,
+                        color: ColorStyles.gray2,
+                      ),
+                      itemBuilder: (context, index) {
+                        if (index == notices.length) {
+                          // 마지막 인덱스인데 isLastPage면 이 블럭 호출 안 됨
+                          return const SizedBox.shrink();
+                        }
+
+                        final item = notices[index];
+                        final tags = item.isDepartment
+                            ? ['학과공지', '학부']
+                            : ['동양공지', '학교생활'];
+
+                        return GestureDetector(
+                          onTap: () {
+                            context.pushNamed(
+                              'noticeWebView',
+                              queryParameters: {'path': item.link},
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.title,
+                                  style: TextStyles.largeTextBold.copyWith(
+                                    color: ColorStyles.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Wrap(
+                                  children: tags
+                                      .asMap()
+                                      .entries
+                                      .map((entry) => CommonTag(
+                                            label: entry.value,
+                                            index: entry.key,
+                                          ))
+                                      .toList(),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 16),
-                            Wrap(
-                              children: item['tags']
-                                  .map<Widget>((tag) => buildTag(tag))
-                                  .toList(),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],
