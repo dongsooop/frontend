@@ -31,7 +31,7 @@ class CommonTag extends StatelessWidget {
         };
       default:
         return {
-          'bg': ColorStyles.gray2,
+          'bg': ColorStyles.gray1,
           'text': ColorStyles.gray4,
         };
     }
