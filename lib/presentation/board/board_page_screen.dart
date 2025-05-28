@@ -16,7 +16,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class BoardPageScreen extends ConsumerStatefulWidget {
-  const BoardPageScreen({super.key});
+  final void Function(int id, RecruitType type) onTapRecruitDetail;
+  const BoardPageScreen({super.key, required this.onTapRecruitDetail});
 
   @override
   ConsumerState<BoardPageScreen> createState() => _BoardPageScreenState();
@@ -26,6 +27,19 @@ class _BoardPageScreenState extends ConsumerState<BoardPageScreen> {
   int selectedIndex = 0;
   int selectedSubIndex = 0;
   final ScrollController _scrollController = ScrollController();
+
+  RecruitType get recruitType {
+    switch (selectedSubIndex) {
+      case 0:
+        return RecruitType.tutoring;
+      case 1:
+        return RecruitType.study;
+      case 2:
+        return RecruitType.project;
+      default:
+        throw Exception('Invalid sub index');
+    }
+  }
 
   @override
   void initState() {
@@ -54,12 +68,10 @@ class _BoardPageScreenState extends ConsumerState<BoardPageScreen> {
   Widget build(BuildContext context) {
     final isRecruit = selectedIndex == 0;
     final isTutoring = isRecruit && selectedSubIndex == 0;
-    final recruitType = RecruitType.tutoring;
 
     final state = isTutoring
         ? ref.watch(recruitListViewModelProvider(recruitType))
         : null;
-
     final tutorList = isTutoring ? state?.posts ?? [] : [];
     final list = isRecruit
         ? isTutoring
@@ -119,7 +131,7 @@ class _BoardPageScreenState extends ConsumerState<BoardPageScreen> {
               return RecruitListItem(
                 recruit: recruit,
                 isLastItem: isLast,
-                onTap: () {},
+                onTap: () => widget.onTapRecruitDetail(recruit.id, recruitType),
               );
             } else if (isRecruit) {
               final data = list[index - 1];
@@ -168,25 +180,17 @@ class RecruitListItem extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        // 추후 재학생 인증한 유저의 게시글만 해당 아이콘이 나타나도록 수정
-                        Icon(
-                          Icons.task_alt,
-                          size: 16,
-                          color: ColorStyles.primaryColor,
-                        ),
+                        Icon(Icons.task_alt,
+                            size: 16, color: ColorStyles.primaryColor),
                         const SizedBox(width: 4),
                         if (recruit.state)
-                          Text(
-                            '모집 중',
-                            style: TextStyles.smallTextBold
-                                .copyWith(color: ColorStyles.black),
-                          ),
+                          Text('모집 중',
+                              style: TextStyles.smallTextBold
+                                  .copyWith(color: ColorStyles.black)),
                         const SizedBox(width: 8),
-                        Text(
-                          '${recruit.volunteer}명이 지원했어요',
-                          style: TextStyles.smallTextRegular
-                              .copyWith(color: ColorStyles.gray4),
-                        ),
+                        Text('${recruit.volunteer}명이 지원했어요',
+                            style: TextStyles.smallTextRegular
+                                .copyWith(color: ColorStyles.gray4)),
                       ],
                     ),
                     Text(
@@ -197,14 +201,12 @@ class RecruitListItem extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  recruit.title,
-                  style: TextStyles.largeTextBold
-                      .copyWith(color: ColorStyles.black),
-                ),
+                Text(recruit.title,
+                    style: TextStyles.largeTextBold
+                        .copyWith(color: ColorStyles.black)),
                 const SizedBox(height: 8),
                 FractionallySizedBox(
-                  widthFactor: 0.8, // 전체 가로 너비의 80%
+                  widthFactor: 0.8,
                   child: Text(
                     recruit.content,
                     style: TextStyles.smallTextRegular
@@ -276,9 +278,7 @@ class MarketListItem extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CommonImgStyle(
-                  imagePath: hasImage ? firstImage : null,
-                ),
+                CommonImgStyle(imagePath: hasImage ? firstImage : null),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
