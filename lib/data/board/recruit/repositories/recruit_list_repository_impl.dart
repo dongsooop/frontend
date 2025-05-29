@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:dongsoop/data/board/recruit/model/list/recruit_list_model.dart';
-import 'package:dongsoop/domain/board/recruit/entities/list/recruit_list_entity.dart';
-import 'package:dongsoop/domain/board/recruit/repositories/list/tutoring_list_repository.dart';
+import 'package:dongsoop/data/board/recruit/model/recruit_list_model.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
+import 'package:dongsoop/domain/board/recruit/repositories/recruit_list_repository.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 
 class RecruitListRepositoryImpl implements RecruitListRepository {
@@ -25,7 +25,7 @@ class RecruitListRepositoryImpl implements RecruitListRepository {
         queryParameters: {
           'page': page,
           'size': 10,
-          'sort': 'createdAt,asc',
+          'sort': ['id,desc', 'createdAt,asc'],
         },
         options: Options(
           headers: {

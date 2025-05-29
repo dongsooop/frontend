@@ -2,13 +2,11 @@ import 'package:dongsoop/core/presentation/components/common_img_style.dart';
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
-import 'package:dongsoop/domain/board/recruit/entities/list/recruit_list_entity.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
 import 'package:dongsoop/presentation/board/common/board_write_button.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_list_view_model_provider.dart';
-import 'package:dongsoop/presentation/board/recruit/temp/temp_project_data.dart';
-import 'package:dongsoop/presentation/board/recruit/temp/temp_study_data.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -50,10 +48,17 @@ class _BoardPageScreenState extends ConsumerState<BoardPageScreen> {
   void _onScroll() {
     final isBottom = _scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 100;
-    final isRecruit = selectedIndex == 0 && selectedSubIndex == 0;
-    if (isBottom && isRecruit) {
+    final isRecruit = selectedIndex == 0;
+
+    if (!isRecruit) return;
+
+    final state = ref.read(recruitListViewModelProvider(recruitType));
+    final hasMore = state.hasMore;
+    final isLoading = state.isLoading;
+
+    if (isBottom && hasMore && !isLoading) {
       ref
-          .read(recruitListViewModelProvider(RecruitType.tutoring).notifier)
+          .read(recruitListViewModelProvider(recruitType).notifier)
           .loadNextPage();
     }
   }
@@ -67,35 +72,30 @@ class _BoardPageScreenState extends ConsumerState<BoardPageScreen> {
   @override
   Widget build(BuildContext context) {
     final isRecruit = selectedIndex == 0;
-    final isTutoring = isRecruit && selectedSubIndex == 0;
+    final state =
+        isRecruit ? ref.watch(recruitListViewModelProvider(recruitType)) : null;
 
-    final state = isTutoring
-        ? ref.watch(recruitListViewModelProvider(recruitType))
-        : null;
-    final tutorList = isTutoring ? state?.posts ?? [] : [];
-    final list = isRecruit
-        ? isTutoring
-            ? tutorList
-            : selectedSubIndex == 1
-                ? studyList
-                : projectList
-        : marketList;
+    final recruitList = state?.posts ?? <RecruitListEntity>[];
+    final marketListData = marketList;
 
-    final hasMore = state?.hasMore ?? false;
+    final hasMore = isRecruit ? state?.hasMore ?? false : false;
+    final isLoading = isRecruit ? state?.isLoading ?? false : false;
+    final listLength = isRecruit ? recruitList.length : marketListData.length;
 
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
         floatingActionButton: WriteButton(
           onPressed: () {
-            final route = isRecruit ? RoutePaths.recruitWrite : '/market/write';
+            final route =
+                isRecruit ? RoutePaths.recruitWrite : '/market/validate';
             context.push(route);
           },
         ),
         body: ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: hasMore ? list.length + 2 : list.length + 1,
+          itemCount: listLength + 1 + ((hasMore && isLoading) ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == 0) {
               return BoardTabSection(
@@ -117,27 +117,24 @@ class _BoardPageScreenState extends ConsumerState<BoardPageScreen> {
               );
             }
 
-            if (index == list.length + 1 && hasMore) {
+            if (index == listLength + 1 && hasMore && isLoading) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 24),
                 child: Center(child: CircularProgressIndicator()),
               );
             }
 
-            final isLast = index - 1 == list.length - 1;
+            final isLast = index - 1 == listLength - 1;
 
-            if (isRecruit && isTutoring) {
-              final RecruitListEntity recruit = list[index - 1];
+            if (isRecruit) {
+              final recruit = recruitList[index - 1];
               return RecruitListItem(
                 recruit: recruit,
                 isLastItem: isLast,
                 onTap: () => widget.onTapRecruitDetail(recruit.id, recruitType),
               );
-            } else if (isRecruit) {
-              final data = list[index - 1];
-              return Text(data['title'] ?? '');
             } else {
-              final market = list[index - 1];
+              final market = marketListData[index - 1];
               return MarketListItem(
                 market: market,
                 isLastItem: isLast,
