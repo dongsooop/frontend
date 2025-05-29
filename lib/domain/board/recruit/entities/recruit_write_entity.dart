@@ -4,7 +4,7 @@ class RecruitWriteEntity {
   final String tags;
   final DateTime startAt;
   final DateTime endAt;
-  final String departmentType;
+  final List<String> departmentTypeList;
 
   RecruitWriteEntity({
     required this.title,
@@ -12,6 +12,6 @@ class RecruitWriteEntity {
     required this.tags,
     required this.startAt,
     required this.endAt,
-    required this.departmentType,
+    required this.departmentTypeList,
   });
 }

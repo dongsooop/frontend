@@ -4,9 +4,10 @@ import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart
 import 'package:dongsoop/core/providers/user_provider.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/core/utils/department_mapper.dart';
-import 'package:dongsoop/domain/board/recruit/entities/write/recruit_write_entity.dart';
-import 'package:dongsoop/domain/board/recruit/use_cases/write/validate_use_case_provider.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
+import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/common/board_require_label.dart';
+import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 import 'package:dongsoop/presentation/board/recruit/write/providers/date_time_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/providers/recruit_write_view_model_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/date_time_bottom_sheet.dart';
@@ -28,19 +29,16 @@ class RecruitWritePageScreen extends ConsumerStatefulWidget {
 class _RecruitWritePageScreenState
     extends ConsumerState<RecruitWritePageScreen> {
   final List<String> types = ['튜터링', '스터디', '프로젝트'];
-  int? selectedIndex; // 선택된 모집 유형 인덱스
+  int? selectedIndex;
 
-  // 선택된 학과 및 직접 추가한 태그
   List<String> selectedMajors = [];
   List<String> manualTagList = [];
 
-  // 입력 컨트롤러들
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
   final contentController = TextEditingController();
   final tagController = TextEditingController();
 
-  // 전체 폼 유효성 여부
   bool isFormValid = false;
 
   void _updateFormValidState() {
@@ -53,6 +51,7 @@ class _RecruitWritePageScreenState
     });
   }
 
+  // 전체 학과 선택
   void _handleMajorSelection(List<String> selected) {
     setState(() {
       if (selected.contains('전체 학과')) {
@@ -64,6 +63,7 @@ class _RecruitWritePageScreenState
     _updateFormValidState();
   }
 
+  // 태그 추가
   void _addTag(String text) {
     final trimmed = text.trim();
     if (trimmed.isNotEmpty &&
@@ -77,6 +77,7 @@ class _RecruitWritePageScreenState
     }
   }
 
+  // 태그 삭제
   void _removeTag(String tag) {
     setState(() {
       manualTagList.remove(tag);
@@ -119,61 +120,74 @@ class _RecruitWritePageScreenState
           child: DetailHeader(title: '모집 개설'),
         ),
         bottomNavigationBar: PrimaryBottomButton(
-            label: '모집 시작하기',
-            isEnabled: isFormValid,
-            onPressed: () {
-              final validator = ref.read(validateWriteUseCaseProvider);
-              final date = ref.read(dateTimeSelectorProvider);
+          label: '모집 시작하기',
+          isEnabled: isFormValid,
+          onPressed: () {
+            final validator = ref.read(validateWriteUseCaseProvider);
+            final date = ref.read(dateTimeSelectorProvider);
 
-              // 유효성 검사
-              final isStartValid =
-                  validator.isValidStartTime(date.startDateTime);
-              final isEndValid = validator.isValidEndDateTime(
-                start: date.startDateTime,
-                end: date.endDateTime,
-              );
+            final isStartValid = validator.isValidStartTime(date.startDateTime);
+            final isEndValid = validator.isValidEndDateTime(
+              start: date.startDateTime,
+              end: date.endDateTime,
+            );
 
-              if (!isStartValid || !isEndValid) {
-                showDialog(
-                  context: context,
-                  builder: (_) => CustomConfirmDialog(
-                    title: '모집 기간 오류',
-                    content: !isStartValid
-                        ? '모집 시작일은 현재 시간 이후여야 해요.'
-                        : '모집 마감일은 시작일로부터\n최소 24시간 이후여야 해요.',
-                    isSingleAction: true,
-                    confirmText: '확인',
-                    onConfirm: () {},
-                  ),
-                );
-                return;
-              }
-
-              // 유효하면 원래의 제출 다이얼로그
+            if (!isStartValid || !isEndValid) {
               showDialog(
                 context: context,
                 builder: (_) => CustomConfirmDialog(
+                  title: '모집 기간 오류',
+                  content: !isStartValid
+                      ? '모집 시작일은 현재 시간 이후여야 해요.'
+                      : '모집 마감일은 시작일로부터\n최소 24시간 이후여야 해요.',
+                  isSingleAction: true,
+                  confirmText: '확인',
+                  onConfirm: () {},
+                ),
+              );
+              return;
+            }
+
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
                   title: '모집 개설',
                   content: '작성한 글은 수정할 수 없어요\n모집 시작할까요?',
                   cancelText: '취소',
                   confirmText: '제출',
                   onConfirm: () async {
-                    final user = ref.read(userProvider);
                     final notifier =
                         ref.read(recruitWriteViewModelProvider.notifier);
                     final state = ref.read(recruitWriteViewModelProvider);
+                    final user = ref.read(userProvider);
+                    final date = ref.read(dateTimeSelectorProvider);
 
-                    if (selectedIndex == 0 && !state.isLoading) {
-                      final entity = RecruitWriteEntity(
-                        title: titleController.text.trim(),
-                        content: contentController.text.trim(),
-                        tags: manualTagList.join(','),
-                        startAt: date.startDateTime,
-                        endAt: date.endDateTime,
-                        departmentType: user?.departmentType ?? '',
-                      );
-                      await notifier.submit(entity);
-                    }
+                    if (selectedIndex == null || state.isLoading) return;
+
+                    final type = RecruitType.values[selectedIndex!];
+
+                    final departmentTypeList = selectedIndex == 0
+                        ? [user?.departmentType ?? '']
+                        : {
+                            user?.departmentType,
+                            ...selectedMajors
+                                .map((major) => DepartmentMapper.getCode(major))
+                          }.whereType<String>().toSet().toList();
+
+                    final entity = RecruitWriteEntity(
+                      title: titleController.text.trim(),
+                      content: contentController.text.trim(),
+                      tags: manualTagList.join(','),
+                      startAt: date.startDateTime,
+                      endAt: date.endDateTime,
+                      departmentTypeList: departmentTypeList,
+                    );
+
+                    await notifier.submit(
+                      type: type,
+                      accessToken: user?.accessToken ?? '',
+                      entity: entity,
+                    );
 
                     if (context.mounted) {
                       context.pop();
@@ -181,10 +195,10 @@ class _RecruitWritePageScreenState
                     }
 
                     ref.invalidate(recruitWriteViewModelProvider);
-                  },
-                ),
-              );
-            }),
+                  }),
+            );
+          },
+        ),
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
           child: SingleChildScrollView(
@@ -193,7 +207,6 @@ class _RecruitWritePageScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 안내 문구
                   Text(
                     '모집이 시작되면 지원자가 작성한',
                     style: TextStyles.largeTextRegular
@@ -203,28 +216,29 @@ class _RecruitWritePageScreenState
                     TextSpan(
                       children: [
                         TextSpan(
-                            text: '자기소개',
-                            style: TextStyles.largeTextBold
-                                .copyWith(color: ColorStyles.black)),
+                          text: '자기소개',
+                          style: TextStyles.largeTextBold
+                              .copyWith(color: ColorStyles.black),
+                        ),
                         TextSpan(
-                            text: ' 및 ',
-                            style: TextStyles.largeTextRegular
-                                .copyWith(color: ColorStyles.gray4)),
+                          text: ' 및 ',
+                          style: TextStyles.largeTextRegular
+                              .copyWith(color: ColorStyles.gray4),
+                        ),
                         TextSpan(
-                            text: '지원 동기',
-                            style: TextStyles.largeTextBold
-                                .copyWith(color: ColorStyles.black)),
+                          text: '지원 동기',
+                          style: TextStyles.largeTextBold
+                              .copyWith(color: ColorStyles.black),
+                        ),
                         TextSpan(
-                            text: '를 확인할 수 있어요',
-                            style: TextStyles.largeTextRegular
-                                .copyWith(color: ColorStyles.gray4)),
+                          text: '를 확인할 수 있어요',
+                          style: TextStyles.largeTextRegular
+                              .copyWith(color: ColorStyles.gray4),
+                        ),
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
-                  // 모집 유형 선택
                   RequiredLabel('모집 유형'),
                   const SizedBox(height: 16),
                   Wrap(
@@ -261,10 +275,7 @@ class _RecruitWritePageScreenState
                       );
                     }),
                   ),
-
                   const SizedBox(height: 40),
-
-                  // 모집 기간
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -273,9 +284,8 @@ class _RecruitWritePageScreenState
                         padding: const EdgeInsets.only(left: 8),
                         child: Text(
                           '모집 기간은 최대 4주(28일)까지 가능해요',
-                          style: TextStyles.smallTextRegular.copyWith(
-                            color: ColorStyles.gray4,
-                          ),
+                          style: TextStyles.smallTextRegular
+                              .copyWith(color: ColorStyles.gray4),
                         ),
                       ),
                     ],
@@ -312,10 +322,7 @@ class _RecruitWritePageScreenState
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 40),
-
-                  // 제목 입력
                   RequiredLabel('제목'),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -339,10 +346,7 @@ class _RecruitWritePageScreenState
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
-                  // 내용 입력
                   RequiredLabel('내용'),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -367,23 +371,20 @@ class _RecruitWritePageScreenState
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
-                  // 학과 및 태그 섹션
-                  MajorTagSection(
-                    selectedMajors: selectedMajors,
-                    manualTags: manualTagList,
-                    onMajorChanged: _handleMajorSelection,
-                    onTagAdded: _addTag,
-                    onTagRemoved: _removeTag,
-                    tagController: tagController,
-                    isTutorType: selectedIndex == 0,
-                    writerMajor:
-                        DepartmentMapper.getName(user?.departmentType ?? '') ??
-                            '',
-                  ),
-
+                  if (selectedIndex != 0)
+                    MajorTagSection(
+                      selectedMajors: selectedMajors,
+                      manualTags: manualTagList,
+                      onMajorChanged: _handleMajorSelection,
+                      onTagAdded: _addTag,
+                      onTagRemoved: _removeTag,
+                      tagController: tagController,
+                      isTutorType: false,
+                      writerMajor: DepartmentMapper.getName(
+                              user?.departmentType ?? '') ??
+                          '',
+                    ),
                   const SizedBox(height: 80),
                 ],
               ),

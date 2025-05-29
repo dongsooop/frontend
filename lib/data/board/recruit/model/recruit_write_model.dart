@@ -1,4 +1,4 @@
-import 'package:dongsoop/domain/board/recruit/entities/write/recruit_write_entity.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 
 class RecruitWriteModel {
   final String title;
@@ -6,7 +6,7 @@ class RecruitWriteModel {
   final String tags;
   final DateTime startAt;
   final DateTime endAt;
-  final String departmentType;
+  final List<String> departmentTypeList;
 
   RecruitWriteModel({
     required this.title,
@@ -14,7 +14,7 @@ class RecruitWriteModel {
     required this.tags,
     required this.startAt,
     required this.endAt,
-    required this.departmentType,
+    required this.departmentTypeList,
   });
 
   Map<String, dynamic> toJson() => {
@@ -23,7 +23,7 @@ class RecruitWriteModel {
         'tags': tags,
         'startAt': startAt.toIso8601String(),
         'endAt': endAt.toIso8601String(),
-        'departmentType': departmentType,
+        'departmentTypeList': departmentTypeList,
       };
 
   factory RecruitWriteModel.fromEntity(RecruitWriteEntity entity) {
@@ -33,7 +33,7 @@ class RecruitWriteModel {
       tags: entity.tags,
       startAt: entity.startAt,
       endAt: entity.endAt,
-      departmentType: entity.departmentType,
+      departmentTypeList: entity.departmentTypeList,
     );
   }
 }
