@@ -4,14 +4,13 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-<<<<<<< HEAD
   - path_provider_foundation (0.0.1):
-=======
+    - Flutter
+    - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
   - webview_flutter_wkwebview (0.0.1):
->>>>>>> 238446d561c31dfb82608e2c4ea50934aa8d7917
     - Flutter
     - FlutterMacOS
 
@@ -19,12 +18,9 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
-<<<<<<< HEAD
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
-=======
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
->>>>>>> 238446d561c31dfb82608e2c4ea50934aa8d7917
 
 EXTERNAL SOURCES:
   Flutter:
@@ -33,16 +29,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
-<<<<<<< HEAD
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
-
-SPEC CHECKSUMS:
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
-  image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
-=======
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   webview_flutter_wkwebview:
@@ -50,10 +38,11 @@ SPEC CHECKSUMS:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
-  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
->>>>>>> 238446d561c31dfb82608e2c4ea50934aa8d7917
+  flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
+  image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
 
 PODFILE CHECKSUM: 4305caec6b40dde0ae97be1573c53de1882a07e5
 

@@ -1,4 +1,4 @@
-import 'package:dongsoop/domain/user/entities/user_entity.dart';
+import 'package:dongsoop/domain/auth/entities/user_entity.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
