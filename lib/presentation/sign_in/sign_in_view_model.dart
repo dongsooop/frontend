@@ -1,4 +1,4 @@
-import 'package:dongsoop/presentation/sign_in/providers/auth_providers.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/auth/model/login_response.dart';

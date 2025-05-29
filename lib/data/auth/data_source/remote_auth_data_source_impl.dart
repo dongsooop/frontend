@@ -27,13 +27,16 @@ class RemoteAuthDataSourceImpl implements AuthDataSource {
         logger.i('Login Response data: $data');
 
         return LoginResponse.fromJson(data);
-      } else if (response.statusCode == HttpStatusCode.badRequest.code) {
-        throw LoginException();
-      } else {
-        throw Exception('Failed to login. Status code: ${response.statusCode}');
       }
-    } catch (e, stackTrace) {
-      logger.e('Login error: $e, stackTrace: $stackTrace');
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw LoginException();
+      }
+      logger.e("Login error", error: e);
+      rethrow;
+    } catch (e, st) {
+      logger.e("Login error", error: e, stackTrace: st);
       rethrow;
     }
   }
