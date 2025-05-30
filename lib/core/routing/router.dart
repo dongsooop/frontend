@@ -9,6 +9,7 @@ import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
+import 'package:dongsoop/presentation/webview/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/webview/library_banner_webview_screen.dart';
 import 'package:dongsoop/presentation/webview/notice_webview_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -70,6 +71,12 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
                   name: 'libraryWebView',
                   builder: (context, state) =>
                       const LibraryBannerWebViewScreen(),
+                ),
+                GoRoute(
+                  path: RoutePaths.cafeteriaWebView,
+                  name: 'cafeteriaWebView',
+                  builder: (context, state) =>
+                      const CafeteriaWebViewPageScreen(),
                 ),
               ]),
         ]),

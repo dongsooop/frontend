@@ -56,7 +56,7 @@ class HomeToday extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _buildCard(title: '오늘의 학식', type: 'meal', context: context),
+          _buildCard(title: '오늘의 학식', type: 'cafeteria', context: context),
           const SizedBox(height: 12),
           _buildCard(title: '', type: 'banner', context: context),
         ],
@@ -70,7 +70,6 @@ class HomeToday extends StatelessWidget {
     required BuildContext context,
   }) {
     List<Widget> content = [];
-    String? routeName;
 
     if (type == 'schedule') {
       content = [
@@ -78,14 +77,12 @@ class HomeToday extends StatelessWidget {
         _buildRow('14:00', '자바프로그래밍'),
         _buildRow('17:00', '슬기로운직장생활'),
       ];
-      routeName = 'schedule';
     } else if (type == 'calendar') {
       content = [
         _buildRow('13:00', '프로젝트 회의'),
         _buildRow('19:00', '술먹기'),
       ];
-      routeName = 'calendar';
-    } else if (type == 'meal') {
+    } else if (type == 'cafeteria') {
       content = [
         Text(
           '백미밥, 닭갈비볶음, 피자왕춘권&칠리소스, 두부양념조림, 배추김치/요구르트, 소고기미역국',
@@ -94,7 +91,6 @@ class HomeToday extends StatelessWidget {
           ),
         ),
       ];
-      // routeName = 'mealWebview';
     }
 
     if (type == 'banner') {
@@ -167,8 +163,12 @@ class HomeToday extends StatelessWidget {
     // 카드 클릭 시 라우팅
     return GestureDetector(
       onTap: () {
-        if (routeName != null) {
-          context.pushNamed(routeName);
+        if (type == 'schedule') {
+          context.push('/schedule');
+        } else if (type == 'calendar') {
+          context.push('/calendar');
+        } else if (type == 'cafeteria') {
+          context.goNamed('cafeteriaWebView');
         }
       },
       child: Container(
@@ -199,7 +199,7 @@ class HomeToday extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: (type == 'meal') ? 8 : 16),
+            SizedBox(height: (type == 'cafeteria') ? 8 : 16),
             ...content,
           ],
         ),
