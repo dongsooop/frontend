@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
-import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
+import 'package:dongsoop/data/auth/data_source/remote_auth_data_source.dart';
 import 'package:dongsoop/domain/auth/model/login_response.dart';
 import 'package:dongsoop/main.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class RemoteAuthDataSourceImpl implements AuthDataSource {
+class RemoteAuthDataSourceImpl implements RemoteAuthDataSource {
   final Dio dio;
   RemoteAuthDataSourceImpl(this.dio);
 
@@ -33,10 +33,9 @@ class RemoteAuthDataSourceImpl implements AuthDataSource {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw LoginException();
       }
-      logger.e("Login error", error: e);
+      logger.e("Login error statusCode: ${e.response?.statusCode}");
       rethrow;
-    } catch (e, st) {
-      logger.e("Login error", error: e, stackTrace: st);
+    } catch (e) {
       rethrow;
     }
   }

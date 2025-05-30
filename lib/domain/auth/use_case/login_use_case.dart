@@ -1,12 +1,19 @@
-import 'package:dongsoop/domain/auth/model/login_response.dart';
+import 'package:dongsoop/domain/auth/model/user.dart';
 import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
+import 'package:dongsoop/providers/secure_storage_provider.dart';
 
 class LoginUseCase {
-  final AuthRepository repository;
+  final AuthRepository _authRepository;
+  final SecureStorageService _secureStorage;
 
-  LoginUseCase(this.repository);
+  LoginUseCase(
+    this._authRepository,
+    this._secureStorage,
+  );
 
-  Future<LoginResponse> execute(String email, String password) {
-    return repository.login(email, password);
+  Future<void> execute(String email, String password) async {
+    final response = await _authRepository.login(email, password);
+    await _secureStorage.write('accessToken', response.accessToken);
+    await _authRepository.saveUser(User(nickname: response.nickname, departmentType: response.departmentType));
   }
 }

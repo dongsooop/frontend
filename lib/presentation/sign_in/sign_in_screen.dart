@@ -1,13 +1,15 @@
 import 'package:dongsoop/main.dart';
-import 'package:dongsoop/presentation/sign_in/sign_in_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 
-class SignInScreen extends ConsumerStatefulWidget {
+class SignInScreen extends HookConsumerWidget {
   final VoidCallback onTapSignUp;
 
   const SignInScreen({
@@ -16,17 +18,28 @@ class SignInScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SignInScreen> createState() => _SignInScreenState();
-}
-
-class _SignInScreenState extends ConsumerState<SignInScreen> {
-  final TextEditingController _userEmailController = TextEditingController();
-  final TextEditingController _userPwController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    final loginState = ref.watch(loginViewModelProvider);
-    final viewModel = ref.read(loginViewModelProvider.notifier);
+  Widget build(BuildContext context, WidgetRef ref) {
+    // text field controller - emial, password
+    final emailController = useTextEditingController();
+    final passwordController = useTextEditingController();
+    // providers
+    final loginState = ref.watch(signInViewModelProvider);
+    final viewModel = ref.read(signInViewModelProvider.notifier);
+    // signInViewModelProvider 상태에 따라 코드 실행
+    // useEffect(() {
+    //   ref.listen<AsyncValue<void>>(signInViewModelProvider, (prev, next) {
+    //     next.whenOrNull( // loginViewModelProvider의 변경된 상태가 data(성공)면 페이지 이동
+    //       data: (_) {
+    //         logger.i("로그인 성공");
+    //         context.go(RoutePaths.mypage);
+    //       },
+    //       error: (e, _) {
+    //         logger.i("로그인 실패: $e");
+    //       },
+    //     );
+    //   });
+    //   return null;
+    // }, []);
 
     return SafeArea(
       child: Scaffold(
@@ -34,8 +47,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         appBar: AppBar(
           leading: IconButton(
             onPressed: () => context.pop(),
-            icon: Icon(Icons.chevron_left_outlined, size: 24, color: ColorStyles.black,
-            ),
+            icon: Icon(Icons.chevron_left_outlined, size: 24, color: ColorStyles.black,),
           ),
         ),
         body: Padding(
@@ -56,17 +68,28 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ),
               ),
               const SizedBox(height: 8),
+              // 이메일 입력
               _buildTextField(
-                controller: _userEmailController,
+                controller: emailController,
                 hintText: '동양미래대학교 이메일을 입력해 주세요',
                 obscureText: false,
               ),
+              // 비밀번호 입력
               _buildTextField(
-                controller: _userPwController,
+                controller: passwordController,
                 hintText: '비밀번호를 입력해 주세요',
                 obscureText: true,
               ),
-              const SizedBox(height: 8),
+              // 에러 메시지 표시
+              SizedBox(
+                height: 32,
+                child: loginState.hasError
+                  ? Text(
+                    loginState.error.toString(),
+                    style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.warning100),
+                  )
+                  : null,
+              ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),
@@ -79,26 +102,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 onPressed: loginState is AsyncLoading
                   ? null
                   : () async {
-                    final email = _userEmailController.text.trim();
-                    final password = _userPwController.text;
+                    final email = emailController.text.trim();
+                    final password = passwordController.text;
                     await viewModel.login(email, password);
 
-                    // 성공 시 화면 전환
-                    final state = ref.read(loginViewModelProvider);
-                    state.whenOrNull(
-                      data: (_) {
-                        logger.i("로그인 성공");
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   const SnackBar(content: Text('로그인 성공')),
-                        // );
-                        // context.go('/home');
-                      },
-                      error: (err, _) {
-                        logger.i("로그인 실패: ${err.toString()}");
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   SnackBar(content: Text(err.toString())),
-                        // );
-                      },
+                    final loginResult = ref.read(signInViewModelProvider);
+                    loginResult.whenOrNull(
+                      data: (_) => context.go(RoutePaths.mypage),
+                      error: (e, _) => logger.i("로그인 실패: $e"),
                     );
                   },
                 child: loginState is AsyncLoading
@@ -106,7 +117,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   : Text('로그인', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
               ),
               OutlinedButton(
-                onPressed: widget.onTapSignUp,
+                onPressed: onTapSignUp,
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

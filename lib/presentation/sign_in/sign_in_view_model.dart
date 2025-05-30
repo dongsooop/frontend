@@ -1,45 +1,27 @@
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/domain/auth/model/login_response.dart';
 import 'package:dongsoop/domain/auth/use_case/login_use_case.dart';
 import 'package:dongsoop/main.dart';
-import 'package:dongsoop/providers/secure_storage_provider.dart';
-import 'package:dongsoop/providers/shared_preferences_provider.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 
-final loginViewModelProvider =
-StateNotifierProvider<LoginViewModel, AsyncValue<LoginResponse?>>((ref) {
-  final loginUseCase = ref.watch(loginUseCaseProvider);
-  final secureStorage = ref.watch(secureStorageProvider);
-  final sharedPrefs = ref.watch(sharedPreferencesProvider);
-
-  return LoginViewModel(loginUseCase, secureStorage, sharedPrefs);
-});
-
-class LoginViewModel extends StateNotifier<AsyncValue<LoginResponse?>> {
+class SignInViewModel extends StateNotifier<AsyncValue<void>> {
   final LoginUseCase _loginUseCase;
-  final SecureStorageService _secureStorage;
-  final SharedPreferencesService _sharedPrefs;
+  final Ref _ref;
 
-  LoginViewModel(
-      this._loginUseCase,
-      this._secureStorage,
-      this._sharedPrefs,
-      ) : super(const AsyncValue.data(null));
+  SignInViewModel(
+    this._loginUseCase,
+    this._ref,
+  ) : super(const AsyncValue.data(null));
 
   Future<void> login(String email, String password) async {
     state = const AsyncValue.loading();
 
     try {
-      final response = await _loginUseCase.execute(email, password);
-      // storage에 access token 저장, refreshToken은 쿠키로 오니 별도 처리 X
-      await _secureStorage.write("accessToken", response.accessToken);
-      // shared preferences에 사용자 정보(닉네임, 학과, 이메일) 저장
-      await _sharedPrefs.setString('nickname', response.nickname);
-      await _sharedPrefs.setString('email', response.email);
-      await _sharedPrefs.setString('departmentType', response.departmentType);
-
-      state = AsyncValue.data(response);
+      await _loginUseCase.execute(email, password);
+      // 로그인한 유저 정보 로딩
+      final user = await _ref.read(authRepositoryProvider).getUser();
+      _ref.read(userSessionProvider.notifier).state = user;
+      state = AsyncValue.data(null);
     } on LoginException catch (e, st) {
       state = AsyncValue.error(e.message, st);
     } catch (e, st) {
