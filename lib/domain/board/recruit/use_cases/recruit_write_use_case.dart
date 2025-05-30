@@ -13,7 +13,7 @@ class RecruitWriteUseCase {
     required RecruitWriteEntity entity,
   }) {
     print('[USECASE] 호출됨');
-    return repository.fetchRecruitWrite(
+    return repository.submitRecruitPost(
       type: type,
       accessToken: accessToken,
       entity: entity,

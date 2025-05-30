@@ -1,29 +1,36 @@
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_write_use_case.dart';
+import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
-import 'package:dongsoop/presentation/board/recruit/write/providers/recruit_write_use_case_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-final recruitWriteViewModelProvider =
-    StateNotifierProvider<RecruitWriteViewModel, AsyncValue<void>>(
-  (ref) {
-    final useCase = ref.watch(recruitWriteUseCaseProvider);
-    return RecruitWriteViewModel(useCase);
-  },
-);
 
 class RecruitWriteViewModel extends StateNotifier<AsyncValue<void>> {
   final RecruitWriteUseCase useCase;
+  final ValidateWriteUseCase validator;
+
   bool _isSubmitting = false;
 
-  RecruitWriteViewModel(this.useCase) : super(const AsyncValue.data(null));
+  RecruitWriteViewModel(this.useCase, this.validator)
+      : super(const AsyncValue.data(null));
+
+  bool validateForm({
+    required int? selectedIndex,
+    required String title,
+    required String content,
+    required List<String> tags,
+  }) {
+    return validator.isValidRecruitType(selectedIndex) &&
+        validator.isValidTitle(title) &&
+        validator.isValidContent(content) &&
+        validator.isValidTags(tags);
+  }
 
   Future<void> submit({
     required RecruitType type,
     required String accessToken,
     required RecruitWriteEntity entity,
   }) async {
-    if (_isSubmitting) return; // 중복 요청 방지
+    if (_isSubmitting) return;
     _isSubmitting = true;
 
     state = const AsyncValue.loading();

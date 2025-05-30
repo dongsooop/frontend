@@ -10,20 +10,22 @@ class RecruitWriteRepositoryImpl implements RecruitWriteRepository {
   RecruitWriteRepositoryImpl(this.dio);
 
   @override
-  Future<void> fetchRecruitWrite({
+  Future<void> submitRecruitPost({
     required RecruitType type,
     required String accessToken,
     required RecruitWriteEntity entity,
   }) async {
     final endpoint = type.writeEndpoint;
     final model = RecruitWriteModel.fromEntity(entity);
+    final jsonBody = model.toJson();
 
     try {
       print('[WRITE_REQUEST] POST $endpoint');
-      print('[REQUEST_BODY] ${model.toJson()}');
+      print('[REQUEST_BODY] $jsonBody');
+
       await dio.post(
         endpoint,
-        data: model.toJson(),
+        data: jsonBody,
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -31,9 +33,11 @@ class RecruitWriteRepositoryImpl implements RecruitWriteRepository {
           },
         ),
       );
+
       print('[WRITE_SUCCESS] ${type.name} 작성 성공');
     } on DioException catch (e) {
       print('[WRITE_FAIL] DioException: ${e.message}');
+      print('[RESPONSE] ${e.response?.data}');
       throw Exception('${type.name} 작성 실패: ${e.message}');
     } catch (e) {
       print('[WRITE_FAIL] Unknown Error: $e');
