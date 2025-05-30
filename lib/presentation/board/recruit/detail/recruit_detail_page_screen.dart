@@ -18,6 +18,22 @@ class RecruitDetailPageScreen extends ConsumerWidget {
         '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
+  Widget _buildStatusTag(bool isOpen) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: ColorStyles.primary5,
+        border: Border.all(color: Colors.transparent),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        isOpen ? '모집 중' : '모집 완료',
+        style:
+            TextStyles.smallTextBold.copyWith(color: ColorStyles.primaryColor),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = GoRouterState.of(context);
@@ -86,6 +102,20 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                       const SizedBox(height: 24),
                       const Divider(color: ColorStyles.gray2, height: 1),
                       const SizedBox(height: 24),
+                      // 재학생 인증 추가시 사용
+                      // Row(
+                      //   children: [
+                      //     Icon(Icons.task_alt,
+                      //         size: 16, color: ColorStyles.primaryColor),
+                      //     const SizedBox(width: 8),
+                      //     Text(
+                      //       '재학생 인증이 완료된 사용자예요',
+                      //       style: TextStyles.smallTextRegular
+                      //           .copyWith(color: ColorStyles.gray4),
+                      //     )
+                      //   ],
+                      // ),
+                      // const SizedBox(height: 24),
                       Text('모집 기간',
                           style: TextStyles.normalTextBold
                               .copyWith(color: ColorStyles.black)),
@@ -102,41 +132,32 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                       const SizedBox(height: 24),
                       Wrap(
                         children: [
-                          ...detail.tags.split(',').map((tag) => tag.trim()),
-                          ...detail.departmentTypeList.map(
-                            (dep) => DepartmentMapper.getName(dep) ?? dep,
-                          ),
-                        ]
-                            .asMap()
-                            .entries
-                            .map(
-                              (entry) => CommonTag(
-                                label: entry.value,
-                                index: entry.key,
+                          ...detail.tags
+                              .split(',')
+                              .map((tag) => tag.trim())
+                              .toList()
+                              .asMap()
+                              .entries
+                              .map(
+                                (entry) => CommonTag(
+                                  label: entry.value,
+                                  index: entry.key,
+                                ),
                               ),
-                            )
-                            .toList(),
+
+                          // 학과 (회색 고정)
+                          ...detail.departmentTypeList.map(
+                            (dep) => CommonTag(
+                              label: DepartmentMapper.getName(dep) ?? dep,
+                              index: -1,
+                            ),
+                          ),
+                        ],
                       )
                     ],
                   ),
                 ),
               ),
-      ),
-    );
-  }
-
-  Widget _buildStatusTag(bool isOpen) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: ColorStyles.primary5,
-        border: Border.all(color: Colors.transparent),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        isOpen ? '모집 중' : '모집 완료',
-        style:
-            TextStyles.smallTextBold.copyWith(color: ColorStyles.primaryColor),
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:dongsoop/data/board/recruit/model/detail/recruit_detail_model.dart';
-import 'package:dongsoop/domain/board/recruit/entities/detail/recruit_detail_entity.dart';
-import 'package:dongsoop/domain/board/recruit/repositories/detail/recruit_detail_repository.dart';
+import 'package:dongsoop/data/board/recruit/model/recruit_detail_model.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_detail_entity.dart';
+import 'package:dongsoop/domain/board/recruit/repositories/recruit_detail_repository.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 
 class RecruitDetailRepositoryImpl implements RecruitDetailRepository {

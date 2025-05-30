@@ -212,7 +212,7 @@ class RecruitListItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 Wrap(
                   children: recruit.tags
                       .split(',')

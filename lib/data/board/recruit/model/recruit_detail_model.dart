@@ -1,4 +1,4 @@
-import 'package:dongsoop/domain/board/recruit/entities/detail/recruit_detail_entity.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_detail_entity.dart';
 
 class RecruitDetailModel {
   final int id;

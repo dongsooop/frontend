@@ -31,7 +31,8 @@ class BottomButton extends StatelessWidget {
               ),
               child: IconButton(
                 onPressed: isEnabled ? onPressed : null,
-                icon: const Icon(Icons.chat_bubble_outline, size: 24),
+                icon: const Icon(Icons.chat_bubble_outline,
+                    size: 24, color: ColorStyles.gray4),
               ),
             ),
             const SizedBox(width: 16),
