@@ -1,13 +1,13 @@
-import 'package:dio/dio.dart';
-import 'package:dongsoop/data/board/recruit/model/recruit_list_model.dart';
+import 'package:dongsoop/data/board/recruit/data_sources/recruit_list_data_source.dart';
+import 'package:dongsoop/data/board/recruit/models/recruit_list_model.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_list_repository.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 
 class RecruitListRepositoryImpl implements RecruitListRepository {
-  final Dio dio;
+  final RecruitListDataSource dataSource;
 
-  RecruitListRepositoryImpl(this.dio);
+  RecruitListRepositoryImpl(this.dataSource);
 
   @override
   Future<List<RecruitListEntity>> fetchRecruitList({
@@ -16,34 +16,17 @@ class RecruitListRepositoryImpl implements RecruitListRepository {
     required String accessToken,
     required String departmentType,
   }) async {
-    final baseEndpoint = type.listEndpoint;
-    final url = '$baseEndpoint$departmentType';
-
     try {
-      final response = await dio.get(
-        url,
-        queryParameters: {
-          'page': page,
-          'size': 10,
-          'sort': ['id,desc', 'createdAt,asc'],
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
+      final models = await dataSource.fetchRecruitList(
+        type: type,
+        page: page,
+        accessToken: accessToken,
+        departmentType: departmentType,
       );
 
-      final data = response.data as List<dynamic>;
-
-      return data
-          .map((item) => RecruitListModel.fromJson(item as Map<String, dynamic>)
-              .toEntity())
-          .toList();
-    } on DioException catch (e) {
-      throw Exception('${type.name} 리스트 불러오기 실패: ${e.message}');
+      return models.map((model) => model.toEntity()).toList();
     } catch (e) {
-      throw Exception('예상치 못한 오류 발생: $e');
+      throw Exception('게시글 목록 가져오기 실패: $e');
     }
   }
 }
