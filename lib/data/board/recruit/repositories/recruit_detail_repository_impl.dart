@@ -1,39 +1,21 @@
-import 'package:dio/dio.dart';
-import 'package:dongsoop/data/board/recruit/model/recruit_detail_model.dart';
+import 'package:dongsoop/data/board/recruit/data_sources/recruit_detail_data_source.dart';
+import 'package:dongsoop/data/board/recruit/models/recruit_detail_model.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_detail_entity.dart';
+import 'package:dongsoop/domain/board/recruit/params/recruit_detail_params.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_detail_repository.dart';
-import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 
 class RecruitDetailRepositoryImpl implements RecruitDetailRepository {
-  final Dio dio;
-
-  RecruitDetailRepositoryImpl(this.dio);
+  final RecruitDetailDataSource dataSource;
+  RecruitDetailRepositoryImpl(this.dataSource);
 
   @override
-  Future<RecruitDetailEntity> fetchRecruitDetail({
-    required int id,
-    required RecruitType type,
-    required String accessToken,
-  }) async {
-    final baseEndpoint = type.detailEndpoint;
-    final url = '$baseEndpoint/$id';
-
+  Future<RecruitDetailEntity> fetchRecruitDetail(
+      RecruitDetailParams params) async {
     try {
-      final response = await dio.get(
-        url,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
-      final data = response.data as Map<String, dynamic>;
-      final model = RecruitDetailModel.fromJson(data);
+      final model = await dataSource.getRecruitDetailApi(params);
       return model.toEntity();
-    } on DioException catch (e) {
-      throw Exception('${type.name} 상세 불러오기 실패: ${e.message}');
     } catch (e) {
-      throw Exception('예상치 못한 오류 발생: $e');
+      throw Exception('모집 상세 가져오기 실패: $e');
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/providers/user_provider.dart';
+import 'package:dongsoop/domain/board/recruit/params/recruit_detail_params.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/providers/recruit_detail_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
@@ -13,17 +14,19 @@ final recruitDetailViewModelProvider = StateNotifierProvider.family<
   final user = ref.watch(userProvider);
 
   final accessToken = user?.accessToken;
-  final departmentType = user?.departmentType;
 
-  if (accessToken == null || departmentType == null) {
+  if (accessToken == null) {
     throw Exception('유저 인증 정보가 존재하지 않습니다.');
   }
 
-  return RecruitDetailViewModel(
-    useCase: useCase,
+  final params = RecruitDetailParams(
+    id: id,
     type: type,
     accessToken: accessToken,
-    departmentType: departmentType,
-    id: id, // 여기에 id 전달
+  );
+
+  return RecruitDetailViewModel(
+    useCase: useCase,
+    params: params,
   );
 });

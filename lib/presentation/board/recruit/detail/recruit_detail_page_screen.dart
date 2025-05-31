@@ -54,7 +54,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
 
     final viewModelState =
         ref.watch(recruitDetailViewModelProvider((type, id)));
-    final detail = viewModelState.detail;
+    final recruitDetail = viewModelState.recruitDetail;
 
     return SafeArea(
       child: Scaffold(
@@ -74,7 +74,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
           label: '지원하기',
           onPressed: () {},
         ),
-        body: viewModelState.isLoading || detail == null
+        body: viewModelState.isLoading || recruitDetail == null
             ? const Center(child: CircularProgressIndicator())
             : Padding(
                 padding: const EdgeInsets.all(16),
@@ -82,19 +82,19 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildStatusTag(detail.state),
+                      _buildStatusTag(recruitDetail.state),
                       const SizedBox(height: 16),
-                      Text(detail.title,
+                      Text(recruitDetail.title,
                           style: TextStyles.largeTextBold
                               .copyWith(color: ColorStyles.black)),
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('${detail.volunteer}명이 지원했어요',
+                          Text('${recruitDetail.volunteer}명이 지원했어요',
                               style: TextStyles.smallTextRegular
                                   .copyWith(color: ColorStyles.gray4)),
-                          Text('${formatFullDateTime(detail.createdAt)}',
+                          Text('${formatFullDateTime(recruitDetail.createdAt)}',
                               style: TextStyles.smallTextRegular
                                   .copyWith(color: ColorStyles.gray4)),
                         ],
@@ -121,18 +121,18 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                               .copyWith(color: ColorStyles.black)),
                       const SizedBox(height: 8),
                       Text(
-                        '${formatFullDateTime(detail.startAt)} ~ ${formatFullDateTime(detail.endAt)}',
+                        '${formatFullDateTime(recruitDetail.startAt)} ~ ${formatFullDateTime(recruitDetail.endAt)}',
                         style: TextStyles.normalTextRegular
                             .copyWith(color: ColorStyles.black),
                       ),
                       const SizedBox(height: 32),
-                      Text(detail.content,
+                      Text(recruitDetail.content,
                           style: TextStyles.normalTextRegular
                               .copyWith(color: ColorStyles.black)),
                       const SizedBox(height: 24),
                       Wrap(
                         children: [
-                          ...detail.tags
+                          ...recruitDetail.tags
                               .split(',')
                               .map((tag) => tag.trim())
                               .toList()
@@ -146,7 +146,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                               ),
 
                           // 학과 (회색 고정)
-                          ...detail.departmentTypeList.map(
+                          ...recruitDetail.departmentTypeList.map(
                             (dep) => CommonTag(
                               label: DepartmentMapper.getName(dep) ?? dep,
                               index: -1,

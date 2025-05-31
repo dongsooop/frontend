@@ -1,10 +1,6 @@
 import 'package:dongsoop/domain/board/recruit/entities/recruit_detail_entity.dart';
-import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
+import 'package:dongsoop/domain/board/recruit/params/recruit_detail_params.dart';
 
 abstract class RecruitDetailRepository {
-  Future<RecruitDetailEntity> fetchRecruitDetail({
-    required int id,
-    required RecruitType type,
-    required String accessToken,
-  });
+  Future<RecruitDetailEntity> fetchRecruitDetail(RecruitDetailParams params);
 }
