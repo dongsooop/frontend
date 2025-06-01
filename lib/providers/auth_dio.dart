@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/network/auth_interceptor.dart';
-import 'package:dongsoop/providers/secure_storage_provider.dart';
+import 'package:dongsoop/core/storage/preferences_service.dart';
+import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 
 final authDioProvider = Provider<Dio>((ref) {
   final dio = Dio();
   final secureStorage = ref.watch(secureStorageProvider);
-  final authRepository = ref.watch(authRepositoryProvider);
+  final preferences = ref.watch(preferencesProvider);
 
   dio.interceptors.clear();
-  dio.interceptors.add(AuthInterceptor(secureStorage, authRepository));
+  dio.interceptors.add(AuthInterceptor(secureStorage, preferences, ref));
 
   return dio;
 });

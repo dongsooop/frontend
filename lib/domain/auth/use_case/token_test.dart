@@ -1,13 +1,11 @@
 import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
 
-class LogoutUseCase {
+class TokenTestUseCase {
   final AuthRepository _authRepository;
 
-  LogoutUseCase(
-    this._authRepository,
-  );
+  TokenTestUseCase(this._authRepository,);
 
   Future<void> execute() async {
-    await _authRepository.logout();
+    await _authRepository.tokenTest();
   }
 }

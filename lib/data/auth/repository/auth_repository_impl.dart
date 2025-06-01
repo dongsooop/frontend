@@ -1,37 +1,41 @@
-import 'package:dongsoop/data/auth/data_source/local_auth_data_source.dart';
 import 'package:dongsoop/domain/auth/model/login_response.dart';
-import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
-import 'package:dongsoop/data/auth/data_source/remote_auth_data_source.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
+import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
+import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
 
 import '../../../domain/auth/model/department_type_ext.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final RemoteAuthDataSource _remoteAuthDataSource;
-  final LocalAuthDataSource _localAuthDataSource;
+  final AuthDataSource _authDataSource;
 
-  AuthRepositoryImpl(this._remoteAuthDataSource, this._localAuthDataSource);
+  AuthRepositoryImpl(this._authDataSource);
 
   @override
   Future<LoginResponse> login(String email, String password) {
-    return _remoteAuthDataSource.login(email, password);
+    return _authDataSource.login(email, password);
   }
-  // logout
+
   // change nickname
   // change password
   // change dept
-
-
   @override
-  Future<void> saveUser(User user) async {
-    final department = DepartmentTypeExtension.fromCode(user.departmentType).displayName;
-    final extUser = User(nickname: user.nickname, departmentType: department);
-
-    await _localAuthDataSource.saveUser(extUser);
+  Future<void> tokenTest() async {
+    await _authDataSource.tokenTest();
   }
-  @override
-  Future<User?> getUser() => _localAuthDataSource.getUser();
 
   @override
-  Future<void> clearUser() => _localAuthDataSource.clearUser();
+  Future<User?> getUser() async {
+    return await _authDataSource.getUser();
+  }
+
+  @override
+  Future<void> logout() async {
+    await _authDataSource.logout();
+  }
+
+  @override
+  Future<void> saveUser(String nickname, String departmentType, String accessToken) async {
+    String departmentTypeExt = DepartmentTypeExtension.fromCode(departmentType).displayName;
+    await _authDataSource.saveUser(nickname, departmentTypeExt, accessToken);
+  }
 }

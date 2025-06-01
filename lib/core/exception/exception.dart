@@ -5,3 +5,11 @@ class LoginException implements Exception {
   @override
   String toString() => message;
 }
+
+class ReIssueException implements Exception {
+  final String message;
+  ReIssueException([this.message = "refresh Token이 만료됐습니다. 다시 로그인 해 주세요"]);
+
+  @override
+  String toString() => message;
+}

@@ -8,6 +8,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 
+import '../../main.dart';
+
 class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSignIn;
 
@@ -79,6 +81,36 @@ class MyPageScreen extends HookConsumerWidget {
                 error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),
                 loading: () => Center(child: CircularProgressIndicator()),
               ),
+            ),
+            // token test
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(44),
+                  backgroundColor: ColorStyles.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0
+              ),
+              onPressed: myPageState is AsyncLoading
+                  ? null
+                  : () async {
+                await viewModel.tokenTest();
+
+                final state = ref.read(myPageViewModelProvider);
+                logger.i("state: $state");
+                state.whenOrNull(
+                  data: (_) {
+                    logger.i("토큰 테스트 성공");
+                  },
+                  error: (err, _) {
+                    logger.i("토큰 테스트 실패: ${err.toString()}");
+                  },
+                );
+              },
+              child: myPageState is AsyncLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : Text('토큰 테스트', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
             ),
           ],
         ),

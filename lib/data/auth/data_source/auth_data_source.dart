@@ -1,13 +1,10 @@
 import 'package:dongsoop/domain/auth/model/login_response.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
 
-abstract class AuthRepository {
+abstract class AuthDataSource {
   Future<LoginResponse> login(String email, String password);
   Future<void> logout();
-  Future<void> saveUser(String nickname, String departmentType, String accessToken);
   Future<User?> getUser();
-  // change nickname
-  // change password
-  // change dept
+  Future<void> saveUser(String nickname, String departmentType, String accessToken);
   Future<void> tokenTest();
 }
