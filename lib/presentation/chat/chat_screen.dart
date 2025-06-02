@@ -117,11 +117,11 @@ class ChatScreenState extends State<ChatScreen> {
                       },
                     ),
                     _buildChatCategoryTab(
-                      label: '학습자료',
-                      isSelected: selectedCategory == '학습자료',
+                      label: '장터',
+                      isSelected: selectedCategory == '장터',
                       onTap: () {
                         setState(() {
-                          selectedCategory = '학습자료';
+                          selectedCategory = '장터';
                         });
                       },
                     ),
