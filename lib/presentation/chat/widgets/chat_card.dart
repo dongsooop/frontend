@@ -62,12 +62,12 @@ class _ChatCardState extends State<ChatCard> {
                       ),
                     ],
                   ),
-                  Text(
-                    widget.chat.tag,
-                    style: TextStyles.smallTextRegular.copyWith(
-                        color: ColorStyles.gray4
-                    ),
-                  )
+                  // Text(
+                  //   widget.chat.tag,
+                  //   style: TextStyles.smallTextRegular.copyWith(
+                  //       color: ColorStyles.gray4
+                  //   ),
+                  // )
                 ],
               ),
             ),

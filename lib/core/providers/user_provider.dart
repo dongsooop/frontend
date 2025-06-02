@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:dongsoop/domain/user/entities/user_entity.dart';
+import 'package:dongsoop/domain/auth/entities/user_entity.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,11 +8,13 @@ abstract class AuthRepository {
   Future<void> logout();
 }
 
+// 테스트용 구현 (.env에서 유저 정보 로드)
 class DummyAuthRepository implements AuthRepository {
   @override
   Future<UserEntity?> loadUser() async {
     final mode = dotenv.env['MODE'];
 
+    // 강제 비로그인 모드
     if (mode != 'login') return null;
 
     final id = dotenv.env['LOGIN_EMAIL'] ?? '';
@@ -23,7 +25,7 @@ class DummyAuthRepository implements AuthRepository {
     if (token == null || token.isEmpty) return null;
 
     return UserEntity(
-      nickname: '테스트유저',
+      nickname: nickname,
       departmentType: departmentType,
       accessToken: token,
     );
@@ -52,7 +54,7 @@ class DummyAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    // 테스트 환경에선 별도 처리 불필요
+    // 테스트에서 별도 처리 x
   }
 }
 
