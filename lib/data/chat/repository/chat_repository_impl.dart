@@ -11,6 +11,10 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Future<List<ChatRoom>?> getChatRooms() async {
-    return await _chatDataSource.getChatRooms();
+    final rooms =  await _chatDataSource.getChatRooms();
+    if (rooms == null)
+      return rooms;
+    rooms.sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
+    return rooms;
   }
 }
