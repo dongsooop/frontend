@@ -8,6 +8,7 @@ part 'login_response.g.dart';
 class LoginResponse with _$LoginResponse {
   final int id;
   final String accessToken;
+  final String refreshToken;
   final String nickname;
   final String email;
   final String departmentType;
@@ -15,6 +16,7 @@ class LoginResponse with _$LoginResponse {
   const LoginResponse({
     required this.id,
     required this.accessToken,
+    required this.refreshToken,
     required this.nickname,
     required this.email,
     required this.departmentType,

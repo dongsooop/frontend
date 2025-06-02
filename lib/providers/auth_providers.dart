@@ -1,6 +1,5 @@
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
-import 'package:dongsoop/domain/auth/use_case/token_test.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,18 +12,16 @@ import 'package:dongsoop/presentation/sign_in/sign_in_view_model.dart';
 import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
 import 'package:dongsoop/domain/auth/use_case/logout_use_case.dart';
 import 'package:dongsoop/presentation/my_page/my_page_view_model.dart';
-import 'auth_dio.dart';
 
 // 추후 기능, 책임 별로 providers 분리
 
 // Data Source
 final authDataSourceProvider = Provider<AuthDataSource>((ref) {
   final plainDio = ref.watch(plainDioProvider);
-  final authDio = ref.watch(authDioProvider);
   final secureStorage = ref.watch(secureStorageProvider);
   final preferences = ref.watch(preferencesProvider);
 
-  return AuthDataSourceImpl(plainDio, authDio, secureStorage, preferences);
+  return AuthDataSourceImpl(plainDio, secureStorage, preferences);
 });
 
 // Repository
@@ -51,12 +48,6 @@ final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
   return LogoutUseCase(repository);
 });
 
-final tokenTestUseCaseProvider = Provider<TokenTestUseCase>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-
-  return TokenTestUseCase(repository);
-});
-
 // View Model
 final signInViewModelProvider = StateNotifierProvider<SignInViewModel, AsyncValue<void>>((ref) {
   final loginUseCase = ref.watch(loginUseCaseProvider);
@@ -68,9 +59,8 @@ final myPageViewModelProvider =
 StateNotifierProvider<MyPageViewModel, AsyncValue<User?>>((ref) {
   final loadUseCase = ref.watch(loadUseCaseProvider);
   final logoutUseCase = ref.watch(logoutUseCaseProvider);
-  final tokenTestUseCase = ref.watch(tokenTestUseCaseProvider);
 
-  return MyPageViewModel(loadUseCase, logoutUseCase, tokenTestUseCase, ref);
+  return MyPageViewModel(loadUseCase, logoutUseCase, ref);
 });
 
 // user info

@@ -26,6 +26,7 @@ class AuthInterceptor extends Interceptor {
       final accessToken = await _secureStorageService.read('accessToken');
       // header에 AccessToken 포함
       options.headers['Authorization'] = 'Bearer $accessToken';
+      
       logger.i('➡️ [AUTH] ${options.method} ${options.uri}');
     } catch (e) {
       logger.e('AuthInterceptor error: $e');
@@ -43,23 +44,28 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     logger.e('❌ [AUTH] Error: ${err.response?.statusCode} ${err.message}');
     // AccessToken 만료(401)
-    if (err.response?.statusCode == HttpStatusCode.unauthorized.code) {
+    if (err.response?.statusCode == HttpStatusCode.internalServerError.code) {
       logger.i("401: AccessToken 만료");
       try {
+        final refreshToken = await _secureStorageService.read('refreshToken');
         final refreshDio = Dio();
         final baseUrl = dotenv.get('BASE_URL');
         final endpoint = dotenv.get('REISSUE_ENDPOINT');
         final url = '$baseUrl$endpoint';
 
-        final refreshResponse = await refreshDio.get(url);
+        final refreshResponse = await refreshDio.post(url, data: refreshToken);
 
-        final newAccessToken = refreshResponse.data.toString();
-        logger.i("AccessToken 발급: $newAccessToken");
+        final newAccessToken = refreshResponse.data['accessToken'].toString();
+        final newRefreshToken = refreshResponse.data['refreshToken'].toString();
+
         await _secureStorageService.write('accessToken', newAccessToken);
+        await _secureStorageService.write('refreshToken', newRefreshToken);
 
         final originalRequest = err.requestOptions;
         originalRequest.headers['Authorization'] = 'Bearer $newAccessToken';
-        final retryResponse = await Dio().request(
+        final retryResponse = await Dio(
+          BaseOptions(baseUrl: baseUrl)
+        ).request(
           originalRequest.path,
           options: Options(
             method: originalRequest.method,
@@ -70,10 +76,10 @@ class AuthInterceptor extends Interceptor {
         );
 
         return handler.resolve(retryResponse);
-      }  on DioException catch (e) {
+      } on DioException catch (e) {
         if (e.response?.statusCode == HttpStatusCode.unauthorized.code) {
           logger.w('🔓 RefreshToken 만료, 로그아웃 처리');
-          await _secureStorageService.delete('accessToken');
+          await _secureStorageService.delete();
           await _preferencesService.clearUser();
           _ref.read(userSessionProvider.notifier).state = null;
 
@@ -81,7 +87,8 @@ class AuthInterceptor extends Interceptor {
         }
         return handler.reject(e);
       }
+    } else {
+      super.onError(err, handler);
     }
-    super.onError(err, handler);
   }
 }

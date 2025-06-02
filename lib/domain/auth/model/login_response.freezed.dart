@@ -17,6 +17,7 @@ T _$identity<T>(T value) => value;
 mixin _$LoginResponse {
   int get id;
   String get accessToken;
+  String get refreshToken;
   String get nickname;
   String get email;
   String get departmentType;
@@ -37,6 +38,8 @@ mixin _$LoginResponse {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.accessToken, accessToken) ||
                 other.accessToken == accessToken) &&
+            (identical(other.refreshToken, refreshToken) ||
+                other.refreshToken == refreshToken) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
             (identical(other.email, email) || other.email == email) &&
@@ -46,12 +49,12 @@ mixin _$LoginResponse {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, accessToken, nickname, email, departmentType);
+  int get hashCode => Object.hash(runtimeType, id, accessToken, refreshToken,
+      nickname, email, departmentType);
 
   @override
   String toString() {
-    return 'LoginResponse(id: $id, accessToken: $accessToken, nickname: $nickname, email: $email, departmentType: $departmentType)';
+    return 'LoginResponse(id: $id, accessToken: $accessToken, refreshToken: $refreshToken, nickname: $nickname, email: $email, departmentType: $departmentType)';
   }
 }
 
@@ -64,6 +67,7 @@ abstract mixin class $LoginResponseCopyWith<$Res> {
   $Res call(
       {int id,
       String accessToken,
+      String refreshToken,
       String nickname,
       String email,
       String departmentType});
@@ -84,6 +88,7 @@ class _$LoginResponseCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? accessToken = null,
+    Object? refreshToken = null,
     Object? nickname = null,
     Object? email = null,
     Object? departmentType = null,
@@ -96,6 +101,10 @@ class _$LoginResponseCopyWithImpl<$Res>
       accessToken: null == accessToken
           ? _self.accessToken
           : accessToken // ignore: cast_nullable_to_non_nullable
+              as String,
+      refreshToken: null == refreshToken
+          ? _self.refreshToken
+          : refreshToken // ignore: cast_nullable_to_non_nullable
               as String,
       nickname: null == nickname
           ? _self.nickname

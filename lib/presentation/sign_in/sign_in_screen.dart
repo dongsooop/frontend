@@ -9,6 +9,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 
+import '../../core/presentation/components/detail_header.dart';
+
 class SignInScreen extends HookConsumerWidget {
   final VoidCallback onTapSignUp;
 
@@ -25,31 +27,11 @@ class SignInScreen extends HookConsumerWidget {
     // providers
     final loginState = ref.watch(signInViewModelProvider);
     final viewModel = ref.read(signInViewModelProvider.notifier);
-    // signInViewModelProvider 상태에 따라 코드 실행
-    // useEffect(() {
-    //   ref.listen<AsyncValue<void>>(signInViewModelProvider, (prev, next) {
-    //     next.whenOrNull( // loginViewModelProvider의 변경된 상태가 data(성공)면 페이지 이동
-    //       data: (_) {
-    //         logger.i("로그인 성공");
-    //         context.go(RoutePaths.mypage);
-    //       },
-    //       error: (e, _) {
-    //         logger.i("로그인 실패: $e");
-    //       },
-    //     );
-    //   });
-    //   return null;
-    // }, []);
 
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: AppBar(
-          leading: IconButton(
-            onPressed: () => context.pop(),
-            icon: Icon(Icons.chevron_left_outlined, size: 24, color: ColorStyles.black,),
-          ),
-        ),
+        appBar: DetailHeader(),
         body: Padding(
           padding: EdgeInsets.all(16),
           child: Column(

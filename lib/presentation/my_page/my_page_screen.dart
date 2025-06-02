@@ -82,36 +82,6 @@ class MyPageScreen extends HookConsumerWidget {
                 loading: () => Center(child: CircularProgressIndicator()),
               ),
             ),
-            // token test
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(44),
-                  backgroundColor: ColorStyles.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 0
-              ),
-              onPressed: myPageState is AsyncLoading
-                  ? null
-                  : () async {
-                await viewModel.tokenTest();
-
-                final state = ref.read(myPageViewModelProvider);
-                logger.i("state: $state");
-                state.whenOrNull(
-                  data: (_) {
-                    logger.i("토큰 테스트 성공");
-                  },
-                  error: (err, _) {
-                    logger.i("토큰 테스트 실패: ${err.toString()}");
-                  },
-                );
-              },
-              child: myPageState is AsyncLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : Text('토큰 테스트', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
-            ),
           ],
         ),
       ),
