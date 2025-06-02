@@ -5,7 +5,6 @@ abstract class RecruitListRepository {
   Future<List<RecruitListEntity>> fetchRecruitList({
     required RecruitType type,
     required int page,
-    required String accessToken,
     required String departmentType,
   });
 }

@@ -82,7 +82,6 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildStatusTag(recruitDetail.state),
                       const SizedBox(height: 16),
                       Text(recruitDetail.title,
                           style: TextStyles.largeTextBold

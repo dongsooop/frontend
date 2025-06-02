@@ -4,8 +4,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final plainDioProvider = Provider<Dio>((ref) {
-  final dio = Dio(BaseOptions(baseUrl: dotenv.get('BASE_URL'),));
-  dio.options.extra['withCredentials'] = true;
+  final dio = Dio(BaseOptions(
+    baseUrl: dotenv.get('BASE_URL'),
+  ));
   dio.interceptors.clear();
   dio.interceptors.add(PlainInterceptor());
 

@@ -10,13 +10,11 @@ class RecruitListUseCase {
   Future<List<RecruitListEntity>> call({
     required RecruitType type,
     required int page,
-    required String accessToken,
     required String departmentType,
   }) {
     return repository.fetchRecruitList(
       type: type,
       page: page,
-      accessToken: accessToken,
       departmentType: departmentType,
     );
   }

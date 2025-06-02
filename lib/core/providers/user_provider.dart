@@ -25,7 +25,7 @@ class DummyAuthRepository implements AuthRepository {
     if (token == null || token.isEmpty) return null;
 
     return UserEntity(
-      nickname: nickname,
+      nickname: '테스트유저',
       departmentType: departmentType,
       accessToken: token,
     );

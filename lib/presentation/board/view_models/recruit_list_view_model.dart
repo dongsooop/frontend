@@ -1,7 +1,12 @@
+import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_list_use_case.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/presentation/board/providers/recruit/recruit_list_use_case_provider.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'recruit_list_view_model.g.dart';
 
 class RecruitListState {
   final List<RecruitListEntity> posts;
@@ -35,49 +40,60 @@ class RecruitListState {
   }
 }
 
-class RecruitListViewModel extends StateNotifier<RecruitListState> {
-  final RecruitListUseCase useCase;
-  final RecruitType type;
-  final String accessToken;
-  final String departmentType;
+@riverpod
+class RecruitListViewModel extends _$RecruitListViewModel {
+  late final RecruitListUseCase _useCase;
+  late final RecruitType _type;
+  late String _departmentCode;
 
-  RecruitListViewModel({
-    required this.useCase,
-    required this.type,
-    required this.accessToken,
-    required this.departmentType,
-  }) : super(RecruitListState()) {
-    loadNextPage();
+  @override
+  RecruitListState build(RecruitType type) {
+    _useCase = ref.watch(recruitListUseCaseProvider);
+    _type = type;
+
+    _initialize();
+    return RecruitListState();
+  }
+
+  Future<void> _initialize() async {
+    final user = ref.read(userSessionProvider.notifier).state;
+
+    if (user == null) {
+      state = state.copyWith(error: '유저 정보가 없습니다.');
+      return;
+    }
+
+    // displayName 기준으로 enum 매핑 후 code 추출
+    final enumType =
+        DepartmentTypeExtension.fromDisplayName(user.departmentType);
+    _departmentCode = enumType.code;
+
+    await loadNextPage();
   }
 
   Future<void> loadNextPage() async {
     if (state.isLoading || !state.hasMore) return;
+
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final newPosts = await useCase(
-        type: type,
+      final newPosts = await _useCase(
+        type: _type,
         page: state.page,
-        accessToken: accessToken,
-        departmentType: departmentType,
+        departmentType: _departmentCode,
       );
 
-      // 모집 중인 게시글만 필터링
-      final filteredPosts = newPosts.where((e) => e.state).toList();
-      final hasMore = filteredPosts.isNotEmpty;
+      final filtered = newPosts.where((e) => e.state).toList();
 
       state = state.copyWith(
-        posts: [...state.posts, ...filteredPosts],
+        posts: [...state.posts, ...filtered],
         page: state.page + 1,
         isLoading: false,
-        hasMore: hasMore,
+        hasMore: filtered.isNotEmpty,
       );
     } catch (e) {
-      print('[ViewModel] 에러 발생: $e');
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      print('[RecruitListViewModel] 에러 발생: $e');
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 

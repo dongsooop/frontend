@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/data/board/recruit/data_sources/recruit_list_data_source.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_list_model.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
@@ -13,20 +14,18 @@ class RecruitListRepositoryImpl implements RecruitListRepository {
   Future<List<RecruitListEntity>> fetchRecruitList({
     required RecruitType type,
     required int page,
-    required String accessToken,
     required String departmentType,
   }) async {
     try {
       final models = await dataSource.fetchRecruitList(
         type: type,
         page: page,
-        accessToken: accessToken,
         departmentType: departmentType,
       );
 
       return models.map((model) => model.toEntity()).toList();
     } catch (e) {
-      throw Exception('게시글 목록 가져오기 실패: $e');
+      throw RecruitListException();
     }
   }
 }

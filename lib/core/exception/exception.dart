@@ -13,3 +13,11 @@ class ReIssueException implements Exception {
   @override
   String toString() => message;
 }
+
+class RecruitListException implements Exception {
+  final String message;
+  RecruitListException([this.message = "모집 게시글을 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}

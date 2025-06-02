@@ -6,7 +6,7 @@ import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart'
 import 'package:dongsoop/presentation/board/common/board_write_button.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
-import 'package:dongsoop/presentation/board/providers/recruit/recruit_list_view_model_provider.dart';
+import 'package:dongsoop/presentation/board/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -52,14 +52,12 @@ class _BoardPageScreenState extends ConsumerState<BoardPageScreen> {
 
     if (!isRecruit) return;
 
+    final notifier =
+        ref.read(recruitListViewModelProvider(recruitType).notifier);
     final state = ref.read(recruitListViewModelProvider(recruitType));
-    final hasMore = state.hasMore;
-    final isLoading = state.isLoading;
 
-    if (isBottom && hasMore && !isLoading) {
-      ref
-          .read(recruitListViewModelProvider(recruitType).notifier)
-          .loadNextPage();
+    if (isBottom && state.hasMore && !state.isLoading) {
+      notifier.loadNextPage();
     }
   }
 
@@ -75,7 +73,7 @@ class _BoardPageScreenState extends ConsumerState<BoardPageScreen> {
     final state =
         isRecruit ? ref.watch(recruitListViewModelProvider(recruitType)) : null;
 
-    final recruitList = state?.posts ?? <RecruitListEntity>[];
+    final recruitList = state?.posts ?? [];
     final marketListData = marketList;
 
     final hasMore = isRecruit ? state?.hasMore ?? false : false;
@@ -180,10 +178,9 @@ class RecruitListItem extends StatelessWidget {
                         Icon(Icons.task_alt,
                             size: 16, color: ColorStyles.primaryColor),
                         const SizedBox(width: 4),
-                        if (recruit.state)
-                          Text('모집 중',
-                              style: TextStyles.smallTextBold
-                                  .copyWith(color: ColorStyles.black)),
+                        Text('모집 중',
+                            style: TextStyles.smallTextBold
+                                .copyWith(color: ColorStyles.black)),
                         const SizedBox(width: 8),
                         Text('${recruit.volunteer}명이 지원했어요',
                             style: TextStyles.smallTextRegular
