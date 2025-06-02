@@ -7,6 +7,7 @@ final plainDioProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(
     baseUrl: dotenv.get('BASE_URL'),
   ));
+
   dio.interceptors.clear();
   dio.interceptors.add(PlainInterceptor());
 

@@ -9,6 +9,7 @@ final authDioProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(
     baseUrl: dotenv.get('BASE_URL'),
   ));
+
   final secureStorage = ref.watch(secureStorageProvider);
   final preferences = ref.watch(preferencesProvider);
 

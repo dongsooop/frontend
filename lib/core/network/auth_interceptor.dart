@@ -44,7 +44,7 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     logger.e('❌ [AUTH] Error: ${err.response?.statusCode} ${err.message}');
     // AccessToken 만료(401)
-    if (err.response?.statusCode == HttpStatusCode.internalServerError.code) {
+    if (err.response?.statusCode == HttpStatusCode.unauthorized.code) {
       logger.i("401: AccessToken 만료");
       try {
         final refreshToken = await _secureStorageService.read('refreshToken');
