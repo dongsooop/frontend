@@ -21,8 +21,7 @@ class MyPageViewModel extends StateNotifier<AsyncValue<User?>> {
     state = const AsyncValue.loading();
 
     try {
-      final user = await _loadUserUseCase.execute();
-      logger.i("user: ${user.toString()}");
+      final user = await _loadUserUseCase.execute();;
       state = AsyncValue.data(user);
 
       _ref.read(userSessionProvider.notifier).state = user;

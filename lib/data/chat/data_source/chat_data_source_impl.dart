@@ -21,8 +21,6 @@ class ChatDataSourceImpl implements ChatDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
 
-        logger.i('get chat rooms: $data');
-
         final List<ChatRoom> chatRooms = data.map((e) => ChatRoom.fromJson(e as Map<String, dynamic>)).toList();
         return chatRooms;
       }

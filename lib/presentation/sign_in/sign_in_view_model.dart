@@ -21,7 +21,6 @@ class SignInViewModel extends StateNotifier<AsyncValue<void>> {
       // 로그인한 유저 정보 로딩
       final user = await _ref.read(authRepositoryProvider).getUser();
       _ref.read(userSessionProvider.notifier).state = user;
-      
       state = AsyncValue.data(null);
     } on LoginException catch (e, st) {
       state = AsyncValue.error(e.message, st);

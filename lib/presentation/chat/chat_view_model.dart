@@ -20,8 +20,6 @@ class ChatViewModel extends StateNotifier<AsyncValue<List<UiChatRoom>?>> {
         state = AsyncValue.data(null);
       final uiChatRooms = chatRooms!.map((room) => UiChatRoom.fromEntity(room)).toList();
       state = AsyncValue.data(uiChatRooms);
-
-      logger.i("chat ui rooms: ${uiChatRooms.toString()}");
     } catch (e, st) {
       logger.e('load char rooms error: ${e.runtimeType}', error: e, stackTrace: st);
 
