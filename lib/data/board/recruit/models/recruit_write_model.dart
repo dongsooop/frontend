@@ -1,6 +1,12 @@
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class RecruitWriteModel {
+part 'recruit_write_model.freezed.dart';
+part 'recruit_write_model.g.dart';
+
+@freezed
+@JsonSerializable()
+class RecruitWriteModel with _$RecruitWriteModel {
   final String title;
   final String content;
   final String tags;
@@ -17,14 +23,7 @@ class RecruitWriteModel {
     required this.departmentTypeList,
   });
 
-  Map<String, dynamic> toJson() => {
-        'title': title,
-        'content': content,
-        'tags': tags,
-        'startAt': startAt.toIso8601String(),
-        'endAt': endAt.toIso8601String(),
-        'departmentTypeList': departmentTypeList,
-      };
+  Map<String, dynamic> toJson() => _$RecruitWriteModelToJson(this);
 
   factory RecruitWriteModel.fromEntity(RecruitWriteEntity entity) {
     return RecruitWriteModel(

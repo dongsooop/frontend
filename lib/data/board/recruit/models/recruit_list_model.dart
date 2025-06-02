@@ -1,10 +1,16 @@
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class RecruitListModel {
+part 'recruit_list_model.freezed.dart';
+part 'recruit_list_model.g.dart';
+
+@freezed
+@JsonSerializable()
+class RecruitListModel with _$RecruitListModel {
   final int id;
   final int volunteer;
-  final DateTime? startAt;
-  final DateTime? endAt;
+  final DateTime startAt;
+  final DateTime endAt;
   final String title;
   final String content;
   final String tags;
@@ -19,17 +25,8 @@ class RecruitListModel {
     required this.tags,
   });
 
-  factory RecruitListModel.fromJson(Map<String, dynamic> json) {
-    return RecruitListModel(
-      id: json['id'] ?? 0,
-      volunteer: json['volunteer'] ?? 0,
-      startAt: json['startAt'] != null ? DateTime.parse(json['startAt']) : null,
-      endAt: json['endAt'] != null ? DateTime.parse(json['endAt']) : null,
-      title: json['title'] ?? '',
-      content: json['content'] ?? '',
-      tags: json['tags'] ?? '',
-    );
-  }
+  factory RecruitListModel.fromJson(Map<String, dynamic> json) =>
+      _$RecruitListModelFromJson(json);
 }
 
 extension RecruitListModelMapper on RecruitListModel {
@@ -43,8 +40,8 @@ extension RecruitListModelMapper on RecruitListModel {
     return RecruitListEntity(
       id: id,
       volunteer: volunteer,
-      startAt: startAt ?? DateTime.now(),
-      endAt: endAt ?? DateTime.now(),
+      startAt: startAt,
+      endAt: endAt,
       title: title,
       content: content,
       tags: tags,
