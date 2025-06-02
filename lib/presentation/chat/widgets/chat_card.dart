@@ -1,14 +1,14 @@
-import 'package:dongsoop/presentation/chat/temp/chat.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 
 class ChatCard extends StatefulWidget {
-  final Chat chat;
+  final UiChatRoom chatRoom;
 
   const ChatCard({
     super.key,
-    required this.chat,
+    required this.chatRoom,
   });
 
   @override
@@ -48,14 +48,18 @@ class _ChatCardState extends State<ChatCard> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 8,
                     children: [
-                      Text(
-                        widget.chat.title,
-                        style: TextStyles.normalTextBold.copyWith(
-                            color: ColorStyles.black
+                      Expanded(
+                        child: Text(
+                          '채팅방 이름: 추후 백엔드가 줄 거임',
+                          style: TextStyles.normalTextBold.copyWith(
+                              color: ColorStyles.black
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                       Text(
-                        widget.chat.personnel.toString(),
+                        widget.chatRoom.participantCount,
                         style: TextStyles.smallTextRegular.copyWith(
                             color: ColorStyles.gray4
                         ),
@@ -63,7 +67,7 @@ class _ChatCardState extends State<ChatCard> {
                     ],
                   ),
                   // Text(
-                  //   widget.chat.tag,
+                  //   widget.chat.tag, // 마지막으로 수신된 메시지(미리 보기)
                   //   style: TextStyles.smallTextRegular.copyWith(
                   //       color: ColorStyles.gray4
                   //   ),
@@ -78,7 +82,7 @@ class _ChatCardState extends State<ChatCard> {
               spacing: 8,
               children: [
                 Text(
-                  widget.chat.time,
+                  widget.chatRoom.lastActivityText,
                   style: TextStyles.smallTextRegular.copyWith(
                       color: ColorStyles.gray4
                   ),
@@ -92,7 +96,7 @@ class _ChatCardState extends State<ChatCard> {
                         )
                     ),
                     child: Text(
-                      widget.chat.messegeNum.toString(),
+                      '1',
                       style: TextStyles.smallTextBold.copyWith(
                           color: ColorStyles.white
                       ),

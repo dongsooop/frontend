@@ -8,8 +8,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 
-import '../../main.dart';
-
 class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSignIn;
 
