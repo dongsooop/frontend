@@ -1,4 +1,6 @@
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
+import 'package:dongsoop/domain/chat/model/chat_message.dart';
+import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 
@@ -17,4 +19,16 @@ class ChatRepositoryImpl implements ChatRepository {
     rooms.sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
     return rooms;
   }
+
+  @override
+  Future<void> connect(String roomId) => _chatDataSource.connect(roomId);
+
+  @override
+  void disconnect() => _chatDataSource.disconnect();
+
+  @override
+  void sendMessage(ChatMessageRequest message) => _chatDataSource.sendMessage(message);
+
+  @override
+  Stream<ChatMessage> subscribeMessages() => _chatDataSource.subscribeMessages();
 }

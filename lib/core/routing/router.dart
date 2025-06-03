@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
@@ -39,7 +40,9 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
   ),
   GoRoute(
     path: RoutePaths.chatDetail,
-    builder: (context, state) => ChatDetailScreen(),
+    builder: (context, state) => ChatDetailScreen(
+      chatRoom: state.extra as UiChatRoom,
+    ),
   ),
   GoRoute(
     path: RoutePaths.recruitWrite,
@@ -95,8 +98,8 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
           GoRoute(
             path: RoutePaths.chat,
             builder: (context, state) => ChatScreen(
-              onTapChatDetail: () {
-                context.push(RoutePaths.chatDetail);
+              onTapChatDetail: (room) {
+                context.push(RoutePaths.chatDetail, extra: room);
               },
             ),
           ),

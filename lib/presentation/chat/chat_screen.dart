@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -6,11 +7,10 @@ import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../main.dart';
 import '../../providers/auth_providers.dart';
 
 class ChatScreen extends HookConsumerWidget {
-  final VoidCallback onTapChatDetail;
+  final void Function(UiChatRoom room) onTapChatDetail;
 
   const ChatScreen({
     super.key,
@@ -237,7 +237,7 @@ class ChatScreen extends HookConsumerWidget {
                   itemBuilder: (context, index) {
                     final room = chatRooms[index];
                     return GestureDetector(
-                      onTap: onTapChatDetail,
+                      onTap: () => onTapChatDetail(room),
                       child: ChatCard(chatRoom: room),
                     );
                   },
@@ -245,7 +245,7 @@ class ChatScreen extends HookConsumerWidget {
               }
             },
             error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),
-            loading: () => Center(child: CircularProgressIndicator()),
+            loading: () => Center(child: CircularProgressIndicator(color: ColorStyles.primaryColor,)),
           ),
         )
       ],

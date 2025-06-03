@@ -1,15 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/domain/chat/model/chat_message.dart';
+import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../../core/network/stomp_service.dart';
 import '../../../main.dart';
 import 'chat_data_source.dart';
 
 class ChatDataSourceImpl implements ChatDataSource {
   final Dio _authDio;
+  final StompService _stompService;
 
   ChatDataSourceImpl(
     this._authDio,
+    this._stompService,
   );
 
   @override
@@ -29,4 +34,16 @@ class ChatDataSourceImpl implements ChatDataSource {
       rethrow;
     }
   }
+
+  @override
+  Future<void> connect(String roomId) => _stompService.connect(roomId);
+
+  @override
+  void disconnect() => _stompService.disconnect();
+
+  @override
+  void sendMessage(ChatMessageRequest message) => _stompService.sendMessage(message);
+
+  @override
+  Stream<ChatMessage> subscribeMessages() => _stompService.messageStream;
 }

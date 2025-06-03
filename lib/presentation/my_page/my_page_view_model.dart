@@ -5,6 +5,8 @@ import 'package:dongsoop/domain/auth/use_case/logout_use_case.dart';
 import 'package:dongsoop/main.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 
+import '../../providers/chat_providers.dart';
+
 
 class MyPageViewModel extends StateNotifier<AsyncValue<User?>> {
   final LoadUserUseCase _loadUserUseCase;
@@ -37,7 +39,10 @@ class MyPageViewModel extends StateNotifier<AsyncValue<User?>> {
 
     try {
       await _logoutUseCase.execute();
-      _ref.read(userSessionProvider.notifier).state = null;
+      _ref.invalidate(userSessionProvider);
+      _ref.invalidate(chatViewModelProvider);
+      _ref.invalidate(chatDetailViewModelProvider);
+
       state = const AsyncValue.data(null);
     } catch (e, st) {
       logger.e("Login Error: ${e.runtimeType}", error: e, stackTrace: st);
