@@ -8,7 +8,10 @@ class CustomConfirmDialog extends StatelessWidget {
   final String cancelText;
   final String confirmText;
   final VoidCallback onConfirm;
+  final VoidCallback? onCancel;
   final bool isSingleAction;
+  final bool dismissOnConfirm;
+  final bool dismissOnCancel;
 
   const CustomConfirmDialog({
     super.key,
@@ -17,7 +20,10 @@ class CustomConfirmDialog extends StatelessWidget {
     this.cancelText = '취소',
     this.confirmText = '확인',
     required this.onConfirm,
+    this.onCancel,
     this.isSingleAction = false,
+    this.dismissOnConfirm = true,
+    this.dismissOnCancel = true,
   });
 
   @override
@@ -47,8 +53,12 @@ class CustomConfirmDialog extends StatelessWidget {
                 CupertinoDialogAction(
                   isDefaultAction: true,
                   onPressed: () {
-                    Navigator.of(context).pop();
-                    onConfirm();
+                    if (dismissOnConfirm && Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      onConfirm();
+                    });
                   },
                   child: Text(
                     confirmText,
@@ -61,7 +71,16 @@ class CustomConfirmDialog extends StatelessWidget {
             : [
                 CupertinoDialogAction(
                   isDestructiveAction: true,
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    if (dismissOnCancel && Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                    if (onCancel != null) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        onCancel!();
+                      });
+                    }
+                  },
                   child: Text(
                     cancelText,
                     style: TextStyles.largeTextRegular.copyWith(
@@ -72,8 +91,12 @@ class CustomConfirmDialog extends StatelessWidget {
                 CupertinoDialogAction(
                   isDefaultAction: true,
                   onPressed: () {
-                    Navigator.of(context).pop();
-                    onConfirm();
+                    if (dismissOnConfirm && Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      onConfirm();
+                    });
                   },
                   child: Text(
                     confirmText,

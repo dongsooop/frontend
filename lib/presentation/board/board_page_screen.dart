@@ -1,303 +1,147 @@
-import 'package:dongsoop/core/presentation/components/common_img_style.dart';
-import 'package:dongsoop/core/presentation/components/common_tag.dart';
-import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
-import 'package:dongsoop/core/routing/route_paths.dart';
-import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
-import 'package:dongsoop/presentation/board/common/board_write_button.dart';
-import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
-import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
-import 'package:dongsoop/presentation/board/view_models/recruit_list_view_model.dart';
-import 'package:dongsoop/ui/color_styles.dart';
-import 'package:dongsoop/ui/text_styles.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'dart:ui';
 
-class BoardPageScreen extends ConsumerStatefulWidget {
+import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
+import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
+import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
+import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
+import 'package:dongsoop/presentation/board/recruit/list/recruit_list_item.dart';
+import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/ui/color_styles.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+class BoardPageScreen extends HookConsumerWidget {
   final void Function(int id, RecruitType type) onTapRecruitDetail;
+
   const BoardPageScreen({super.key, required this.onTapRecruitDetail});
 
-  @override
-  ConsumerState<BoardPageScreen> createState() => _BoardPageScreenState();
-}
-
-class _BoardPageScreenState extends ConsumerState<BoardPageScreen> {
-  int selectedIndex = 0;
-  int selectedSubIndex = 0;
-  final ScrollController _scrollController = ScrollController();
-
-  RecruitType get recruitType {
-    switch (selectedSubIndex) {
-      case 0:
-        return RecruitType.tutoring;
-      case 1:
-        return RecruitType.study;
-      case 2:
-        return RecruitType.project;
-      default:
-        throw Exception('Invalid sub index');
-    }
-  }
+  static const categoryTabs = ['모집', '장터'];
+  static const recruitSubTabs = ['튜터링', '스터디', '프로젝트'];
+  static const marketSubTabs = ['판매', '구매'];
 
   @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = useState(0);
+    final selectedSubIndex = useState(0);
+    final scrollController = useScrollController();
 
-  void _onScroll() {
-    final isBottom = _scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 100;
-    final isRecruit = selectedIndex == 0;
+    final isRecruit = selectedIndex.value == 0;
+    final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
+    final recruitType = RecruitType.values[selectedSubIndex.value];
 
-    if (!isRecruit) return;
+    final user = ref.watch(userSessionProvider);
+    final departmentCode = user != null
+        ? DepartmentTypeExtension.fromDisplayName(user.departmentType).code
+        : '';
 
-    final notifier =
-        ref.read(recruitListViewModelProvider(recruitType).notifier);
-    final state = ref.read(recruitListViewModelProvider(recruitType));
+    // infinite scroll – 유저가 있을 때만
+    useEffect(() {
+      if (user == null) return null;
 
-    if (isBottom && state.hasMore && !state.isLoading) {
-      notifier.loadNextPage();
-    }
-  }
+      void _onScroll() {
+        final viewModelProvider = recruitListViewModelProvider(
+          type: recruitType,
+          departmentCode: departmentCode,
+        );
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+        final current = ref.read(viewModelProvider);
+        final notifier = ref.read(viewModelProvider.notifier);
 
-  @override
-  Widget build(BuildContext context) {
-    final isRecruit = selectedIndex == 0;
-    final state =
-        isRecruit ? ref.watch(recruitListViewModelProvider(recruitType)) : null;
+        final isBottom = scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 100;
 
-    final recruitList = state?.posts ?? [];
-    final marketListData = marketList;
+        if (isBottom && !current.isLoading && current.hasMore) {
+          notifier.loadNextPage();
+        }
+      }
 
-    final hasMore = isRecruit ? state?.hasMore ?? false : false;
-    final isLoading = isRecruit ? state?.isLoading ?? false : false;
-    final listLength = isRecruit ? recruitList.length : marketListData.length;
+      scrollController.addListener(_onScroll);
+      return () => scrollController.removeListener(_onScroll);
+    }, [
+      scrollController,
+      selectedIndex.value,
+      selectedSubIndex.value,
+      departmentCode,
+    ]);
 
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        floatingActionButton: WriteButton(
-          onPressed: () {
-            final route =
-                isRecruit ? RoutePaths.recruitWrite : '/market/validate';
-            context.push(route);
-          },
-        ),
-        body: ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: listLength + 1 + ((hasMore && isLoading) ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return BoardTabSection(
-                categoryTabs: ['모집', '장터'],
-                selectedCategoryIndex: selectedIndex,
-                selectedSubTabIndex: selectedSubIndex,
-                subTabs: isRecruit ? ['튜터링', '스터디', '프로젝트'] : ['판매', '구매'],
-                onCategorySelected: (selectIndex) {
-                  setState(() {
-                    selectedIndex = selectIndex;
-                    selectedSubIndex = 0;
-                  });
+        floatingActionButton: user != null
+            ? WriteButton(
+                onPressed: () {
+                  final route =
+                      isRecruit ? RoutePaths.recruitWrite : '/market/write';
+                  context.push(route);
                 },
-                onSubTabSelected: (subIndex) {
-                  setState(() {
-                    selectedSubIndex = subIndex;
-                  });
-                },
-              );
-            }
-
-            if (index == listLength + 1 && hasMore && isLoading) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-
-            final isLast = index - 1 == listLength - 1;
-
-            if (isRecruit) {
-              final recruit = recruitList[index - 1];
-              return RecruitListItem(
-                recruit: recruit,
-                isLastItem: isLast,
-                onTap: () => widget.onTapRecruitDetail(recruit.id, recruitType),
-              );
-            } else {
-              final market = marketListData[index - 1];
-              return MarketListItem(
-                market: market,
-                isLastItem: isLast,
-                onTap: () {},
-              );
-            }
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class RecruitListItem extends StatelessWidget {
-  final RecruitListEntity recruit;
-  final VoidCallback onTap;
-  final bool isLastItem;
-
-  const RecruitListItem({
-    super.key,
-    required this.recruit,
-    required this.onTap,
-    required this.isLastItem,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              )
+            : null,
+        body: Stack(
+          children: [
+            Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: BoardTabSection(
+                    categoryTabs: categoryTabs,
+                    selectedCategoryIndex: selectedIndex.value,
+                    selectedSubTabIndex: selectedSubIndex.value,
+                    subTabs: currentSubTabs,
+                    onCategorySelected: (newIndex) {
+                      selectedIndex.value = newIndex;
+                      selectedSubIndex.value = 0;
+                    },
+                    onSubTabSelected: (newSubIndex) {
+                      selectedSubIndex.value = newSubIndex;
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: user == null
+                      ? const SizedBox.shrink()
+                      : isRecruit
+                          ? RecruitItemListSection(
+                              recruitType: recruitType,
+                              departmentCode: departmentCode,
+                              onTapRecruitDetail: onTapRecruitDetail,
+                              scrollController: scrollController,
+                            )
+                          : MarketItemListSection(
+                              scrollController: scrollController,
+                            ),
+                ),
+              ],
+            ),
+            if (user == null)
+              Positioned.fill(
+                child: Stack(
                   children: [
-                    Row(
-                      children: [
-                        Icon(Icons.task_alt,
-                            size: 16, color: ColorStyles.primaryColor),
-                        const SizedBox(width: 4),
-                        Text('모집 중',
-                            style: TextStyles.smallTextBold
-                                .copyWith(color: ColorStyles.black)),
-                        const SizedBox(width: 8),
-                        Text('${recruit.volunteer}명이 지원했어요',
-                            style: TextStyles.smallTextRegular
-                                .copyWith(color: ColorStyles.gray4)),
-                      ],
-                    ),
-                    Text(
-                      '${recruit.startAt.month.toString().padLeft(2)}. ${recruit.startAt.day.toString().padLeft(2)}. ~ ${recruit.endAt.month.toString().padLeft(2)}. ${recruit.endAt.day.toString().padLeft(2)}.',
-                      style: TextStyles.smallTextRegular
-                          .copyWith(color: ColorStyles.gray4),
+                    BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
+                        child: Container(
+                          color: Colors.black.withAlpha((255 * 0.3).round()),
+                        )),
+                    Center(
+                      child: CustomConfirmDialog(
+                        title: '로그인이 필요해요',
+                        content: '이 서비스를 이용하려면 \n 로그인을 해야해요!',
+                        isSingleAction: true,
+                        confirmText: '확인',
+                        dismissOnConfirm: false,
+                        onConfirm: () => context.go(RoutePaths.mypage),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Text(recruit.title,
-                    style: TextStyles.largeTextBold
-                        .copyWith(color: ColorStyles.black)),
-                const SizedBox(height: 8),
-                FractionallySizedBox(
-                  widthFactor: 0.8,
-                  child: Text(
-                    recruit.content,
-                    style: TextStyles.smallTextRegular
-                        .copyWith(color: ColorStyles.black),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  children: recruit.tags
-                      .split(',')
-                      .asMap()
-                      .entries
-                      .map((entry) => CommonTag(
-                            label: entry.value,
-                            index: entry.key,
-                          ))
-                      .toList(),
-                ),
-              ],
-            ),
-          ),
-          if (!isLastItem) const Divider(color: ColorStyles.gray2, height: 1),
-        ],
-      ),
-    );
-  }
-}
-
-class MarketListItem extends StatelessWidget {
-  final Map<String, dynamic> market;
-  final VoidCallback onTap;
-  final bool isLastItem;
-
-  const MarketListItem({
-    super.key,
-    required this.market,
-    required this.onTap,
-    required this.isLastItem,
-  });
-
-  String formatRelativeTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inMinutes < 1) return '방금 전';
-    if (difference.inMinutes < 60) return '${difference.inMinutes}분 전';
-    if (difference.inHours < 24) return '${difference.inHours}시간 전';
-    if (difference.inDays < 7) return '${difference.inDays}일 전';
-
-    return '${dateTime.year}. ${dateTime.month}. ${dateTime.day}. ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final imageList = market['images'];
-    final hasImage =
-        imageList != null && imageList is List && imageList.isNotEmpty;
-    final firstImage = hasImage ? imageList.first : null;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CommonImgStyle(imagePath: hasImage ? firstImage : null),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(market['market_title'] ?? '',
-                          style: TextStyles.largeTextRegular
-                              .copyWith(color: ColorStyles.black)),
-                      Text(
-                        formatRelativeTime(
-                            market['market_created_at'] ?? DateTime.now()),
-                        style: TextStyles.smallTextRegular
-                            .copyWith(color: ColorStyles.gray4),
-                      ),
-                      Text('${market['market_prices'] ?? 0}원',
-                          style: TextStyles.largeTextBold
-                              .copyWith(color: ColorStyles.black)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (!isLastItem) const Divider(color: ColorStyles.gray2, height: 1),
-        ],
+              ),
+          ],
+        ),
       ),
     );
   }

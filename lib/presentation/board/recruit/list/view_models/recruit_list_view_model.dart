@@ -1,9 +1,7 @@
-import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_list_use_case.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_list_use_case_provider.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'recruit_list_view_model.g.dart';
@@ -44,30 +42,23 @@ class RecruitListState {
 class RecruitListViewModel extends _$RecruitListViewModel {
   late final RecruitListUseCase _useCase;
   late final RecruitType _type;
-  late String _departmentCode;
+  late final String _departmentCode;
 
   @override
-  RecruitListState build(RecruitType type) {
+  RecruitListState build({
+    required RecruitType type,
+    required String departmentCode,
+  }) {
     _useCase = ref.watch(recruitListUseCaseProvider);
     _type = type;
+    _departmentCode = departmentCode;
 
-    _initialize();
+    Future.microtask(() => _initialize());
+
     return RecruitListState();
   }
 
   Future<void> _initialize() async {
-    final user = ref.read(userSessionProvider.notifier).state;
-
-    if (user == null) {
-      state = state.copyWith(error: '유저 정보가 없습니다.');
-      return;
-    }
-
-    // displayName 기준으로 enum 매핑 후 code 추출
-    final enumType =
-        DepartmentTypeExtension.fromDisplayName(user.departmentType);
-    _departmentCode = enumType.code;
-
     await loadNextPage();
   }
 
@@ -97,8 +88,8 @@ class RecruitListViewModel extends _$RecruitListViewModel {
     }
   }
 
-  void refresh() {
+  Future<void> refresh() async {
     state = RecruitListState();
-    loadNextPage();
+    await loadNextPage();
   }
 }

@@ -7,7 +7,7 @@ part of 'recruit_list_view_model.dart';
 // **************************************************************************
 
 String _$recruitListViewModelHash() =>
-    r'8a98fd92ecb83a9188a09917d147ada694b31928';
+    r'88efe26f7f9485642cc0c7b011e6f4f0b92f0c2d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -33,10 +33,12 @@ class _SystemHash {
 abstract class _$RecruitListViewModel
     extends BuildlessAutoDisposeNotifier<RecruitListState> {
   late final RecruitType type;
+  late final String departmentCode;
 
-  RecruitListState build(
-    RecruitType type,
-  );
+  RecruitListState build({
+    required RecruitType type,
+    required String departmentCode,
+  });
 }
 
 /// See also [RecruitListViewModel].
@@ -49,11 +51,13 @@ class RecruitListViewModelFamily extends Family<RecruitListState> {
   const RecruitListViewModelFamily();
 
   /// See also [RecruitListViewModel].
-  RecruitListViewModelProvider call(
-    RecruitType type,
-  ) {
+  RecruitListViewModelProvider call({
+    required RecruitType type,
+    required String departmentCode,
+  }) {
     return RecruitListViewModelProvider(
-      type,
+      type: type,
+      departmentCode: departmentCode,
     );
   }
 
@@ -62,7 +66,8 @@ class RecruitListViewModelFamily extends Family<RecruitListState> {
     covariant RecruitListViewModelProvider provider,
   ) {
     return call(
-      provider.type,
+      type: provider.type,
+      departmentCode: provider.departmentCode,
     );
   }
 
@@ -85,10 +90,13 @@ class RecruitListViewModelFamily extends Family<RecruitListState> {
 class RecruitListViewModelProvider extends AutoDisposeNotifierProviderImpl<
     RecruitListViewModel, RecruitListState> {
   /// See also [RecruitListViewModel].
-  RecruitListViewModelProvider(
-    RecruitType type,
-  ) : this._internal(
-          () => RecruitListViewModel()..type = type,
+  RecruitListViewModelProvider({
+    required RecruitType type,
+    required String departmentCode,
+  }) : this._internal(
+          () => RecruitListViewModel()
+            ..type = type
+            ..departmentCode = departmentCode,
           from: recruitListViewModelProvider,
           name: r'recruitListViewModelProvider',
           debugGetCreateSourceHash:
@@ -99,6 +107,7 @@ class RecruitListViewModelProvider extends AutoDisposeNotifierProviderImpl<
           allTransitiveDependencies:
               RecruitListViewModelFamily._allTransitiveDependencies,
           type: type,
+          departmentCode: departmentCode,
         );
 
   RecruitListViewModelProvider._internal(
@@ -109,16 +118,19 @@ class RecruitListViewModelProvider extends AutoDisposeNotifierProviderImpl<
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.type,
+    required this.departmentCode,
   }) : super.internal();
 
   final RecruitType type;
+  final String departmentCode;
 
   @override
   RecruitListState runNotifierBuild(
     covariant RecruitListViewModel notifier,
   ) {
     return notifier.build(
-      type,
+      type: type,
+      departmentCode: departmentCode,
     );
   }
 
@@ -127,13 +139,16 @@ class RecruitListViewModelProvider extends AutoDisposeNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: RecruitListViewModelProvider._internal(
-        () => create()..type = type,
+        () => create()
+          ..type = type
+          ..departmentCode = departmentCode,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         type: type,
+        departmentCode: departmentCode,
       ),
     );
   }
@@ -146,13 +161,16 @@ class RecruitListViewModelProvider extends AutoDisposeNotifierProviderImpl<
 
   @override
   bool operator ==(Object other) {
-    return other is RecruitListViewModelProvider && other.type == type;
+    return other is RecruitListViewModelProvider &&
+        other.type == type &&
+        other.departmentCode == departmentCode;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, type.hashCode);
+    hash = _SystemHash.combine(hash, departmentCode.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -164,6 +182,9 @@ mixin RecruitListViewModelRef
     on AutoDisposeNotifierProviderRef<RecruitListState> {
   /// The parameter `type` of this provider.
   RecruitType get type;
+
+  /// The parameter `departmentCode` of this provider.
+  String get departmentCode;
 }
 
 class _RecruitListViewModelProviderElement
@@ -173,6 +194,9 @@ class _RecruitListViewModelProviderElement
 
   @override
   RecruitType get type => (origin as RecruitListViewModelProvider).type;
+  @override
+  String get departmentCode =>
+      (origin as RecruitListViewModelProvider).departmentCode;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
