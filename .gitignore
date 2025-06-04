@@ -9,9 +9,6 @@ build/
 # dotenv file
 .env
 
-# dept file
-assets/json/department.json
-
 # Local configuration file (sdk path, etc)
 local.properties
 
