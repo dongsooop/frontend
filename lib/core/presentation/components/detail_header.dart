@@ -17,6 +17,7 @@ class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
         backgroundColor: ColorStyles.white,
         elevation: 0,
         automaticallyImplyLeading: false,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),

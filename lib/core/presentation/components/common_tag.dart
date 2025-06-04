@@ -59,7 +59,7 @@ class CommonTag extends StatelessWidget {
         (textStyle ?? TextStyles.smallTextBold).copyWith(color: colors['text']);
 
     return Container(
-      margin: const EdgeInsets.only(right: 8, bottom: 8),
+      margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: colors['bg'],
