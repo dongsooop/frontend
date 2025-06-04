@@ -15,6 +15,7 @@ class RecruitDetailModel with _$RecruitDetailModel {
   final String content;
   final String tags;
   final List<String> departmentTypeList;
+  final String author;
   final DateTime createdAt;
 
   RecruitDetailModel({
@@ -26,6 +27,7 @@ class RecruitDetailModel with _$RecruitDetailModel {
     required this.content,
     required this.tags,
     required this.departmentTypeList,
+    required this.author,
     required this.createdAt,
   });
 
@@ -44,6 +46,7 @@ extension RecruitDetailModelMapper on RecruitDetailModel {
       content: content,
       tags: tags,
       departmentTypeList: departmentTypeList,
+      author: author,
       createdAt: createdAt,
     );
   }

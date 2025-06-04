@@ -8,6 +8,7 @@ class RecruitDetailEntity {
   final String tags;
   final List<String> departmentTypeList;
   final DateTime createdAt;
+  final String author;
 
   const RecruitDetailEntity({
     required this.id,
@@ -19,5 +20,6 @@ class RecruitDetailEntity {
     required this.tags,
     required this.departmentTypeList,
     required this.createdAt,
+    required this.author,
   });
 }

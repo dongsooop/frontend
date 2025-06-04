@@ -18,6 +18,7 @@ RecruitDetailModel _$RecruitDetailModelFromJson(Map<String, dynamic> json) =>
       departmentTypeList: (json['departmentTypeList'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
+      author: json['author'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
@@ -31,5 +32,6 @@ Map<String, dynamic> _$RecruitDetailModelToJson(RecruitDetailModel instance) =>
       'content': instance.content,
       'tags': instance.tags,
       'departmentTypeList': instance.departmentTypeList,
+      'author': instance.author,
       'createdAt': instance.createdAt.toIso8601String(),
     };

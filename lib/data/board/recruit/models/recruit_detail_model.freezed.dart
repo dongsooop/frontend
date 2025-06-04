@@ -23,6 +23,7 @@ mixin _$RecruitDetailModel {
   String get content;
   String get tags;
   List<String> get departmentTypeList;
+  String get author;
   DateTime get createdAt;
 
   /// Create a copy of RecruitDetailModel
@@ -48,6 +49,7 @@ mixin _$RecruitDetailModel {
             (identical(other.tags, tags) || other.tags == tags) &&
             const DeepCollectionEquality()
                 .equals(other.departmentTypeList, departmentTypeList) &&
+            (identical(other.author, author) || other.author == author) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -64,11 +66,12 @@ mixin _$RecruitDetailModel {
       content,
       tags,
       const DeepCollectionEquality().hash(departmentTypeList),
+      author,
       createdAt);
 
   @override
   String toString() {
-    return 'RecruitDetailModel(id: $id, volunteer: $volunteer, startAt: $startAt, endAt: $endAt, title: $title, content: $content, tags: $tags, departmentTypeList: $departmentTypeList, createdAt: $createdAt)';
+    return 'RecruitDetailModel(id: $id, volunteer: $volunteer, startAt: $startAt, endAt: $endAt, title: $title, content: $content, tags: $tags, departmentTypeList: $departmentTypeList, author: $author, createdAt: $createdAt)';
   }
 }
 
@@ -87,6 +90,7 @@ abstract mixin class $RecruitDetailModelCopyWith<$Res> {
       String content,
       String tags,
       List<String> departmentTypeList,
+      String author,
       DateTime createdAt});
 }
 
@@ -111,6 +115,7 @@ class _$RecruitDetailModelCopyWithImpl<$Res>
     Object? content = null,
     Object? tags = null,
     Object? departmentTypeList = null,
+    Object? author = null,
     Object? createdAt = null,
   }) {
     return _then(RecruitDetailModel(
@@ -146,6 +151,10 @@ class _$RecruitDetailModelCopyWithImpl<$Res>
           ? _self.departmentTypeList
           : departmentTypeList // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      author: null == author
+          ? _self.author
+          : author // ignore: cast_nullable_to_non_nullable
+              as String,
       createdAt: null == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
