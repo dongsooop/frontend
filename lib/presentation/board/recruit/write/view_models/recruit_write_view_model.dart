@@ -1,55 +1,83 @@
+import 'dart:convert';
+
+import 'package:dongsoop/data/board/recruit/models/recruit_write_model.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_write_use_case.dart';
+import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';
 import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/presentation/board/recruit/write/providers/recruit_write_use_case_provider.dart';
+import 'package:dongsoop/presentation/board/recruit/write/state/date_time_state.dart';
+import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class RecruitWriteViewModel extends StateNotifier<AsyncValue<void>> {
-  final RecruitWriteUseCase useCase;
-  final ValidateWriteUseCase validator;
+part 'recruit_write_view_model.g.dart';
 
-  bool _isSubmitting = false;
+@riverpod
+class RecruitWriteViewModel extends _$RecruitWriteViewModel {
+  RecruitWriteUseCase get _useCase => ref.watch(recruitWriteUseCaseProvider);
+  ValidateWriteUseCase get _validator =>
+      ref.watch(validateWriteUseCaseProvider);
 
-  RecruitWriteViewModel(this.useCase, this.validator)
-      : super(const AsyncValue.data(null));
+  @override
+  RecruitFormState build() {
+    // DateTimeState 포함된 기본 상태
+    final now = DateTime.now();
+    final rounded = _roundUpTo10(now);
+    return RecruitFormState(
+      dateTime: DateTimeState(
+        currentMonth: DateTime(now.year, now.month),
+        startDateTime: rounded,
+        endDateTime: rounded.add(const Duration(hours: 24)),
+        startTimePicked: false,
+        endTimePicked: false,
+      ),
+    );
+  }
 
-  bool validateForm({
-    required int? selectedIndex,
-    required String title,
-    required String content,
-    required List<String> tags,
-  }) {
-    return validator.isValidRecruitType(selectedIndex) &&
-        validator.isValidTitle(title) &&
-        validator.isValidContent(content) &&
-        validator.isValidTags(tags);
+  DateTime _roundUpTo10(DateTime dt) {
+    final roundedMinute = ((dt.minute + 9) ~/ 10) * 10;
+    if (roundedMinute == 60) {
+      dt = dt.add(const Duration(hours: 1));
+      return DateTime(dt.year, dt.month, dt.day, dt.hour, 0);
+    }
+    return DateTime(dt.year, dt.month, dt.day, dt.hour, roundedMinute);
+  }
+
+  void updateForm(RecruitFormState updated) {
+    state = updated;
+  }
+
+  bool get isFormValid {
+    return _validator.isValidRecruitType(state.selectedTypeIndex) &&
+        _validator.isValidTitle(state.title) &&
+        _validator.isValidContent(state.content) &&
+        _validator.isValidTags(state.tags) &&
+        _validator.isValidStartTime(state.dateTime.startDateTime) &&
+        _validator.isValidEndDateTime(
+          start: state.dateTime.startDateTime,
+          end: state.dateTime.endDateTime,
+        );
   }
 
   Future<void> submit({
     required RecruitType type,
-    required String accessToken,
     required RecruitWriteEntity entity,
   }) async {
-    if (_isSubmitting) return;
-    _isSubmitting = true;
+    if (state.isLoading) return;
+    state = state.copyWith(isLoading: true); // trigger rebuild
 
-    state = const AsyncValue.loading();
     try {
-      await useCase(
-        type: type,
-        accessToken: accessToken,
-        entity: entity,
-      );
-      if (mounted) {
-        state = const AsyncValue.data(null);
-      }
-    } catch (e, st) {
-      print('[ViewModel] 요청 실패: $e');
-      if (mounted) {
-        state = AsyncValue.error(e, st);
-      }
+      debugPrint(
+          '[Submit] Payload: ${jsonEncode(RecruitWriteModel.fromEntity(entity).toJson())}');
+      await _useCase(type: type, entity: entity);
+      ref.invalidateSelf(); // 상태 초기화
+    } catch (e) {
+      debugPrint('[ViewModel] 요청 실패: $e');
+      rethrow;
     } finally {
-      _isSubmitting = false;
+      state = state.copyWith(isLoading: false);
     }
   }
 }

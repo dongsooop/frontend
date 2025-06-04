@@ -1,11 +1,11 @@
-class DateTimeSelectorState {
+class DateTimeState {
   final DateTime startDateTime;
   final DateTime endDateTime;
   final bool startTimePicked;
   final bool endTimePicked;
   final DateTime currentMonth;
 
-  DateTimeSelectorState({
+  DateTimeState({
     required this.startDateTime,
     required this.endDateTime,
     required this.startTimePicked,
@@ -13,14 +13,14 @@ class DateTimeSelectorState {
     required this.currentMonth,
   });
 
-  DateTimeSelectorState copyWith({
+  DateTimeState copyWith({
     DateTime? startDateTime,
     DateTime? endDateTime,
     bool? startTimePicked,
     bool? endTimePicked,
     DateTime? currentMonth,
   }) {
-    return DateTimeSelectorState(
+    return DateTimeState(
       startDateTime: startDateTime ?? this.startDateTime,
       endDateTime: endDateTime ?? this.endDateTime,
       startTimePicked: startTimePicked ?? this.startTimePicked,

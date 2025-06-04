@@ -4,7 +4,6 @@ import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 abstract class RecruitWriteRepository {
   Future<void> submitRecruitPost({
     required RecruitType type,
-    required String accessToken,
     required RecruitWriteEntity entity,
   });
 }

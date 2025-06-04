@@ -1,21 +1,27 @@
+import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/date_time_state.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class DateTimeSelectorViewModel extends StateNotifier<DateTimeSelectorState> {
-  final ValidateWriteUseCase validator;
+part 'date_time_view_model.g.dart';
 
-  DateTimeSelectorViewModel(this.validator)
-      : super(
-          DateTimeSelectorState(
-            currentMonth: DateTime(DateTime.now().year, DateTime.now().month),
-            startDateTime: _roundUpTo10(DateTime.now()),
-            endDateTime:
-                _roundUpTo10(DateTime.now()).add(const Duration(hours: 24)),
-            startTimePicked: false,
-            endTimePicked: false,
-          ),
-        );
+@riverpod
+class DateTimeViewModel extends _$DateTimeViewModel {
+  ValidateWriteUseCase get _validator =>
+      ref.watch(validateWriteUseCaseProvider);
+
+  @override
+  DateTimeState build() {
+    final now = DateTime.now();
+    final roundedNow = _roundUpTo10(now);
+    return DateTimeState(
+      currentMonth: DateTime(now.year, now.month),
+      startDateTime: roundedNow,
+      endDateTime: roundedNow.add(const Duration(hours: 24)),
+      startTimePicked: false,
+      endTimePicked: false,
+    );
+  }
 
   static DateTime _roundUpTo10(DateTime dt) {
     final roundedMinute = ((dt.minute + 9) ~/ 10) * 10;
@@ -34,60 +40,51 @@ class DateTimeSelectorViewModel extends StateNotifier<DateTimeSelectorState> {
     return DateTime(year, month, day > lastDay ? lastDay : day);
   }
 
-  // 날짜 선택
   void updateSelectedDate(DateTime date, bool isStart) {
-    final current = isStart ? state.startDateTime : state.endDateTime;
+    final base = isStart ? state.startDateTime : state.endDateTime;
     final updated =
-        DateTime(date.year, date.month, date.day, current.hour, current.minute);
+        DateTime(date.year, date.month, date.day, base.hour, base.minute);
 
-    if (isStart) {
-      final newEnd = updated.add(const Duration(days: 1));
-      state = state.copyWith(startDateTime: updated, endDateTime: newEnd);
-    } else {
-      state = state.copyWith(endDateTime: updated);
-    }
+    state = isStart
+        ? state.copyWith(
+            startDateTime: updated,
+            endDateTime: updated.add(const Duration(days: 1)),
+          )
+        : state.copyWith(endDateTime: updated);
   }
 
-  // 시간 선택
   void updateSelectedTime(int hour, int minute, bool isStart) {
     final base = isStart ? state.startDateTime : state.endDateTime;
     final updated = DateTime(base.year, base.month, base.day, hour, minute);
 
-    if (isStart) {
-      final newEnd = updated.add(const Duration(hours: 24));
-      state = state.copyWith(
-        startDateTime: updated,
-        endDateTime: newEnd,
+    state = isStart
+        ? state.copyWith(
+            startDateTime: updated,
+            endDateTime: updated.add(const Duration(hours: 24)),
+          )
+        : state.copyWith(endDateTime: updated);
+  }
+
+  void confirmStartTime() => state = state.copyWith(startTimePicked: true);
+  void confirmEndTime() => state = state.copyWith(endTimePicked: true);
+
+  bool validateStartTime() => _validator.isValidStartTime(state.startDateTime);
+
+  bool validateEndTime() => _validator.isValidEndDateTime(
+        start: state.startDateTime,
+        end: state.endDateTime,
       );
-    } else {
-      state = state.copyWith(endDateTime: updated);
-    }
+
+  bool confirmDateTime(bool isStart) {
+    final isValid = isStart ? validateStartTime() : validateEndTime();
+    if (!isValid) return false;
+    isStart ? confirmStartTime() : confirmEndTime();
+    return true;
   }
 
-  void confirmStartTime() {
-    state = state.copyWith(startTimePicked: true);
-  }
-
-  void confirmEndTime() {
-    state = state.copyWith(endTimePicked: true);
-  }
-
-  bool validateStartTime() {
-    return validator.isValidStartTime(state.startDateTime);
-  }
-
-  bool validateEndTime() {
-    return validator.isValidEndDateTime(
-      start: state.startDateTime,
-      end: state.endDateTime,
-    );
-  }
-
-  // View에서 onMonthChanged 시 직접 호출할 메서드
   void tryMoveToMonth(DateTime month, bool isStart) {
     if (isStart && !canMoveToNextMonth(month, true)) return;
     if (!isStart && !canMoveToNextMonth(month, false)) return;
-
     state = state.copyWith(currentMonth: month);
   }
 
@@ -115,10 +112,8 @@ class DateTimeSelectorViewModel extends StateNotifier<DateTimeSelectorState> {
     } else {
       final minEnd = state.startDateTime.add(const Duration(hours: 24));
       final maxEnd = state.startDateTime.add(const Duration(days: 28));
-
       final minDate = DateTime(minEnd.year, minEnd.month, minEnd.day);
       final maxDate = DateTime(maxEnd.year, maxEnd.month, maxEnd.day);
-
       return !date.isBefore(minDate) && !date.isAfter(maxDate);
     }
   }

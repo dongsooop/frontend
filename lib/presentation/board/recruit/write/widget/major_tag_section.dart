@@ -1,5 +1,5 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
-import 'package:dongsoop/presentation/board/common/board_require_label.dart';
+import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/recruit_bottom_sheet.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';

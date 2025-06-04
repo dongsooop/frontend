@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/data/board/recruit/data_sources/recruit_write_data_source.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_write_repository.dart';
@@ -11,17 +12,15 @@ class RecruitWriteRepositoryImpl implements RecruitWriteRepository {
   @override
   Future<void> submitRecruitPost({
     required RecruitType type,
-    required String accessToken,
     required RecruitWriteEntity entity,
   }) async {
     try {
       await dataSource.submitRecruitPost(
         type: type,
-        accessToken: accessToken,
         entity: entity,
       );
     } catch (e) {
-      throw Exception('${type.name} 작성 실패: $e');
+      throw RecruitWriteException();
     }
   }
 }

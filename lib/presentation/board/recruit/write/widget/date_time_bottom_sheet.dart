@@ -1,4 +1,4 @@
-import 'package:dongsoop/presentation/board/recruit/write/providers/date_time_provider.dart';
+import 'package:dongsoop/presentation/board/recruit/write/view_models/date_time_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/bottom_custom_calendar.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/bottom_custom_time_spinner.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -20,8 +20,8 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(dateTimeSelectorProvider);
-    final notifier = ref.read(dateTimeSelectorProvider.notifier);
+    final state = ref.watch(dateTimeViewModelProvider);
+    final viewModel = ref.read(dateTimeViewModelProvider.notifier);
     final selectedDateTime =
         widget.isStart ? state.startDateTime : state.endDateTime;
 
@@ -30,7 +30,6 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
         height: 584,
         child: Column(
           children: [
-            // 상단 고정 제목 및 안내문
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 20),
               child: Column(
@@ -50,9 +49,8 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                         widget.isStart
                             ? '오늘 기준 3개월 이내의 날짜만 선택 가능해요'
                             : '시작일 기준 최소 24시간, 최대 28일 이내로 선택 가능해요',
-                        style: TextStyles.smallTextRegular.copyWith(
-                          color: ColorStyles.gray4,
-                        ),
+                        style: TextStyles.smallTextRegular
+                            .copyWith(color: ColorStyles.gray4),
                       ),
                     ],
                   ),
@@ -60,8 +58,6 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                 ],
               ),
             ),
-
-            // 스크롤 가능한 영역
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -71,18 +67,18 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                       selectedDate: selectedDateTime,
                       currentMonth: state.currentMonth,
                       onMonthChanged: (month) {
-                        notifier.tryMoveToMonth(month, widget.isStart);
+                        viewModel.tryMoveToMonth(month, widget.isStart);
                       },
                       onDateSelected: (date) {
                         setState(() => _errorMessage = null);
-                        notifier.updateSelectedDate(date, widget.isStart);
+                        viewModel.updateSelectedDate(date, widget.isStart);
                       },
                       isDateEnabled: (date) =>
-                          notifier.isDateEnabled(date, widget.isStart),
+                          viewModel.isDateEnabled(date, widget.isStart),
                       canMoveToPreviousMonth: (month) =>
-                          notifier.canMoveToPreviousMonth(month),
+                          viewModel.canMoveToPreviousMonth(month),
                       canMoveToNextMonth: (month) =>
-                          notifier.canMoveToNextMonth(month, widget.isStart),
+                          viewModel.canMoveToNextMonth(month, widget.isStart),
                     ),
                     const SizedBox(height: 24),
                     BottomCustomTimeSpinner(
@@ -90,11 +86,8 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                       isStart: widget.isStart,
                       onDateTimeChanged: (picked) {
                         setState(() => _errorMessage = null);
-                        notifier.updateSelectedTime(
-                          picked.hour,
-                          picked.minute,
-                          widget.isStart,
-                        );
+                        viewModel.updateSelectedTime(
+                            picked.hour, picked.minute, widget.isStart);
                       },
                     ),
                     const SizedBox(height: 16),
@@ -120,35 +113,30 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                 ),
               ),
             ),
-
-            // 하단 고정 버튼
             Padding(
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () {
                   setState(() => _errorMessage = null);
 
-                  if (widget.isStart && !notifier.validateStartTime()) {
-                    setState(() {
-                      _errorMessage = '지금보다 이른 시간은 선택할 수 없어요';
-                    });
-                    return;
-                  }
+                  final isValid = widget.isStart
+                      ? viewModel.validateStartTime()
+                      : viewModel.validateEndTime();
 
-                  if (!widget.isStart && !notifier.validateEndTime()) {
+                  if (!isValid) {
                     setState(() {
-                      _errorMessage = '모집 기간은 최소 1일(24시간) 이상이어야 해요';
+                      _errorMessage = widget.isStart
+                          ? '지금보다 이른 시간은 선택할 수 없어요'
+                          : '모집 기간은 최소 1일(24시간) 이상이어야 해요';
                     });
                     return;
                   }
 
                   Navigator.pop(context);
 
-                  if (widget.isStart) {
-                    notifier.confirmStartTime();
-                  } else {
-                    notifier.confirmEndTime();
-                  }
+                  widget.isStart
+                      ? viewModel.confirmStartTime()
+                      : viewModel.confirmEndTime();
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),
