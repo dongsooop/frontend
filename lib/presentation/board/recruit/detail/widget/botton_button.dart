@@ -2,12 +2,12 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
-class BottomButton extends StatelessWidget {
+class RecruitBottomButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String label;
   final bool isEnabled;
 
-  const BottomButton({
+  const RecruitBottomButton({
     super.key,
     required this.label,
     this.onPressed,
