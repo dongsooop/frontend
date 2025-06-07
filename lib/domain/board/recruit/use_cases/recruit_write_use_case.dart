@@ -4,11 +4,11 @@ import 'package:dongsoop/domain/board/recruit/repositories/recruit_repository.da
 import 'package:dongsoop/main.dart';
 
 class RecruitWriteUseCase {
-  final RecruitWriteRepository repository;
+  final RecruitRepository repository;
 
   RecruitWriteUseCase(this.repository);
 
-  Future<void> call({
+  Future<void> execute({
     required RecruitType type,
     required RecruitWriteEntity entity,
   }) {

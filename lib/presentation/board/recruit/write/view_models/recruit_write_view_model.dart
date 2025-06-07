@@ -60,7 +60,10 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
     if (state.isLoading) return;
     state = state.copyWith(isLoading: true);
     try {
-      await _useCase(type: type, entity: entity);
+      await _useCase.execute(
+        type: type,
+        entity: entity,
+      );
       ref.invalidateSelf();
     } catch (e) {
       debugPrint('[Submit Error] $e');

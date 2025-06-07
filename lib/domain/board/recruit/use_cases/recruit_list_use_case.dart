@@ -3,11 +3,11 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_repository.dart';
 
 class RecruitListUseCase {
-  final RecruitListRepository repository;
+  final RecruitRepository repository;
 
   RecruitListUseCase(this.repository);
 
-  Future<List<RecruitListEntity>> call({
+  Future<List<RecruitListEntity>> execute({
     required RecruitType type,
     required int page,
     required String departmentType,

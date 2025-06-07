@@ -68,7 +68,7 @@ class RecruitListViewModel extends _$RecruitListViewModel {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final newPosts = await _useCase(
+      final newPosts = await _useCase.execute(
         type: _type,
         page: state.page,
         departmentType: _departmentCode,

@@ -62,7 +62,10 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
   @override
   FutureOr<RecruitDetailState> build(RecruitDetailArgs args) async {
     try {
-      final recruitDetail = await _useCase(id: args.id, type: args.type);
+      final recruitDetail = await _useCase.execute(
+        id: args.id,
+        type: args.type,
+      );
       return RecruitDetailState(
         recruitDetail: recruitDetail,
         isLoading: false,
