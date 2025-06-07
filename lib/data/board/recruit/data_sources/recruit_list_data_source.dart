@@ -23,7 +23,7 @@ class RecruitListDataSource {
         queryParameters: {
           'page': page,
           'size': 10,
-          'sort': ['id,desc', 'createdAt,asc'],
+          'sort': ['id,desc', 'endAt,asc', 'startAt,asc', 'createdAt,asc'],
         },
       );
 
