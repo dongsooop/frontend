@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:dongsoop/data/board/recruit/models/recruit_write_model.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_write_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';
-import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 import 'package:dongsoop/presentation/board/recruit/write/providers/recruit_write_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/date_time_state.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';

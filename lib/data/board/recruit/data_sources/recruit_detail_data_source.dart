@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_detail_model.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
 import 'package:dongsoop/main.dart';
-import 'package:dongsoop/presentation/board/common/enum/recruit_types.dart';
 
 class RecruitDetailDataSource {
   final Dio _authDio;
