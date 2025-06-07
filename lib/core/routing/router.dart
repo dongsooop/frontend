@@ -12,6 +12,8 @@ import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:dongsoop/presentation/webview/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/webview/library_banner_webview_screen.dart';
 import 'package:dongsoop/presentation/webview/notice_webview_screen.dart';
+import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
+import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(initialLocation: RoutePaths.home, routes: [
@@ -25,6 +27,16 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
     path: RoutePaths.calendar,
     name: 'calendar',
     builder: (context, state) => const CalendarPageScreen(),
+  ),
+  GoRoute(
+    path: RoutePaths.signIn,
+    builder: (context, state) => SignInScreen(
+      onTapSignUp: () => context.push(RoutePaths.signUp),
+    ),
+  ),
+  GoRoute(
+    path: RoutePaths.signUp,
+    builder: (context, state) => SignUpScreen(),
   ),
   GoRoute(
     path: RoutePaths.chatDetail,
@@ -70,7 +82,7 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
                   path: RoutePaths.libraryWebView,
                   name: 'libraryWebView',
                   builder: (context, state) =>
-                      const LibraryBannerWebViewScreen(),
+                  const LibraryBannerWebViewScreen(),
                 ),
                 GoRoute(
                   path: RoutePaths.cafeteriaWebView,
@@ -99,7 +111,11 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.mypage,
-            builder: (context, state) => const MyPageScreen(),
+            builder: (context, state) => MyPageScreen(
+              onTapSignIn: () {
+                context.push(RoutePaths.signIn);
+              },
+            ),
           ),
         ]),
       ])
