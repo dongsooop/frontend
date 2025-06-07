@@ -23,7 +23,7 @@ class RecruitWriteDataSource {
 
       final response = await _authDio.post(endpoint, data: jsonBody);
 
-      if (response.statusCode == HttpStatusCode.ok.code) {
+      if (response.statusCode == HttpStatusCode.created.code) {
         logger.i('[RecruitWrite] 모집글 작성 성공');
         return;
       }
