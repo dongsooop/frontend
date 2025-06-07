@@ -9,9 +9,9 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_repository.dart';
 
 class RecruitRepositoryImpl implements RecruitRepository {
-  final RecruitDataSource dataSource;
+  final RecruitDataSource _dataSource;
 
-  RecruitRepositoryImpl(this.dataSource);
+  RecruitRepositoryImpl(this._dataSource);
 
   @override
   Future<List<RecruitListEntity>> fetchRecruitList({
@@ -19,16 +19,14 @@ class RecruitRepositoryImpl implements RecruitRepository {
     required int page,
     required String departmentType,
   }) async {
-    try {
-      final models = await dataSource.fetchList(
+    return _handle(() async {
+      final models = await _dataSource.fetchList(
         type: type,
         page: page,
         departmentType: departmentType,
       );
       return models.map((model) => model.toEntity()).toList();
-    } catch (_) {
-      throw RecruitListException();
-    }
+    }, RecruitListException());
   }
 
   @override
@@ -36,15 +34,13 @@ class RecruitRepositoryImpl implements RecruitRepository {
     required int id,
     required RecruitType type,
   }) async {
-    try {
-      final model = await dataSource.fetchDetail(
+    return _handle(() async {
+      final model = await _dataSource.fetchDetail(
         id: id,
         type: type,
       );
       return model.toEntity();
-    } catch (_) {
-      throw RecruitDetailException();
-    }
+    }, RecruitDetailException());
   }
 
   @override
@@ -52,13 +48,16 @@ class RecruitRepositoryImpl implements RecruitRepository {
     required RecruitType type,
     required RecruitWriteEntity entity,
   }) async {
+    return _handle(() async {
+      await _dataSource.submitPost(type: type, entity: entity);
+    }, RecruitWriteException());
+  }
+
+  Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
-      await dataSource.submitPost(
-        type: type,
-        entity: entity,
-      );
+      return await action();
     } catch (_) {
-      throw RecruitWriteException();
+      throw exception;
     }
   }
 }
