@@ -32,37 +32,61 @@ class DateTimeViewModel extends _$DateTimeViewModel {
     return DateTime(dt.year, dt.month, dt.day, dt.hour, roundedMinute);
   }
 
-  DateTime _addMonths(DateTime base, int months) {
-    final year = base.year + ((base.month + months - 1) ~/ 12);
-    final month = (base.month + months - 1) % 12 + 1;
-    final day = base.day;
-    final lastDay = DateTime(year, month + 1, 0).day;
-    return DateTime(year, month, day > lastDay ? lastDay : day);
-  }
-
   void updateSelectedDate(DateTime date, bool isStart) {
     final base = isStart ? state.startDateTime : state.endDateTime;
     final updated =
         DateTime(date.year, date.month, date.day, base.hour, base.minute);
 
-    state = isStart
-        ? state.copyWith(
-            startDateTime: updated,
-            endDateTime: updated.add(const Duration(days: 1)),
-          )
-        : state.copyWith(endDateTime: updated);
+    if (isStart) {
+      final currentEnd = state.endDateTime;
+
+      final isAfter = updated.isAfter(currentEnd);
+      final updatedDateOnly =
+          DateTime(updated.year, updated.month, updated.day);
+      final currentEndDateOnly =
+          DateTime(currentEnd.year, currentEnd.month, currentEnd.day);
+
+      final shouldAdjustEnd =
+          updatedDateOnly.isAfter(currentEndDateOnly) || isAfter;
+
+      final newEnd =
+          shouldAdjustEnd ? updated.add(const Duration(days: 1)) : currentEnd;
+
+      state = state.copyWith(
+        startDateTime: updated,
+        endDateTime: newEnd,
+      );
+    } else {
+      state = state.copyWith(endDateTime: updated);
+    }
   }
 
   void updateSelectedTime(int hour, int minute, bool isStart) {
     final base = isStart ? state.startDateTime : state.endDateTime;
     final updated = DateTime(base.year, base.month, base.day, hour, minute);
 
-    state = isStart
-        ? state.copyWith(
-            startDateTime: updated,
-            endDateTime: updated.add(const Duration(hours: 24)),
-          )
-        : state.copyWith(endDateTime: updated);
+    if (isStart) {
+      final currentEnd = state.endDateTime;
+
+      final isAfter = updated.isAfter(currentEnd);
+      final updatedDateOnly =
+          DateTime(updated.year, updated.month, updated.day);
+      final currentEndDateOnly =
+          DateTime(currentEnd.year, currentEnd.month, currentEnd.day);
+
+      final shouldAdjustEnd =
+          updatedDateOnly.isAfter(currentEndDateOnly) || isAfter;
+
+      final newEnd =
+          shouldAdjustEnd ? updated.add(const Duration(days: 1)) : currentEnd;
+
+      state = state.copyWith(
+        startDateTime: updated,
+        endDateTime: newEnd,
+      );
+    } else {
+      state = state.copyWith(endDateTime: updated);
+    }
   }
 
   void confirmStartTime() => state = state.copyWith(startTimePicked: true);
@@ -83,8 +107,7 @@ class DateTimeViewModel extends _$DateTimeViewModel {
   }
 
   void tryMoveToMonth(DateTime month, bool isStart) {
-    if (isStart && !canMoveToNextMonth(month, true)) return;
-    if (!isStart && !canMoveToNextMonth(month, false)) return;
+    if (!canMoveToNextMonth(month, isStart)) return;
     state = state.copyWith(currentMonth: month);
   }
 
@@ -97,7 +120,7 @@ class DateTimeViewModel extends _$DateTimeViewModel {
   bool canMoveToNextMonth(DateTime targetMonth, bool isStart) {
     final now = DateTime.now();
     final base = isStart ? now : state.startDateTime;
-    final max = _addMonths(base, isStart ? 3 : 1);
+    final max = DateTime(base.year, base.month + (isStart ? 3 : 1));
     final maxMonthOnly = DateTime(max.year, max.month);
     return !targetMonth.isAfter(maxMonthOnly);
   }
@@ -107,7 +130,7 @@ class DateTimeViewModel extends _$DateTimeViewModel {
     final today = DateTime(now.year, now.month, now.day);
 
     if (isStart) {
-      final maxStart = _addMonths(today, 3);
+      final maxStart = DateTime(today.year, today.month + 3, today.day);
       return !date.isBefore(today) && !date.isAfter(maxStart);
     } else {
       final minEnd = state.startDateTime.add(const Duration(hours: 24));

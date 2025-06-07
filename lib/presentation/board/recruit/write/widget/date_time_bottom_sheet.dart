@@ -5,6 +5,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class DateTimeBottomSheet extends ConsumerStatefulWidget {
   final bool isStart;
@@ -22,6 +23,7 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
   Widget build(BuildContext context) {
     final state = ref.watch(dateTimeViewModelProvider);
     final viewModel = ref.read(dateTimeViewModelProvider.notifier);
+
     final selectedDateTime =
         widget.isStart ? state.startDateTime : state.endDateTime;
 
@@ -54,7 +56,6 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -75,8 +76,7 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                       },
                       isDateEnabled: (date) =>
                           viewModel.isDateEnabled(date, widget.isStart),
-                      canMoveToPreviousMonth: (month) =>
-                          viewModel.canMoveToPreviousMonth(month),
+                      canMoveToPreviousMonth: viewModel.canMoveToPreviousMonth,
                       canMoveToNextMonth: (month) =>
                           viewModel.canMoveToNextMonth(month, widget.isStart),
                     ),
@@ -117,12 +117,7 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () {
-                  setState(() => _errorMessage = null);
-
-                  final isValid = widget.isStart
-                      ? viewModel.validateStartTime()
-                      : viewModel.validateEndTime();
-
+                  final isValid = viewModel.confirmDateTime(widget.isStart);
                   if (!isValid) {
                     setState(() {
                       _errorMessage = widget.isStart
@@ -132,11 +127,7 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                     return;
                   }
 
-                  Navigator.pop(context);
-
-                  widget.isStart
-                      ? viewModel.confirmStartTime()
-                      : viewModel.confirmEndTime();
+                  context.pop();
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),

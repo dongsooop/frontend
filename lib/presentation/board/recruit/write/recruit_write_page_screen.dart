@@ -7,6 +7,7 @@ import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart
 import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
+import 'package:dongsoop/presentation/board/recruit/write/view_models/date_time_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/write/view_models/recruit_write_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/date_time_bottom_sheet.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/major_tag_section.dart';
@@ -72,32 +73,34 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                   .map((e) => DepartmentTypeExtension.fromDisplayName(e).code)
             }.whereType<String>().toSet().toList();
 
+      final dateState = ref.read(dateTimeViewModelProvider);
+
       final entity = RecruitWriteEntity(
         title: state.title.trim(),
         content: state.content.trim(),
         tags: state.tags.join(','),
-        startAt: state.dateTime.startDateTime,
-        endAt: state.dateTime.endDateTime,
+        startAt: dateState.startDateTime,
+        endAt: dateState.endDateTime,
         departmentTypeList: deptList,
       );
 
       await viewModel.submit(type: type, entity: entity);
-
       context.pop();
       context.go(RoutePaths.board);
-      ref.invalidate(recruitWriteViewModelProvider);
     }
 
     Widget buildDateTimeBox(String label, DateTime dateTime, bool isStart) {
       return GestureDetector(
-        onTap: () => showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          builder: (_) => DateTimeBottomSheet(isStart: isStart),
-        ),
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            builder: (_) => DateTimeBottomSheet(isStart: isStart),
+          );
+        },
         child: Container(
           height: 50,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -198,9 +201,11 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                buildDateTimeBox('모집 시작일', state.dateTime.startDateTime, true),
+                buildDateTimeBox('모집 시작일',
+                    ref.watch(dateTimeViewModelProvider).startDateTime, true),
                 const SizedBox(height: 8),
-                buildDateTimeBox('모집 마감일', state.dateTime.endDateTime, false),
+                buildDateTimeBox('모집 마감일',
+                    ref.watch(dateTimeViewModelProvider).endDateTime, false),
                 const SizedBox(height: 40),
                 RequiredLabel('제목'),
                 const SizedBox(height: 16),
