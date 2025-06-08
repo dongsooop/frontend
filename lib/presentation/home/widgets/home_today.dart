@@ -1,14 +1,27 @@
+import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class HomeToday extends StatelessWidget {
+class HomeToday extends HookConsumerWidget {
   const HomeToday({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cafeteriaState = ref.watch(cafeteriaViewModelProvider);
+    final now = DateTime.now();
+    final weekday = ['월', '화', '수', '목', '금', '토', '일'][now.weekday - 1];
+    final todayString = '${now.month}월 ${now.day}일 ($weekday)';
+
+    String cafeteriaText = cafeteriaState.when(
+      data: (state) => state.todayMeal?.koreanMenu ?? '오늘은 학식이 제공되지 않아요!',
+      loading: () => '불러오는 중...',
+      error: (err, _) => err.toString(),
+    );
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 64, top: 32),
@@ -24,7 +37,7 @@ class HomeToday extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '4월 7일 (월)',
+            todayString,
             style: TextStyles.titleTextBold.copyWith(
               color: ColorStyles.black,
             ),
@@ -56,7 +69,12 @@ class HomeToday extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _buildCard(title: '오늘의 학식', type: 'cafeteria', context: context),
+          _buildCard(
+            title: '오늘의 학식',
+            type: 'cafeteria',
+            context: context,
+            cafeteriaText: cafeteriaText,
+          ),
           const SizedBox(height: 12),
           _buildCard(title: '', type: 'banner', context: context),
         ],
@@ -68,6 +86,7 @@ class HomeToday extends StatelessWidget {
     required String title,
     required String type,
     required BuildContext context,
+    String? cafeteriaText,
   }) {
     List<Widget> content = [];
 
@@ -85,7 +104,7 @@ class HomeToday extends StatelessWidget {
     } else if (type == 'cafeteria') {
       content = [
         Text(
-          '백미밥, 닭갈비볶음, 피자왕춘권&칠리소스, 두부양념조림, 배추김치/요구르트, 소고기미역국',
+          cafeteriaText ?? '',
           style: TextStyles.smallTextRegular.copyWith(
             color: ColorStyles.gray4,
           ),
@@ -160,7 +179,6 @@ class HomeToday extends StatelessWidget {
       );
     }
 
-    // 카드 클릭 시 라우팅
     return GestureDetector(
       onTap: () {
         if (type == 'schedule') {
