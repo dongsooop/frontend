@@ -7,9 +7,6 @@ class CafeteriaUseCase {
   CafeteriaUseCase(this.repository);
 
   Future<CafeteriaEntity> execute() async {
-    final cached = await repository.getCachedCafeteriaMeals();
-    if (cached != null) return cached;
-
     return await repository.fetchCafeteriaMeals();
   }
 }

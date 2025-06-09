@@ -31,12 +31,24 @@ class CafeteriaState {
 class CafeteriaViewModel extends _$CafeteriaViewModel {
   @override
   FutureOr<CafeteriaState> build() async {
+    final now = DateTime.now();
+    final today = DateFormat('yyyy-MM-dd').format(now);
+
+    final isWeekend = now.weekday >= 6; // 토, 일
+    if (isWeekend) {
+      return CafeteriaState(
+        todayMeal: DailyMealEntity(
+          date: today,
+          dayOfWeek: '',
+          koreanMenu: '오늘은 학식이 제공되지 않아요!',
+        ),
+        emptyReason: CafeteriaEmptyReason.weekend,
+      );
+    }
+
     try {
       final useCase = ref.read(cafeteriaUseCaseProvider);
       final entity = await useCase.execute();
-
-      final now = DateTime.now();
-      final today = DateFormat('yyyy-MM-dd').format(now);
 
       final todayMeal = entity.dailyMeals.firstWhere(
         (meal) => meal.date == today,
@@ -47,22 +59,24 @@ class CafeteriaViewModel extends _$CafeteriaViewModel {
         ),
       );
 
-      final isWeekend = now.weekday >= 6;
       final isHoliday = todayMeal.koreanMenu.trim().length < 10;
-
-      if (isWeekend || isHoliday) {
+      if (isHoliday) {
         return CafeteriaState(
           todayMeal: DailyMealEntity(
             date: today,
             dayOfWeek: todayMeal.dayOfWeek,
             koreanMenu: '오늘은 학식이 제공되지 않아요!',
           ),
+          emptyReason: CafeteriaEmptyReason.holiday,
         );
       }
 
       return CafeteriaState(todayMeal: todayMeal);
     } catch (e) {
-      return CafeteriaState(error: e.toString());
+      return CafeteriaState(
+        error: e.toString(),
+        emptyReason: CafeteriaEmptyReason.error,
+      );
     }
   }
 }
