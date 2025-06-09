@@ -21,17 +21,3 @@ RecruitDetailModel _$RecruitDetailModelFromJson(Map<String, dynamic> json) =>
       author: json['author'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
-
-Map<String, dynamic> _$RecruitDetailModelToJson(RecruitDetailModel instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'volunteer': instance.volunteer,
-      'startAt': instance.startAt.toIso8601String(),
-      'endAt': instance.endAt.toIso8601String(),
-      'title': instance.title,
-      'content': instance.content,
-      'tags': instance.tags,
-      'departmentTypeList': instance.departmentTypeList,
-      'author': instance.author,
-      'createdAt': instance.createdAt.toIso8601String(),
-    };

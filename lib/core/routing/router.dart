@@ -12,8 +12,9 @@ import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
-import 'package:dongsoop/presentation/webview/library_banner_webview_screen.dart';
-import 'package:dongsoop/presentation/webview/notice_webview_screen.dart';
+import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
+import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
+import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(initialLocation: RoutePaths.home, routes: [
@@ -66,29 +67,35 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
       branches: [
         StatefulShellBranch(routes: [
           GoRoute(
-            path: RoutePaths.home,
-            builder: (context, state) => const HomePageScreen(),
-            routes: [
-              GoRoute(
-                path: RoutePaths.noticeList,
-                name: 'noticeList',
-                builder: (context, state) => const NoticeListPageScreen(),
-              ),
-              GoRoute(
-                path: RoutePaths.noticeWebView,
-                name: 'noticeWebView',
-                builder: (context, state) {
-                  final path = state.uri.queryParameters['path'];
-                  return NoticeWebViewScreen(path: path ?? '');
-                },
-              ),
-              GoRoute(
-                path: RoutePaths.libraryWebView,
-                name: 'libraryWebView',
-                builder: (context, state) => const LibraryBannerWebViewScreen(),
-              ),
-            ],
-          ),
+              path: RoutePaths.home,
+              builder: (context, state) => const HomePageScreen(),
+              routes: [
+                GoRoute(
+                  path: RoutePaths.noticeList,
+                  name: 'noticeList',
+                  builder: (context, state) => const NoticeListPageScreen(),
+                ),
+                GoRoute(
+                  path: RoutePaths.noticeWebView,
+                  name: 'noticeWebView',
+                  builder: (context, state) {
+                    final path = state.uri.queryParameters['path'];
+                    return NoticeWebViewScreen(path: path ?? '');
+                  },
+                ),
+                GoRoute(
+                  path: RoutePaths.libraryWebView,
+                  name: 'libraryWebView',
+                  builder: (context, state) =>
+                      const LibraryBannerWebViewScreen(),
+                ),
+                GoRoute(
+                  path: RoutePaths.cafeteriaWebView,
+                  name: 'cafeteriaWebView',
+                  builder: (context, state) =>
+                      const CafeteriaWebViewPageScreen(),
+                ),
+              ]),
         ]),
         StatefulShellBranch(routes: [
           GoRoute(
