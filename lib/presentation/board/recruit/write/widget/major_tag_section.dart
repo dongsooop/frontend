@@ -1,4 +1,5 @@
-import 'package:dongsoop/presentation/board/common/board_require_label.dart';
+import 'package:dongsoop/core/presentation/components/common_tag.dart';
+import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/recruit_bottom_sheet.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -41,11 +42,13 @@ class MajorTagSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAllSelected = selectedMajors.contains('전체 학과');
-    final displayText = isAllSelected
-        ? '학과 선택하기 ($departmentCount)'
-        : selectedMajors.isNotEmpty
-            ? '학과 선택하기 (${selectedMajors.length})'
-            : '학과 선택하기';
+    final displayText = isTutorType
+        ? '튜터링은 작성자의 학과만 모집 가능해요'
+        : isAllSelected
+            ? '학과 선택하기 ($departmentCount)'
+            : selectedMajors.isNotEmpty
+                ? '학과 선택하기 (${selectedMajors.length})'
+                : '학과 선택하기';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,16 +57,6 @@ class MajorTagSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             RequiredLabel('모집 학과'),
-            if (isTutorType)
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(
-                  '튜터링은 작성자의 학과만 모집 가능해요',
-                  style: TextStyles.smallTextRegular.copyWith(
-                    color: ColorStyles.gray4,
-                  ),
-                ),
-              ),
           ],
         ),
         const SizedBox(height: 16),
@@ -102,9 +95,11 @@ class MajorTagSection extends StatelessWidget {
                   child: Text(
                     displayText,
                     style: TextStyles.normalTextRegular.copyWith(
-                      color: selectedMajors.isNotEmpty
-                          ? ColorStyles.primary100
-                          : ColorStyles.gray4,
+                      color: isTutorType
+                          ? ColorStyles.gray4
+                          : selectedMajors.isNotEmpty
+                              ? ColorStyles.primary100
+                              : ColorStyles.gray4,
                     ),
                   ),
                 ),
@@ -116,9 +111,11 @@ class MajorTagSection extends StatelessWidget {
                     child: Icon(
                       Icons.chevron_right,
                       size: 24,
-                      color: selectedMajors.isNotEmpty
-                          ? ColorStyles.primary100
-                          : ColorStyles.gray4,
+                      color: isTutorType
+                          ? ColorStyles.gray4
+                          : selectedMajors.isNotEmpty
+                              ? ColorStyles.primary100
+                              : ColorStyles.gray4,
                     ),
                   ),
                 ),
@@ -187,52 +184,17 @@ class MajorTagSection extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: allTags.map((tag) {
-              final isManual = manualTags.contains(tag);
-              final isWriterMajor = tag == writerMajor;
-              final isDeletable = !isWriterMajor;
-
-              Color backgroundColor;
-              TextStyle textStyle;
-
-              if (isWriterMajor) {
-                backgroundColor = ColorStyles.primary5;
-                textStyle = TextStyles.largeTextBold
-                    .copyWith(color: ColorStyles.primary100);
-              } else if (isManual) {
-                final index = manualTags.indexOf(tag);
-                if (index == 0) {
-                  backgroundColor = ColorStyles.labelColorRed10;
-                  textStyle = TextStyles.largeTextBold
-                      .copyWith(color: ColorStyles.labelColorRed100);
-                } else if (index == 1) {
-                  backgroundColor = ColorStyles.labelColorYellow10;
-                  textStyle = TextStyles.largeTextBold
-                      .copyWith(color: ColorStyles.labelColorYellow100);
-                } else {
-                  backgroundColor = ColorStyles.gray1;
-                  textStyle = TextStyles.largeTextBold
-                      .copyWith(color: ColorStyles.gray5);
-                }
-              } else {
-                backgroundColor = ColorStyles.gray1;
-                textStyle =
-                    TextStyles.largeTextBold.copyWith(color: ColorStyles.gray5);
-              }
-
+              final isDeletable = tag != writerMajor;
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: Chip(
-                  label: Text(tag, style: textStyle),
-                  deleteIcon: isDeletable ? const Icon(Icons.close) : null,
-                  onDeleted: isDeletable ? () => onTagRemoved(tag) : null,
-                  backgroundColor: backgroundColor,
-                  elevation: 0,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(32)),
-                    side: BorderSide(
-                      color: Colors.transparent, // 투명 테두리
-                      width: 0,
-                    ),
+                child: SizedBox(
+                  height: 44,
+                  child: CommonTag(
+                    label: tag,
+                    textStyle: TextStyles.normalTextBold,
+                    index: manualTags.indexOf(tag),
+                    isDeletable: isDeletable,
+                    onDeleted: () => onTagRemoved(tag),
                   ),
                 ),
               );

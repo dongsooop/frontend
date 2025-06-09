@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:dongsoop/domain/auth/entities/user_entity.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,18 +17,39 @@ class DummyAuthRepository implements AuthRepository {
     // 강제 비로그인 모드
     if (mode != 'login') return null;
 
-    final nickname = dotenv.env['USER_NICKNAME'] ?? '';
+    final id = dotenv.env['LOGIN_EMAIL'] ?? '';
+    final pw = dotenv.env['LOGIN_PWD'] ?? '';
     final departmentType = dotenv.env['USER_DEPARTMENT'] ?? '';
-    final accessToken = dotenv.env['ACCESS_TOKEN'] ?? '';
 
-    // login 모드인데 토큰이 없으면 비로그인 상태로 처리
-    if (accessToken.isEmpty) return null;
+    final token = await _loginAndGetToken(id, pw);
+    if (token == null || token.isEmpty) return null;
 
     return UserEntity(
-      nickname: nickname,
+      nickname: '테스트유저',
       departmentType: departmentType,
-      accessToken: accessToken,
+      accessToken: token,
     );
+  }
+
+  Future<String?> _loginAndGetToken(String id, String pw) async {
+    try {
+      final response = await Dio().post(
+        '${dotenv.env['BASE_URL']}${dotenv.env['LOGIN_ENDPOINT']}',
+        data: {
+          'email': id,
+          'password': pw,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['accessToken'];
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('로그인 실패: $e');
+      return null;
+    }
   }
 
   @override

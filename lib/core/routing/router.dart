@@ -1,5 +1,6 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
@@ -45,6 +46,10 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
   GoRoute(
     path: RoutePaths.recruitWrite,
     builder: (context, state) => const RecruitWritePageScreen(),
+  ),
+  GoRoute(
+    path: RoutePaths.recruitDetail,
+    builder: (context, state) => const RecruitDetailPageScreen(),
   ),
   StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -95,7 +100,17 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.board,
-            builder: (context, state) => const BoardPageScreen(),
+            builder: (context, state) => BoardPageScreen(
+              onTapRecruitDetail: (id, type) {
+                context.push(
+                  RoutePaths.recruitDetail,
+                  extra: {
+                    'id': id,
+                    'type': type,
+                  },
+                );
+              },
+            ),
           ),
         ]),
         StatefulShellBranch(routes: [
