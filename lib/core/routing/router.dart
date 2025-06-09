@@ -13,8 +13,8 @@ import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
-import 'package:dongsoop/presentation/web_view/library_banner_webview_screen.dart';
-import 'package:dongsoop/presentation/web_view/notice_webview_screen.dart';
+import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
+import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(initialLocation: RoutePaths.home, routes: [
