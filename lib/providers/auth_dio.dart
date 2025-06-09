@@ -6,7 +6,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final authDioProvider = Provider<Dio>((ref) {
-  final dio = Dio(BaseOptions(baseUrl: dotenv.get('BASE_URL'),));
+  final dio = Dio(BaseOptions(
+    baseUrl: dotenv.get('BASE_URL'),
+  ));
 
   final secureStorage = ref.watch(secureStorageProvider);
   final preferences = ref.watch(preferencesProvider);

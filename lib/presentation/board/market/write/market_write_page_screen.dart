@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
-import 'package:dongsoop/presentation/board/common/board_require_label.dart';
+import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
