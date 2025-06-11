@@ -3,8 +3,10 @@ import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
+import 'package:dongsoop/domain/chat/use_case/get_all_chat_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/get_user_nicknames_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/load_chat_rooms_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:dongsoop/presentation/chat/chat_view_model.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
@@ -12,8 +14,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/network/stomp_service.dart';
 import '../core/storage/secure_storage_service.dart';
 import '../domain/chat/model/chat_message.dart';
-import '../domain/chat/use_case/chat_room_connect_use_case.dart';
-import '../domain/chat/use_case/chat_room_disconnect_use_case.dart';
+import '../domain/chat/use_case/connect_chat_room_use_case.dart';
+import '../domain/chat/use_case/disconnect_chat_room_use_case.dart';
 import '../domain/chat/use_case/send_message_use_case.dart';
 import '../domain/chat/use_case/subscribe_messages_use_case.dart';
 import '../presentation/chat/chat_detail_view_model.dart';
@@ -45,20 +47,20 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 });
 
 // Use Case
-final loadChatRoomsUseCaseProvider = Provider<LoadChatRoomsUseCase>((ref) {
+final loadChatRoomsUseCaseProvider = Provider<GetChatRoomsUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
 
-  return LoadChatRoomsUseCase(repository);
+  return GetChatRoomsUseCase(repository);
 });
 
-final chatRoomConnectUseCaseProvider = Provider<ChatRoomConnectUseCase>((ref) {
+final connectChatRoomUseCaseProvider = Provider<ConnectChatRoomUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
-  return ChatRoomConnectUseCase(repository);
+  return ConnectChatRoomUseCase(repository);
 });
 
-final chatRoomDisconnectUseCaseProvider = Provider<ChatRoomDisconnectUseCase>((ref) {
+final disconnectChatRoomUseCaseProvider = Provider<DisconnectChatRoomUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
-  return ChatRoomDisconnectUseCase(repository);
+  return DisconnectChatRoomUseCase(repository);
 });
 
 final sendMessageUseCaseProvider = Provider<SendMessageUseCase>((ref) {
@@ -76,6 +78,15 @@ final getUserNicknamesUseCaseProvider = Provider<GetUserNicknamesUseCase>((ref) 
   return GetUserNicknamesUseCase(repository);
 });
 
+final saveChatMessageUseCaseProvider = Provider<SaveChatMessageUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return SaveChatMessageUseCase(repository);
+});
+
+final getAllChatMessagesUseCaseProvider = Provider<GetAllChatMessages>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return GetAllChatMessages(repository);
+});
 
 // View Model
 final chatViewModelProvider =
@@ -87,11 +98,13 @@ StateNotifierProvider<ChatViewModel, ChatState>((ref) {
 
 final chatDetailViewModelProvider =
 StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
-  final connectUseCase = ref.watch(chatRoomConnectUseCaseProvider);
-  final disconnectUseCase = ref.watch(chatRoomDisconnectUseCaseProvider);
+  final connectUseCase = ref.watch(connectChatRoomUseCaseProvider);
+  final disconnectUseCase = ref.watch(disconnectChatRoomUseCaseProvider);
   final sendMessageUseCase = ref.watch(sendMessageUseCaseProvider);
   final subscribeMessagesUseCase = ref.watch(subscribeMessagesUseCaseProvider);
   final getUserNicknamesUseCase = ref.watch(getUserNicknamesUseCaseProvider);
+  final saveChatMessageUseCase = ref.watch(saveChatMessageUseCaseProvider);
+  final getAllChatMessagesUseCase = ref.watch(getAllChatMessagesUseCaseProvider);
 
   return ChatDetailViewModel(
     connectUseCase,
@@ -99,6 +112,8 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
     sendMessageUseCase,
     subscribeMessagesUseCase,
     getUserNicknamesUseCase,
+    saveChatMessageUseCase,
+    getAllChatMessagesUseCase,
     ref,
   );
 });

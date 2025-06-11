@@ -26,6 +26,16 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<void> saveChatMessage(ChatMessage message) async {
+    await _chatDataSource.saveChatMessage(message);
+  }
+
+  @override
+  Future<List<ChatMessage>?> getAllChatMessages(String roomId) async {
+    return await _chatDataSource.getAllChatMessages(roomId);
+  }
+
+  @override
   Future<void> connect(String roomId) => _chatDataSource.connect(roomId);
 
   @override

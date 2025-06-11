@@ -37,10 +37,12 @@ class ChatDetailScreen extends HookConsumerWidget {
     final scrollController = useScrollController();
 
     useEffect(() {
-      // 채팅방 입장
+      // 채팅방 입장 시: 로컬 정보 가져옴(참여자 정보, 메시지), 소켓 연결
       Future.microtask(() {
-        // 채팅방 사용자 닉네임 매칭
+        // 채팅방 참여자 정보
         viewModel.fetchNicknames(chatRoom.roomId);
+        // 로컬 메시지 불러오기
+        viewModel.getAllChatMessages(chatRoom.roomId);
         // 채팅방 연결
         viewModel.enterRoom(chatRoom.roomId);
       });

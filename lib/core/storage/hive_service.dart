@@ -1,34 +1,36 @@
+import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
 
 class HiveService {
-  static const _chatMessage = 'chat_message';
+  final chatMemberBoxManager = BoxManager<ChatRoomMember>('chat_members');
+  final chatMessageBoxManager = BoxManager<ChatMessage>('chat_messages');
 
   // 채팅방 사용자 목록 저장
   Future<void> saveChatMember(String roomId, ChatRoomMember member) async {
-    final box = await ChatMemberBoxManager.getChatMemberBox(roomId); // roomId로 box 오픈
-    await box.put(member.userId, member); // userId를 key로 저장
+    final memberBox = await chatMemberBoxManager.getBox(roomId); // roomId로 box 오픈
+    await memberBox.put(member.userId, member); // userId를 key로 저장
   }
 
   // 특정 참여자 조회
   Future<ChatRoomMember?> getChatMember(String roomId, String userId) async {
-    final box = await ChatMemberBoxManager.getChatMemberBox(roomId);
-    return box.get(userId);
+    final memberBox = await chatMemberBoxManager.getBox(roomId);
+    return memberBox.get(userId);
   }
 
   // 전체 참여자 조회
   Future<List<ChatRoomMember>> getAllMembers(String roomId) async {
-    final box = await ChatMemberBoxManager.getChatMemberBox(roomId);
-    return box.values.toList();
+    final memberBox = await chatMemberBoxManager.getBox(roomId);
+    return memberBox.values.toList();
   }
 
   // 닉네임 업데이트
   Future<void> updateChatMemberNickname(String roomId, String userId, String nickname) async {
-    final box = await ChatMemberBoxManager.getChatMemberBox(roomId);
+    final memberBox = await chatMemberBoxManager.getBox(roomId);
 
     // userId에 해당하는 멤버 찾기
-    final member = box.get(userId);
+    final member = memberBox.get(userId);
 
     if (member != null) {
       member.nickname = nickname; // 값 수정
@@ -38,10 +40,10 @@ class HiveService {
 
   // 참여자 채팅방 떠남
   Future<void> updateChatMemberLeft(String roomId, String userId) async {
-    final box = await ChatMemberBoxManager.getChatMemberBox(roomId);
+    final memberBox = await chatMemberBoxManager.getBox(roomId);
 
     // userId에 해당하는 멤버 찾기
-    final member = box.get(userId);
+    final member = memberBox.get(userId);
 
     if (member != null) {
       member.hasLeft = true; // 값 수정
@@ -50,43 +52,72 @@ class HiveService {
   }
 
 
+  // 채팅 내역 저장
+  Future<void> saveChatMessage(String roomId, ChatMessage message) async {
+    final messageBox = await chatMessageBoxManager.getBox(roomId); // roomId로 box 오픈
+    await messageBox.put(message.messageId, message); // userId를 key로 저장
+  }
+
+  // 전체 메시지 시간순 조회
+  Future<List<ChatMessage>> getAllMessages(String roomId) async {
+    final messageBox = await chatMessageBoxManager.getBox(roomId);
+
+    final messages = messageBox.values.cast<ChatMessage>().toList();
+    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    return messages;
+  }
+
+  // 가장 최신 메시지 조회
+  Future<ChatMessage?> getLatestMessage(String roomId) async {
+    final messageBox = await chatMessageBoxManager.getBox(roomId);
+
+    if (messageBox.isEmpty) return null;
+
+    final messages = messageBox.values.cast<ChatMessage>().toList();
+    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp)); // timestamp 기준 정렬
+
+    return messages.last;
+  }
 }
 
 final hiveServiceProvider = Provider<HiveService>((ref) {
   return HiveService();
 });
 
-class ChatMemberBoxManager {
-  static final Map<String, Box<ChatRoomMember>> _boxes = {};
-  static const _chatRoom = 'chat_room';
+class BoxManager<T> {
+  final String boxPrefix;
+  final Map<String, Box<T>> _boxes = {};
+
+  BoxManager(this.boxPrefix);
 
   // box 가져오기 (이미 열려있으면 재사용)
-  static Future<Box<ChatRoomMember>> getChatMemberBox(String roomId) async {
-    final boxName = '${_chatRoom}_$roomId';
+  Future<Box<T>> getBox(String roomId) async {
+    final boxName = '${boxPrefix}_$roomId';
 
     if (_boxes.containsKey(boxName) && _boxes[boxName]!.isOpen) {
       return _boxes[boxName]!;
     }
 
-    final box = await Hive.openBox<ChatRoomMember>(boxName);
+    final box = await Hive.openBox<T>(boxName);
     _boxes[boxName] = box;
     return box;
   }
 
-  // 전체 박스 닫기 (앱 종료 시 등)
-  static Future<void> closeAllChatMemberBox() async {
-    for (final box in _boxes.values) {
-      await box.close();
-    }
-    _boxes.clear();
-  }
-
   // 특정 박스 닫기
-  static Future<void> closeChatBox(String roomId) async {
-    final boxName = '${_chatRoom}_$roomId';
+  Future<void> closeBox(String roomId) async {
+    final boxName = '${boxPrefix}_$roomId';
     if (_boxes.containsKey(boxName)) {
       await _boxes[boxName]!.close();
       _boxes.remove(boxName);
     }
+  }
+
+  // 전체 박스 닫기 (앱 종료 시 등)
+  Future<void> closeAll() async {
+    for (final box in _boxes.values) {
+      await box.close();
+    }
+    _boxes.clear();
   }
 }

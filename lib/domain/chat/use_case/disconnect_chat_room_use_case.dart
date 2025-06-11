@@ -1,13 +1,13 @@
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 
-class ChatRoomConnectUseCase {
+class DisconnectChatRoomUseCase {
   final ChatRepository _chatRepository;
 
-  ChatRoomConnectUseCase(
+  DisconnectChatRoomUseCase(
     this._chatRepository,
   );
 
-  Future<void> execute(String roomId) async {
-    await _chatRepository.connect(roomId);
+  void execute() {
+    _chatRepository.disconnect();
   }
 }

@@ -98,6 +98,24 @@ class ChatDataSourceImpl implements ChatDataSource {
     }
   }
 
+  @override
+  Future<void> saveChatMessage(ChatMessage message) async {
+    try {
+      await _hiveService.saveChatMessage(message.roomId, message);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<ChatMessage>?> getAllChatMessages(String roomId) async {
+    try {
+      return await _hiveService.getAllMessages(roomId);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // STOMP
   @override
   Future<void> connect(String roomId) => _stompService.connect(roomId);

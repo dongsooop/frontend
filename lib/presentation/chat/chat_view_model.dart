@@ -1,11 +1,11 @@
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
-import 'package:dongsoop/domain/chat/use_case/load_chat_rooms_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
 import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/chat/chat_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatViewModel extends StateNotifier<ChatState> {
-  final LoadChatRoomsUseCase _loadChatRoomsUseCase;
+  final GetChatRoomsUseCase _loadChatRoomsUseCase;
 
   ChatViewModel(
     this._loadChatRoomsUseCase,
