@@ -65,7 +65,12 @@ class AuthDataSourceImpl implements AuthDataSource {
   @override
   Future<void> saveUser(StoredUser storedUser) async {
     // 닉네임, 학과 저장
-    await _preferencesService.saveUser(User(nickname: storedUser.nickname, departmentType: storedUser.departmentType));
+    await _preferencesService.saveUser(
+      User(
+        nickname: storedUser.nickname,
+        departmentType: storedUser.departmentType
+      )
+    );
     // token 저장
     await _secureStorageService.write('accessToken', storedUser.accessToken);
     await _secureStorageService.write('refreshToken', storedUser.refreshToken);

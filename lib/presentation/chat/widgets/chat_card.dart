@@ -29,7 +29,7 @@ class _ChatCardState extends State<ChatCard> {
           children: [
             ClipOval(
               child: Image.asset(
-                'assets/images/test.png',
+                'assets/images/profile.png',
                 width: 48,
                 height: 48,
                 fit: BoxFit.cover,

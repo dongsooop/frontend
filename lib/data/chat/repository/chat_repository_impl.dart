@@ -21,6 +21,11 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<Map<String, String>> getUserNicknamesByRoomId(String roomId) async {
+    return await _chatDataSource.getUserNicknamesByRoomId(roomId);
+  }
+
+  @override
   Future<void> connect(String roomId) => _chatDataSource.connect(roomId);
 
   @override

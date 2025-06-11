@@ -7,7 +7,7 @@ import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../providers/auth_providers.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 
 class ChatScreen extends HookConsumerWidget {
   final void Function(UiChatRoom room) onTapChatDetail;
@@ -21,6 +21,7 @@ class ChatScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userSession = ref.watch(userSessionProvider);
     final viewModel = ref.read(chatViewModelProvider.notifier);
+    final chatState = ref.watch(chatViewModelProvider);
 
     useEffect(() {
       if (userSession != null) {
@@ -31,6 +32,22 @@ class ChatScreen extends HookConsumerWidget {
       return null;
     }, [userSession]);
 
+    if (chatState.isLoading) {
+      return Center(
+        child: CircularProgressIndicator(color: ColorStyles.primaryColor,)
+      );
+    }
+
+    if (chatState.errorMessage != null) {
+      return Center(
+        child: Text(
+          chatState.errorMessage!,
+          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+        )
+      );
+    }
+
+    final rooms = chatState.chatRooms ?? [];
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
@@ -38,7 +55,7 @@ class ChatScreen extends HookConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              child: _buildChatBody(context, ref),
+              child: _buildChatBody(context, rooms),
             ),
             if (userSession == null) _buildUnauthenticatedBody(),
           ],
@@ -143,10 +160,9 @@ class ChatScreen extends HookConsumerWidget {
   }
 
   // 로그인한 사용자
-  Widget _buildChatBody(BuildContext context, WidgetRef ref) {
+  Widget _buildChatBody(BuildContext context, List<UiChatRoom> rooms) {
     String selectedMode = '채팅';
     String selectedCategory = '전체';
-    final chatState = ref.watch(chatViewModelProvider);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -227,27 +243,19 @@ class ChatScreen extends HookConsumerWidget {
         SizedBox(height: 16),
         // 채팅방
         Expanded(
-          child: chatState.when(
-            data: (chatRooms) {
-              if (chatRooms == null || chatRooms.isEmpty) {
-                return const SizedBox();
-              } else {
-                return ListView.builder(
-                  itemCount: chatRooms.length,
-                  itemBuilder: (context, index) {
-                    final room = chatRooms[index];
-                    return GestureDetector(
-                      onTap: () => onTapChatDetail(room),
-                      child: ChatCard(chatRoom: room),
-                    );
-                  },
-                );
-              }
-            },
-            error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),
-            loading: () => Center(child: CircularProgressIndicator(color: ColorStyles.primaryColor,)),
-          ),
-        )
+          child: rooms.isEmpty
+            ? const SizedBox()
+            : ListView.builder(
+                itemCount: rooms.length,
+                itemBuilder: (context, index) {
+                  final room = rooms[index];
+                  return GestureDetector(
+                    onTap: () => onTapChatDetail(room),
+                    child: ChatCard(chatRoom: room),
+                  );
+                }
+              ),
+        ),
       ],
     );
   }

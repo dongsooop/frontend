@@ -7,12 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'domain/chat/model/chat_room_member.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter(); // Hive(local DB) 초기화
+  Hive.registerAdapter(ChatRoomMemberAdapter()); // 채팅방 참여자 목록
+
   await dotenv.load(); // .env 파일 로드
 
   if (Platform.isIOS) {

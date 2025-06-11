@@ -6,11 +6,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../core/utils/formatter.dart';
-import '../../domain/chat/model/chat_message_request.dart';
-import '../../domain/chat/model/ui_chat_room.dart';
-import '../../providers/auth_providers.dart';
-import '../../providers/chat_providers.dart';
+import 'package:dongsoop/core/utils/formatter.dart';
+import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/providers/chat_providers.dart';
 
 class ChatDetailScreen extends HookConsumerWidget {
   final UiChatRoom chatRoom;
@@ -26,19 +26,22 @@ class ChatDetailScreen extends HookConsumerWidget {
     final messages = ref.watch(chatMessagesProvider);
     final user = ref.watch(userSessionProvider);
     final viewModel = ref.read(chatDetailViewModelProvider.notifier);
+    final chatDetailState = ref.watch(chatDetailViewModelProvider);
 
     // 사용자 닉네임
     final String? userNickname = user?.nickname;
-    final String dmu101 = '동양꿈';
 
     // text field controller
     final textController = useTextEditingController();
     // scroll controller
-    final scrollController = ScrollController();
+    final scrollController = useScrollController();
 
     useEffect(() {
       // 채팅방 입장
       Future.microtask(() {
+        // 채팅방 사용자 닉네임 매칭
+        viewModel.fetchNicknames(chatRoom.roomId);
+        // 채팅방 연결
         viewModel.enterRoom(chatRoom.roomId);
       });
 
@@ -49,6 +52,59 @@ class ChatDetailScreen extends HookConsumerWidget {
       };
     }, []);
 
+    if (chatDetailState.isLoading) {
+      return Scaffold(
+        backgroundColor: ColorStyles.gray1,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(44),
+          child: AppBar(
+            backgroundColor: ColorStyles.gray1,
+            leading: IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: Icon(
+                Icons.chevron_left_outlined,
+                size: 24,
+                color: ColorStyles.black,
+              ),
+            ),
+          )
+        ),
+        body: Center(
+          child: CircularProgressIndicator(color: ColorStyles.primaryColor,),
+        ),
+      );
+    }
+
+    if (chatDetailState.errorMessage != null) {
+      return Scaffold(
+        backgroundColor: ColorStyles.gray1,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(44),
+          child: AppBar(
+            backgroundColor: ColorStyles.gray1,
+            leading: IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: Icon(
+                Icons.chevron_left_outlined,
+                size: 24,
+                color: ColorStyles.black,
+              ),
+            ),
+          )
+        ),
+        body: Center(
+          child: Text(
+            chatDetailState.errorMessage!,
+            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+          ),
+        ),
+      );
+    }
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true, // 가상 키보드가 나타날 때 Scattold가 자동으로 크기를 조정하여 가상 키보드와 겹치지 않도록 함
@@ -57,9 +113,20 @@ class ChatDetailScreen extends HookConsumerWidget {
             preferredSize: Size.fromHeight(44),
             child: AppBar(
               backgroundColor: ColorStyles.gray1,
-              title: Text(
-                '채팅방 이름', // 채팅방 이름
-                style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 8,
+                children: [
+                  Text(
+                    '채팅방 이름', // 채팅방 이름
+                    style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                  ),
+                  Text(
+                    chatRoom.participantCount, // 채팅방 이름
+                    style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
+                  ),
+                ],
               ),
               leading: IconButton(
                 onPressed: () {
@@ -109,11 +176,12 @@ class ChatDetailScreen extends HookConsumerWidget {
                       itemCount: messages.length,
                       itemBuilder: (BuildContext context, int index) {
                         final msg = messages[index];
+                        final nickname = viewModel.getNickname(msg.senderId.toString());
                         return ChatBubbleScreen(
-                          msg.senderId.toString(),
+                          nickname,
                           msg.content,
                           formatTimestamp(msg.timestamp),
-                          dmu101 == userNickname, // 일단 고정
+                          nickname == userNickname,
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(
@@ -159,6 +227,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                               roomId: roomId,
                               content: content,
                               type: 'CHAT',
+                              senderNickName: user?.nickname,
                             );
                             viewModel.send(message);
                             textController.clear();

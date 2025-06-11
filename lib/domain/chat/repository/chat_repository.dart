@@ -4,6 +4,7 @@ import '../model/chat_message_request.dart';
 
 abstract class ChatRepository {
   Future<List<ChatRoom>?> getChatRooms();
+  Future<Map<String, String>> getUserNicknamesByRoomId(String roomId);
 
   // stomp
   Future<void> connect(String roomId);
@@ -11,3 +12,4 @@ abstract class ChatRepository {
   void disconnect();
   Stream<ChatMessage> subscribeMessages();
 }
+
