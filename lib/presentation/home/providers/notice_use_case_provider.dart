@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/data/notice/data_sources/notice_data_source_impl.dart';
 import 'package:dongsoop/data/notice/data_sources/notice_local_data_source_impl.dart';
 import 'package:dongsoop/data/notice/repository/notice_repository_impl.dart';
@@ -8,7 +9,6 @@ import 'package:dongsoop/domain/notice/use_cases/notice_home_use_case.dart';
 import 'package:dongsoop/domain/notice/use_cases/notice_school_use_case.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // 공통 Dio 기반 Remote DataSource + Remote Repository
 final noticeRemoteRepositoryProvider = Provider<NoticeRepository>((ref) {
@@ -41,10 +41,10 @@ final NoticeCombinedUseCaseProvider =
 final NoticeHomeUseCaseProvider =
     FutureProvider<NoticeHomeUseCase>((ref) async {
   final dio = ref.watch(plainDioProvider);
-  final remote = NoticeDataSourceImpl(dio);
 
-  final prefs = await SharedPreferences.getInstance();
-  final local = NoticeLocalDataSourceImpl(prefs);
+  final remote = NoticeDataSourceImpl(dio);
+  final preferences = ref.read(preferencesProvider);
+  final local = NoticeLocalDataSourceImpl(preferences);
 
   final repository = NoticeRepositoryImpl(remote, local);
   return NoticeHomeUseCase(repository, local);
