@@ -6,7 +6,7 @@ abstract class ChatRepository {
   Future<List<ChatRoom>?> getChatRooms();
   Future<Map<String, String>> getUserNicknamesByRoomId(String roomId);
   Future<void> saveChatMessage(ChatMessage message);
-  Future<List<ChatMessage>?> getAllChatMessages(String roomId);
+  Future<List<ChatMessage>?> getPagedMessages(String roomId, int offset, int limit);
   Future<void> deleteChatBox();
 
   // stomp

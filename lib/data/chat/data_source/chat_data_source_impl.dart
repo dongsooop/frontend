@@ -109,9 +109,9 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<List<ChatMessage>?> getAllChatMessages(String roomId) async {
+  Future<List<ChatMessage>?> getPagedMessages(String roomId, int offset, int limit) async {
     try {
-      final messages = await _hiveService.getAllMessages(roomId);
+      final messages = await _hiveService.getPagedMessages(roomId, offset, limit);
       messages.forEach((messages) {
         logger.i('local data chat message: ${messages.toString()}');
       });

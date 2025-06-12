@@ -31,8 +31,8 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<List<ChatMessage>?> getAllChatMessages(String roomId) async {
-    return await _chatDataSource.getAllChatMessages(roomId);
+  Future<List<ChatMessage>?> getPagedMessages(String roomId, int offset, int limit) async {
+    return await _chatDataSource.getPagedMessages(roomId, offset, limit);
   }
 
   @override

@@ -58,16 +58,14 @@ class HiveService {
     await messageBox.put(message.messageId, message); // userId를 key로 저장
   }
 
-  // 전체 메시지 시간순 조회
-  Future<List<ChatMessage>> getAllMessages(String roomId) async {
+  Future<List<ChatMessage>> getPagedMessages(String roomId, int offset, int limit) async {
     final messageBox = await chatMessageBoxManager.getBox(roomId);
+    final allMessages = messageBox.values.cast<ChatMessage>().toList();
 
-    final messages = messageBox.values.cast<ChatMessage>().toList();
-    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
-    return messages;
+    allMessages.sort((a, b) => b.timestamp.compareTo(a.timestamp)); // 최신순 정렬
+    return allMessages.skip(offset).take(limit).toList();
   }
-  
+
 
   // 가장 최신 메시지 조회
   Future<ChatMessage?> getLatestMessage(String roomId) async {

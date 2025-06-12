@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/use_case/connect_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/disconnect_chat_room_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/get_all_chat_messages.dart';
+import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/subscribe_messages_use_case.dart';
@@ -21,7 +21,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   final SubscribeMessagesUseCase _subscribeMessagesUseCase;
   final GetUserNicknamesUseCase _getUserNicknamesUseCase;
   final SaveChatMessageUseCase _saveChatMessageUseCase;
-  final GetAllChatMessages _getAllChatMessages;
+  final GetPagedMessages _getPagedMessages;
   final Ref _ref;
 
   StreamSubscription<ChatMessage>? _subscription;
@@ -33,7 +33,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     this._subscribeMessagesUseCase,
     this._getUserNicknamesUseCase,
     this._saveChatMessageUseCase,
-    this._getAllChatMessages,
+    this._getPagedMessages,
     this._ref,
   ) : super(ChatDetailState(isLoading: false));
 
@@ -84,37 +84,67 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     return state.nicknameMap[userId] ?? "알 수 없음";
   }
 
-  Future<void> getAllChatMessages(String roomId) async {
+  Future<List<ChatMessage>> getPagedMessages(String roomId, int offset, int limit) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      final notifier = _ref.read(chatMessagesProvider.notifier);
-      final messages = await _getAllChatMessages.execute(roomId);
-
-      if (messages != null || messages!.isNotEmpty) notifier.setMessages(messages);
-
+      final result = await _getPagedMessages.execute(roomId, offset, limit);
       state = state.copyWith(isLoading: false);
+      return result ?? [];
     } catch (e, st) {
-      logger.e('get all chat messages error: ${e.runtimeType}', error: e, stackTrace: st);
+      logger.e('get local message error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅 내역을 불러오는 중 오류가 발생했습니다.',
+        errorMessage: '채팅 중 오류가 발생했습니다.',
       );
+      return [];
     }
   }
 }
 
 class ChatMessagesNotifier extends StateNotifier<List<ChatMessage>> {
-  ChatMessagesNotifier() : super([]);
+  final Future<List<ChatMessage>> Function(String roomId, int offset, int limit) getPagedMessages;
+
+  ChatMessagesNotifier(this.getPagedMessages) : super([]);
+
+  String? _roomId;
+  final int _pageSize = 50;
+  bool _hasMore = true;
+  bool _isLoading = false;
+
+  Future<void> loadInitial(String roomId) async {
+    _roomId = roomId;
+    _hasMore = true;
+    state = [];
+
+    final messages = await getPagedMessages(roomId, 0, _pageSize);
+    state = messages;
+    if (messages.length < _pageSize) {
+      _hasMore = false;
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (_isLoading || !_hasMore || _roomId == null) return;
+
+    _isLoading = true;
+    final offset = state.length;
+    final newMessages = await getPagedMessages(_roomId!, offset, _pageSize);
+
+    if (newMessages.isEmpty) {
+      _hasMore = false;
+    } else {
+      state = [...state, ...newMessages]; // prepend old messages
+    }
+    _isLoading = false;
+  }
 
   void addMessage(ChatMessage message) {
     state = [message, ...state];
   }
 
-  void setMessages(List<ChatMessage> messages) {
-    state = messages.reversed.toList();
-  }
-
   void clear() {
+    _roomId = null;
+    _hasMore = true;
     state = [];
   }
 }

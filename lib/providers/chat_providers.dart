@@ -4,7 +4,7 @@ import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/get_all_chat_messages.dart';
+import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/get_user_nicknames_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
@@ -84,9 +84,9 @@ final saveChatMessageUseCaseProvider = Provider<SaveChatMessageUseCase>((ref) {
   return SaveChatMessageUseCase(repository);
 });
 
-final getAllChatMessagesUseCaseProvider = Provider<GetAllChatMessages>((ref) {
+final getPagedMessagesUseCaseProvider = Provider<GetPagedMessages>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
-  return GetAllChatMessages(repository);
+  return GetPagedMessages(repository);
 });
 
 final deleteChatDattaUseCaseProvider = Provider<DeleteChatDataUseCase>((ref) {
@@ -111,7 +111,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final subscribeMessagesUseCase = ref.watch(subscribeMessagesUseCaseProvider);
   final getUserNicknamesUseCase = ref.watch(getUserNicknamesUseCaseProvider);
   final saveChatMessageUseCase = ref.watch(saveChatMessageUseCaseProvider);
-  final getAllChatMessagesUseCase = ref.watch(getAllChatMessagesUseCaseProvider);
+  final getPagedMessagesUseCase = ref.watch(getPagedMessagesUseCaseProvider);
 
   return ChatDetailViewModel(
     connectUseCase,
@@ -120,12 +120,14 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
     subscribeMessagesUseCase,
     getUserNicknamesUseCase,
     saveChatMessageUseCase,
-    getAllChatMessagesUseCase,
+    getPagedMessagesUseCase,
     ref,
   );
 });
 
-final chatMessagesProvider =
-StateNotifierProvider<ChatMessagesNotifier, List<ChatMessage>>((ref) {
-  return ChatMessagesNotifier();
-});
+final chatMessagesProvider = StateNotifierProvider.autoDispose<ChatMessagesNotifier, List<ChatMessage>>(
+      (ref) {
+    final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
+    return ChatMessagesNotifier(viewModel.getPagedMessages);
+  },
+);

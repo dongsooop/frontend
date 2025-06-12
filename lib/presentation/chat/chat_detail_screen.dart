@@ -25,8 +25,8 @@ class ChatDetailScreen extends HookConsumerWidget {
     // provider
     final messages = ref.watch(chatMessagesProvider);
     final user = ref.watch(userSessionProvider);
-    final viewModel = ref.read(chatDetailViewModelProvider.notifier);
     final chatDetailState = ref.watch(chatDetailViewModelProvider);
+    final viewModel = ref.read(chatDetailViewModelProvider.notifier);
 
     // 사용자 닉네임
     final String? userNickname = user?.nickname;
@@ -42,7 +42,7 @@ class ChatDetailScreen extends HookConsumerWidget {
         // 채팅방 참여자 정보
         viewModel.fetchNicknames(chatRoom.roomId);
         // 로컬 메시지 불러오기
-        viewModel.getAllChatMessages(chatRoom.roomId);
+        ref.read(chatMessagesProvider.notifier).loadInitial(chatRoom.roomId);
         // 채팅방 연결
         viewModel.enterRoom(chatRoom.roomId);
       });
@@ -53,6 +53,12 @@ class ChatDetailScreen extends HookConsumerWidget {
         });
       };
     }, []);
+
+    scrollController.addListener(() {
+      if (scrollController.offset >= scrollController.position.maxScrollExtent - 100) {
+        ref.read(chatMessagesProvider.notifier).loadMore();
+      }
+    });
 
     if (chatDetailState.isLoading) {
       return Scaffold(
