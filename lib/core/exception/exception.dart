@@ -53,9 +53,17 @@ class CafeteriaException implements Exception {
   String toString() => message;
 }
 
+class NoticeException implements Exception {
+  final String message;
+  NoticeException([this.message = "공지 조회에 실패했습니다. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
 class RecruitApplyException implements Exception {
   final String message;
-  RecruitApplyException([this.message = "지원 도중 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+  RecruitApplyException([this.message = "모집 지원하기에 실패했습니다. 잠시 후 다시 시도해주세요"]);
 
   @override
   String toString() => message;
