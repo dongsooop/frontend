@@ -3,6 +3,7 @@ import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
+import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_all_chat_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/get_user_nicknames_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
@@ -88,12 +89,18 @@ final getAllChatMessagesUseCaseProvider = Provider<GetAllChatMessages>((ref) {
   return GetAllChatMessages(repository);
 });
 
+final deleteChatDattaUseCaseProvider = Provider<DeleteChatDataUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return DeleteChatDataUseCase(repository);
+});
+
 // View Model
 final chatViewModelProvider =
 StateNotifierProvider<ChatViewModel, ChatState>((ref) {
   final loadChatRoomsUseCase = ref.watch(loadChatRoomsUseCaseProvider);
+  final deleteChatDataUseCase = ref.watch(deleteChatDattaUseCaseProvider);
 
-  return ChatViewModel(loadChatRoomsUseCase);
+  return ChatViewModel(loadChatRoomsUseCase, deleteChatDataUseCase);
 });
 
 final chatDetailViewModelProvider =

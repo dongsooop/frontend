@@ -67,6 +67,7 @@ class HiveService {
 
     return messages;
   }
+  
 
   // 가장 최신 메시지 조회
   Future<ChatMessage?> getLatestMessage(String roomId) async {
@@ -78,6 +79,12 @@ class HiveService {
     messages.sort((a, b) => a.timestamp.compareTo(b.timestamp)); // timestamp 기준 정렬
 
     return messages.last;
+  }
+
+  // 데이터 삭제
+  Future<void> deleteChatBox() async {
+    await chatMessageBoxManager.deleteAll();
+    await chatMemberBoxManager.deleteAll();
   }
 }
 
@@ -117,6 +124,16 @@ class BoxManager<T> {
   Future<void> closeAll() async {
     for (final box in _boxes.values) {
       await box.close();
+    }
+    _boxes.clear();
+  }
+
+  // 전체 박스 삭제
+  Future<void> deleteAll() async {
+    for (final box in _boxes.values) {
+      final name = box.name;
+      await box.close();
+      await Hive.deleteBoxFromDisk(name);
     }
     _boxes.clear();
   }

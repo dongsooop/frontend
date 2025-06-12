@@ -36,6 +36,11 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<void> deleteChatBox() async {
+    await _chatDataSource.deleteChatBox();
+  }
+
+  @override
   Future<void> connect(String roomId) => _chatDataSource.connect(roomId);
 
   @override

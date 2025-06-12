@@ -102,6 +102,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   Future<void> saveChatMessage(ChatMessage message) async {
     try {
       await _hiveService.saveChatMessage(message.roomId, message);
+      logger.i('seve chat message: $message}');
     } catch (e) {
       rethrow;
     }
@@ -110,7 +111,20 @@ class ChatDataSourceImpl implements ChatDataSource {
   @override
   Future<List<ChatMessage>?> getAllChatMessages(String roomId) async {
     try {
-      return await _hiveService.getAllMessages(roomId);
+      final messages = await _hiveService.getAllMessages(roomId);
+      messages.forEach((messages) {
+        logger.i('local data chat message: ${messages.toString()}');
+      });
+      return messages;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteChatBox() async {
+    try {
+      await _hiveService.deleteChatBox();
     } catch (e) {
       rethrow;
     }
