@@ -51,4 +51,16 @@ extension RecruitTypeExtension on RecruitType {
         ? endpoint.substring(0, endpoint.length - 1)
         : endpoint;
   }
+
+  String get applyEndpoint {
+    final endpoint = switch (this) {
+      RecruitType.tutoring => dotenv.get('TUTORING_APPLY_ENDPOINT'),
+      RecruitType.study => dotenv.get('STUDY_APPLY_ENDPOINT'),
+      RecruitType.project => dotenv.get('PROJECT_APPLY_ENDPOINT'),
+    };
+
+    return endpoint.endsWith('/')
+        ? endpoint.substring(0, endpoint.length - 1)
+        : endpoint;
+  }
 }
