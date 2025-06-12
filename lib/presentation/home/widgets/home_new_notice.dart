@@ -1,17 +1,35 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
+import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_view_model.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class HomeNewNotice extends ConsumerWidget {
+class HomeNewNotice extends HookConsumerWidget {
   const HomeNewNotice({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final noticeState = ref.watch(noticeViewModelProvider);
+    final user = ref.watch(userSessionProvider);
+    final departmentName = user?.departmentType ?? '';
+    final departmentCode =
+        DepartmentTypeExtension.fromDisplayName(departmentName).code;
+    final department = departmentCode == 'UNKNOWN' ? null : departmentCode;
+
+    final noticeState = ref.watch(noticeViewModelProvider(department));
+
+    useEffect(() {
+      Future.microtask(() {
+        ref
+            .read(noticeViewModelProvider(department).notifier)
+            .refresh(departmentType: department);
+      });
+      return null;
+    }, []);
 
     return Container(
       color: ColorStyles.gray1,
@@ -30,9 +48,7 @@ class HomeNewNotice extends ConsumerWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () {
-                  context.goNamed('noticeList');
-                },
+                onTap: () => context.goNamed('noticeList'),
                 child: Container(
                   height: 44,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -45,14 +61,10 @@ class HomeNewNotice extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: ColorStyles.gray3,
-                        ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: ColorStyles.gray3,
                       ),
                     ],
                   ),
@@ -70,16 +82,11 @@ class HomeNewNotice extends ConsumerWidget {
               color: ColorStyles.white,
               borderRadius: BorderRadius.circular(8),
             ),
-            padding:
-                const EdgeInsets.only(top: 32, left: 16, right: 16, bottom: 32),
+            padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
             child: noticeState.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('에러: $e')),
+              error: (err, _) => Center(child: Text('$err')),
               data: (notices) {
-                if (notices.isEmpty) {
-                  return const Center(child: Text('공지 없음'));
-                }
-
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: List.generate(notices.length, (index) {

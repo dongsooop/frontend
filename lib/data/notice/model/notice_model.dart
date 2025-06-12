@@ -1,10 +1,16 @@
-import 'package:dongsoop/domain/notice/entites/notice_entity.dart';
+import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class NoticeModel {
+part 'notice_model.freezed.dart';
+part 'notice_model.g.dart';
+
+@freezed
+@JsonSerializable()
+class NoticeModel with _$NoticeModel {
   final int id;
   final String title;
   final String link;
-  final String createdAt;
+  final DateTime createdAt;
 
   NoticeModel({
     required this.id,
@@ -13,14 +19,8 @@ class NoticeModel {
     required this.createdAt,
   });
 
-  factory NoticeModel.fromJson(Map<String, dynamic> json) {
-    return NoticeModel(
-      id: json['id'] ?? 0,
-      title: json['title'] ?? '',
-      link: json['link'] ?? '',
-      createdAt: json['createdAt'] ?? '',
-    );
-  }
+  factory NoticeModel.fromJson(Map<String, dynamic> json) =>
+      _$NoticeModelFromJson(json);
 }
 
 extension NoticeModelMapper on NoticeModel {
@@ -29,7 +29,7 @@ extension NoticeModelMapper on NoticeModel {
       id: id,
       title: title,
       link: link,
-      createdAt: DateTime.parse(createdAt),
+      createdAt: createdAt,
       isDepartment: isDepartment,
     );
   }

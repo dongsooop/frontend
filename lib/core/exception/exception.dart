@@ -52,3 +52,11 @@ class CafeteriaException implements Exception {
   @override
   String toString() => message;
 }
+
+class NoticeException implements Exception {
+  final String message;
+  NoticeException([this.message = "공지 조회에 실패했습니다. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
