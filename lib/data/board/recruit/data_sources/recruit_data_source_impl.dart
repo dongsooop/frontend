@@ -16,7 +16,7 @@ class RecruitDataSourceImpl implements RecruitDataSource {
   Future<List<RecruitListModel>> fetchList({
     required RecruitType type,
     required int page,
-    required String departmentType,
+    required String? departmentType,
   }) async {
     final url = '${type.listEndpoint}$departmentType';
 

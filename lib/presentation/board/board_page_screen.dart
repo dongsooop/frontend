@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
@@ -29,6 +27,7 @@ class BoardPageScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
     final selectedSubIndex = useState(0);
+    final showLoginDialog = useState(false);
     final scrollController = useScrollController();
 
     final isRecruit = selectedIndex.value == 0;
@@ -40,10 +39,7 @@ class BoardPageScreen extends HookConsumerWidget {
         ? DepartmentTypeExtension.fromDisplayName(user.departmentType).code
         : '';
 
-    // infinite scroll – 유저가 있을 때만
     useEffect(() {
-      if (user == null) return null;
-
       void _onScroll() {
         final viewModelProvider = recruitListViewModelProvider(
           type: recruitType,
@@ -73,73 +69,60 @@ class BoardPageScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        floatingActionButton: user != null
-            ? WriteButton(
-                onPressed: () {
-                  final route =
-                      isRecruit ? RoutePaths.recruitWrite : '/market/write';
-                  context.push(route);
-                },
-              )
-            : null,
-        body: Stack(
+        floatingActionButton: WriteButton(
+          onPressed: () {
+            if (user == null) {
+              showDialog(
+                context: context,
+                builder: (_) => CustomConfirmDialog(
+                  title: '로그인이 필요해요',
+                  content: '이 서비스를 이용하려면\n로그인을 해야 해요!',
+                  isSingleAction: false,
+                  confirmText: '확인',
+                  dismissOnConfirm: false,
+                  onConfirm: () => context.go(RoutePaths.mypage),
+                  onCancel: () {
+                    showLoginDialog.value = false;
+                  },
+                ),
+              );
+            } else {
+              final route =
+                  isRecruit ? RoutePaths.recruitWrite : '/market/write';
+              context.push(route);
+            }
+          },
+        ),
+        body: Column(
           children: [
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: BoardTabSection(
-                    categoryTabs: categoryTabs,
-                    selectedCategoryIndex: selectedIndex.value,
-                    selectedSubTabIndex: selectedSubIndex.value,
-                    subTabs: currentSubTabs,
-                    onCategorySelected: (newIndex) {
-                      selectedIndex.value = newIndex;
-                      selectedSubIndex.value = 0;
-                    },
-                    onSubTabSelected: (newSubIndex) {
-                      selectedSubIndex.value = newSubIndex;
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: user == null
-                      ? const SizedBox.shrink()
-                      : isRecruit
-                          ? RecruitItemListSection(
-                              recruitType: recruitType,
-                              departmentCode: departmentCode,
-                              onTapRecruitDetail: onTapRecruitDetail,
-                              scrollController: scrollController,
-                            )
-                          : MarketItemListSection(
-                              scrollController: scrollController,
-                            ),
-                ),
-              ],
-            ),
-            if (user == null)
-              Positioned.fill(
-                child: Stack(
-                  children: [
-                    BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
-                        child: Container(
-                          color: Colors.black.withAlpha((255 * 0.3).round()),
-                        )),
-                    Center(
-                      child: CustomConfirmDialog(
-                        title: '로그인이 필요해요',
-                        content: '이 서비스를 이용하려면 \n 로그인을 해야해요!',
-                        isSingleAction: true,
-                        confirmText: '확인',
-                        dismissOnConfirm: false,
-                        onConfirm: () => context.go(RoutePaths.mypage),
-                      ),
-                    ),
-                  ],
-                ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: BoardTabSection(
+                categoryTabs: categoryTabs,
+                selectedCategoryIndex: selectedIndex.value,
+                selectedSubTabIndex: selectedSubIndex.value,
+                subTabs: currentSubTabs,
+                onCategorySelected: (newIndex) {
+                  selectedIndex.value = newIndex;
+                  selectedSubIndex.value = 0;
+                },
+                onSubTabSelected: (newSubIndex) {
+                  selectedSubIndex.value = newSubIndex;
+                },
               ),
+            ),
+            Expanded(
+              child: isRecruit
+                  ? RecruitItemListSection(
+                      recruitType: recruitType,
+                      departmentCode: departmentCode,
+                      onTapRecruitDetail: onTapRecruitDetail,
+                      scrollController: scrollController,
+                    )
+                  : MarketItemListSection(
+                      scrollController: scrollController,
+                    ),
+            ),
           ],
         ),
       ),

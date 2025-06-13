@@ -7,7 +7,7 @@ abstract class RecruitDataSource {
   Future<List<RecruitListModel>> fetchList({
     required RecruitType type,
     required int page,
-    required String departmentType,
+    required String? departmentType,
   });
 
   Future<RecruitDetailModel> fetchDetail({
