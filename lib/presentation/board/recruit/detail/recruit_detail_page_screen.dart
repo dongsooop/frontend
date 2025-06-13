@@ -9,10 +9,18 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class RecruitDetailPageScreen extends ConsumerWidget {
-  const RecruitDetailPageScreen({super.key});
+  final int id;
+  final RecruitType type;
+  final Future<bool?> Function() onTapRecruitApply;
+
+  const RecruitDetailPageScreen({
+    required this.id,
+    required this.type,
+    required this.onTapRecruitApply,
+    super.key,
+  });
 
   String formatFullDateTime(DateTime dt) {
     return '${dt.year}. ${dt.month.toString().padLeft(2, '0')}. ${dt.day.toString().padLeft(2, '0')}. '
@@ -21,18 +29,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final routerState = GoRouterState.of(context);
-    final extra = routerState.extra;
-
-    if (extra is! Map<String, dynamic> ||
-        extra['id'] is! int ||
-        extra['type'] is! RecruitType) {
-      return const Scaffold(
-        body: Center(child: Text('잘못된 접근입니다.')),
-      );
-    }
-
-    final args = RecruitDetailArgs(id: extra['id'], type: extra['type']);
+    final args = RecruitDetailArgs(id: id, type: type);
     final detailState = ref.watch(recruitDetailViewModelProvider(args));
     final user = ref.watch(userSessionProvider);
 
@@ -42,7 +39,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(44),
           child: DetailHeader(
-            title: args.type.label,
+            title: type.label,
             trailing: IconButton(
               icon: const Icon(Icons.more_vert),
               onPressed: () {},
@@ -58,11 +55,14 @@ class RecruitDetailPageScreen extends ConsumerWidget {
 
             return RecruitBottomButton(
               label: isAuthor ? '지원자 확인' : '지원하기',
-              onPressed: () {
+              onPressed: () async {
                 if (isAuthor) {
                   // TODO: 지원자 확인 화면 이동
                 } else {
-                  // TODO: 지원하기 처리
+                  final didApply = await onTapRecruitApply();
+                  if (didApply == true) {
+                    ref.invalidate(recruitDetailViewModelProvider(args));
+                  }
                 }
               },
             );

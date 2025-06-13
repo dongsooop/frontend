@@ -1,31 +1,51 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
+import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_apply_view_model.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class RecruitSupportPageScreen extends StatefulWidget {
-  const RecruitSupportPageScreen({super.key});
+class RecruitApplyPageScreen extends HookConsumerWidget {
+  final int id;
+  final RecruitType type;
 
-  @override
-  State<RecruitSupportPageScreen> createState() =>
-      _RecruitSupportPageScreenState();
-}
-
-class _RecruitSupportPageScreenState extends State<RecruitSupportPageScreen> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final introduceController = TextEditingController();
-  final supportController = TextEditingController();
-
-  // 작성자의 학과 (자동 포함)
-  final String writerMajor = '컴퓨터소프트웨어공학과';
-
-  // 폼 유효성 여부 (상태로 관리)
-  bool isFormValid = true;
+  const RecruitApplyPageScreen({
+    required this.id,
+    required this.type,
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+    final introduceController = useTextEditingController();
+    final supportController = useTextEditingController();
+
+    final user = ref.watch(userSessionProvider);
+    final writerMajor = user?.departmentType;
+
+    final isFormValid = useState(false);
+
+    void updateFormValidState() {
+      isFormValid.value = introduceController.text.trim().isNotEmpty &&
+          supportController.text.trim().isNotEmpty;
+    }
+
+    useEffect(() {
+      introduceController.addListener(updateFormValidState);
+      supportController.addListener(updateFormValidState);
+      return () {
+        introduceController.removeListener(updateFormValidState);
+        supportController.removeListener(updateFormValidState);
+      };
+    }, []);
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
@@ -35,7 +55,7 @@ class _RecruitSupportPageScreenState extends State<RecruitSupportPageScreen> {
         ),
         bottomNavigationBar: PrimaryBottomButton(
           label: '지원하기',
-          isEnabled: isFormValid,
+          isEnabled: isFormValid.value,
           onPressed: () {
             showDialog(
               context: context,
@@ -44,9 +64,19 @@ class _RecruitSupportPageScreenState extends State<RecruitSupportPageScreen> {
                 content: '제출한 글은 수정할 수 없어요\n글을 제출할까요?',
                 cancelText: '취소',
                 confirmText: '제출',
-                onConfirm: () {
-                  // 제출 처리 로직
-                  Navigator.pop(context);
+                onConfirm: () async {
+                  context.pop(true); // 다이얼로그 pop
+
+                  await ref
+                      .read(recruitApplyViewModelProvider.notifier)
+                      .submitRecruitApply(
+                        boardId: id,
+                        introduction: introduceController.text.trim(),
+                        motivation: supportController.text.trim(),
+                        type: type,
+                      );
+
+                  context.pop(true);
                 },
               ),
             );
@@ -56,10 +86,7 @@ class _RecruitSupportPageScreenState extends State<RecruitSupportPageScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
           child: SingleChildScrollView(
             child: Form(
-              key: _formKey,
-              onChanged: () {
-                // 추후 입력 로직 작성
-              },
+              key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -95,7 +122,6 @@ class _RecruitSupportPageScreenState extends State<RecruitSupportPageScreen> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: introduceController,
-                    // onChanged: (_) => _updateFormValidState(),
                     maxLines: 5,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(16),
@@ -124,7 +150,6 @@ class _RecruitSupportPageScreenState extends State<RecruitSupportPageScreen> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: supportController,
-                    // onChanged: (_) => _updateFormValidState(),
                     maxLines: 5,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(16),
