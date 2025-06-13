@@ -3,14 +3,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'user.freezed.dart';
 part 'user.g.dart';
 
-
 @freezed
 @JsonSerializable()
 class User with _$User {
+  final int id;
   final String nickname;
   final String departmentType;
 
   const User({
+    required this.id,
     required this.nickname,
     required this.departmentType,
   });
