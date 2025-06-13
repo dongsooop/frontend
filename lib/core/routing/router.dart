@@ -1,5 +1,6 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
@@ -9,8 +10,11 @@ import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
-import 'package:dongsoop/presentation/webview/library_banner_webview_screen.dart';
-import 'package:dongsoop/presentation/webview/notice_webview_screen.dart';
+import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
+import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
+import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
+import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
+import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(initialLocation: RoutePaths.home, routes: [
@@ -26,12 +30,26 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
     builder: (context, state) => const CalendarPageScreen(),
   ),
   GoRoute(
+    path: RoutePaths.signIn,
+    builder: (context, state) => SignInScreen(
+      onTapSignUp: () => context.push(RoutePaths.signUp),
+    ),
+  ),
+  GoRoute(
+    path: RoutePaths.signUp,
+    builder: (context, state) => SignUpScreen(),
+  ),
+  GoRoute(
     path: RoutePaths.chatDetail,
     builder: (context, state) => ChatDetailScreen(),
   ),
   GoRoute(
     path: RoutePaths.recruitWrite,
     builder: (context, state) => const RecruitWritePageScreen(),
+  ),
+  GoRoute(
+    path: RoutePaths.recruitDetail,
+    builder: (context, state) => const RecruitDetailPageScreen(),
   ),
   StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -71,12 +89,28 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
                   builder: (context, state) =>
                       const LibraryBannerWebViewScreen(),
                 ),
+                GoRoute(
+                  path: RoutePaths.cafeteriaWebView,
+                  name: 'cafeteriaWebView',
+                  builder: (context, state) =>
+                      const CafeteriaWebViewPageScreen(),
+                ),
               ]),
         ]),
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.board,
-            builder: (context, state) => const BoardPageScreen(),
+            builder: (context, state) => BoardPageScreen(
+              onTapRecruitDetail: (id, type) {
+                context.push(
+                  RoutePaths.recruitDetail,
+                  extra: {
+                    'id': id,
+                    'type': type,
+                  },
+                );
+              },
+            ),
           ),
         ]),
         StatefulShellBranch(routes: [
@@ -92,7 +126,11 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.mypage,
-            builder: (context, state) => const MyPageScreen(),
+            builder: (context, state) => MyPageScreen(
+              onTapSignIn: () {
+                context.push(RoutePaths.signIn);
+              },
+            ),
           ),
         ]),
       ])
