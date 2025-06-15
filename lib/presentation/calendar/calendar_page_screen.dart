@@ -363,7 +363,8 @@ class CalendarPageScreen extends HookConsumerWidget {
               child: Text(
                 '$e',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: TextStyles.normalTextRegular
+                    .copyWith(color: ColorStyles.black),
               ),
             ),
           ),
