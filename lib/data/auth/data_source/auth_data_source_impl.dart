@@ -1,13 +1,14 @@
 import 'package:dio/dio.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
+import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/domain/auth/model/login_response.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
 import 'package:dongsoop/main.dart';
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:dongsoop/core/storage/secure_storage_service.dart';
+
 import 'auth_data_source.dart';
 
 class AuthDataSourceImpl implements AuthDataSource {
@@ -24,10 +25,7 @@ class AuthDataSourceImpl implements AuthDataSource {
   @override
   Future<LoginResponse> login(String email, String password) async {
     final endpoint = dotenv.get('LOGIN_ENDPOINT');
-    final requestBody = {
-      "email": email,
-      "password": password
-    };
+    final requestBody = {"email": email, "password": password};
 
     try {
       final response = await _plainDio.post(endpoint, data: requestBody);
@@ -65,7 +63,10 @@ class AuthDataSourceImpl implements AuthDataSource {
   @override
   Future<void> saveUser(StoredUser storedUser) async {
     // 닉네임, 학과 저장
-    await _preferencesService.saveUser(User(nickname: storedUser.nickname, departmentType: storedUser.departmentType));
+    await _preferencesService.saveUser(User(
+        id: storedUser.id,
+        nickname: storedUser.nickname,
+        departmentType: storedUser.departmentType));
     // token 저장
     await _secureStorageService.write('accessToken', storedUser.accessToken);
     await _secureStorageService.write('refreshToken', storedUser.refreshToken);

@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +14,7 @@ class HomeToday extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userSessionProvider);
     final cafeteriaState = ref.watch(cafeteriaViewModelProvider);
     final now = DateTime.now();
     final weekday = ['월', '화', '수', '목', '금', '토', '일'][now.weekday - 1];
@@ -36,6 +40,7 @@ class HomeToday extends HookConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 날짜 텍스트
           Text(
             todayString,
             style: TextStyles.titleTextBold.copyWith(
@@ -43,40 +48,74 @@ class HomeToday extends HookConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 140,
-                  child: _buildCard(
-                    title: '강의시간표',
-                    type: 'schedule',
-                    context: context,
-                  ),
+
+          // 강의시간표 + 일정 (하나의 Stack으로 묶어서 blur 처리)
+          SizedBox(
+            height: 140,
+            child: Stack(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildCard(
+                        title: '강의시간표',
+                        type: 'schedule',
+                        context: context,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildCard(
+                        title: '일정',
+                        type: 'calendar',
+                        context: context,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: SizedBox(
-                  height: 140,
-                  child: _buildCard(
-                    title: '일정',
-                    type: 'calendar',
-                    context: context,
+                if (user == null)
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
+                        child: Container(
+                          alignment: Alignment.center,
+                          color:
+                              ColorStyles.white.withAlpha((255 * 0.5).round()),
+                          child: Text(
+                            '로그인이 필요한 서비스예요',
+                            style: TextStyles.normalTextBold.copyWith(
+                              color: ColorStyles.black,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+
+          // 오늘의 학식
+          SizedBox(
+            child: _buildCard(
+              title: '오늘의 학식',
+              type: 'cafeteria',
+              context: context,
+              cafeteriaText: cafeteriaText,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 도서관 배너
           _buildCard(
-            title: '오늘의 학식',
-            type: 'cafeteria',
+            title: '',
+            type: 'banner',
             context: context,
-            cafeteriaText: cafeteriaText,
           ),
-          const SizedBox(height: 12),
-          _buildCard(title: '', type: 'banner', context: context),
         ],
       ),
     );
@@ -179,6 +218,7 @@ class HomeToday extends HookConsumerWidget {
       );
     }
 
+    // 공통 카드 UI
     return GestureDetector(
       onTap: () {
         if (type == 'schedule') {

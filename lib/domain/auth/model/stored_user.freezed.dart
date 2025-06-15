@@ -15,6 +15,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$StoredUser {
+  int get id;
   String get nickname;
   String get departmentType;
   String get accessToken;
@@ -32,6 +33,7 @@ mixin _$StoredUser {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is StoredUser &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
             (identical(other.departmentType, departmentType) ||
@@ -44,11 +46,11 @@ mixin _$StoredUser {
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, nickname, departmentType, accessToken, refreshToken);
+      runtimeType, id, nickname, departmentType, accessToken, refreshToken);
 
   @override
   String toString() {
-    return 'StoredUser(nickname: $nickname, departmentType: $departmentType, accessToken: $accessToken, refreshToken: $refreshToken)';
+    return 'StoredUser(id: $id, nickname: $nickname, departmentType: $departmentType, accessToken: $accessToken, refreshToken: $refreshToken)';
   }
 }
 
@@ -59,7 +61,8 @@ abstract mixin class $StoredUserCopyWith<$Res> {
       _$StoredUserCopyWithImpl;
   @useResult
   $Res call(
-      {String nickname,
+      {int id,
+      String nickname,
       String departmentType,
       String accessToken,
       String refreshToken});
@@ -77,12 +80,17 @@ class _$StoredUserCopyWithImpl<$Res> implements $StoredUserCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? nickname = null,
     Object? departmentType = null,
     Object? accessToken = null,
     Object? refreshToken = null,
   }) {
     return _then(StoredUser(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
       nickname: null == nickname
           ? _self.nickname
           : nickname // ignore: cast_nullable_to_non_nullable

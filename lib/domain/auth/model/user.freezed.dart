@@ -15,6 +15,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$User {
+  int get id;
   String get nickname;
   String get departmentType;
 
@@ -30,6 +31,7 @@ mixin _$User {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is User &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
             (identical(other.departmentType, departmentType) ||
@@ -38,11 +40,11 @@ mixin _$User {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, nickname, departmentType);
+  int get hashCode => Object.hash(runtimeType, id, nickname, departmentType);
 
   @override
   String toString() {
-    return 'User(nickname: $nickname, departmentType: $departmentType)';
+    return 'User(id: $id, nickname: $nickname, departmentType: $departmentType)';
   }
 }
 
@@ -51,7 +53,7 @@ abstract mixin class $UserCopyWith<$Res> {
   factory $UserCopyWith(User value, $Res Function(User) _then) =
       _$UserCopyWithImpl;
   @useResult
-  $Res call({String nickname, String departmentType});
+  $Res call({int id, String nickname, String departmentType});
 }
 
 /// @nodoc
@@ -66,10 +68,15 @@ class _$UserCopyWithImpl<$Res> implements $UserCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? nickname = null,
     Object? departmentType = null,
   }) {
     return _then(User(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
       nickname: null == nickname
           ? _self.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
