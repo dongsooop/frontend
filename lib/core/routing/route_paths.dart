@@ -13,6 +13,7 @@ abstract class RoutePaths {
   static const String cafeteriaWebView = 'cafeteriaWebView';
   static const String schedule = '/schedule';
   static const String calendar = '/calendar';
+  static const String calendarDetail = '/calendarDetail';
   static const String recruitWrite = '/recruitWrite';
   static const String recruitDetail = '/recruitDetail';
   static const String chatDetail = '/Chat/Detail';
