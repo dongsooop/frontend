@@ -291,6 +291,7 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
                   TextFormField(
                     controller: titleController,
                     enabled: !isOfficial,
+                    maxLength: 60,
                     style: TextStyles.normalTextRegular
                         .copyWith(color: ColorStyles.black),
                     validator: (value) =>
@@ -321,6 +322,7 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
                   TextFormField(
                     controller: locationController,
                     enabled: !isOfficial,
+                    maxLength: 20,
                     style: TextStyles.normalTextRegular
                         .copyWith(color: ColorStyles.black),
                     decoration: InputDecoration(
