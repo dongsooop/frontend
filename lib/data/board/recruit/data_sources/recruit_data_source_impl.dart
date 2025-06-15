@@ -18,7 +18,7 @@ class RecruitDataSourceImpl implements RecruitDataSource {
     required int page,
     required String? departmentType,
   }) async {
-    final url = '${type.listEndpoint}$departmentType';
+    final url = '${type.recruitEndpoint}/department/$departmentType';
 
     final response = await _authDio.get(
       url,
@@ -42,7 +42,7 @@ class RecruitDataSourceImpl implements RecruitDataSource {
     required int id,
     required RecruitType type,
   }) async {
-    final url = '${type.detailEndpoint}/$id';
+    final url = '${type.recruitEndpoint}/$id';
     final response = await _authDio.get(url);
 
     if (response.statusCode == HttpStatusCode.ok.code) {
@@ -61,7 +61,7 @@ class RecruitDataSourceImpl implements RecruitDataSource {
   }) async {
     final model = RecruitWriteModel.fromEntity(entity);
     final response =
-        await _authDio.post(type.writeEndpoint, data: model.toJson());
+        await _authDio.post(type.recruitEndpoint, data: model.toJson());
 
     if (response.statusCode != HttpStatusCode.created.code) {
       throw Exception('status: ${response.statusCode}');
