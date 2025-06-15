@@ -30,7 +30,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
   }) async {
     return _handle(() async {
       await _dataSource.submitCalendar(entity: entity);
-    }, CalendarSubmitException());
+    }, CalendarActionException());
   }
 
   @override
@@ -39,7 +39,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
   }) async {
     return _handle(() async {
       await _dataSource.updateCalendar(entity: entity);
-    }, CalendarUpdateException());
+    }, CalendarActionException());
   }
 
   @override
@@ -48,7 +48,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
   }) async {
     return _handle(() async {
       await _dataSource.deleteCalendar(calendarId: calendarId);
-    }, CalendarDeleteException());
+    }, CalendarActionException());
   }
 
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
