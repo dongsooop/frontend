@@ -10,7 +10,12 @@ class LoginUseCase {
 
   Future<void> execute(String email, String password) async {
     final response = await _authRepository.login(email, password);
-    final storedUser = StoredUser(nickname: response.nickname, departmentType: response.departmentType, accessToken: response.accessToken, refreshToken: response.refreshToken);
+    final storedUser = StoredUser(
+        id: response.id,
+        nickname: response.nickname,
+        departmentType: response.departmentType,
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken);
     await _authRepository.saveUser(storedUser);
   }
 }
