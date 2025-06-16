@@ -79,8 +79,11 @@ class BoardPageScreen extends HookConsumerWidget {
                   content: '이 서비스를 이용하려면\n로그인을 해야 해요!',
                   isSingleAction: false,
                   confirmText: '확인',
+                  onConfirm: () {
+                    context.pop(); // 다이얼로그 닫기
+                    context.go(RoutePaths.mypage); // 라우팅
+                  },
                   dismissOnConfirm: false,
-                  onConfirm: () => context.go(RoutePaths.mypage),
                   onCancel: () {
                     showLoginDialog.value = false;
                   },
