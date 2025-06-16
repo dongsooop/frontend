@@ -3,6 +3,7 @@ import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
+import 'package:dongsoop/presentation/calendar/calendar_detail_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
@@ -29,8 +30,30 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.calendar,
-      name: 'calendar',
-      builder: (context, state) => const CalendarPageScreen(),
+      builder: (context, state) => CalendarPageScreen(
+        onTapCalendarDetail: (event, selectedDate) async {
+          return await context.push<bool?>(
+            RoutePaths.calendarDetail,
+            extra: {
+              'event': event,
+              'selectedDate': selectedDate,
+            },
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.calendarDetail,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final event = extra?['event'];
+        final selectedDate = extra?['selectedDate'] as DateTime;
+
+        return CalendarDetailPageScreen(
+          selectedDate: selectedDate,
+          event: event,
+        );
+      },
     ),
     GoRoute(
       path: RoutePaths.signIn,
@@ -99,34 +122,35 @@ final router = GoRouter(
       branches: [
         StatefulShellBranch(routes: [
           GoRoute(
-            path: RoutePaths.home,
-            builder: (context, state) => const HomePageScreen(),
-            routes: [
-              GoRoute(
-                path: RoutePaths.noticeList,
-                name: 'noticeList',
-                builder: (context, state) => const NoticeListPageScreen(),
-              ),
-              GoRoute(
-                path: RoutePaths.noticeWebView,
-                name: 'noticeWebView',
-                builder: (context, state) {
-                  final path = state.uri.queryParameters['path'];
-                  return NoticeWebViewScreen(path: path ?? '');
-                },
-              ),
-              GoRoute(
-                path: RoutePaths.libraryWebView,
-                name: 'libraryWebView',
-                builder: (context, state) => const LibraryBannerWebViewScreen(),
-              ),
-              GoRoute(
-                path: RoutePaths.cafeteriaWebView,
-                name: 'cafeteriaWebView',
-                builder: (context, state) => const CafeteriaWebViewPageScreen(),
-              ),
-            ],
-          ),
+              path: RoutePaths.home,
+              builder: (context, state) => const HomePageScreen(),
+              routes: [
+                GoRoute(
+                  path: RoutePaths.noticeList,
+                  name: 'noticeList',
+                  builder: (context, state) => const NoticeListPageScreen(),
+                ),
+                GoRoute(
+                  path: RoutePaths.noticeWebView,
+                  name: 'noticeWebView',
+                  builder: (context, state) {
+                    final path = state.uri.queryParameters['path'];
+                    return NoticeWebViewScreen(path: path ?? '');
+                  },
+                ),
+                GoRoute(
+                  path: RoutePaths.libraryWebView,
+                  name: 'libraryWebView',
+                  builder: (context, state) =>
+                      const LibraryBannerWebViewScreen(),
+                ),
+                GoRoute(
+                  path: RoutePaths.cafeteriaWebView,
+                  name: 'cafeteriaWebView',
+                  builder: (context, state) =>
+                      const CafeteriaWebViewPageScreen(),
+                ),
+              ]),
         ]),
         StatefulShellBranch(routes: [
           GoRoute(
