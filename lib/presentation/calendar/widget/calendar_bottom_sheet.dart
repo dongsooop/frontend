@@ -31,9 +31,19 @@ class CalendarBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final formattedDate = formatFullDate(selectedDate);
 
+    final seen = <String>{};
     final filteredEvents = events.where((event) {
-      return !(event.endAt.isBefore(selectedDate) ||
-          event.startAt.isAfter(selectedDate));
+      final key =
+          '${event.title}_${event.startAt}_${event.endAt}_${event.type}';
+      if (seen.contains(key)) return false;
+      seen.add(key);
+      final target =
+          DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+      final start =
+          DateTime(event.startAt.year, event.startAt.month, event.startAt.day);
+      final end =
+          DateTime(event.endAt.year, event.endAt.month, event.endAt.day);
+      return !target.isBefore(start) && !target.isAfter(end);
     }).toList();
 
     filteredEvents.sort((a, b) {
@@ -102,7 +112,7 @@ class CalendarBottomSheet extends StatelessWidget {
                           final result = await onTapCalendarDetail?.call(
                               event, selectedDate);
                           if (result == true && context.mounted) {
-                            Navigator.pop(context, true); // 캘린더 갱신 트리거
+                            Navigator.pop(context, true);
                           }
                         },
                         child: ConstrainedBox(

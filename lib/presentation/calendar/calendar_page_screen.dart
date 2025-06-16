@@ -60,21 +60,42 @@ class CalendarPageScreen extends HookConsumerWidget {
             start.isAfter(weekStart.add(const Duration(days: 7))));
       }).toList();
 
+      final seen = <String>{};
+      final dedupedEvents = weekEvents.where((e) {
+        final key = '${e.title}_${e.startAt}_${e.endAt}';
+        if (seen.contains(key)) return false;
+        seen.add(key);
+        return true;
+      }).toList();
+
+      final officialEvents =
+          dedupedEvents.where((e) => e.type == CalendarType.official).toList();
+      final otherEvents =
+          dedupedEvents.where((e) => e.type != CalendarType.official).toList();
+
+      final Set<int> officialDays = {};
+      for (final event in officialEvents) {
+        final start = DateTime(
+            event.startAt.year, event.startAt.month, event.startAt.day);
+        final end =
+            DateTime(event.endAt.year, event.endAt.month, event.endAt.day);
+        for (var i = 0; i < 7; i++) {
+          final day = days[i];
+          if (!day.isBefore(start) && !day.isAfter(end)) {
+            officialDays.add(i);
+          }
+        }
+      }
+
       // 학사일정 우선 정렬, 그 외는 시작시간 순
-      weekEvents.sort((a, b) {
-        if (a.type == CalendarType.official && b.type != CalendarType.official)
-          return -1;
-        if (a.type != CalendarType.official && b.type == CalendarType.official)
-          return 1;
-        return a.startAt.compareTo(b.startAt);
-      });
+      otherEvents.sort((a, b) => a.startAt.compareTo(b.startAt));
 
       List<List<bool>> rowOccupancy = [];
       List<Widget> eventWidgets = [];
       List<int> hiddenCountByDay = List.filled(7, 0);
 
       // 일정 위젯 배치 처리
-      for (final event in weekEvents) {
+      for (final event in otherEvents) {
         final startDate = DateTime(
             event.startAt.year, event.startAt.month, event.startAt.day);
         final endDate =
@@ -117,12 +138,13 @@ class CalendarPageScreen extends HookConsumerWidget {
         }
 
         // 해당 월이 아닌 이벤트 위젯
-        final isOutOfMonth = !days.any((day) {
-          final isSameDayOrBetween =
-              !event.endAt.isBefore(day) && !event.startAt.isAfter(day);
-          final isSameMonth = day.month == focusedDay.value.month;
-          return isSameDayOrBetween && isSameMonth;
-        });
+        final firstDayOfMonth =
+            DateTime(focusedDay.value.year, focusedDay.value.month, 1);
+        final lastDayOfMonth =
+            DateTime(focusedDay.value.year, focusedDay.value.month + 1, 0);
+
+        final isOutOfMonth = event.endAt.isBefore(firstDayOfMonth) ||
+            event.startAt.isAfter(lastDayOfMonth);
 
         // 이벤트 표시 위젯 추가
         eventWidgets.add(
@@ -133,8 +155,8 @@ class CalendarPageScreen extends HookConsumerWidget {
             child: Opacity(
               opacity: isOutOfMonth ? 0.4 : 1.0,
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 2),
                 decoration: BoxDecoration(
                   color: event.type.color,
                   borderRadius: BorderRadius.circular(4),
@@ -177,7 +199,9 @@ class CalendarPageScreen extends HookConsumerWidget {
         child: Stack(
           children: [
             Row(
-              children: days.map((day) {
+              children: days.asMap().entries.map((entry) {
+                final i = entry.key;
+                final day = entry.value;
                 final isToday = DateTime.now().year == day.year &&
                     DateTime.now().month == day.month &&
                     DateTime.now().day == day.day;
@@ -199,13 +223,27 @@ class CalendarPageScreen extends HookConsumerWidget {
                     ),
                     alignment: Alignment.topCenter,
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      '${day.day}',
-                      style: TextStyles.smallTextRegular.copyWith(
-                        color: day.month != focusedDay.value.month
-                            ? ColorStyles.gray3
-                            : _getTextColor(day),
-                      ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${day.day}',
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: day.month != weekStart.month
+                                ? ColorStyles.gray3
+                                : _getTextColor(day),
+                          ),
+                        ),
+                        if (officialDays.contains(i))
+                          Container(
+                            margin: const EdgeInsets.only(top: 2),
+                            width: 4,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: ColorStyles.primaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 );
@@ -219,13 +257,12 @@ class CalendarPageScreen extends HookConsumerWidget {
                     behavior: HitTestBehavior.translucent,
                     onTap: () async {
                       selectedDay.value = day;
-
+                      final target = DateTime(day.year, day.month, day.day);
                       final selectedEvents = events.where((event) {
                         final start = DateTime(event.startAt.year,
                             event.startAt.month, event.startAt.day);
                         final end = DateTime(event.endAt.year,
                             event.endAt.month, event.endAt.day);
-                        final target = DateTime(day.year, day.month, day.day);
                         return !target.isBefore(start) && !target.isAfter(end);
                       }).toList();
 
