@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
+  static const _idKey = 'id';
   static const _nicknameKey = 'nickname';
   static const _departmentKey = 'departmentType';
 
@@ -11,23 +12,26 @@ class PreferencesService {
 
   Future<void> saveUser(User user) async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.setInt(_idKey, user.id);
     await _prefs.setString(_nicknameKey, user.nickname);
     await _prefs.setString(_departmentKey, user.departmentType);
   }
 
   Future<User?> getUser() async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    final id = _prefs.getInt(_idKey);
     final nickname = _prefs.getString(_nicknameKey);
     final departmentType = _prefs.getString(_departmentKey);
 
-    if (nickname != null && departmentType != null) {
-      return User(nickname: nickname, departmentType: departmentType);
+    if (id != null && nickname != null && departmentType != null) {
+      return User(id: id, nickname: nickname, departmentType: departmentType);
     }
     return null;
   }
 
   Future<void> clearUser() async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.remove(_idKey);
     await _prefs.remove(_nicknameKey);
     await _prefs.remove(_departmentKey);
   }

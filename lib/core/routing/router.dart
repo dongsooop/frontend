@@ -2,6 +2,7 @@ import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
+import 'package:dongsoop/presentation/calendar/calendar_detail_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
@@ -26,8 +27,30 @@ final router = GoRouter(initialLocation: RoutePaths.home, routes: [
   ),
   GoRoute(
     path: RoutePaths.calendar,
-    name: 'calendar',
-    builder: (context, state) => const CalendarPageScreen(),
+    builder: (context, state) => CalendarPageScreen(
+      onTapCalendarDetail: (event, selectedDate) async {
+        return await context.push<bool?>(
+          RoutePaths.calendarDetail,
+          extra: {
+            'event': event,
+            'selectedDate': selectedDate,
+          },
+        );
+      },
+    ),
+  ),
+  GoRoute(
+    path: RoutePaths.calendarDetail,
+    builder: (context, state) {
+      final extra = state.extra as Map<String, dynamic>?;
+      final event = extra?['event'];
+      final selectedDate = extra?['selectedDate'] as DateTime;
+
+      return CalendarDetailPageScreen(
+        selectedDate: selectedDate,
+        event: event,
+      );
+    },
   ),
   GoRoute(
     path: RoutePaths.signIn,

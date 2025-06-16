@@ -56,6 +56,28 @@ class RecruitWriteException implements Exception {
   String toString() => message;
 }
 
+class CalendarException implements Exception {
+  final String message;
+
+  CalendarException([
+    this.message = "일정 데이터를 불러오는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class CalendarActionException implements Exception {
+  final String message;
+
+  CalendarActionException([
+    this.message = "일정을 처리하는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
 class CafeteriaException implements Exception {
   final String message;
   CafeteriaException([this.message = "학식 조회에 실패했습니다. 잠시 후 다시 시도해주세요"]);
