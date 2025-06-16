@@ -1,22 +1,15 @@
 import 'package:dongsoop/data/board/recruit/models/recruit_detail_model.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_list_model.dart';
-import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
 
-abstract class RecruitDataSource {
-  Future<List<RecruitListModel>> fetchList({
+abstract class GuestRecruitDataSource {
+  Future<List<RecruitListModel>> fetchGuestList({
     required RecruitType type,
     required int page,
-    required String? departmentType,
   });
 
-  Future<RecruitDetailModel> fetchDetail({
+  Future<RecruitDetailModel> fetchGuestDetail({
     required int id,
     required RecruitType type,
-  });
-
-  Future<void> submitPost({
-    required RecruitType type,
-    required RecruitWriteEntity entity,
   });
 }
