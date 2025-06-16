@@ -40,12 +40,12 @@ class BoardPageScreen extends HookConsumerWidget {
         : '';
 
     useEffect(() {
-      void _onScroll() {
-        final viewModelProvider = recruitListViewModelProvider(
-          type: recruitType,
-          departmentCode: departmentCode,
-        );
+      final viewModelProvider = recruitListViewModelProvider(
+        type: recruitType,
+        departmentCode: departmentCode,
+      );
 
+      void _onScroll() {
         final current = ref.read(viewModelProvider);
         final notifier = ref.read(viewModelProvider.notifier);
 
@@ -61,8 +61,7 @@ class BoardPageScreen extends HookConsumerWidget {
       return () => scrollController.removeListener(_onScroll);
     }, [
       scrollController,
-      selectedIndex.value,
-      selectedSubIndex.value,
+      recruitType,
       departmentCode,
     ]);
 

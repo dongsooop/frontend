@@ -5,7 +5,7 @@ import 'package:dongsoop/domain/board/recruit/use_cases/recruit_write_use_case.d
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';
 import 'package:dongsoop/main.dart';
-import 'package:dongsoop/presentation/board/recruit/write/providers/recruit_write_use_case_provider.dart';
+import 'package:dongsoop/presentation/board/providers/recruit/recruit_write_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

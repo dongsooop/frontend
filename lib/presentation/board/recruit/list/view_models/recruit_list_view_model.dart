@@ -40,9 +40,9 @@ class RecruitListState {
 
 @riverpod
 class RecruitListViewModel extends _$RecruitListViewModel {
-  late final RecruitListUseCase _useCase;
-  late final RecruitType _type;
-  late final String? _departmentCode;
+  late RecruitListUseCase _useCase;
+  late RecruitType _type;
+  late String _departmentCode;
 
   @override
   RecruitListState build({
