@@ -1,11 +1,12 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_write_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';
+import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/recruit/write/providers/recruit_write_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'recruit_write_view_model.g.dart';
@@ -58,16 +59,25 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
     required RecruitWriteEntity entity,
   }) async {
     if (state.isLoading) return;
-    state = state.copyWith(isLoading: true);
+
+    state = state.copyWith(
+      isLoading: true,
+      errMessage: null,
+    );
+
     try {
       await _useCase.execute(
         type: type,
         entity: entity,
       );
       ref.invalidateSelf();
-    } catch (e) {
-      debugPrint('[Submit Error] $e');
-      rethrow;
+      logger.i('[Submit Success] 게시글 작성 완료');
+    } on LoginRequiredException catch (e) {
+      logger.w('[Submit Error] 로그인 필요: ${e.message}');
+      state = state.copyWith(errMessage: e.message);
+    } catch (e, stack) {
+      logger.e('[Submit Error] 예외 발생: $e', stackTrace: stack);
+      state = state.copyWith(errMessage: '알 수 없는 오류가 발생했어요.');
     } finally {
       state = state.copyWith(isLoading: false);
     }

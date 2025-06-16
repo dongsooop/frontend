@@ -42,7 +42,7 @@ class RecruitListState {
 class RecruitListViewModel extends _$RecruitListViewModel {
   late final RecruitListUseCase _useCase;
   late final RecruitType _type;
-  late final String _departmentCode;
+  late final String? _departmentCode;
 
   @override
   RecruitListState build({
@@ -83,7 +83,7 @@ class RecruitListViewModel extends _$RecruitListViewModel {
         hasMore: filtered.isNotEmpty,
       );
     } catch (e) {
-      print('[RecruitListViewModel] 에러 발생: $e');
+      print('$e');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final recruitWriteUseCaseProvider = Provider<RecruitWriteUseCase>((ref) {
   final dio = ref.watch(authDioProvider);
 
-  final dataSource = RecruitDataSourceImpl(dio);
-  final repository = RecruitRepositoryImpl(dataSource);
+  final _authDataSource = RecruitDataSourceImpl(dio);
+  final repository = RecruitRepositoryImpl(_authDataSource);
 
   return RecruitWriteUseCase(repository);
 });

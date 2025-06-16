@@ -1,3 +1,14 @@
+class LoginRequiredException implements Exception {
+  final String message;
+
+  LoginRequiredException([
+    this.message = "로그인이 필요한 서비스예요. 로그인 페이지로 이동하시겠어요?",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
 class LoginException implements Exception {
   final String message;
   LoginException([this.message = "아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요"]);
