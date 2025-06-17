@@ -20,4 +20,6 @@ RecruitDetailModel _$RecruitDetailModelFromJson(Map<String, dynamic> json) =>
           .toList(),
       author: json['author'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      viewType: json['viewType'] as String,
+      isAlreadyApplied: json['isAlreadyApplied'] as bool,
     );

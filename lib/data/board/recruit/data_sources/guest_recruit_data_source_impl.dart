@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/data/board/recruit/config/recruit_type_config.dart';
 import 'package:dongsoop/data/board/recruit/data_sources/guest_recruit_data_source.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_detail_model.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_list_model.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 
 class GuestRecruitDataSourceImpl implements GuestRecruitDataSource {
   final Dio _plainDio;
@@ -15,7 +16,7 @@ class GuestRecruitDataSourceImpl implements GuestRecruitDataSource {
     required RecruitType type,
     required int page,
   }) async {
-    final url = '${type.recruitEndpoint}';
+    final url = RecruitTypeConfig.getRecruitEndpoint(type);
 
     final response = await _plainDio.get(
       url,
@@ -39,7 +40,8 @@ class GuestRecruitDataSourceImpl implements GuestRecruitDataSource {
     required int id,
     required RecruitType type,
   }) async {
-    final url = '${type.recruitEndpoint}/$id';
+    final baseUrl = RecruitTypeConfig.getRecruitEndpoint(type);
+    final url = '$baseUrl/$id';
     final response = await _plainDio.get(url);
 
     if (response.statusCode == HttpStatusCode.ok.code) {

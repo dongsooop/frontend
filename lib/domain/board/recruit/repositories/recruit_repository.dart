@@ -1,7 +1,7 @@
 import 'package:dongsoop/domain/board/recruit/entities/recruit_detail_entity.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 
 abstract class RecruitRepository {
   Future<List<RecruitListEntity>> fetchRecruitList({

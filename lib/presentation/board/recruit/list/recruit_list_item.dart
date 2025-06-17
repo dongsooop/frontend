@@ -1,6 +1,6 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';

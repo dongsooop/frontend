@@ -1,6 +1,6 @@
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_entity.dart';
 import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_apply_use_case.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/providers/recruit_apply_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
