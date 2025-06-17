@@ -18,7 +18,7 @@ enum RecruitType {
 }
 
 extension RecruitTypeExtension on RecruitType {
-  String get writeEndpoint {
+  String get recruitEndpoint {
     switch (this) {
       case RecruitType.tutoring:
         return dotenv.get('TUTORING_ENDPOINT');
@@ -27,29 +27,6 @@ extension RecruitTypeExtension on RecruitType {
       case RecruitType.project:
         return dotenv.get('PROJECT_ENDPOINT');
     }
-  }
-
-  String get listEndpoint {
-    switch (this) {
-      case RecruitType.tutoring:
-        return dotenv.get('TUTORING_LIST_ENDPOINT');
-      case RecruitType.study:
-        return dotenv.get('STUDY_LIST_ENDPOINT');
-      case RecruitType.project:
-        return dotenv.get('PROJECT_LIST_ENDPOINT');
-    }
-  }
-
-  String get detailEndpoint {
-    final endpoint = switch (this) {
-      RecruitType.tutoring => dotenv.get('TUTORING_ENDPOINT'),
-      RecruitType.study => dotenv.get('STUDY_ENDPOINT'),
-      RecruitType.project => dotenv.get('PROJECT_ENDPOINT'),
-    };
-
-    return endpoint.endsWith('/')
-        ? endpoint.substring(0, endpoint.length - 1)
-        : endpoint;
   }
 
   String get applyEndpoint {

@@ -10,7 +10,7 @@ class RecruitListUseCase {
   Future<List<RecruitListEntity>> execute({
     required RecruitType type,
     required int page,
-    required String departmentType,
+    String? departmentType,
   }) {
     return repository.fetchRecruitList(
       type: type,

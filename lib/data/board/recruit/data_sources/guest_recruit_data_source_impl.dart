@@ -1,26 +1,23 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
-import 'package:dongsoop/data/board/recruit/data_sources/recruit_data_source.dart';
+import 'package:dongsoop/data/board/recruit/data_sources/guest_recruit_data_source.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_detail_model.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_list_model.dart';
-import 'package:dongsoop/data/board/recruit/models/recruit_write_model.dart';
-import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
 
-class RecruitDataSourceImpl implements RecruitDataSource {
-  final Dio _authDio;
+class GuestRecruitDataSourceImpl implements GuestRecruitDataSource {
+  final Dio _plainDio;
 
-  RecruitDataSourceImpl(this._authDio);
+  GuestRecruitDataSourceImpl(this._plainDio);
 
   @override
-  Future<List<RecruitListModel>> fetchList({
+  Future<List<RecruitListModel>> fetchGuestList({
     required RecruitType type,
     required int page,
-    required String? departmentType,
   }) async {
-    final url = '${type.recruitEndpoint}/department/$departmentType';
+    final url = '${type.recruitEndpoint}';
 
-    final response = await _authDio.get(
+    final response = await _plainDio.get(
       url,
       queryParameters: {
         'page': page,
@@ -38,12 +35,12 @@ class RecruitDataSourceImpl implements RecruitDataSource {
   }
 
   @override
-  Future<RecruitDetailModel> fetchDetail({
+  Future<RecruitDetailModel> fetchGuestDetail({
     required int id,
     required RecruitType type,
   }) async {
     final url = '${type.recruitEndpoint}/$id';
-    final response = await _authDio.get(url);
+    final response = await _plainDio.get(url);
 
     if (response.statusCode == HttpStatusCode.ok.code) {
       final data = response.data;
@@ -52,19 +49,5 @@ class RecruitDataSourceImpl implements RecruitDataSource {
       return RecruitDetailModel.fromJson(data);
     }
     throw Exception('status: ${response.statusCode}');
-  }
-
-  @override
-  Future<void> submitPost({
-    required RecruitType type,
-    required RecruitWriteEntity entity,
-  }) async {
-    final model = RecruitWriteModel.fromEntity(entity);
-    final response =
-        await _authDio.post(type.recruitEndpoint, data: model.toJson());
-
-    if (response.statusCode != HttpStatusCode.created.code) {
-      throw Exception('status: ${response.statusCode}');
-    }
   }
 }

@@ -5,6 +5,7 @@ class RecruitFormState {
   final List<String> tags;
   final List<String> majors;
   final bool isLoading;
+  final String? errMessage;
 
   const RecruitFormState({
     this.selectedTypeIndex,
@@ -13,6 +14,7 @@ class RecruitFormState {
     this.tags = const [],
     this.majors = const [],
     this.isLoading = false,
+    this.errMessage,
   });
 
   RecruitFormState copyWith({
@@ -22,6 +24,7 @@ class RecruitFormState {
     List<String>? tags,
     List<String>? majors,
     bool? isLoading,
+    String? errMessage,
   }) {
     return RecruitFormState(
       selectedTypeIndex: selectedTypeIndex ?? this.selectedTypeIndex,
@@ -30,6 +33,7 @@ class RecruitFormState {
       tags: tags ?? this.tags,
       majors: majors ?? this.majors,
       isLoading: isLoading ?? this.isLoading,
+      errMessage: errMessage ?? this.errMessage,
     );
   }
 }
