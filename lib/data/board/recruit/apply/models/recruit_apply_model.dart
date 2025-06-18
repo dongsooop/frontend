@@ -8,13 +8,13 @@ part 'recruit_apply_model.g.dart';
 @JsonSerializable()
 class RecruitApplyModel with _$RecruitApplyModel {
   final int boardId;
-  final String introduction;
-  final String motivation;
+  final String? introduction;
+  final String? motivation;
 
   RecruitApplyModel({
     required this.boardId,
-    required this.introduction,
-    required this.motivation,
+    this.introduction,
+    this.motivation,
   });
 
   Map<String, dynamic> toJson() => _$RecruitApplyModelToJson(this);

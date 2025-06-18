@@ -1,10 +1,11 @@
 class RecruitApplyEntity {
   final int boardId;
-  final String introduction;
-  final String motivation;
+  final String? introduction;
+  final String? motivation;
 
-  RecruitApplyEntity(
-      {required this.boardId,
-      required this.introduction,
-      required this.motivation});
+  RecruitApplyEntity({
+    required this.boardId,
+    this.introduction,
+    this.motivation,
+  });
 }

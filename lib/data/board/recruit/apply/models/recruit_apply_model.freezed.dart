@@ -16,8 +16,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RecruitApplyModel {
   int get boardId;
-  String get introduction;
-  String get motivation;
+  String? get introduction;
+  String? get motivation;
 
   /// Create a copy of RecruitApplyModel
   /// with the given fields replaced by the non-null parameter values.
@@ -55,7 +55,7 @@ abstract mixin class $RecruitApplyModelCopyWith<$Res> {
           RecruitApplyModel value, $Res Function(RecruitApplyModel) _then) =
       _$RecruitApplyModelCopyWithImpl;
   @useResult
-  $Res call({int boardId, String introduction, String motivation});
+  $Res call({int boardId, String? introduction, String? motivation});
 }
 
 /// @nodoc
@@ -72,22 +72,22 @@ class _$RecruitApplyModelCopyWithImpl<$Res>
   @override
   $Res call({
     Object? boardId = null,
-    Object? introduction = null,
-    Object? motivation = null,
+    Object? introduction = freezed,
+    Object? motivation = freezed,
   }) {
     return _then(RecruitApplyModel(
       boardId: null == boardId
           ? _self.boardId
           : boardId // ignore: cast_nullable_to_non_nullable
               as int,
-      introduction: null == introduction
+      introduction: freezed == introduction
           ? _self.introduction
           : introduction // ignore: cast_nullable_to_non_nullable
-              as String,
-      motivation: null == motivation
+              as String?,
+      motivation: freezed == motivation
           ? _self.motivation
           : motivation // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
