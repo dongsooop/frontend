@@ -1,5 +1,5 @@
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_repository.dart';
 
 class RecruitListUseCase {
