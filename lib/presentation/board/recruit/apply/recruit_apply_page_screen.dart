@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
+import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_apply_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -30,11 +31,14 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
     final user = ref.watch(userSessionProvider);
     final writerMajor = user?.departmentType;
 
+    final departmentCode = user != null
+        ? DepartmentTypeExtension.fromDisplayName(user.departmentType).code
+        : '';
+
     final isFormValid = useState(false);
 
     void updateFormValidState() {
-      isFormValid.value = introduceController.text.trim().isNotEmpty &&
-          supportController.text.trim().isNotEmpty;
+      isFormValid.value = true;
     }
 
     useEffect(() {
@@ -65,18 +69,28 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
                 cancelText: '취소',
                 confirmText: '제출',
                 onConfirm: () async {
-                  context.pop(true); // 다이얼로그 pop
+                  context.pop(); // 다이얼로그 닫기
 
-                  await ref
-                      .read(recruitApplyViewModelProvider.notifier)
-                      .submitRecruitApply(
-                        boardId: id,
-                        introduction: introduceController.text.trim(),
-                        motivation: supportController.text.trim(),
-                        type: type,
-                      );
+                  final notifier =
+                      ref.read(recruitApplyViewModelProvider.notifier);
+                  await notifier.submitRecruitApply(
+                    boardId: id,
+                    introduction: introduceController.text.trim(),
+                    motivation: supportController.text.trim(),
+                    type: type,
+                    departmentCode: departmentCode,
+                  );
 
-                  context.pop(true);
+                  final resultState = ref.read(recruitApplyViewModelProvider);
+
+                  if (resultState is AsyncData && !resultState.hasError) {
+                    context.pop(true); // 지원 성공 → 상세 페이지에 true 전달
+                  } else {
+                    // 임시
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('제출에 실패했어요. 다시 시도해주세요.')),
+                    );
+                  }
                 },
               ),
             );
@@ -90,17 +104,16 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '학과',
-                    style: TextStyles.largeTextBold
-                        .copyWith(color: ColorStyles.black),
-                  ),
+                  Text('학과',
+                      style: TextStyles.largeTextBold
+                          .copyWith(color: ColorStyles.black)),
                   const SizedBox(height: 16),
                   TextFormField(
                     enabled: false,
                     initialValue: writerMajor,
                     decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.all(16),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 16),
                       hintText: writerMajor,
                       hintStyle: TextStyles.normalTextRegular
                           .copyWith(color: ColorStyles.gray3),
@@ -114,11 +127,9 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  Text(
-                    '자기소개',
-                    style: TextStyles.largeTextBold
-                        .copyWith(color: ColorStyles.black),
-                  ),
+                  Text('자기소개',
+                      style: TextStyles.largeTextBold
+                          .copyWith(color: ColorStyles.black)),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: introduceController,
@@ -142,11 +153,9 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  Text(
-                    '지원 동기',
-                    style: TextStyles.largeTextBold
-                        .copyWith(color: ColorStyles.black),
-                  ),
+                  Text('지원 동기',
+                      style: TextStyles.largeTextBold
+                          .copyWith(color: ColorStyles.black)),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: supportController,

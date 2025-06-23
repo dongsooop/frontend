@@ -1,10 +1,10 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/widget/botton_button.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +29,11 @@ class RecruitDetailPageScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final args = RecruitDetailArgs(id: id, type: type);
-    final detailState = ref.watch(recruitDetailViewModelProvider(args));
-    final user = ref.watch(userSessionProvider);
+    final detailState = ref.watch(
+      recruitDetailViewModelProvider(
+        RecruitDetailArgs(id: id, type: type),
+      ),
+    );
 
     return SafeArea(
       child: Scaffold(
@@ -51,17 +53,41 @@ class RecruitDetailPageScreen extends ConsumerWidget {
             final detail = data.recruitDetail;
             if (detail == null) return const SizedBox.shrink();
 
-            final isAuthor = user?.nickname == detail.author;
+            final viewType = detail.viewType; // 'OWNER' | 'MEMBER' | 'GUEST'
+            final isAuthor = viewType == 'OWNER';
+            final isGuest = viewType == 'GUEST';
+
+            String buttonLabel;
+            bool isEnabled = true;
+
+            if (isAuthor) {
+              buttonLabel = '지원자 확인';
+            } else if (viewType == 'MEMBER' && detail.isAlreadyApplied) {
+              buttonLabel = '지원 완료';
+              isEnabled = false;
+            } else {
+              buttonLabel = '지원하기';
+            }
 
             return RecruitBottomButton(
-              label: isAuthor ? '지원자 확인' : '지원하기',
+              label: buttonLabel,
+              isEnabled: isEnabled,
               onPressed: () async {
                 if (isAuthor) {
                   // TODO: 지원자 확인 화면 이동
+                } else if (isGuest) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => LoginRequiredDialog(),
+                  );
                 } else {
                   final didApply = await onTapRecruitApply();
                   if (didApply == true) {
-                    ref.invalidate(recruitDetailViewModelProvider(args));
+                    ref.invalidate(
+                      recruitDetailViewModelProvider(
+                        RecruitDetailArgs(id: id, type: type),
+                      ),
+                    );
                   }
                 }
               },

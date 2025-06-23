@@ -1,5 +1,3 @@
-import 'package:dongsoop/domain/board/recruit/enum/recruit_view_type.dart';
-
 class RecruitDetailEntity {
   final int id;
   final int volunteer;
@@ -11,7 +9,7 @@ class RecruitDetailEntity {
   final List<String> departmentTypeList;
   final DateTime createdAt;
   final String author;
-  final RecruitViewType viewType;
+  final String viewType;
   final bool isAlreadyApplied;
 
   const RecruitDetailEntity({

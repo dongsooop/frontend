@@ -1,5 +1,4 @@
 import 'package:dongsoop/domain/board/recruit/entities/recruit_detail_entity.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_view_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'recruit_detail_model.freezed.dart';
@@ -53,7 +52,7 @@ extension RecruitDetailModelMapper on RecruitDetailModel {
       departmentTypeList: departmentTypeList,
       author: author,
       createdAt: createdAt,
-      viewType: RecruitViewTypeExt.fromString(viewType),
+      viewType: viewType,
       isAlreadyApplied: isAlreadyApplied,
     );
   }
