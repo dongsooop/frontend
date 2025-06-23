@@ -1,66 +1,210 @@
+import 'dart:ui';
+
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/search_bar.dart';
-import 'package:dongsoop/core/providers/user_provider.dart';
-import 'package:dongsoop/domain/notice/use_cases/notice_use_case.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/auth/model/department_type.dart';
+import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class NoticeListPageScreen extends ConsumerStatefulWidget {
+class NoticeListPageScreen extends HookConsumerWidget {
   const NoticeListPageScreen({super.key});
 
-  @override
-  ConsumerState<NoticeListPageScreen> createState() =>
-      _NoticeListPageScreenState();
-}
-
-class _NoticeListPageScreenState extends ConsumerState<NoticeListPageScreen> {
-  int selectedNoticeIndex = 0;
-  final ScrollController _scrollController = ScrollController();
-
-  NoticeTab getSelectedTab(int index) {
-    switch (index) {
-      case 0:
-        return NoticeTab.all;
-      case 1:
-        return NoticeTab.school;
-      case 2:
-        return NoticeTab.department;
-      default:
-        return NoticeTab.school;
-    }
+  NoticeTab selectedTab(int index) {
+    return NoticeTab.values[index];
   }
 
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = useState(0);
+    final previousIndex = useState(0);
+    final showLoginDialog = useState(false);
 
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 100) {
-        final user = ref.read(userProvider);
-        ref
-            .read(
-              noticeListViewModelProvider(
-                NoticeListArgs(
-                  tab: getSelectedTab(selectedNoticeIndex),
-                  departmentType: user?.departmentType,
-                ),
-              ).notifier,
-            )
-            .fetchNextPage();
+    final user = ref.watch(userSessionProvider);
+    final isLoggedIn = user != null;
+
+    final departmentName = user?.departmentType ?? '';
+    final departmentType =
+        DepartmentTypeExtension.fromDisplayName(departmentName);
+    final departmentCode =
+        (isLoggedIn && departmentType != DepartmentType.Unknown)
+            ? departmentType.code
+            : null;
+
+    final args = useMemoized(() {
+      return NoticeListArgs(
+        tab: selectedTab(selectedIndex.value),
+        departmentType: departmentCode,
+      );
+    }, [selectedIndex.value, departmentCode]);
+
+    final noticeState = ref.watch(noticeListViewModelProvider(args));
+    final viewModel = ref.watch(noticeListViewModelProvider(args).notifier);
+    final isLastPage = viewModel.isLastPage;
+
+    final scrollController = useScrollController();
+
+    useEffect(() {
+      void onScroll() {
+        if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 100) {
+          viewModel.fetchNextPage(args);
+        }
       }
-    });
-  }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+      scrollController.addListener(onScroll);
+      return () => scrollController.removeListener(onScroll);
+    }, [scrollController, args]);
+
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: ColorStyles.white,
+        appBar: DetailHeader(title: '공지'),
+        body: Stack(
+          children: [
+            MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              removeBottom: true,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  children: [
+                    const SearchBarComponent(),
+                    const SizedBox(height: 24),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(3, (index) {
+                          final labels = ['전체', '학교', '학과'];
+                          final isSelected = selectedIndex.value == index;
+
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 24),
+                            child: GestureDetector(
+                              onTap: () {
+                                if (index == 2 && !isLoggedIn) {
+                                  previousIndex.value = selectedIndex.value;
+                                  showLoginDialog.value = true;
+                                  return;
+                                }
+                                selectedIndex.value = index;
+                                scrollController.jumpTo(0);
+                              },
+                              child:
+                                  _buildUnderlineTab(labels[index], isSelected),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: noticeState.when(
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (e, _) => Center(child: Text('에러: $e')),
+                        data: (notices) => ListView.separated(
+                          controller: scrollController,
+                          itemCount: notices.length + (isLastPage ? 0 : 1),
+                          separatorBuilder: (_, __) => const Divider(
+                            height: 1,
+                            color: ColorStyles.gray2,
+                          ),
+                          itemBuilder: (context, index) {
+                            if (index == notices.length) {
+                              return const SizedBox.shrink();
+                            }
+
+                            final item = notices[index];
+                            final tags = item.isDepartment
+                                ? ['학과공지', '학부']
+                                : ['동양공지', '학교생활'];
+
+                            return GestureDetector(
+                              onTap: () {
+                                context.pushNamed(
+                                  'noticeWebView',
+                                  queryParameters: {'path': item.link},
+                                );
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 24),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.title,
+                                      style: TextStyles.largeTextBold.copyWith(
+                                        color: ColorStyles.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Wrap(
+                                      children: tags
+                                          .asMap()
+                                          .entries
+                                          .map((entry) => CommonTag(
+                                                label: entry.value,
+                                                index: entry.key,
+                                              ))
+                                          .toList(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (showLoginDialog.value)
+              Positioned.fill(
+                child: Stack(
+                  children: [
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
+                      child: Container(
+                        color: Colors.black.withAlpha((255 * 0.3).round()),
+                      ),
+                    ),
+                    Center(
+                      child: CustomConfirmDialog(
+                        title: '로그인이 필요해요',
+                        content: '이 서비스를 이용하려면\n로그인을 해야 해요!',
+                        isSingleAction: false,
+                        confirmText: '확인',
+                        dismissOnConfirm: false,
+                        onConfirm: () => context.go(RoutePaths.mypage),
+                        onCancel: () {
+                          showLoginDialog.value = false;
+                          selectedIndex.value = previousIndex.value;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildUnderlineTab(String label, bool isSelected) {
@@ -92,123 +236,6 @@ class _NoticeListPageScreenState extends ConsumerState<NoticeListPageScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final user = ref.watch(userProvider);
-    final args = NoticeListArgs(
-      tab: getSelectedTab(selectedNoticeIndex),
-      departmentType: user?.departmentType,
-    );
-    final noticeState = ref.watch(noticeListViewModelProvider(args));
-    final viewModel = ref.watch(noticeListViewModelProvider(args).notifier);
-    final isLastPage = viewModel.isLastPage;
-
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(title: '공지'),
-        body: MediaQuery.removePadding(
-          context: context,
-          removeTop: true,
-          removeBottom: true,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: [
-                const SearchBarComponent(),
-                const SizedBox(height: 24),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(3, (index) {
-                      final labels = ['전체', '학교', '학과'];
-                      final isSelected = selectedNoticeIndex == index;
-
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 24),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedNoticeIndex = index;
-                              _scrollController.jumpTo(0);
-                            });
-                          },
-                          child: _buildUnderlineTab(labels[index], isSelected),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: noticeState.when(
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => Center(child: Text('에러: $e')),
-                    data: (notices) => ListView.separated(
-                      controller: _scrollController,
-                      itemCount: notices.length + (isLastPage ? 0 : 1),
-                      separatorBuilder: (_, __) => const Divider(
-                        height: 1,
-                        color: ColorStyles.gray2,
-                      ),
-                      itemBuilder: (context, index) {
-                        if (index == notices.length) {
-                          // 마지막 인덱스인데 isLastPage면 이 블럭 호출 안 됨
-                          return const SizedBox.shrink();
-                        }
-
-                        final item = notices[index];
-                        final tags = item.isDepartment
-                            ? ['학과공지', '학부']
-                            : ['동양공지', '학교생활'];
-
-                        return GestureDetector(
-                          onTap: () {
-                            context.pushNamed(
-                              'noticeWebView',
-                              queryParameters: {'path': item.link},
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.title,
-                                  style: TextStyles.largeTextBold.copyWith(
-                                    color: ColorStyles.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Wrap(
-                                  children: tags
-                                      .asMap()
-                                      .entries
-                                      .map((entry) => CommonTag(
-                                            label: entry.value,
-                                            index: entry.key,
-                                          ))
-                                      .toList(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

@@ -1,14 +1,31 @@
+import 'dart:ui';
+
+import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class HomeToday extends StatelessWidget {
+class HomeToday extends HookConsumerWidget {
   const HomeToday({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userSessionProvider);
+    final cafeteriaState = ref.watch(cafeteriaViewModelProvider);
+    final now = DateTime.now();
+    final weekday = ['월', '화', '수', '목', '금', '토', '일'][now.weekday - 1];
+    final todayString = '${now.month}월 ${now.day}일 ($weekday)';
+
+    String cafeteriaText = cafeteriaState.when(
+      data: (state) => state.todayMeal?.koreanMenu ?? '오늘은 학식이 제공되지 않아요!',
+      loading: () => '불러오는 중...',
+      error: (err, _) => err.toString(),
+    );
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 64, top: 32),
@@ -23,42 +40,82 @@ class HomeToday extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 날짜 텍스트
           Text(
-            '4월 7일 (월)',
+            todayString,
             style: TextStyles.titleTextBold.copyWith(
               color: ColorStyles.black,
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 140,
-                  child: _buildCard(
-                    title: '강의시간표',
-                    type: 'schedule',
-                    context: context,
-                  ),
+
+          // 강의시간표 + 일정 (하나의 Stack으로 묶어서 blur 처리)
+          SizedBox(
+            height: 140,
+            child: Stack(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildCard(
+                        title: '강의시간표',
+                        type: 'schedule',
+                        context: context,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildCard(
+                        title: '일정',
+                        type: 'calendar',
+                        context: context,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: SizedBox(
-                  height: 140,
-                  child: _buildCard(
-                    title: '일정',
-                    type: 'calendar',
-                    context: context,
+                if (user == null)
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
+                        child: Container(
+                          alignment: Alignment.center,
+                          color:
+                              ColorStyles.white.withAlpha((255 * 0.5).round()),
+                          child: Text(
+                            '로그인이 필요한 서비스예요',
+                            style: TextStyles.normalTextBold.copyWith(
+                              color: ColorStyles.black,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          _buildCard(title: '오늘의 학식', type: 'meal', context: context),
-          const SizedBox(height: 12),
-          _buildCard(title: '', type: 'banner', context: context),
+          const SizedBox(height: 16),
+
+          // 오늘의 학식
+          SizedBox(
+            child: _buildCard(
+              title: '오늘의 학식',
+              type: 'cafeteria',
+              context: context,
+              cafeteriaText: cafeteriaText,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 도서관 배너
+          _buildCard(
+            title: '',
+            type: 'banner',
+            context: context,
+          ),
         ],
       ),
     );
@@ -68,9 +125,9 @@ class HomeToday extends StatelessWidget {
     required String title,
     required String type,
     required BuildContext context,
+    String? cafeteriaText,
   }) {
     List<Widget> content = [];
-    String? routeName;
 
     if (type == 'schedule') {
       content = [
@@ -78,23 +135,20 @@ class HomeToday extends StatelessWidget {
         _buildRow('14:00', '자바프로그래밍'),
         _buildRow('17:00', '슬기로운직장생활'),
       ];
-      routeName = 'schedule';
     } else if (type == 'calendar') {
       content = [
         _buildRow('13:00', '프로젝트 회의'),
         _buildRow('19:00', '술먹기'),
       ];
-      routeName = 'calendar';
-    } else if (type == 'meal') {
+    } else if (type == 'cafeteria') {
       content = [
         Text(
-          '백미밥, 닭갈비볶음, 피자왕춘권&칠리소스, 두부양념조림, 배추김치/요구르트, 소고기미역국',
+          cafeteriaText ?? '',
           style: TextStyles.smallTextRegular.copyWith(
             color: ColorStyles.gray4,
           ),
         ),
       ];
-      // routeName = 'mealWebview';
     }
 
     if (type == 'banner') {
@@ -164,11 +218,15 @@ class HomeToday extends StatelessWidget {
       );
     }
 
-    // 카드 클릭 시 라우팅
+    // 공통 카드 UI
     return GestureDetector(
       onTap: () {
-        if (routeName != null) {
-          context.pushNamed(routeName);
+        if (type == 'schedule') {
+          context.push('/schedule');
+        } else if (type == 'calendar') {
+          context.push('/calendar');
+        } else if (type == 'cafeteria') {
+          context.goNamed('cafeteriaWebView');
         }
       },
       child: Container(
@@ -199,7 +257,7 @@ class HomeToday extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: (type == 'meal') ? 8 : 16),
+            SizedBox(height: (type == 'cafeteria') ? 8 : 16),
             ...content,
           ],
         ),

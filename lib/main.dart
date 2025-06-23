@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dongsoop/core/providers/user_provider.dart';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
@@ -45,11 +44,6 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-
-    // 앱 시작 시 유저 정보 (.env 또는 나중에 secure storage)
-    Future.microtask(() {
-      ref.read(userProvider.notifier).loadUser();
-    });
   }
 
   @override

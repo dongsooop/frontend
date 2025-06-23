@@ -1,8 +1,8 @@
-import 'package:dongsoop/core/providers/user_provider.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
 import 'package:dongsoop/presentation/home/widgets/home_new_notice.dart';
 import 'package:dongsoop/presentation/home/widgets/home_popular_recruits.dart';
 import 'package:dongsoop/presentation/home/widgets/home_today.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +18,7 @@ class HomePageScreen extends ConsumerStatefulWidget {
 class _HomePageScreenState extends ConsumerState<HomePageScreen> {
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider);
+    final user = ref.watch(userSessionProvider);
     final nickname = user?.nickname ?? '게스트';
 
     return AnnotatedRegion<SystemUiOverlayStyle>(

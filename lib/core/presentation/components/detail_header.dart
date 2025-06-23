@@ -17,6 +17,7 @@ class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
         backgroundColor: ColorStyles.white,
         elevation: 0,
         automaticallyImplyLeading: false,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
@@ -29,11 +30,12 @@ class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         title: title != null
-          ? Text(
-              title!,
-             style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-            )
-          : null,
+            ? Text(
+                title!,
+                style:
+                    TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+              )
+            : null,
         centerTitle: true,
         actions: trailing != null ? [trailing!] : null,
       ),
