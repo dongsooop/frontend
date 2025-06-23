@@ -1,4 +1,4 @@
-import 'package:dongsoop/domain/chat/model/time_formatter.dart';
+import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'chat_room.dart';
 
 class UiChatRoom {

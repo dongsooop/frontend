@@ -211,17 +211,17 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<void> leaveChatRoom(String roomId, String userId) async {
+  Future<void> leaveChatRoom(String roomId) async {
     final chat = dotenv.get('CHAT');
     final leave = dotenv.get('LEAVE_ENDPOINT');
     final endpoint = '$chat/$roomId$leave';
 
-    final requestBody = {
-      "userId": userId,
-    };
+    // final requestBody = {
+    //   "userId": userId,
+    // };
 
     try {
-      await _authDio.post(endpoint, data: requestBody);
+      await _authDio.post(endpoint);
     } catch (e) {
       rethrow;
     }

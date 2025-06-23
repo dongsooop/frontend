@@ -53,6 +53,15 @@ class _MyAppState extends ConsumerState<MyApp> {
         colorScheme: ColorScheme.light(),
         scaffoldBackgroundColor: ColorStyles.white,
         useMaterial3: true,
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: ColorStyles.gray2, // 선택된 영역 배경색
+          cursorColor: ColorStyles.gray4,               // 커서 색상
+          selectionHandleColor: ColorStyles.gray4 // 핸들 색상 (양 끝 점)
+        ),
+        appBarTheme: AppBarTheme(
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+        ),
       ),
       routerConfig: router,
       debugShowCheckedModeBanner: false,

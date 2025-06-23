@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/get_user_nicknames_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
@@ -107,6 +108,11 @@ final updateReadStatusUseCaseProvider = Provider<UpdateReadStatusUseCase>((ref) 
   return UpdateReadStatusUseCase(repository);
 });
 
+final leaveChatRoomUseCaseProvider = Provider<LeaveChatRoomUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return LeaveChatRoomUseCase(repository);
+});
+
 // View Model
 final chatViewModelProvider =
 StateNotifierProvider<ChatViewModel, ChatState>((ref) {
@@ -131,6 +137,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final getPagedMessagesUseCase = ref.watch(getPagedMessagesUseCaseProvider);
   final getOfflineMessagesUseCase = ref.watch(getOfflineMessagesUseCaseProvider);
   final updateReadStatusUseCase = ref.watch(updateReadStatusUseCaseProvider);
+  final leaveChatRoomUseCase = ref.watch(leaveChatRoomUseCaseProvider);
 
   return ChatDetailViewModel(
     connectUseCase,
@@ -142,6 +149,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
     getPagedMessagesUseCase,
     getOfflineMessagesUseCase,
     updateReadStatusUseCase,
+    leaveChatRoomUseCase,
     ref,
   );
 });

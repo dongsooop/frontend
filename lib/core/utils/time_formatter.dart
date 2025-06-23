@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 String formatLastActivityTime(DateTime time) {
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
@@ -13,4 +15,8 @@ String formatLastActivityTime(DateTime time) {
   } else {
     return '${time.month}/${time.day}';
   }
+}
+
+String formatTimestamp(DateTime time) {
+  return DateFormat('a h:mm', 'ko').format(time);
 }

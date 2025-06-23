@@ -4,6 +4,7 @@ import 'package:dongsoop/domain/chat/use_case/connect_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/disconnect_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
+import 'package:dongsoop/domain/chat/use_case/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/subscribe_messages_use_case.dart';
@@ -26,6 +27,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   final GetPagedMessagesUseCase _getPagedMessages;
   final GetOfflineMessagesUseCase _getOfflineMessagesUseCase;
   final UpdateReadStatusUseCase _updateReadStatusUseCase;
+  final LeaveChatRoomUseCase _leaveChatRoomUseCase;
   final Ref _ref;
 
   StreamSubscription<ChatMessage>? _subscription;
@@ -41,6 +43,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     this._getPagedMessages,
     this._getOfflineMessagesUseCase,
     this._updateReadStatusUseCase,
+    this._leaveChatRoomUseCase,
     this._ref,
   ) : super(ChatDetailState(isLoading: false));
 
@@ -109,12 +112,23 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     _sendMessageUseCase.execute(request);
   }
 
-  void leaveRoom(String roomId) async {
-    await _updateReadStatusUseCase.execute(roomId); // 읽음 상태 업데이트
-    _chatRoomDisconnectUseCase.execute();
-    _subscription?.cancel();  // 구독 해제
-    _subscription = null;
-    _ref.read(chatMessagesProvider.notifier).clear();
+  void closeChatRoom(String roomId) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      await _updateReadStatusUseCase.execute(roomId); // 읽음 상태 업데이트
+      _chatRoomDisconnectUseCase.execute();
+      _subscription?.cancel();  // 구독 해제
+      _subscription = null;
+      _ref.read(chatMessagesProvider.notifier).clear();
+      state = state.copyWith(isLoading: false);
+    } catch (e, st) {
+      logger.e('close chat room error: ${e.runtimeType}', error: e, stackTrace: st);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '채팅 중 오류가 발생했습니다.',
+      );
+    }
   }
 
   Future<void> fetchNicknames(String roomId) async {
@@ -153,6 +167,20 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
         errorMessage: '채팅 내역을 불러오는 중 오류가 발생했습니다.',
       );
       return [];
+    }
+  }
+
+  Future<void> leaveChatRoom(String roomId) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      await _leaveChatRoomUseCase.execute(roomId);
+      state = state.copyWith(isLoading: false);
+    } catch (e, st) {
+      logger.e('leave chat error: ${e.runtimeType}', error: e, stackTrace: st);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '채팅방을 나가는 중 오류가 발생했습니다.',
+      );
     }
   }
 }

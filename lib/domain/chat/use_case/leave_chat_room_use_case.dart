@@ -7,7 +7,7 @@ class LeaveChatRoomUseCase {
     this._chatRepository,
   );
 
-  Future<void> execute(String roomId, String userId) async {
-    await _chatRepository.leaveChatRoom(roomId, userId);
+  Future<void> execute(String roomId) async {
+    await _chatRepository.leaveChatRoom(roomId);
   }
 }

@@ -11,7 +11,7 @@ abstract class ChatRepository {
   Future<List<ChatMessage>?> getOfflineMessages(String roomId);
   Future<ChatMessage?> getLatestMessage(String roomId);
   Future<void> updateReadStatus(String roomId);
-  Future<void> leaveChatRoom(String roomId, String userId);
+  Future<void> leaveChatRoom(String roomId);
 
   // stomp
   Future<void> connect(String roomId);

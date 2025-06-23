@@ -80,8 +80,8 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<void> leaveChatRoom(String roomId, String userId) async {
-    await _chatDataSource.leaveChatRoom(roomId, userId);
+  Future<void> leaveChatRoom(String roomId) async {
+    await _chatDataSource.leaveChatRoom(roomId);
   }
 
   @override

@@ -6,11 +6,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:dongsoop/core/utils/formatter.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
+import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/utils/time_formatter.dart';
 
 class ChatDetailScreen extends HookConsumerWidget {
   final UiChatRoom chatRoom;
@@ -50,7 +52,7 @@ class ChatDetailScreen extends HookConsumerWidget {
 
       return () {
         Future.microtask(() {
-          viewModel.leaveRoom(chatRoom.roomId);
+          viewModel.closeChatRoom(chatRoom.roomId);
         });
       };
     }, []);
@@ -151,7 +153,27 @@ class ChatDetailScreen extends HookConsumerWidget {
               actions: [
                 IconButton(
                   onPressed: () {
-                    // 메뉴 선택 메소드 실행
+                    // 채팅방 나가기
+                    customActionSheet(
+                      context,
+                      onDelete: () {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => CustomConfirmDialog(
+                            title: '채팅방 나가기',
+                            content: '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
+                            confirmText: '나가기',
+                            cancelText: '취소',
+                            onConfirm: () {
+                              viewModel.leaveChatRoom(chatRoom.roomId);
+                              Navigator.of(context).pop(); // 다이얼로그 닫기
+                            },
+                          ),
+                        );
+                      },
+                      deleteText: '채팅방 나가기',
+                    );
                   },
                   icon: SvgPicture.asset(
                     'assets/icons/kebab_menu.svg',
