@@ -1,5 +1,5 @@
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
-import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
@@ -27,7 +27,6 @@ class BoardPageScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
     final selectedSubIndex = useState(0);
-    final showLoginDialog = useState(false);
     final scrollController = useScrollController();
 
     final isRecruit = selectedIndex.value == 0;
@@ -65,6 +64,27 @@ class BoardPageScreen extends HookConsumerWidget {
       departmentCode,
     ]);
 
+    void onTapRecruitDetail(int id, RecruitType type) async {
+      final didApply = await context.push<bool>(
+        RoutePaths.recruitDetail,
+        extra: {
+          'id': id,
+          'type': type,
+        },
+      );
+
+      if (didApply == true) {
+        ref
+            .read(
+              recruitListViewModelProvider(
+                type: type,
+                departmentCode: departmentCode,
+              ).notifier,
+            )
+            .refresh();
+      }
+    }
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
@@ -73,20 +93,7 @@ class BoardPageScreen extends HookConsumerWidget {
             if (user == null) {
               showDialog(
                 context: context,
-                builder: (_) => CustomConfirmDialog(
-                  title: '로그인이 필요해요',
-                  content: '이 서비스를 이용하려면\n로그인을 해야 해요!',
-                  isSingleAction: false,
-                  confirmText: '확인',
-                  onConfirm: () {
-                    context.pop(); // 다이얼로그 닫기
-                    context.go(RoutePaths.mypage); // 라우팅
-                  },
-                  dismissOnConfirm: false,
-                  onCancel: () {
-                    showLoginDialog.value = false;
-                  },
-                ),
+                builder: (_) => const LoginRequiredDialog(),
               );
             } else {
               final route =

@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
-import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/presentation/components/search_bar.dart';
-import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/model/department_type.dart';
 import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
@@ -175,31 +172,11 @@ class NoticeListPageScreen extends HookConsumerWidget {
               ),
             ),
             if (showLoginDialog.value)
-              Positioned.fill(
-                child: Stack(
-                  children: [
-                    BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
-                      child: Container(
-                        color: Colors.black.withAlpha((255 * 0.3).round()),
-                      ),
-                    ),
-                    Center(
-                      child: CustomConfirmDialog(
-                        title: '로그인이 필요해요',
-                        content: '이 서비스를 이용하려면\n로그인을 해야 해요!',
-                        isSingleAction: false,
-                        confirmText: '확인',
-                        dismissOnConfirm: false,
-                        onConfirm: () => context.go(RoutePaths.mypage),
-                        onCancel: () {
-                          showLoginDialog.value = false;
-                          selectedIndex.value = previousIndex.value;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+              LoginRequiredDialog(
+                onCancel: () {
+                  showLoginDialog.value = false;
+                  selectedIndex.value = previousIndex.value;
+                },
               ),
           ],
         ),
