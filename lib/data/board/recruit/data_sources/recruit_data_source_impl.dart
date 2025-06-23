@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/data/board/recruit/config/recruit_type_config.dart';
 import 'package:dongsoop/data/board/recruit/data_sources/recruit_data_source.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_detail_model.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_list_model.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_write_model.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 
 class RecruitDataSourceImpl implements RecruitDataSource {
   final Dio _authDio;
@@ -18,7 +19,8 @@ class RecruitDataSourceImpl implements RecruitDataSource {
     required int page,
     required String? departmentType,
   }) async {
-    final url = '${type.recruitEndpoint}/department/$departmentType';
+    final baseUrl = RecruitTypeConfig.getRecruitEndpoint(type);
+    final url = '$baseUrl/department/$departmentType';
 
     final response = await _authDio.get(
       url,
@@ -42,7 +44,8 @@ class RecruitDataSourceImpl implements RecruitDataSource {
     required int id,
     required RecruitType type,
   }) async {
-    final url = '${type.recruitEndpoint}/$id';
+    final baseUrl = RecruitTypeConfig.getRecruitEndpoint(type);
+    final url = '$baseUrl/$id';
     final response = await _authDio.get(url);
 
     if (response.statusCode == HttpStatusCode.ok.code) {
@@ -60,8 +63,8 @@ class RecruitDataSourceImpl implements RecruitDataSource {
     required RecruitWriteEntity entity,
   }) async {
     final model = RecruitWriteModel.fromEntity(entity);
-    final response =
-        await _authDio.post(type.recruitEndpoint, data: model.toJson());
+    final url = RecruitTypeConfig.getRecruitEndpoint(type);
+    final response = await _authDio.post(url, data: model.toJson());
 
     if (response.statusCode != HttpStatusCode.created.code) {
       throw Exception('status: ${response.statusCode}');

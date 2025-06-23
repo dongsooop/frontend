@@ -7,7 +7,7 @@ part of 'recruit_detail_view_model.dart';
 // **************************************************************************
 
 String _$recruitDetailViewModelHash() =>
-    r'e9a3bd9cd1d616cc95bf5942c98e899f226b085a';
+    r'd0f56b8b3a80b13a1a6171c09f9b86f65dc0fbfc';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,7 +31,7 @@ class _SystemHash {
 }
 
 abstract class _$RecruitDetailViewModel
-    extends BuildlessAsyncNotifier<RecruitDetailState> {
+    extends BuildlessAutoDisposeAsyncNotifier<RecruitDetailState> {
   late final RecruitDetailArgs args;
 
   FutureOr<RecruitDetailState> build(
@@ -83,8 +83,9 @@ class RecruitDetailViewModelFamily
 }
 
 /// See also [RecruitDetailViewModel].
-class RecruitDetailViewModelProvider extends AsyncNotifierProviderImpl<
-    RecruitDetailViewModel, RecruitDetailState> {
+class RecruitDetailViewModelProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<RecruitDetailViewModel,
+        RecruitDetailState> {
   /// See also [RecruitDetailViewModel].
   RecruitDetailViewModelProvider(
     RecruitDetailArgs args,
@@ -140,8 +141,8 @@ class RecruitDetailViewModelProvider extends AsyncNotifierProviderImpl<
   }
 
   @override
-  AsyncNotifierProviderElement<RecruitDetailViewModel, RecruitDetailState>
-      createElement() {
+  AutoDisposeAsyncNotifierProviderElement<RecruitDetailViewModel,
+      RecruitDetailState> createElement() {
     return _RecruitDetailViewModelProviderElement(this);
   }
 
@@ -162,13 +163,13 @@ class RecruitDetailViewModelProvider extends AsyncNotifierProviderImpl<
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin RecruitDetailViewModelRef
-    on AsyncNotifierProviderRef<RecruitDetailState> {
+    on AutoDisposeAsyncNotifierProviderRef<RecruitDetailState> {
   /// The parameter `args` of this provider.
   RecruitDetailArgs get args;
 }
 
 class _RecruitDetailViewModelProviderElement
-    extends AsyncNotifierProviderElement<RecruitDetailViewModel,
+    extends AutoDisposeAsyncNotifierProviderElement<RecruitDetailViewModel,
         RecruitDetailState> with RecruitDetailViewModelRef {
   _RecruitDetailViewModelProviderElement(super.provider);
 

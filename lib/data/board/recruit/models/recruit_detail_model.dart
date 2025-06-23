@@ -17,6 +17,8 @@ class RecruitDetailModel with _$RecruitDetailModel {
   final List<String> departmentTypeList;
   final String author;
   final DateTime createdAt;
+  final String viewType;
+  final bool isAlreadyApplied;
 
   RecruitDetailModel({
     required this.id,
@@ -29,6 +31,8 @@ class RecruitDetailModel with _$RecruitDetailModel {
     required this.departmentTypeList,
     required this.author,
     required this.createdAt,
+    required this.viewType,
+    required this.isAlreadyApplied,
   });
 
   factory RecruitDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -48,6 +52,8 @@ extension RecruitDetailModelMapper on RecruitDetailModel {
       departmentTypeList: departmentTypeList,
       author: author,
       createdAt: createdAt,
+      viewType: viewType,
+      isAlreadyApplied: isAlreadyApplied,
     );
   }
 }

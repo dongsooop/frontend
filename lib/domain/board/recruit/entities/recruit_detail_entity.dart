@@ -9,6 +9,8 @@ class RecruitDetailEntity {
   final List<String> departmentTypeList;
   final DateTime createdAt;
   final String author;
+  final String viewType;
+  final bool isAlreadyApplied;
 
   const RecruitDetailEntity({
     required this.id,
@@ -21,5 +23,7 @@ class RecruitDetailEntity {
     required this.departmentTypeList,
     required this.createdAt,
     required this.author,
+    required this.viewType,
+    required this.isAlreadyApplied,
   });
 }
