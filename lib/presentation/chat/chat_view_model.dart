@@ -1,4 +1,3 @@
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
 import 'package:dongsoop/main.dart';
@@ -19,10 +18,8 @@ class ChatViewModel extends StateNotifier<ChatState> {
 
     try {
       final chatRooms = await _loadChatRoomsUseCase.execute();
-      if (chatRooms == null)
-        state = state.copyWith(isLoading: false, chatRooms: null);
-      final uiChatRooms = chatRooms!.map((room) => UiChatRoom.fromEntity(room)).toList();
-      state = state.copyWith(isLoading: false, chatRooms: uiChatRooms);
+      logger.i("chat rooms: ${chatRooms?.length}");
+      state = state.copyWith(isLoading: false, chatRooms: chatRooms);
     } catch (e, st) {
       logger.e('load char rooms error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(

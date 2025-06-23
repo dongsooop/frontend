@@ -6,8 +6,8 @@ import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/network/stomp_service.dart';
-import '../../../domain/chat/model/chat_room_member.dart';
-import '../../../main.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
+import 'package:dongsoop/main.dart';
 import 'chat_data_source.dart';
 
 class ChatDataSourceImpl implements ChatDataSource {
@@ -52,7 +52,6 @@ class ChatDataSourceImpl implements ChatDataSource {
 
         // 로컬 저장 목록 조회
         final localMembers = await _hiveService.getAllMembers(roomId);
-        logger.i('get local chatroom members: ${localMembers.map((m) => '(${m.userId}, ${m.nickname}, left: ${m.hasLeft})').toList()}');
 
         // 로컬 저장 목록이 비어있음 -> 응답값 전부 저장
         if (localMembers.isEmpty) {
@@ -77,7 +76,10 @@ class ChatDataSourceImpl implements ChatDataSource {
               // 로컬에 없는 사용자
               await _hiveService.saveChatMember(
                 roomId,
-                localMember
+                ChatRoomMember(
+                  userId: entry.key,
+                  nickname: entry.value,
+                ),
               );
             } else if (localMember.nickname != entry.value) {
               // 닉네임이 변경된 사용자
@@ -102,7 +104,6 @@ class ChatDataSourceImpl implements ChatDataSource {
   Future<void> saveChatMessage(ChatMessage message) async {
     try {
       await _hiveService.saveChatMessage(message.roomId, message);
-      logger.i('seve chat message: $message}');
     } catch (e) {
       rethrow;
     }
@@ -111,11 +112,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   @override
   Future<List<ChatMessage>?> getPagedMessages(String roomId, int offset, int limit) async {
     try {
-      final messages = await _hiveService.getPagedMessages(roomId, offset, limit);
-      messages.forEach((messages) {
-        logger.i('local data chat message: ${messages.toString()}');
-      });
-      return messages;
+      return await _hiveService.getPagedMessages(roomId, offset, limit);
     } catch (e) {
       rethrow;
     }
@@ -125,6 +122,106 @@ class ChatDataSourceImpl implements ChatDataSource {
   Future<void> deleteChatBox() async {
     try {
       await _hiveService.deleteChatBox();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ChatMessage?> getLatestMessage(String roomId) async {
+    try {
+      final message = await _hiveService.getLatestMessage(roomId);
+      logger.i('latest message: $message');
+
+      if (message == null) return null;
+      return message;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<ChatMessage>?> getChatInitialize(String roomId) async {
+    final chat = dotenv.get('CHAT');
+    final initialize = dotenv.get('CHAT_INITIALEZE_ENDPOINT');
+    final endpoint = '$chat/$roomId$initialize';
+
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<ChatMessage> messages = (response.data['messages'] as List)
+          .map((e) => ChatMessage.fromJson(e))
+          .toList();
+        return messages;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<ChatMessage>?> getChatMessagesAfter(String roomId, String messageId) async {
+    final chat = dotenv.get('CHAT');
+    final afterMessage = dotenv.get('CHAT_AFTER_MESSAGES_ENDPOINT');
+    final endpoint = '$chat/$roomId$afterMessage/$messageId';
+
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<ChatMessage> messages = (response.data as List)
+            .map((e) => ChatMessage.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return messages;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateReadStatus(String roomId) async {
+    final chat = dotenv.get('CHAT');
+    final readStatus = dotenv.get('READ_STATUS_ENDPOINT');
+    final endpoint = '$chat/$roomId$readStatus';
+
+    try {
+      await _authDio.post(endpoint, data: {});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<int> getUnreadChatMessageCount(String roomId) async {
+    final chat = dotenv.get('CHAT');
+    final unread = dotenv.get('UNREAD_ENDPOINT');
+    final endpoint = '$chat/$roomId$unread';
+
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        return response.data['unreadCount'] as int;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> leaveChatRoom(String roomId, String userId) async {
+    final chat = dotenv.get('CHAT');
+    final leave = dotenv.get('LEAVE_ENDPOINT');
+    final endpoint = '$chat/$roomId$leave';
+
+    final requestBody = {
+      "userId": userId,
+    };
+
+    try {
+      await _authDio.post(endpoint, data: requestBody);
     } catch (e) {
       rethrow;
     }

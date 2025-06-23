@@ -9,6 +9,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 
+import '../../domain/auth/model/user.dart';
+
 class ChatScreen extends HookConsumerWidget {
   final void Function(UiChatRoom room) onTapChatDetail;
 
@@ -19,20 +21,21 @@ class ChatScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userSession = ref.watch(userSessionProvider);
-    final viewModel = ref.read(chatViewModelProvider.notifier);
+    final user = ref.watch(userSessionProvider);
+    final viewModel = ref.watch(chatViewModelProvider.notifier);
     final chatState = ref.watch(chatViewModelProvider);
 
     final selectedCategory = useState('전체');
 
     useEffect(() {
-      if (userSession != null) {
-        Future.microtask(() {
-          viewModel.loadChatRooms();
-        });
-      }
+      Future.microtask(() async {
+        if (user != null) {
+          await viewModel.loadChatRooms();
+        }
+      });
+
       return null;
-    }, [userSession]);
+    }, [user, selectedCategory.value]);
 
     if (chatState.isLoading) {
       return Center(
@@ -83,7 +86,7 @@ class ChatScreen extends HookConsumerWidget {
               },
               child: Text('로컬 데이터 삭제', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
             ),
-            if (userSession == null) _buildUnauthenticatedBody(),
+            if (user == null) _buildUnauthenticatedBody(),
           ],
         ),
       ),

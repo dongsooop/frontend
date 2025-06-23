@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ChatRoom {
   String get roomId;
+  String? get title;
   List<int> get participants;
   int? get managerId;
   DateTime get createdAt;
@@ -36,6 +37,7 @@ mixin _$ChatRoom {
         (other.runtimeType == runtimeType &&
             other is ChatRoom &&
             (identical(other.roomId, roomId) || other.roomId == roomId) &&
+            (identical(other.title, title) || other.title == title) &&
             const DeepCollectionEquality()
                 .equals(other.participants, participants) &&
             (identical(other.managerId, managerId) ||
@@ -55,6 +57,7 @@ mixin _$ChatRoom {
   int get hashCode => Object.hash(
       runtimeType,
       roomId,
+      title,
       const DeepCollectionEquality().hash(participants),
       managerId,
       createdAt,
@@ -64,7 +67,7 @@ mixin _$ChatRoom {
 
   @override
   String toString() {
-    return 'ChatRoom(roomId: $roomId, participants: $participants, managerId: $managerId, createdAt: $createdAt, lastActivityAt: $lastActivityAt, kickedUsers: $kickedUsers, groupChat: $groupChat)';
+    return 'ChatRoom(roomId: $roomId, title: $title, participants: $participants, managerId: $managerId, createdAt: $createdAt, lastActivityAt: $lastActivityAt, kickedUsers: $kickedUsers, groupChat: $groupChat)';
   }
 }
 
@@ -75,6 +78,7 @@ abstract mixin class $ChatRoomCopyWith<$Res> {
   @useResult
   $Res call(
       {String roomId,
+      String? title,
       List<int> participants,
       int? managerId,
       DateTime createdAt,
@@ -96,6 +100,7 @@ class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
   @override
   $Res call({
     Object? roomId = null,
+    Object? title = freezed,
     Object? participants = null,
     Object? managerId = freezed,
     Object? createdAt = null,
@@ -108,6 +113,10 @@ class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
           ? _self.roomId
           : roomId // ignore: cast_nullable_to_non_nullable
               as String,
+      title: freezed == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String?,
       participants: null == participants
           ? _self.participants
           : participants // ignore: cast_nullable_to_non_nullable

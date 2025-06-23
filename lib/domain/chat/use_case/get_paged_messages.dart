@@ -1,10 +1,10 @@
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 
-class GetPagedMessages {
+class GetPagedMessagesUseCase {
   final ChatRepository _chatRepository;
 
-  GetPagedMessages(
+  GetPagedMessagesUseCase(
     this._chatRepository,
   );
 

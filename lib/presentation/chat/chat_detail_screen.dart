@@ -26,7 +26,7 @@ class ChatDetailScreen extends HookConsumerWidget {
     final messages = ref.watch(chatMessagesProvider);
     final user = ref.watch(userSessionProvider);
     final chatDetailState = ref.watch(chatDetailViewModelProvider);
-    final viewModel = ref.read(chatDetailViewModelProvider.notifier);
+    final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
 
     // 사용자 닉네임
     final String? userNickname = user?.nickname;
@@ -37,19 +37,20 @@ class ChatDetailScreen extends HookConsumerWidget {
     final scrollController = useScrollController();
 
     useEffect(() {
-      // 채팅방 입장 시: 로컬 정보 가져옴(참여자 정보, 메시지), 소켓 연결
-      Future.microtask(() {
+      Future.microtask(() async {
         // 채팅방 참여자 정보
-        viewModel.fetchNicknames(chatRoom.roomId);
+        await viewModel.fetchNicknames(chatRoom.roomId);
+        // 서버 메시지 저장
+        await viewModel.fetchOfflineMessages(chatRoom.roomId);
         // 로컬 메시지 불러오기
-        ref.read(chatMessagesProvider.notifier).loadInitial(chatRoom.roomId);
+        await ref.watch(chatMessagesProvider.notifier).loadInitial(chatRoom.roomId);
         // 채팅방 연결
         viewModel.enterRoom(chatRoom.roomId);
       });
 
       return () {
         Future.microtask(() {
-          viewModel.leaveRoom();
+          viewModel.leaveRoom(chatRoom.roomId);
         });
       };
     }, []);
@@ -190,6 +191,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                           msg.content,
                           formatTimestamp(msg.timestamp),
                           nickname == userNickname,
+                          msg.type,
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(
@@ -235,7 +237,6 @@ class ChatDetailScreen extends HookConsumerWidget {
                               roomId: roomId,
                               content: content,
                               type: 'CHAT',
-                              senderNickName: user?.nickname,
                             );
                             viewModel.send(message);
                             textController.clear();

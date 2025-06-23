@@ -1,8 +1,8 @@
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
-import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatDataSource _chatDataSource;
@@ -12,12 +12,25 @@ class ChatRepositoryImpl implements ChatRepository {
   );
 
   @override
-  Future<List<ChatRoom>?> getChatRooms() async {
+  Future<List<UiChatRoom>?> getChatRooms() async {
     final rooms =  await _chatDataSource.getChatRooms();
-    if (rooms == null)
-      return rooms;
-    rooms.sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
-    return rooms;
+    if (rooms == null || rooms.isEmpty) return [];
+
+    final List<UiChatRoom> uiRooms = [];
+
+    // 병렬 처리
+    await Future.wait(rooms.map((room) async {
+      try {
+        final unreadCount = await _chatDataSource.getUnreadChatMessageCount(room.roomId);
+        uiRooms.add(UiChatRoom.fromEntity(room, unreadCount));
+      } catch (e) {
+        // 실패 시 기본값 0으로 처리
+        uiRooms.add(UiChatRoom.fromEntity(room, 0));
+      }
+    }));
+
+    uiRooms.sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
+    return uiRooms;
   }
 
   @override
@@ -36,8 +49,39 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<List<ChatMessage>?> getOfflineMessages(String roomId) async {
+    final localLatestMessage = await _chatDataSource.getLatestMessage(roomId);
+    final messageId = localLatestMessage?.messageId;
+    List<ChatMessage>? messages;
+
+    if (messageId == null) {
+      messages = await _chatDataSource.getChatInitialize(roomId);
+    } else {
+      messages = await _chatDataSource.getChatMessagesAfter(roomId, messageId);
+    }
+
+    messages?.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    return messages;
+  }
+
+  @override
+  Future<ChatMessage?> getLatestMessage(String roomId) async {
+    return await _chatDataSource.getLatestMessage(roomId);
+  }
+
+  @override
+  Future<void> updateReadStatus(String roomId) async {
+    await _chatDataSource.updateReadStatus(roomId);
+  }
+
+  @override
   Future<void> deleteChatBox() async {
     await _chatDataSource.deleteChatBox();
+  }
+
+  @override
+  Future<void> leaveChatRoom(String roomId, String userId) async {
+    await _chatDataSource.leaveChatRoom(roomId, userId);
   }
 
   @override

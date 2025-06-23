@@ -26,11 +26,29 @@ class ChatMessage with _$ChatMessage{
   factory ChatMessage.fromJson(Map<String, dynamic> json) => _$ChatMessageFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChatMessageToJson(this);
+
+  // 날짜 메시지 생성용
+  factory ChatMessage.dateMessage(String roomId, DateTime date) {
+    return ChatMessage(
+      messageId: 'date-${date.toIso8601String()}',
+      roomId: roomId,
+      senderId: 0, // 시스템 메시지
+      content: _formatDateText(date),
+      timestamp: DateTime(date.year, date.month, date.day),
+      type: 'DATE',
+    );
+  }
+
+  static String _formatDateText(DateTime date) {
+    // 예시: 2025년 6월 17일 화요일
+    final weekday = ['월', '화', '수', '목', '금', '토', '일'][date.weekday - 1];
+    return '${date.year}년 ${date.month.toString().padLeft(2, '0')}월 ${date.day.toString().padLeft(2, '0')}일 $weekday요일';
+  }
 }
 
 class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
   @override
-  final int typeId = 1; // 고유 typeId, 충돌 없도록 주의
+  final int typeId = 1;
 
   @override
   ChatMessage read(BinaryReader reader) {

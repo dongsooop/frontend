@@ -8,6 +8,12 @@ abstract class ChatDataSource {
   Future<void> saveChatMessage(ChatMessage message);
   Future<List<ChatMessage>?> getPagedMessages(String roomId, int offset, int limit);
   Future<void> deleteChatBox();
+  Future<ChatMessage?> getLatestMessage(String roomId);
+  Future<List<ChatMessage>?> getChatInitialize(String roomId);
+  Future<List<ChatMessage>?> getChatMessagesAfter(String roomId, String MessageId);
+  Future<void> updateReadStatus(String roomId);
+  Future<int> getUnreadChatMessageCount(String roomId);
+  Future<void> leaveChatRoom(String roomId, String userId);
 
   // stomp
   Future<void> connect(String roomId);

@@ -8,6 +8,7 @@ part of 'chat_room.dart';
 
 ChatRoom _$ChatRoomFromJson(Map<String, dynamic> json) => ChatRoom(
       roomId: json['roomId'] as String,
+      title: json['title'] as String?,
       participants: (json['participants'] as List<dynamic>)
           .map((e) => (e as num).toInt())
           .toList(),
@@ -22,6 +23,7 @@ ChatRoom _$ChatRoomFromJson(Map<String, dynamic> json) => ChatRoom(
 
 Map<String, dynamic> _$ChatRoomToJson(ChatRoom instance) => <String, dynamic>{
       'roomId': instance.roomId,
+      'title': instance.title,
       'participants': instance.participants,
       'managerId': instance.managerId,
       'createdAt': instance.createdAt.toIso8601String(),

@@ -62,7 +62,6 @@ class StompService {
     final bodyData = json.encode({
       "content": message.content,
       "type": message.type,
-      "senderNickName": message.senderNickName,
     });
 
     _client.send(

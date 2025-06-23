@@ -58,6 +58,7 @@ class HiveService {
     await messageBox.put(message.messageId, message); // userId를 key로 저장
   }
 
+  // 페이징
   Future<List<ChatMessage>> getPagedMessages(String roomId, int offset, int limit) async {
     final messageBox = await chatMessageBoxManager.getBox(roomId);
     final allMessages = messageBox.values.cast<ChatMessage>().toList();
@@ -66,7 +67,6 @@ class HiveService {
     return allMessages.skip(offset).take(limit).toList();
   }
 
-
   // 가장 최신 메시지 조회
   Future<ChatMessage?> getLatestMessage(String roomId) async {
     final messageBox = await chatMessageBoxManager.getBox(roomId);
@@ -74,9 +74,9 @@ class HiveService {
     if (messageBox.isEmpty) return null;
 
     final messages = messageBox.values.cast<ChatMessage>().toList();
-    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp)); // timestamp 기준 정렬
+    messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
-    return messages.last;
+    return messages.first;
   }
 
   // 데이터 삭제
