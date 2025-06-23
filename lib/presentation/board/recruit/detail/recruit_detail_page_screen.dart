@@ -97,7 +97,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
         ),
         body: detailState.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('에러: $e')),
+          error: (e, _) => Center(child: Text('$e')),
           data: (data) {
             final detail = data.recruitDetail;
             if (detail == null) {

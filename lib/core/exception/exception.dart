@@ -103,20 +103,20 @@ class RecruitApplyException implements Exception {
   String toString() => message;
 }
 
-// class ApplyIntroductionException implements Exception {
-//   final String message;
-//   ApplyIntroductionException(
-//       [this.message = "자기소개 부분에서 비속어가 발견되었습니다. 다시 작성해주세요"]);
-//
-//   @override
-//   String toString() => message;
-// }
-//
-// class ApplyMotivationException implements Exception {
-//   final String message;
-//   ApplyMotivationException(
-//       [this.message = "지원동기 부분에서 비속어가 발견되었습니다. 다시 작성해주세요"]);
-//
-//   @override
-//   String toString() => message;
-// }
+class ApplyIntroductionException implements Exception {
+  final String message;
+  ApplyIntroductionException(
+      [this.message = "자기소개 부분에서 비속어가 발견되었습니다. 다시 작성해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
+class ApplyMotivationException implements Exception {
+  final String message;
+  ApplyMotivationException(
+      [this.message = "지원동기 부분에서 비속어가 발견되었습니다. 다시 작성해주세요"]);
+
+  @override
+  String toString() => message;
+}
