@@ -8,8 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
-
-import '../../domain/auth/model/user.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 
 class ChatScreen extends HookConsumerWidget {
   final void Function(UiChatRoom room) onTapChatDetail;
@@ -25,6 +24,7 @@ class ChatScreen extends HookConsumerWidget {
     final viewModel = ref.watch(chatViewModelProvider.notifier);
     final chatState = ref.watch(chatViewModelProvider);
 
+    final selectedTap = useState('채팅');
     final selectedCategory = useState('전체');
 
     useEffect(() {
@@ -60,65 +60,66 @@ class ChatScreen extends HookConsumerWidget {
           ? allRooms.where((room) => room.isGroupChat == true).toList()
           : allRooms;
 
-
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        body: Stack(
-          children: [
+    return Stack(
+      children: [
+        SafeArea(
+          child: Scaffold(
+            backgroundColor: ColorStyles.white,
+            body:
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              child: _buildChatBody(context, filteredRooms, selectedCategory),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              child: _buildChatBody(context, filteredRooms, selectedTap, selectedCategory),
             ),
-            SizedBox(height: 16,),
+            // SizedBox(height: 16,),
             // local data delete test
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(44),
-                backgroundColor: ColorStyles.primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 0,
-              ),
-              onPressed: () async {
-                await viewModel.localDataDelete();
-              },
-              child: Text('로컬 데이터 삭제', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
-            ),
-            if (user == null) _buildUnauthenticatedBody(),
-          ],
+            // ElevatedButton(
+            //   style: ElevatedButton.styleFrom(
+            //     minimumSize: const Size.fromHeight(44),
+            //     backgroundColor: ColorStyles.primaryColor,
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(8),
+            //     ),
+            //     elevation: 0,
+            //   ),
+            //   onPressed: () async {
+            //     await viewModel.localDataDelete();
+            //   },
+            //   child: Text('로컬 데이터 삭제', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
+            // ),
+          ),
         ),
-      ),
+        if (user == null)
+          const LoginRequiredDialog(),
+      ]
     );
   }
 
   // 상단 탭
-  // Widget _buildTopTab({
-  //   required String label,
-  //   required bool isSelected,
-  //   required VoidCallback onTap,
-  // }) {
-  //   return GestureDetector(
-  //     onTap: onTap,
-  //     child: SizedBox(
-  //       width: 44,
-  //       height: 44,
-  //       child: Center(
-  //         child: Text(
-  //           label,
-  //           style: isSelected
-  //               ? TextStyles.titleTextBold.copyWith(
-  //             color: ColorStyles.primaryColor,
-  //           )
-  //               : TextStyles.titleTextRegular.copyWith(
-  //             color: ColorStyles.gray4,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _buildTopTab({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: Center(
+          child: Text(
+            label,
+            style: isSelected
+              ? TextStyles.titleTextBold.copyWith(
+                color: ColorStyles.primaryColor,
+              )
+              : TextStyles.titleTextRegular.copyWith(
+                color: ColorStyles.gray4,
+              ),
+          ),
+        ),
+      ),
+    );
+  }
 
   // 채팅 카테고리 선택
   Widget _buildCategoryTab({
@@ -164,32 +165,7 @@ class ChatScreen extends HookConsumerWidget {
     );
   }
 
-  // 로그인 X 사용자
-  Widget _buildUnauthenticatedBody() {
-    return Positioned.fill(
-      child: Stack(
-        children: [
-          // 블러 처리
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.6),
-            child: Container(
-              color: ColorStyles.black.withAlpha(0),
-            ),
-          ),
-          Center(
-            child: Text(
-              '로그인이 필요한 서비스입니다.',
-              textAlign: TextAlign.center,
-              style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black)
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  // 로그인한 사용자
-  Widget _buildChatBody(BuildContext context, List<UiChatRoom> rooms, selectedCategory) {
+  Widget _buildChatBody(BuildContext context, List<UiChatRoom> rooms, selectedTab, selectedCategory) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -202,9 +178,9 @@ class ChatScreen extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 16,
             children: [
-              // _buildTopTab(
-              //   label: '채팅',
-              // ),
+              _buildTopTab(
+                label: '채팅', isSelected: selectedTab.value == '채팅', onTap: () => selectedCategory.value = '채팅'
+              ),
               // _buildTopTab(
               //   label: '과팅',
               //   },
