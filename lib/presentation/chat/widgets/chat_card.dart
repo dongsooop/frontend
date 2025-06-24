@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 
-class ChatCard extends StatefulWidget {
+class ChatCard extends StatelessWidget {
   final UiChatRoom chatRoom;
 
   const ChatCard({
@@ -12,11 +12,6 @@ class ChatCard extends StatefulWidget {
   });
 
   @override
-  State<ChatCard> createState() => _ChatCardState();
-}
-
-class _ChatCardState extends State<ChatCard> {
-  @override
   Widget build(BuildContext context) {
     return Container(
         width: double.infinity,
@@ -24,12 +19,12 @@ class _ChatCardState extends State<ChatCard> {
         height: 48,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 16,
           children: [
             ClipOval(
               child: Image.asset(
-                'assets/images/test.png',
+                'assets/images/profile.png',
                 width: 48,
                 height: 48,
                 fit: BoxFit.cover,
@@ -37,37 +32,39 @@ class _ChatCardState extends State<ChatCard> {
             ),
             Expanded(
               child: Column(
-                // mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 8,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 8,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '채팅방 이름: 추후 백엔드가 줄 거임',
-                          style: TextStyles.normalTextBold.copyWith(
-                              color: ColorStyles.black
+                  Expanded(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 16,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            chatRoom.title,
+                            style: TextStyles.normalTextBold.copyWith(
+                                color: ColorStyles.black
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
                         ),
-                      ),
-                      Text(
-                        widget.chatRoom.participantCount,
-                        style: TextStyles.smallTextRegular.copyWith(
-                            color: ColorStyles.gray4
+                        Text(
+                          chatRoom.participantCount,
+                          style: TextStyles.smallTextRegular.copyWith(
+                              color: ColorStyles.gray4
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   // Text(
-                  //   widget.chat.tag, // 마지막으로 수신된 메시지(미리 보기)
+                  //   // 마지막으로 수신된 메시지(미리 보기)
                   //   style: TextStyles.smallTextRegular.copyWith(
                   //       color: ColorStyles.gray4
                   //   ),
@@ -79,30 +76,32 @@ class _ChatCardState extends State<ChatCard> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
-              spacing: 8,
+              spacing: 4,
               children: [
                 Text(
-                  widget.chatRoom.lastActivityText,
+                  chatRoom.lastActivityText,
                   style: TextStyles.smallTextRegular.copyWith(
                       color: ColorStyles.gray4
                   ),
                 ),
-                Container(
-                    padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-                    decoration: ShapeDecoration(
+                chatRoom.unreadCount != '0'
+                  ?  Container(
+                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                      decoration: ShapeDecoration(
                         color: ColorStyles.primaryColor,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(32)
-                        )
-                    ),
-                    child: Text(
-                      '1',
-                      style: TextStyles.smallTextBold.copyWith(
-                          color: ColorStyles.white
+                          borderRadius: BorderRadius.circular(32),
+                        ),
                       ),
-                      textAlign: TextAlign.center,
+                      child: Text(
+                        chatRoom.unreadCount,
+                        style: TextStyles.smallTextBold.copyWith(
+                          color: ColorStyles.white
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     )
-                )
+                  : SizedBox(height: 0,)
               ],
             ),
           ],

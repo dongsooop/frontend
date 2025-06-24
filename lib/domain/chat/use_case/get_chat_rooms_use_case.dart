@@ -1,14 +1,14 @@
-import 'package:dongsoop/domain/chat/model/chat_room.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 
-class LoadChatRoomsUseCase {
+class GetChatRoomsUseCase {
   final ChatRepository _chatRepository;
 
-  LoadChatRoomsUseCase(
+  GetChatRoomsUseCase(
     this._chatRepository,
   );
 
-  Future<List<ChatRoom>?> execute() async {
+  Future<List<UiChatRoom>?> execute() async {
     final chatRooms = await _chatRepository.getChatRooms();
     return chatRooms;
   }

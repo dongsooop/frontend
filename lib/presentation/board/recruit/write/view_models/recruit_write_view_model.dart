@@ -1,6 +1,6 @@
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_write_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';

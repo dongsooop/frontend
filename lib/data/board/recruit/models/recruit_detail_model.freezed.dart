@@ -25,6 +25,8 @@ mixin _$RecruitDetailModel {
   List<String> get departmentTypeList;
   String get author;
   DateTime get createdAt;
+  String get viewType;
+  bool get isAlreadyApplied;
 
   /// Create a copy of RecruitDetailModel
   /// with the given fields replaced by the non-null parameter values.
@@ -51,7 +53,11 @@ mixin _$RecruitDetailModel {
                 .equals(other.departmentTypeList, departmentTypeList) &&
             (identical(other.author, author) || other.author == author) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.createdAt == createdAt) &&
+            (identical(other.viewType, viewType) ||
+                other.viewType == viewType) &&
+            (identical(other.isAlreadyApplied, isAlreadyApplied) ||
+                other.isAlreadyApplied == isAlreadyApplied));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -67,11 +73,13 @@ mixin _$RecruitDetailModel {
       tags,
       const DeepCollectionEquality().hash(departmentTypeList),
       author,
-      createdAt);
+      createdAt,
+      viewType,
+      isAlreadyApplied);
 
   @override
   String toString() {
-    return 'RecruitDetailModel(id: $id, volunteer: $volunteer, startAt: $startAt, endAt: $endAt, title: $title, content: $content, tags: $tags, departmentTypeList: $departmentTypeList, author: $author, createdAt: $createdAt)';
+    return 'RecruitDetailModel(id: $id, volunteer: $volunteer, startAt: $startAt, endAt: $endAt, title: $title, content: $content, tags: $tags, departmentTypeList: $departmentTypeList, author: $author, createdAt: $createdAt, viewType: $viewType, isAlreadyApplied: $isAlreadyApplied)';
   }
 }
 
@@ -91,7 +99,9 @@ abstract mixin class $RecruitDetailModelCopyWith<$Res> {
       String tags,
       List<String> departmentTypeList,
       String author,
-      DateTime createdAt});
+      DateTime createdAt,
+      String viewType,
+      bool isAlreadyApplied});
 }
 
 /// @nodoc
@@ -117,6 +127,8 @@ class _$RecruitDetailModelCopyWithImpl<$Res>
     Object? departmentTypeList = null,
     Object? author = null,
     Object? createdAt = null,
+    Object? viewType = null,
+    Object? isAlreadyApplied = null,
   }) {
     return _then(RecruitDetailModel(
       id: null == id
@@ -159,6 +171,14 @@ class _$RecruitDetailModelCopyWithImpl<$Res>
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      viewType: null == viewType
+          ? _self.viewType
+          : viewType // ignore: cast_nullable_to_non_nullable
+              as String,
+      isAlreadyApplied: null == isAlreadyApplied
+          ? _self.isAlreadyApplied
+          : isAlreadyApplied // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }

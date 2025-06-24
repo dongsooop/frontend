@@ -4,7 +4,7 @@ import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_types.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
 import 'package:dongsoop/presentation/board/recruit/write/view_models/date_time_view_model.dart';

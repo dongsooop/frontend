@@ -93,3 +93,30 @@ class NoticeException implements Exception {
   @override
   String toString() => message;
 }
+
+class RecruitApplyException implements Exception {
+  final String message;
+  RecruitApplyException(
+      [this.message = "해당 모집에 지원하는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
+class ApplyIntroductionException implements Exception {
+  final String message;
+  ApplyIntroductionException(
+      [this.message = "자기소개 부분에서 비속어가 발견되었습니다. 다시 작성해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
+class ApplyMotivationException implements Exception {
+  final String message;
+  ApplyMotivationException(
+      [this.message = "지원동기 부분에서 비속어가 발견되었습니다. 다시 작성해주세요"]);
+
+  @override
+  String toString() => message;
+}

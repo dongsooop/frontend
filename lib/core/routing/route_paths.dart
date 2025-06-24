@@ -16,5 +16,6 @@ abstract class RoutePaths {
   static const String calendarDetail = '/calendarDetail';
   static const String recruitWrite = '/recruitWrite';
   static const String recruitDetail = '/recruitDetail';
+  static const String recruitApply = '/recruitDetail/recruitApply';
   static const String chatDetail = '/Chat/Detail';
 }

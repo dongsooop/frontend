@@ -7,6 +7,7 @@ part 'chat_room.g.dart';
 @JsonSerializable()
 class ChatRoom with _$ChatRoom {
   final String roomId;
+  final String? title;
   final List<int> participants;
   final int? managerId;
   final DateTime createdAt;
@@ -16,6 +17,7 @@ class ChatRoom with _$ChatRoom {
 
   ChatRoom({
     required this.roomId,
+    this.title,
     required this.participants,
     required this.managerId,
     required this.createdAt,

@@ -39,6 +39,8 @@ dependencies:
     sdk: flutter
   go_router: ^15.1.1
   flutter_secure_storage: ^9.2.4
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
   webview_flutter_wkwebview: ^3.20.0
   webview_flutter: ^4.11.0
   dio: ^5.8.0+1

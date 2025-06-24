@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -6,11 +7,11 @@ import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../main.dart';
-import '../../providers/auth_providers.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 
 class ChatScreen extends HookConsumerWidget {
-  final VoidCallback onTapChatDetail;
+  final void Function(UiChatRoom room) onTapChatDetail;
 
   const ChatScreen({
     super.key,
@@ -19,31 +20,77 @@ class ChatScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userSession = ref.watch(userSessionProvider);
-    final viewModel = ref.read(chatViewModelProvider.notifier);
+    final user = ref.watch(userSessionProvider);
+    final viewModel = ref.watch(chatViewModelProvider.notifier);
+    final chatState = ref.watch(chatViewModelProvider);
+
+    final selectedTap = useState('채팅');
+    final selectedCategory = useState('전체');
 
     useEffect(() {
-      if (userSession != null) {
-        Future.microtask(() {
-          viewModel.loadChatRooms();
-        });
-      }
-      return null;
-    }, [userSession]);
+      Future.microtask(() async {
+        if (user != null) {
+          await viewModel.loadChatRooms();
+        }
+      });
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        body: Stack(
-          children: [
+      return null;
+    }, [user, selectedCategory.value]);
+
+    if (chatState.isLoading) {
+      return Center(
+        child: CircularProgressIndicator(color: ColorStyles.primaryColor,)
+      );
+    }
+
+    if (chatState.errorMessage != null) {
+      return Center(
+        child: Text(
+          chatState.errorMessage!,
+          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+        )
+      );
+    }
+
+    final allRooms = chatState.chatRooms ?? [];
+
+    final filteredRooms = selectedCategory.value == '1:1 채팅'
+        ? allRooms.where((room) => room.isGroupChat == false).toList()
+        : selectedCategory.value == '그룹 채팅'
+          ? allRooms.where((room) => room.isGroupChat == true).toList()
+          : allRooms;
+
+    return Stack(
+      children: [
+        SafeArea(
+          child: Scaffold(
+            backgroundColor: ColorStyles.white,
+            body:
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              child: _buildChatBody(context, ref),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              child: _buildChatBody(context, filteredRooms, selectedTap, selectedCategory),
             ),
-            if (userSession == null) _buildUnauthenticatedBody(),
-          ],
+            // SizedBox(height: 16,),
+            // local data delete test
+            // ElevatedButton(
+            //   style: ElevatedButton.styleFrom(
+            //     minimumSize: const Size.fromHeight(44),
+            //     backgroundColor: ColorStyles.primaryColor,
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(8),
+            //     ),
+            //     elevation: 0,
+            //   ),
+            //   onPressed: () async {
+            //     await viewModel.localDataDelete();
+            //   },
+            //   child: Text('로컬 데이터 삭제', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
+            // ),
+          ),
         ),
-      ),
+        if (user == null)
+          const LoginRequiredDialog(),
+      ]
     );
   }
 
@@ -62,12 +109,12 @@ class ChatScreen extends HookConsumerWidget {
           child: Text(
             label,
             style: isSelected
-                ? TextStyles.titleTextBold.copyWith(
-              color: ColorStyles.primaryColor,
-            )
-                : TextStyles.titleTextRegular.copyWith(
-              color: ColorStyles.gray4,
-            ),
+              ? TextStyles.titleTextBold.copyWith(
+                color: ColorStyles.primaryColor,
+              )
+              : TextStyles.titleTextRegular.copyWith(
+                color: ColorStyles.gray4,
+              ),
           ),
         ),
       ),
@@ -75,7 +122,7 @@ class ChatScreen extends HookConsumerWidget {
   }
 
   // 채팅 카테고리 선택
-  Widget _buildChatCategoryTab({
+  Widget _buildCategoryTab({
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
@@ -118,36 +165,7 @@ class ChatScreen extends HookConsumerWidget {
     );
   }
 
-  // 로그인 X 사용자
-  Widget _buildUnauthenticatedBody() {
-    return Positioned.fill(
-      child: Stack(
-        children: [
-          // 블러 처리
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.6),
-            child: Container(
-              color: ColorStyles.black.withAlpha(0),
-            ),
-          ),
-          Center(
-            child: Text(
-              '로그인이 필요한 서비스입니다.',
-              textAlign: TextAlign.center,
-              style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black)
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  // 로그인한 사용자
-  Widget _buildChatBody(BuildContext context, WidgetRef ref) {
-    String selectedMode = '채팅';
-    String selectedCategory = '전체';
-    final chatState = ref.watch(chatViewModelProvider);
-
+  Widget _buildChatBody(BuildContext context, List<UiChatRoom> rooms, selectedTab, selectedCategory) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,24 +179,12 @@ class ChatScreen extends HookConsumerWidget {
             spacing: 16,
             children: [
               _buildTopTab(
-                label: '채팅',
-                isSelected: selectedMode == '채팅',
-                onTap: () {
-                  // setState(() {
-                  //   selectedMode = '채팅';
-                  // });
-                },
+                label: '채팅', isSelected: selectedTab.value == '채팅', onTap: () => selectedCategory.value = '채팅'
               ),
-              _buildTopTab(
-                label: '과팅',
-                isSelected: selectedMode == '과팅', // 추후 기능 개발
-                onTap: () {
-                  // 추후 기능 개발
-                  // setState(() {
-                  //   selectedMode = '채팅';
-                  // });
-                },
-              ),
+              // _buildTopTab(
+              //   label: '과팅',
+              //   },
+              // ),
             ],
           ),
         ),
@@ -194,60 +200,28 @@ class ChatScreen extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 16,
             children: [
-              _buildChatCategoryTab(
-                label: '전체',
-                isSelected: selectedCategory == '전체',
-                onTap: () {
-                  // setState(() {
-                  //   selectedCategory = '전체';
-                  // });
-                },
-              ),
-              _buildChatCategoryTab(
-                label: '모집',
-                isSelected: selectedCategory == '모집',
-                onTap: () {
-                  // setState(() {
-                  //   selectedCategory = '모집';
-                  // });
-                },
-              ),
-              _buildChatCategoryTab(
-                label: '장터',
-                isSelected: selectedCategory == '장터',
-                onTap: () {
-                  // setState(() {
-                  //   selectedCategory = '장터';
-                  // });
-                },
-              ),
+              _buildCategoryTab(label: '전체', isSelected: selectedCategory.value == '전체', onTap: () => selectedCategory.value = '전체'),
+              _buildCategoryTab(label: '1:1 채팅', isSelected: selectedCategory.value == '1:1 채팅', onTap: () => selectedCategory.value = '1:1 채팅'),
+              _buildCategoryTab(label: '그룹 채팅', isSelected: selectedCategory.value == '그룹 채팅', onTap: () => selectedCategory.value = '그룹 채팅'),
             ],
           ),
         ),
         SizedBox(height: 16),
         // 채팅방
         Expanded(
-          child: chatState.when(
-            data: (chatRooms) {
-              if (chatRooms == null || chatRooms.isEmpty) {
-                return const SizedBox();
-              } else {
-                return ListView.builder(
-                  itemCount: chatRooms.length,
-                  itemBuilder: (context, index) {
-                    final room = chatRooms[index];
-                    return GestureDetector(
-                      onTap: onTapChatDetail,
-                      child: ChatCard(chatRoom: room),
-                    );
-                  },
-                );
-              }
-            },
-            error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),
-            loading: () => Center(child: CircularProgressIndicator()),
-          ),
-        )
+          child: rooms.isEmpty
+            ? const SizedBox()
+            : ListView.builder(
+                itemCount: rooms.length,
+                itemBuilder: (context, index) {
+                  final room = rooms[index];
+                  return GestureDetector(
+                    onTap: () => onTapChatDetail(room),
+                    child: ChatCard(chatRoom: room),
+                  );
+                }
+              ),
+        ),
       ],
     );
   }
