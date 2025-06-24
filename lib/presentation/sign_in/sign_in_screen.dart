@@ -26,7 +26,7 @@ class SignInScreen extends HookConsumerWidget {
     final passwordController = useTextEditingController();
     // providers
     final loginState = ref.watch(signInViewModelProvider);
-    final viewModel = ref.read(signInViewModelProvider.notifier);
+    final viewModel = ref.watch(signInViewModelProvider.notifier);
 
     return SafeArea(
       child: Scaffold(

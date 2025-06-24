@@ -6,12 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'domain/chat/model/chat_message.dart';
+import 'domain/chat/model/chat_room_member.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter(); // Hive(local DB) 초기화
+  Hive.registerAdapter(ChatRoomMemberAdapter()); // 채팅방 참여자 목록
+  Hive.registerAdapter(ChatMessageAdapter()); // 채팅 내역
+
   await dotenv.load(); // .env 파일 로드
 
   if (Platform.isIOS) {
@@ -45,6 +53,15 @@ class _MyAppState extends ConsumerState<MyApp> {
         colorScheme: ColorScheme.light(),
         scaffoldBackgroundColor: ColorStyles.white,
         useMaterial3: true,
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: ColorStyles.gray2, // 선택된 영역 배경색
+          cursorColor: ColorStyles.gray4,               // 커서 색상
+          selectionHandleColor: ColorStyles.gray4 // 핸들 색상 (양 끝 점)
+        ),
+        appBarTheme: AppBarTheme(
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+        ),
       ),
       routerConfig: router,
       debugShowCheckedModeBanner: false,

@@ -17,7 +17,9 @@ import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:go_router/go_router.dart';
+
 
 final router = GoRouter(
   initialLocation: RoutePaths.home,
@@ -67,7 +69,9 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.chatDetail,
-      builder: (context, state) => ChatDetailScreen(),
+      builder: (context, state) => ChatDetailScreen(
+        chatRoom: state.extra as UiChatRoom,
+      ),
     ),
     GoRoute(
       path: RoutePaths.recruitWrite,
@@ -142,13 +146,13 @@ final router = GoRouter(
                   path: RoutePaths.libraryWebView,
                   name: 'libraryWebView',
                   builder: (context, state) =>
-                      const LibraryBannerWebViewScreen(),
+                  const LibraryBannerWebViewScreen(),
                 ),
                 GoRoute(
                   path: RoutePaths.cafeteriaWebView,
                   name: 'cafeteriaWebView',
                   builder: (context, state) =>
-                      const CafeteriaWebViewPageScreen(),
+                  const CafeteriaWebViewPageScreen(),
                 ),
               ]),
         ]),
@@ -172,8 +176,8 @@ final router = GoRouter(
           GoRoute(
             path: RoutePaths.chat,
             builder: (context, state) => ChatScreen(
-              onTapChatDetail: () {
-                context.push(RoutePaths.chatDetail);
+              onTapChatDetail: (room) {
+                context.push(RoutePaths.chatDetail, extra: room);
               },
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/my_page/widgets/logged_in_user_card.dart';
 import 'package:dongsoop/presentation/my_page/widgets/logged_out_prompt_card.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,7 @@ class MyPageScreen extends HookConsumerWidget {
               IconButton(
                 onPressed: () {
                   // user setting 페이지 이동
+                  logger.i('action');
                 },
                 icon: SvgPicture.asset(
                   'assets/icons/setting.svg',

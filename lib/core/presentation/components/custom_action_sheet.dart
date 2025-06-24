@@ -6,51 +6,55 @@ void customActionSheet(
   BuildContext context, {
   VoidCallback? onEdit,
   required VoidCallback onDelete,
+  String? deleteText,
 }) {
   showCupertinoModalPopup(
     context: context,
-    builder: (BuildContext context) => CupertinoTheme(
-      data: CupertinoThemeData(
-        primaryColor: ColorStyles.primaryColor,
-        textTheme: CupertinoTextThemeData(
-          actionTextStyle: TextStyles.largeTextRegular.copyWith(
-            color: ColorStyles.primaryColor,
+    builder: (BuildContext context) => Padding(
+      padding: const EdgeInsets.only(bottom: 24.0),
+      child: CupertinoTheme(
+        data: CupertinoThemeData(
+          primaryColor: ColorStyles.primaryColor,
+          textTheme: CupertinoTextThemeData(
+            actionTextStyle: TextStyles.largeTextRegular.copyWith(
+              color: ColorStyles.primaryColor,
+            ),
           ),
         ),
-      ),
-      child: CupertinoActionSheet(
-        actions: [
-          if (onEdit != null)
+        child: CupertinoActionSheet(
+          actions: [
+            if (onEdit != null)
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  onEdit();
+                },
+                child: Text(
+                  '수정',
+                  style: TextStyles.largeTextRegular.copyWith(
+                    color: ColorStyles.primaryColor,
+                  ),
+                ),
+              ),
             CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.pop(context);
-                onEdit();
+                onDelete();
               },
+              isDestructiveAction: true,
               child: Text(
-                '수정',
-                style: TextStyles.largeTextRegular.copyWith(
-                  color: ColorStyles.primaryColor,
-                ),
+                deleteText ?? '삭제',
+                style: TextStyles.largeTextRegular,
               ),
             ),
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.pop(context);
-              onDelete();
-            },
-            isDestructiveAction: true,
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(context),
             child: Text(
-              '삭제',
-              style: TextStyles.largeTextRegular,
-            ),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            '취소',
-            style: TextStyles.largeTextBold.copyWith(
-              color: ColorStyles.primaryColor,
+              '취소',
+              style: TextStyles.largeTextBold.copyWith(
+                color: ColorStyles.primaryColor,
+              ),
             ),
           ),
         ),
