@@ -19,7 +19,6 @@ class PrimaryBottomButton extends StatelessWidget {
     return SafeArea(
       child: Container(
         height: 56,
-        color: ColorStyles.white,
         child: SizedBox(
           width: double.infinity,
           height: 56,
