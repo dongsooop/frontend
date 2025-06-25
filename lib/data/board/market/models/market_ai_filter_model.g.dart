@@ -1,23 +1,20 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'market_write_model.dart';
+part of 'market_ai_filter_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-MarketWriteModel _$MarketWriteModelFromJson(Map<String, dynamic> json) =>
-    MarketWriteModel(
+MarketAIFilterModel _$MarketAIFilterModelFromJson(Map<String, dynamic> json) =>
+    MarketAIFilterModel(
       title: json['title'] as String,
       content: json['content'] as String,
-      price: (json['price'] as num).toInt(),
-      type: json['type'] as String,
     );
 
-Map<String, dynamic> _$MarketWriteModelToJson(MarketWriteModel instance) =>
+Map<String, dynamic> _$MarketAIFilterModelToJson(
+        MarketAIFilterModel instance) =>
     <String, dynamic>{
       'title': instance.title,
       'content': instance.content,
-      'price': instance.price,
-      'type': instance.type,
     };

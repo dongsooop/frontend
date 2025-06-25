@@ -10,11 +10,13 @@ class MarketWriteModel with _$MarketWriteModel {
   final String title;
   final String content;
   final int price;
+  final String type;
 
   MarketWriteModel({
     required this.title,
     required this.content,
     required this.price,
+    required this.type,
   });
 
   Map<String, dynamic> toJson() => _$MarketWriteModelToJson(this);
@@ -24,6 +26,7 @@ class MarketWriteModel with _$MarketWriteModel {
       title: entity.title,
       content: entity.content,
       price: entity.price,
+      type: entity.type,
     );
   }
 }
