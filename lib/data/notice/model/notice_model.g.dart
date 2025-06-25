@@ -12,3 +12,11 @@ NoticeModel _$NoticeModelFromJson(Map<String, dynamic> json) => NoticeModel(
       link: json['link'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
+
+Map<String, dynamic> _$NoticeModelToJson(NoticeModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'link': instance.link,
+      'createdAt': instance.createdAt.toIso8601String(),
+    };
