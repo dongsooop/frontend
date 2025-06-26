@@ -9,6 +9,17 @@ class LoginRequiredException implements Exception {
   String toString() => message;
 }
 
+class SignUpException implements Exception {
+  final String message;
+
+  SignUpException([
+    this.message = "입력 정보를 다시 확인해 주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
 class LoginException implements Exception {
   final String message;
   LoginException([this.message = "아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요"]);

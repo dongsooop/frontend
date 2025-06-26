@@ -1,15 +1,15 @@
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
 
-class LoginUseCase {
+class SignInUseCase {
   final AuthRepository _authRepository;
 
-  LoginUseCase(
+  SignInUseCase(
     this._authRepository,
   );
 
   Future<void> execute(String email, String password) async {
-    final response = await _authRepository.login(email, password);
+    final response = await _authRepository.signIn(email, password);
     final storedUser = StoredUser(
         id: response.id,
         nickname: response.nickname,

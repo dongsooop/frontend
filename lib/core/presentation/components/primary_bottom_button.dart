@@ -6,12 +6,14 @@ class PrimaryBottomButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String label;
   final bool isEnabled;
+  final bool isLoading;
 
   const PrimaryBottomButton({
     super.key,
     required this.label,
     this.onPressed,
     this.isEnabled = true,
+    this.isLoading = false,
   });
 
   @override
@@ -19,7 +21,6 @@ class PrimaryBottomButton extends StatelessWidget {
     return SafeArea(
       child: Container(
         height: 56,
-        color: ColorStyles.white,
         child: SizedBox(
           width: double.infinity,
           height: 56,
@@ -36,7 +37,9 @@ class PrimaryBottomButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(0),
               ),
             ),
-            child: Text(label),
+            child: isLoading
+              ? CircularProgressIndicator(color: ColorStyles.white)
+              : Text(label),
           ),
         ),
       ),

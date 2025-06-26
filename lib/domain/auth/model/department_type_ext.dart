@@ -11,7 +11,7 @@ class DepartmentTypeInfo {
 }
 
 extension DepartmentTypeExtension on DepartmentType {
-  static const Map<DepartmentType, DepartmentTypeInfo> _infoMap = {
+  static const Map<DepartmentType, DepartmentTypeInfo> infoMap = {
     DepartmentType.Dept2001: DepartmentTypeInfo(
       code: "DEPT_2001",
       displayName: "컴퓨터소프트웨어공학과",
@@ -118,25 +118,25 @@ extension DepartmentTypeExtension on DepartmentType {
     ),
   };
 
-  String get code => _infoMap[this]!.code;
-  String get displayName => _infoMap[this]!.displayName;
+  String get code => infoMap[this]!.code;
+  String get displayName => infoMap[this]!.displayName;
 
   static DepartmentType fromCode(String code) {
-    return _infoMap.entries
+    return infoMap.entries
         .firstWhere(
           (e) => e.value.code == code,
           orElse: () => MapEntry(
-              DepartmentType.Unknown, _infoMap[DepartmentType.Unknown]!),
+              DepartmentType.Unknown, infoMap[DepartmentType.Unknown]!),
         )
         .key;
   }
 
   static DepartmentType fromDisplayName(String name) {
-    return _infoMap.entries
+    return infoMap.entries
         .firstWhere(
           (e) => e.value.displayName == name,
           orElse: () => MapEntry(
-              DepartmentType.Unknown, _infoMap[DepartmentType.Unknown]!),
+              DepartmentType.Unknown, infoMap[DepartmentType.Unknown]!),
         )
         .key;
   }

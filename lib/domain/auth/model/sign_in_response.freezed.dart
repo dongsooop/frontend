@@ -4,7 +4,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'login_response.dart';
+part of 'sign_in_response.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,7 +14,7 @@ part of 'login_response.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$LoginResponse {
+mixin _$SignInResponse {
   int get id;
   String get accessToken;
   String get refreshToken;
@@ -22,19 +22,19 @@ mixin _$LoginResponse {
   String get email;
   String get departmentType;
 
-  /// Create a copy of LoginResponse
+  /// Create a copy of SignInResponse
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $LoginResponseCopyWith<LoginResponse> get copyWith =>
-      _$LoginResponseCopyWithImpl<LoginResponse>(
-          this as LoginResponse, _$identity);
+  $SignInResponseCopyWith<SignInResponse> get copyWith =>
+      _$SignInResponseCopyWithImpl<SignInResponse>(
+          this as SignInResponse, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is LoginResponse &&
+            other is SignInResponse &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.accessToken, accessToken) ||
                 other.accessToken == accessToken) &&
@@ -54,15 +54,15 @@ mixin _$LoginResponse {
 
   @override
   String toString() {
-    return 'LoginResponse(id: $id, accessToken: $accessToken, refreshToken: $refreshToken, nickname: $nickname, email: $email, departmentType: $departmentType)';
+    return 'SignInResponse(id: $id, accessToken: $accessToken, refreshToken: $refreshToken, nickname: $nickname, email: $email, departmentType: $departmentType)';
   }
 }
 
 /// @nodoc
-abstract mixin class $LoginResponseCopyWith<$Res> {
-  factory $LoginResponseCopyWith(
-          LoginResponse value, $Res Function(LoginResponse) _then) =
-      _$LoginResponseCopyWithImpl;
+abstract mixin class $SignInResponseCopyWith<$Res> {
+  factory $SignInResponseCopyWith(
+          SignInResponse value, $Res Function(SignInResponse) _then) =
+      _$SignInResponseCopyWithImpl;
   @useResult
   $Res call(
       {int id,
@@ -74,14 +74,14 @@ abstract mixin class $LoginResponseCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$LoginResponseCopyWithImpl<$Res>
-    implements $LoginResponseCopyWith<$Res> {
-  _$LoginResponseCopyWithImpl(this._self, this._then);
+class _$SignInResponseCopyWithImpl<$Res>
+    implements $SignInResponseCopyWith<$Res> {
+  _$SignInResponseCopyWithImpl(this._self, this._then);
 
-  final LoginResponse _self;
-  final $Res Function(LoginResponse) _then;
+  final SignInResponse _self;
+  final $Res Function(SignInResponse) _then;
 
-  /// Create a copy of LoginResponse
+  /// Create a copy of SignInResponse
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -93,7 +93,7 @@ class _$LoginResponseCopyWithImpl<$Res>
     Object? email = null,
     Object? departmentType = null,
   }) {
-    return _then(LoginResponse(
+    return _then(SignInResponse(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
