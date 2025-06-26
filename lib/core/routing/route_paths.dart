@@ -1,10 +1,11 @@
 abstract class RoutePaths {
-  static const String home = '/Home';
-  static const String board = '/Board';
-  static const String chat = '/Chat';
-  static const String mypage = '/Mypage';
-  static const String signIn = '/SignIn';
-  static const String signUp = '/SignUp';
+  static const String splash = '/splash';
+  static const String home = '/home';
+  static const String board = '/board';
+  static const String chat = '/chat';
+  static const String mypage = '/mypage';
+  static const String signIn = '/signIn';
+  static const String signUp = '/signUp';
 
   // sub
   static const String noticeList = '/noticeList';
@@ -17,5 +18,5 @@ abstract class RoutePaths {
   static const String recruitWrite = '/recruitWrite';
   static const String recruitDetail = '/recruitDetail';
   static const String recruitApply = '/recruitDetail/recruitApply';
-  static const String chatDetail = '/Chat/Detail';
+  static const String chatDetail = '/chat/detail';
 }

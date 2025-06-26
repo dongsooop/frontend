@@ -17,14 +17,18 @@ import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
+import 'package:dongsoop/presentation/splash/splash_screen.dart';
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:go_router/go_router.dart';
 
 
 final router = GoRouter(
-  initialLocation: RoutePaths.home,
+  initialLocation: RoutePaths.splash,
   routes: [
-    // navbar x 페이지는 따로 분류
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => SplashScreen(),
+    ),
     GoRoute(
       path: RoutePaths.schedule,
       name: 'schedule',

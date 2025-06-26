@@ -20,17 +20,17 @@ class MyPageScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final myPageState = ref.watch(myPageViewModelProvider);
-    final userSession = ref.watch(userSessionProvider);
+    final user = ref.watch(userSessionProvider);
     final viewModel = ref.read(myPageViewModelProvider.notifier);
 
     useEffect(() {
-      if (userSession != null) {
+      if (user != null) {
         Future.microtask(() {
           viewModel.loadUserInfo();
         });
       }
       return null;
-    }, [userSession]);
+    }, [user]);
 
     return SafeArea(
       child: Scaffold(
