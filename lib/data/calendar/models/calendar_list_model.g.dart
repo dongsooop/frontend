@@ -15,3 +15,13 @@ CalendarListModel _$CalendarListModelFromJson(Map<String, dynamic> json) =>
       endAt: DateTime.parse(json['endAt'] as String),
       type: json['type'] as String,
     );
+
+Map<String, dynamic> _$CalendarListModelToJson(CalendarListModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'location': instance.location,
+      'startAt': instance.startAt.toIso8601String(),
+      'endAt': instance.endAt.toIso8601String(),
+      'type': instance.type,
+    };

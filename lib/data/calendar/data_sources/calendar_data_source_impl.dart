@@ -72,7 +72,7 @@ class CalendarDataSourceImpl implements CalendarDataSource {
     final url = '${dotenv.get('CALENDAR_ENDPOINT')}/$calendarId';
     final response = await _authDio.delete(url);
 
-    if (response.statusCode != HttpStatusCode.delete.code) {
+    if (response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception('status: ${response.statusCode}');
     }
   }
