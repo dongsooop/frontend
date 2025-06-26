@@ -42,7 +42,7 @@ final SignInUseCaseProvider = Provider<SignInUseCase>((ref) {
   return SignInUseCase(repository);
 });
 
-final loadUseCaseProvider = Provider<LoadUserUseCase>((ref) {
+final loadUserUseCaseProvider = Provider<LoadUserUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   return LoadUserUseCase(repository);
 });
@@ -66,8 +66,9 @@ final CheckDuplicateUseCaseProvider = Provider<CheckDuplicateUseCase>((ref) {
 // View Model
 final signInViewModelProvider = StateNotifierProvider<SignInViewModel, AsyncValue<void>>((ref) {
   final loginUseCase = ref.watch(SignInUseCaseProvider);
+  final loadUserUseCase = ref.watch(loadUserUseCaseProvider);
 
-  return SignInViewModel(loginUseCase, ref);
+  return SignInViewModel(loginUseCase, loadUserUseCase, ref);
 });
 
 final signUpViewModelProvider = StateNotifierProvider.autoDispose<SignUpViewModel, SignUpState>((ref) {
@@ -79,10 +80,10 @@ final signUpViewModelProvider = StateNotifierProvider.autoDispose<SignUpViewMode
 
 final myPageViewModelProvider =
 StateNotifierProvider<MyPageViewModel, AsyncValue<User?>>((ref) {
-  final loadUseCase = ref.watch(loadUseCaseProvider);
+  final loadUserUseCase = ref.watch(loadUserUseCaseProvider);
   final logoutUseCase = ref.watch(logoutUseCaseProvider);
 
-  return MyPageViewModel(loadUseCase, logoutUseCase, ref);
+  return MyPageViewModel(loadUserUseCase, logoutUseCase, ref);
 });
 
 
