@@ -54,6 +54,9 @@ dependencies:
   freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
   riverpod_annotation: ^2.6.1
+  flutter_image_compress: ^2.4.0
+  path_provider: ^2.1.5
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
