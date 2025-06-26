@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
@@ -62,6 +61,27 @@ class MarketWritePageScreen extends HookConsumerWidget {
       );
     }
 
+    useEffect(() {
+      if (state.profanityMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '비속어 감지',
+              content: state.profanityMessage!,
+              confirmText: '확인',
+              onConfirm: () {
+                context.pop();
+                viewModel.clearProfanityMessage();
+              },
+              isSingleAction: true,
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.profanityMessage]);
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -78,8 +98,6 @@ class MarketWritePageScreen extends HookConsumerWidget {
               await viewModel.submitMarket(context);
               await viewModel.clearTemporaryImages();
               context.go(RoutePaths.home);
-            } on ProfanityDetectedException {
-              // 비속어 감지는 ViewModel 내부에서 처리
             } catch (e) {
               await showDialog(
                 context: context,
@@ -204,24 +222,25 @@ class MarketWritePageScreen extends HookConsumerWidget {
                         ),
                       );
                     }),
-                    GestureDetector(
-                      onTap: _pickImage,
-                      child: Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.gray2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.camera_alt,
-                            size: 24.0,
-                            color: ColorStyles.gray4,
+                    if (state.images.length < 3)
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: ColorStyles.gray2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 24.0,
+                              color: ColorStyles.gray4,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 40),
