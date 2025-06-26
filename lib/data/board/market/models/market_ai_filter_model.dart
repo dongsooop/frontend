@@ -7,20 +7,15 @@ part 'market_ai_filter_model.g.dart';
 @freezed
 @JsonSerializable()
 class MarketAIFilterModel with _$MarketAIFilterModel {
-  final String title;
-  final String content;
+  final String text;
 
   MarketAIFilterModel({
-    required this.title,
-    required this.content,
+    required this.text,
   });
 
   Map<String, dynamic> toJson() => _$MarketAIFilterModelToJson(this);
 
   factory MarketAIFilterModel.fromEntity(MarketAIFilterEntity entity) {
-    return MarketAIFilterModel(
-      title: entity.title,
-      content: entity.content,
-    );
+    return MarketAIFilterModel(text: '${entity.title} | ${entity.content}');
   }
 }

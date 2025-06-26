@@ -26,7 +26,7 @@ class MarketWriteModel with _$MarketWriteModel {
       title: entity.title,
       content: entity.content,
       price: entity.price,
-      type: entity.type,
+      type: entity.type.name,
     );
   }
 }

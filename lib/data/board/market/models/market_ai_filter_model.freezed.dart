@@ -15,8 +15,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$MarketAIFilterModel {
-  String get title;
-  String get content;
+  String get text;
 
   /// Create a copy of MarketAIFilterModel
   /// with the given fields replaced by the non-null parameter values.
@@ -31,16 +30,15 @@ mixin _$MarketAIFilterModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is MarketAIFilterModel &&
-            (identical(other.title, title) || other.title == title) &&
-            (identical(other.content, content) || other.content == content));
+            (identical(other.text, text) || other.text == text));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, title, content);
+  int get hashCode => Object.hash(runtimeType, text);
 
   @override
   String toString() {
-    return 'MarketAIFilterModel(title: $title, content: $content)';
+    return 'MarketAIFilterModel(text: $text)';
   }
 }
 
@@ -50,7 +48,7 @@ abstract mixin class $MarketAIFilterModelCopyWith<$Res> {
           MarketAIFilterModel value, $Res Function(MarketAIFilterModel) _then) =
       _$MarketAIFilterModelCopyWithImpl;
   @useResult
-  $Res call({String title, String content});
+  $Res call({String text});
 }
 
 /// @nodoc
@@ -66,17 +64,12 @@ class _$MarketAIFilterModelCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? title = null,
-    Object? content = null,
+    Object? text = null,
   }) {
     return _then(MarketAIFilterModel(
-      title: null == title
-          ? _self.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String,
-      content: null == content
-          ? _self.content
-          : content // ignore: cast_nullable_to_non_nullable
+      text: null == text
+          ? _self.text
+          : text // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
