@@ -1,5 +1,7 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
+import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
@@ -17,9 +19,7 @@ import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:go_router/go_router.dart';
-
 
 final router = GoRouter(
   initialLocation: RoutePaths.home,
@@ -110,6 +110,10 @@ final router = GoRouter(
         return RecruitApplyPageScreen(id: id, type: type);
       },
     ),
+    GoRoute(
+      path: RoutePaths.marketWrite,
+      builder: (context, state) => const MarketWritePageScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainScreen(
@@ -146,13 +150,13 @@ final router = GoRouter(
                   path: RoutePaths.libraryWebView,
                   name: 'libraryWebView',
                   builder: (context, state) =>
-                  const LibraryBannerWebViewScreen(),
+                      const LibraryBannerWebViewScreen(),
                 ),
                 GoRoute(
                   path: RoutePaths.cafeteriaWebView,
                   name: 'cafeteriaWebView',
                   builder: (context, state) =>
-                  const CafeteriaWebViewPageScreen(),
+                      const CafeteriaWebViewPageScreen(),
                 ),
               ]),
         ]),
@@ -163,6 +167,15 @@ final router = GoRouter(
               onTapRecruitDetail: (id, type) {
                 context.push(
                   RoutePaths.recruitDetail,
+                  extra: {
+                    'id': id,
+                    'type': type,
+                  },
+                );
+              },
+              onTapMarketDetail: (id, type) {
+                context.push(
+                  RoutePaths.marketDetail,
                   extra: {
                     'id': id,
                     'type': type,

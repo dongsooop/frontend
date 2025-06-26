@@ -2,6 +2,7 @@ import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
+import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
@@ -16,8 +17,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class BoardPageScreen extends HookConsumerWidget {
   final void Function(int id, RecruitType type) onTapRecruitDetail;
+  final void Function(int id, MarketType type) onTapMarketDetail;
 
-  const BoardPageScreen({super.key, required this.onTapRecruitDetail});
+  const BoardPageScreen({
+    super.key,
+    required this.onTapRecruitDetail,
+    required this.onTapMarketDetail,
+  });
 
   static const categoryTabs = ['모집', '장터'];
   static const recruitSubTabs = ['튜터링', '스터디', '프로젝트'];
@@ -85,56 +91,61 @@ class BoardPageScreen extends HookConsumerWidget {
       }
     }
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        floatingActionButton: WriteButton(
-          onPressed: () {
-            if (user == null) {
-              showDialog(
-                context: context,
-                builder: (_) => const LoginRequiredDialog(),
-              );
-            } else {
-              final route =
-                  isRecruit ? RoutePaths.recruitWrite : '/market/write';
-              context.push(route);
-            }
-          },
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: BoardTabSection(
-                categoryTabs: categoryTabs,
-                selectedCategoryIndex: selectedIndex.value,
-                selectedSubTabIndex: selectedSubIndex.value,
-                subTabs: currentSubTabs,
-                onCategorySelected: (newIndex) {
-                  selectedIndex.value = newIndex;
-                  selectedSubIndex.value = 0;
-                },
-                onSubTabSelected: (newSubIndex) {
-                  selectedSubIndex.value = newSubIndex;
-                },
-              ),
+    return Stack(
+      children: [
+        SafeArea(
+          child: Scaffold(
+            backgroundColor: ColorStyles.white,
+            floatingActionButton: WriteButton(
+              onPressed: () {
+                if (user == null) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => LoginRequiredDialog(),
+                  );
+                } else {
+                  final route = isRecruit
+                      ? RoutePaths.recruitWrite
+                      : RoutePaths.marketWrite;
+                  context.push(route);
+                }
+              },
             ),
-            Expanded(
-              child: isRecruit
-                  ? RecruitItemListSection(
-                      recruitType: recruitType,
-                      departmentCode: departmentCode,
-                      onTapRecruitDetail: onTapRecruitDetail,
-                      scrollController: scrollController,
-                    )
-                  : MarketItemListSection(
-                      scrollController: scrollController,
-                    ),
+            body: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: BoardTabSection(
+                    categoryTabs: categoryTabs,
+                    selectedCategoryIndex: selectedIndex.value,
+                    selectedSubTabIndex: selectedSubIndex.value,
+                    subTabs: currentSubTabs,
+                    onCategorySelected: (newIndex) {
+                      selectedIndex.value = newIndex;
+                      selectedSubIndex.value = 0;
+                    },
+                    onSubTabSelected: (newSubIndex) {
+                      selectedSubIndex.value = newSubIndex;
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: isRecruit
+                      ? RecruitItemListSection(
+                          recruitType: recruitType,
+                          departmentCode: departmentCode,
+                          onTapRecruitDetail: onTapRecruitDetail,
+                          scrollController: scrollController,
+                        )
+                      : MarketItemListSection(
+                          scrollController: scrollController,
+                        ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
