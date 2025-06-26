@@ -7,6 +7,7 @@ abstract class AuthDataSource {
   Future<SignInResponse> signIn(String email, String password);
   Future<void> signUp(SignUpRequest request);
   Future<void> logout();
+  Future<void> deleteUser();
   Future<User?> getUser();
   Future<void> saveUser(StoredUser storedUser);
   Future<bool> validate(String data, String type);

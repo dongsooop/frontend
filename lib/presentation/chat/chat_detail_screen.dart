@@ -165,8 +165,8 @@ class ChatDetailScreen extends HookConsumerWidget {
                             content: '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
                             confirmText: '나가기',
                             cancelText: '취소',
-                            onConfirm: () {
-                              viewModel.leaveChatRoom(chatRoom.roomId);
+                            onConfirm: () async {
+                              await viewModel.leaveChatRoom(chatRoom.roomId);
                               Navigator.of(context).pop(); // 다이얼로그 닫기
                             },
                           ),

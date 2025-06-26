@@ -12,10 +12,12 @@ import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
+import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
+import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:dongsoop/presentation/splash/splash_screen.dart';
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
@@ -76,6 +78,18 @@ final router = GoRouter(
       builder: (context, state) => ChatDetailScreen(
         chatRoom: state.extra as UiChatRoom,
       ),
+    ),
+    GoRoute(
+      path: RoutePaths.mypageWebView,
+      builder: (context, state) {
+        final url = state.uri.queryParameters['url'] ?? '';
+        final title = state.uri.queryParameters['title'] ?? '';
+        return MypageWebView(url: url, title: title);
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.setting,
+      builder: (context, state) => SettingScreen(),
     ),
     GoRoute(
       path: RoutePaths.recruitWrite,
@@ -193,6 +207,9 @@ final router = GoRouter(
               onTapSignIn: () {
                 context.push(RoutePaths.signIn);
               },
+              onTapSetting: () {
+                context.push(RoutePaths.setting);
+              }
             ),
           ),
         ]),

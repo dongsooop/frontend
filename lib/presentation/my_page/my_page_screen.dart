@@ -1,4 +1,3 @@
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/my_page/widgets/logged_in_user_card.dart';
 import 'package:dongsoop/presentation/my_page/widgets/logged_out_prompt_card.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +10,12 @@ import 'package:dongsoop/providers/auth_providers.dart';
 
 class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSignIn;
+  final VoidCallback onTapSetting;
 
   const MyPageScreen({
     super.key,
     required this.onTapSignIn,
+    required this.onTapSetting,
   });
 
   @override
@@ -46,23 +47,22 @@ class MyPageScreen extends HookConsumerWidget {
               ),
             ),
             centerTitle: true,
-            actions: [
-              IconButton(
-                onPressed: () {
-                  // user setting 페이지 이동
-                  logger.i('action');
-                },
-                icon: SvgPicture.asset(
-                  'assets/icons/setting.svg',
-                  width: 24,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    ColorStyles.black,
-                    BlendMode.srcIn,
+            actions: user != null
+              ? [
+                IconButton(
+                  onPressed: onTapSetting,
+                  icon: SvgPicture.asset(
+                    'assets/icons/setting.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(
+                      ColorStyles.black,
+                      BlendMode.srcIn,
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ]
+              : [],
             automaticallyImplyLeading: false, // 뒤로가기 버튼 X
           ),
         ),
