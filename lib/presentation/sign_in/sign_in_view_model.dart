@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/domain/auth/use_case/login_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/sign_in_use_case.dart';
 import 'package:dongsoop/main.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 
 class SignInViewModel extends StateNotifier<AsyncValue<void>> {
-  final LoginUseCase _loginUseCase;
+  final SignInUseCase _loginUseCase;
   final Ref _ref;
 
   SignInViewModel(

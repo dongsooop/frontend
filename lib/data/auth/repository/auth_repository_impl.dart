@@ -1,4 +1,5 @@
-import 'package:dongsoop/domain/auth/model/login_response.dart';
+import 'package:dongsoop/domain/auth/model/sign_in_response.dart';
+import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
 import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
@@ -11,8 +12,18 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._authDataSource);
 
   @override
-  Future<LoginResponse> login(String email, String password) {
-    return _authDataSource.login(email, password);
+  Future<SignInResponse> signIn(String email, String password) {
+    return _authDataSource.signIn(email, password);
+  }
+
+  @override
+  Future<void> signUp(SignUpRequest request) async {
+    return await _authDataSource.signUp(request);
+  }
+
+  @override
+  Future<bool> checkValidate(String data, String type) async {
+    return await _authDataSource.validate(data, type);
   }
 
   // change nickname

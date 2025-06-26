@@ -1,11 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'login_response.freezed.dart';
-part 'login_response.g.dart';
+part 'sign_in_response.freezed.dart';
+part 'sign_in_response.g.dart';
 
 @freezed
 @JsonSerializable()
-class LoginResponse with _$LoginResponse {
+class SignInResponse with _$SignInResponse {
   final int id;
   final String accessToken;
   final String refreshToken;
@@ -13,7 +13,7 @@ class LoginResponse with _$LoginResponse {
   final String email;
   final String departmentType;
 
-  const LoginResponse({
+  const SignInResponse({
     required this.id,
     required this.accessToken,
     required this.refreshToken,
@@ -22,7 +22,7 @@ class LoginResponse with _$LoginResponse {
     required this.departmentType,
   });
 
-  factory LoginResponse.fromJson(Map<String, dynamic> json) => _$LoginResponseFromJson(json);
+  factory SignInResponse.fromJson(Map<String, dynamic> json) => _$SignInResponseFromJson(json);
 
-  Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
+  Map<String, dynamic> toJson() => _$SignInResponseToJson(this);
 }
