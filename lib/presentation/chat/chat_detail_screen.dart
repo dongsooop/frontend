@@ -30,8 +30,9 @@ class ChatDetailScreen extends HookConsumerWidget {
     final chatDetailState = ref.watch(chatDetailViewModelProvider);
     final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
 
-    // 사용자 닉네임
+    // 사용자
     final String? userNickname = user?.nickname;
+    final int? userId = user?.id;
 
     // text field controller
     final textController = useTextEditingController();
@@ -130,7 +131,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                 spacing: 8,
                 children: [
                   Text(
-                    '채팅방 이름', // 채팅방 이름
+                    chatRoom.title, // 채팅방 이름
                     style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
                   ),
                   Text(
@@ -210,10 +211,35 @@ class ChatDetailScreen extends HookConsumerWidget {
                         final nickname = viewModel.getNickname(msg.senderId.toString());
                         return ChatBubbleScreen(
                           nickname,
+                          msg.senderId,
                           msg.content,
                           formatTimestamp(msg.timestamp),
                           nickname == userNickname,
                           msg.type,
+                          () async {
+                            if (chatRoom.managerId != userId) return;
+                            // 채팅 내보내기(관리자 == 사옹자)
+                            customActionSheet(
+                              context,
+                              onDelete: () {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (_) => CustomConfirmDialog(
+                                    title: '채팅 내보내기',
+                                    content: '퇴장한 채팅방은 다시 참여할 수 없어요.\n정말로 내보내시겠어요?',
+                                    confirmText: '내보내기',
+                                    cancelText: '취소',
+                                    onConfirm: () async {
+                                      await viewModel.kickUser(msg.roomId, msg.senderId);
+                                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                                    },
+                                  ),
+                                );
+                              },
+                              deleteText: '채팅 내보내기',
+                            );
+                          },
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(

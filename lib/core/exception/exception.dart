@@ -36,6 +36,14 @@ class ReIssueException implements Exception {
   String toString() => message;
 }
 
+class ChatLeaveException implements Exception {
+  final String message;
+  ChatLeaveException([this.message = "채팅방을 떠나는 중 오류가 발생했습니다"]);
+
+  @override
+  String toString() => message;
+}
+
 class RecruitListException implements Exception {
   final String message;
   RecruitListException([

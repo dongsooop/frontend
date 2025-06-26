@@ -85,6 +85,11 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<void> kickUser(String roomId, int userId) async {
+    await _chatDataSource.kickUser(roomId, userId);
+  }
+
+  @override
   Future<void> connect(String roomId) => _chatDataSource.connect(roomId);
 
   @override

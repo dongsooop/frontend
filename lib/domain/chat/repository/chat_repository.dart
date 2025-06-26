@@ -12,6 +12,7 @@ abstract class ChatRepository {
   Future<ChatMessage?> getLatestMessage(String roomId);
   Future<void> updateReadStatus(String roomId);
   Future<void> leaveChatRoom(String roomId);
+  Future<void> kickUser(String roomId, int userId);
 
   // stomp
   Future<void> connect(String roomId);
