@@ -51,16 +51,53 @@ class SignInScreen extends HookConsumerWidget {
               ),
               const SizedBox(height: 8),
               // 이메일 입력
-              _buildTextField(
-                controller: emailController,
-                hintText: '동양미래대학교 이메일을 입력해 주세요',
-                obscureText: false,
+              Container(
+                width: double.infinity,
+                height: 44,
+                padding: EdgeInsets.symmetric(horizontal: 16,),
+                decoration: ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 1, color: ColorStyles.gray2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: emailController,
+                        hintText: '학교 Gmail을 입력해 주세요',
+                        obscureText: false,
+                      ),
+                    ),
+                    Text(
+                      '@dongyang.ac.kr',
+                      style: TextStyles.normalTextRegular.copyWith(
+                        color: ColorStyles.gray4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+
               // 비밀번호 입력
-              _buildTextField(
-                controller: passwordController,
-                hintText: '비밀번호를 입력해 주세요',
-                obscureText: true,
+              Container(
+                width: double.infinity,
+                height: 44,
+                padding: EdgeInsets.symmetric(horizontal: 16,),
+                decoration: ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 1, color: ColorStyles.gray2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child:  _buildTextField(
+                  controller: passwordController,
+                  hintText: '비밀번호를 입력해 주세요',
+                  obscureText: true,
+                ),
               ),
               // 에러 메시지 표시
               SizedBox(
@@ -118,27 +155,17 @@ class SignInScreen extends HookConsumerWidget {
     required String hintText,
     required bool obscureText,
   }) {
-    return Container(
-      width: double.infinity,
-      height: 44,
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: ColorStyles.gray2),
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: TextInputType.text,
-        cursorColor: ColorStyles.gray4,
-        style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),
-          border: InputBorder.none,
-          hintText: hintText,
-          hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-        ),
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: TextInputType.text,
+      cursorColor: ColorStyles.gray4,
+      style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.symmetric(vertical: 11,),
+        border: InputBorder.none,
+        hintText: hintText,
+        hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
       ),
     );
   }

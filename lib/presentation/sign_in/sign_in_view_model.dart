@@ -17,7 +17,7 @@ class SignInViewModel extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
 
     try {
-      await _loginUseCase.execute(email, password);
+      await _loginUseCase.execute(email + '@dongyang.ac.kr', password);
       // 로그인한 유저 정보 로딩
       final user = await _ref.read(authRepositoryProvider).getUser();
       _ref.read(userSessionProvider.notifier).state = user;
