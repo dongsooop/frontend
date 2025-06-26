@@ -7,7 +7,7 @@ part of 'market_write_view_model.dart';
 // **************************************************************************
 
 String _$marketWriteViewModelHash() =>
-    r'e5b9e7234323fe3da5b248ac5a8d9ef2ec4907ad';
+    r'dbef0306fc793fc419b1741b85f77a6b93bb2240';
 
 /// See also [MarketWriteViewModel].
 @ProviderFor(MarketWriteViewModel)

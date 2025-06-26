@@ -6,8 +6,10 @@ import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
+import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_item.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
+import 'package:dongsoop/presentation/board/utils/scroll_listener.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +40,7 @@ class BoardPageScreen extends HookConsumerWidget {
     final isRecruit = selectedIndex.value == 0;
     final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
     final recruitType = RecruitType.values[selectedSubIndex.value];
+    final marketType = MarketType.values[selectedSubIndex.value];
 
     final user = ref.watch(userSessionProvider);
     final departmentCode = user != null
@@ -45,29 +48,37 @@ class BoardPageScreen extends HookConsumerWidget {
         : '';
 
     useEffect(() {
-      final viewModelProvider = recruitListViewModelProvider(
-        type: recruitType,
-        departmentCode: departmentCode,
-      );
+      if (isRecruit) {
+        final provider = recruitListViewModelProvider(
+          type: recruitType,
+          departmentCode: departmentCode,
+        );
+        final notifier = ref.read(provider.notifier);
 
-      void _onScroll() {
-        final current = ref.read(viewModelProvider);
-        final notifier = ref.read(viewModelProvider.notifier);
+        return setupScrollListener(
+          scrollController: scrollController,
+          getState: () => ref.read(provider),
+          canFetchMore: (state) => !state.isLoading && state.hasMore,
+          fetchMore: () => notifier.loadNextPage(),
+        );
+      } else {
+        final marketType = MarketType.values[selectedSubIndex.value];
+        final provider = marketListViewModelProvider(type: marketType);
+        final notifier = ref.read(provider.notifier);
 
-        final isBottom = scrollController.position.pixels >=
-            scrollController.position.maxScrollExtent - 100;
-
-        if (isBottom && !current.isLoading && current.hasMore) {
-          notifier.loadNextPage();
-        }
+        return setupScrollListener(
+          scrollController: scrollController,
+          getState: () => ref.read(provider),
+          canFetchMore: (state) => !state.isLoading && state.hasMore,
+          fetchMore: () => notifier.fetchNext(),
+        );
       }
-
-      scrollController.addListener(_onScroll);
-      return () => scrollController.removeListener(_onScroll);
     }, [
       scrollController,
       recruitType,
       departmentCode,
+      selectedIndex.value,
+      selectedSubIndex.value,
     ]);
 
     void onTapRecruitDetail(int id, RecruitType type) async {
@@ -138,6 +149,8 @@ class BoardPageScreen extends HookConsumerWidget {
                           scrollController: scrollController,
                         )
                       : MarketItemListSection(
+                          marketType: marketType,
+                          onTapMarketDetail: onTapMarketDetail,
                           scrollController: scrollController,
                         ),
                 ),
