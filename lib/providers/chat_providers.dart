@@ -93,7 +93,7 @@ final getPagedMessagesUseCaseProvider = Provider<GetPagedMessagesUseCase>((ref) 
   return GetPagedMessagesUseCase(repository);
 });
 
-final deleteChatDattaUseCaseProvider = Provider<DeleteChatDataUseCase>((ref) {
+final deleteChatDataUseCaseProvider = Provider<DeleteChatDataUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return DeleteChatDataUseCase(repository);
 });
@@ -121,7 +121,7 @@ StateNotifierProvider<ChatViewModel, ChatState>((ref) {
     logger.i("provider disposed");
   });
   final loadChatRoomsUseCase = ref.watch(loadChatRoomsUseCaseProvider);
-  final deleteChatDataUseCase = ref.watch(deleteChatDattaUseCaseProvider);
+  final deleteChatDataUseCase = ref.watch(deleteChatDataUseCaseProvider);
 
   return ChatViewModel(loadChatRoomsUseCase, deleteChatDataUseCase);
 });

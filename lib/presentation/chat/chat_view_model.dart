@@ -28,19 +28,4 @@ class ChatViewModel extends StateNotifier<ChatState> {
       );
     }
   }
-
-  Future<void> localDataDelete() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-    try {
-      await _deleteChatDataUseCase.execute();
-      logger.i('local data delete');
-      state = state.copyWith(isLoading: false);
-    } catch (e, st) {
-      logger.e('local data delete error: ${e.runtimeType}', error: e, stackTrace: st);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '로컬 데이터 삭제 중 오류가 발생했습니다.',
-      );
-    }
-  }
 }
