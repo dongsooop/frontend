@@ -8,23 +8,20 @@ part 'market_list_view_model.g.dart';
 
 @riverpod
 class MarketListViewModel extends _$MarketListViewModel {
-  late final MarketListUseCase _useCase;
-  late final MarketType _type;
+  MarketListUseCase get _useCase => ref.watch(marketListUseCaseProvider);
+  MarketType get _type => type;
 
   @override
   MarketListState build({required MarketType type}) {
-    _useCase = ref.watch(marketListUseCaseProvider);
-    _type = type;
-
-    Future.microtask(() => _fetchInitial());
+    Future.microtask(() => _fetchInitial(type));
     return MarketListState();
   }
 
-  Future<void> _fetchInitial() async {
+  Future<void> _fetchInitial(MarketType type) async {
     state = state.copyWith(isLoading: true, error: null, page: 0);
 
     try {
-      final result = await _useCase.execute(type: _type, page: 0);
+      final result = await _useCase.execute(type: type, page: 0);
       state = state.copyWith(
         items: result,
         isLoading: false,

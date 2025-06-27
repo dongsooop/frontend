@@ -3,7 +3,7 @@ import 'package:dongsoop/domain/board/market/entities/market_list_entity.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
 import 'package:dongsoop/presentation/board/market/price_formatter.dart';
-import 'package:dongsoop/presentation/board/utils/time_utils.dart';
+import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
