@@ -48,7 +48,6 @@ class MarketDataSourceImpl implements MarketDataSource {
 
   @override
   Future<MarketDetailModel> fetchMarketDetail({
-    required MarketType type,
     required int id,
   }) async {
     final baseUrl = dotenv.get("MARKET_ENDPOINT");
@@ -184,7 +183,7 @@ class MarketDataSourceImpl implements MarketDataSource {
     final url = '${dotenv.get('MARKET_ENDPOINT')}/$marketId';
     final response = await _authDio.delete(url);
 
-    if (response.statusCode != HttpStatusCode.delete.code) {
+    if (response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception('status: ${response.statusCode}');
     }
   }

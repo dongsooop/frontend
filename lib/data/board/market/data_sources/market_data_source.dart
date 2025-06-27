@@ -11,7 +11,6 @@ abstract class MarketDataSource {
   });
 
   Future<MarketDetailModel> fetchMarketDetail({
-    required MarketType type,
     required int id,
   });
 

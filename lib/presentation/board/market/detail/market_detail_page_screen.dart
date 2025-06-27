@@ -1,127 +1,175 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
+import 'package:dongsoop/domain/board/market/enum/market_type.dart';
+import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/detail/widget/botton_button.dart';
-import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
+import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MarketDetailPageScreen extends StatefulWidget {
-  const MarketDetailPageScreen({super.key});
+class MarketDetailPageScreen extends ConsumerWidget {
+  final int id;
+  final MarketType type;
+
+  const MarketDetailPageScreen({
+    super.key,
+    required this.id,
+    required this.type,
+  });
 
   @override
-  State<MarketDetailPageScreen> createState() => _MarketDetailPageScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(
+      marketDetailViewModelProvider(MarketDetailArgs(id: id)),
+    );
 
-class _MarketDetailPageScreenState extends State<MarketDetailPageScreen> {
-  final market = marketList[0];
-  @override
-  Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(44),
           child: DetailHeader(
-            title: '판매',
+            title: type.label,
             trailing: IconButton(
               icon: const Icon(Icons.more_vert),
-              iconSize: 24.00,
+              iconSize: 24.0,
               onPressed: () {
                 // 메뉴 클릭 처리
               },
             ),
           ),
         ),
-        bottomNavigationBar: BottomButton(
-          label: '거래하기',
-          onPressed: () {},
-        ),
-        body: Container(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: SingleChildScrollView(
-              child: Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: ColorStyles.primary5,
-                        border: Border.all(color: Colors.transparent, width: 1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        market['market_state'],
-                        style: TextStyles.smallTextBold
-                            .copyWith(color: ColorStyles.primaryColor),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(market['market_title'],
-                            style: TextStyles.largeTextBold
-                                .copyWith(color: ColorStyles.black)),
-                        SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(market['market_messages'] + '명이 연락했어요',
-                                style: TextStyles.smallTextRegular
-                                    .copyWith(color: ColorStyles.gray4)),
-                            Text('2025. 3. 24. 15:00',
-                                style: TextStyles.smallTextRegular
-                                    .copyWith(color: ColorStyles.gray4)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 24),
-                    Divider(
-                      color: ColorStyles.gray2,
-                      height: 1,
-                    ),
-                    SizedBox(height: 24),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('''
-컴퓨터소프트웨어공학과 2학년 1학기 김희숙 교수님 수업 DB 프로그래밍 교재 판매합니다. 
-직거래 희망합니다. 사실 분만 쪽지 주세요
+        bottomNavigationBar: state.when(
+          data: (data) {
+            final viewType = data.marketDetail?.viewType;
+            final market = data.marketDetail!;
+            final isClosed = false; // TODO: 상태 값 추가되면 변경
 
-국회는 국가의 예산안을 심의·확정한다. 국가는 대외무역을 육성하며, 이를 규제·조정할 수 있다. 국가는 주택개발정책등을 통하여 모든 국민이 쾌적한 주거생활을 할 수 있도록 노력하여야 한다. 모든 국민은 건강하고 쾌적한 환경에서 생활할 권리를 가지며, 국가와 국민은 환경보전을 위하여 노력하여야 한다. 정당은 법률이 정하는 바에 의하여 국가의 보호를 받으며, 국가는 법률이 정하는 바에 의하여 정당운영에 필요한 자금을 보조할 수 있다. 대통령은 조국의 평화적 통일을 위한 성실한 의무를 진다. 법률안에 이의가 있을 때에는 대통령은 제1항의 기간내에 이의서를 붙여 국회로 환부하고, 그 재의를 요구할 수 있다. 국회의 폐회중에도 또한 같다.'''),
-                        SizedBox(height: 32),
-                        SizedBox(
-                          height: 120,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: market['images'].length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 16),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.asset(
-                                    market['images'][index],
-                                    width: 120,
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      ],
+            // 버튼 라벨 정의
+            String label;
+            if (viewType == 'OWNER') {
+              label = isClosed ? '거래 완료' : '거래 완료';
+            } else {
+              label = '거래하기';
+            }
+
+            // 버튼 활성 여부 정의
+            bool isEnabled;
+            if (viewType == 'OWNER') {
+              isEnabled = !isClosed;
+            } else {
+              isEnabled = true;
+            }
+
+            return BottomButton(
+              label: label,
+              price: market.price,
+              onPressed: isEnabled
+                  ? () {
+                      if (viewType == 'OWNER') {
+                        // 거래 완료 처리
+                        // viewModel.setClosed();
+                      } else if (viewType == 'GUEST') {
+                        showDialog(
+                          context: context,
+                          builder: (_) => const LoginRequiredDialog(),
+                        );
+                      } else {
+                        // MEMBER일 경우 거래 진행
+                        // TODO: 거래 상태에 따라 변경
+                      }
+                    }
+                  : null,
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (error, stack) => const SizedBox.shrink(),
+        ),
+        body: state.when(
+          data: (data) {
+            final market = data.marketDetail!;
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: ColorStyles.primary5,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
+                    child: Text(
+                      '거래 중', // TODO: 거래 상태에 따라 변경
+                      style: TextStyles.smallTextBold.copyWith(
+                        color: ColorStyles.primaryColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    market.title,
+                    style: TextStyles.largeTextBold.copyWith(
+                      color: ColorStyles.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${market.contactCount}명이 연락했어요',
+                        style: TextStyles.smallTextRegular.copyWith(
+                          color: ColorStyles.gray4,
+                        ),
+                      ),
+                      Text(
+                        formatFullDateTime(market.createdAt),
+                        style: TextStyles.smallTextRegular.copyWith(
+                          color: ColorStyles.gray4,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  const Divider(color: ColorStyles.gray2, height: 1),
+                  const SizedBox(height: 24),
+                  Text(
+                    market.content,
+                    style: TextStyles.normalTextRegular,
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    height: 120,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: market.imageUrlList.length,
+                      itemBuilder: (context, index) {
+                        final url = market.imageUrlList[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              url,
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(child: Text('에러: $error')),
         ),
       ),
     );

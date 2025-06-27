@@ -27,11 +27,10 @@ class GuestMarketRepositoryImpl implements MarketRepository {
 
   @override
   Future<MarketDetailEntity> fetchMarketDetail({
-    required MarketType type,
     required int id,
   }) async {
     return _handle(() async {
-      final model = await _dataSource.fetchMarketDetail(type: type, id: id);
+      final model = await _dataSource.fetchMarketDetail(id: id);
       return model.toEntity();
     }, MarketDetailException());
   }

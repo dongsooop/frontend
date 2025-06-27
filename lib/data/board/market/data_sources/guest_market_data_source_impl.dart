@@ -39,7 +39,6 @@ class GuestMarketDataSourceImpl implements MarketDataSource {
 
   @override
   Future<MarketDetailModel> fetchMarketDetail({
-    required MarketType type,
     required int id,
   }) async {
     final baseUrl = dotenv.get("MARKET_ENDPOINT");

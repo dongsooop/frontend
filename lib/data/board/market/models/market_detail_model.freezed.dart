@@ -20,6 +20,7 @@ mixin _$MarketDetailModel {
   String get content;
   int get price;
   DateTime get createdAt;
+  String get type;
   int get contactCount;
   List<String> get imageUrlList;
   String get viewType;
@@ -43,6 +44,7 @@ mixin _$MarketDetailModel {
             (identical(other.price, price) || other.price == price) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
+            (identical(other.type, type) || other.type == type) &&
             (identical(other.contactCount, contactCount) ||
                 other.contactCount == contactCount) &&
             const DeepCollectionEquality()
@@ -60,13 +62,14 @@ mixin _$MarketDetailModel {
       content,
       price,
       createdAt,
+      type,
       contactCount,
       const DeepCollectionEquality().hash(imageUrlList),
       viewType);
 
   @override
   String toString() {
-    return 'MarketDetailModel(id: $id, title: $title, content: $content, price: $price, createdAt: $createdAt, contactCount: $contactCount, imageUrlList: $imageUrlList, viewType: $viewType)';
+    return 'MarketDetailModel(id: $id, title: $title, content: $content, price: $price, createdAt: $createdAt, type: $type, contactCount: $contactCount, imageUrlList: $imageUrlList, viewType: $viewType)';
   }
 }
 
@@ -82,6 +85,7 @@ abstract mixin class $MarketDetailModelCopyWith<$Res> {
       String content,
       int price,
       DateTime createdAt,
+      String type,
       int contactCount,
       List<String> imageUrlList,
       String viewType});
@@ -105,6 +109,7 @@ class _$MarketDetailModelCopyWithImpl<$Res>
     Object? content = null,
     Object? price = null,
     Object? createdAt = null,
+    Object? type = null,
     Object? contactCount = null,
     Object? imageUrlList = null,
     Object? viewType = null,
@@ -130,6 +135,10 @@ class _$MarketDetailModelCopyWithImpl<$Res>
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      type: null == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as String,
       contactCount: null == contactCount
           ? _self.contactCount
           : contactCount // ignore: cast_nullable_to_non_nullable

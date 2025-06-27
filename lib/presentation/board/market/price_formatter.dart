@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 class PriceFormatter {
   static final _numberFormat = NumberFormat.decimalPattern('ko_KR');
-  static const maxPrice = 99999999;
+  static const maxPrice = 9999999;
 
   static String format(int price) {
     return _numberFormat.format(price);

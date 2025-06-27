@@ -11,7 +11,6 @@ abstract class MarketRepository {
   });
 
   Future<MarketDetailEntity> fetchMarketDetail({
-    required MarketType type,
     required int id,
   });
 

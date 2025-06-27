@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
+import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
@@ -117,6 +118,20 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.marketWrite,
       builder: (context, state) => const MarketWritePageScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.marketDetail,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+
+        final id = extra?['id'];
+        final type = extra?['type'];
+
+        return MarketDetailPageScreen(
+          id: id,
+          type: type,
+        );
+      },
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
