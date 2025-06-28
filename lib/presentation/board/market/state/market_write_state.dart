@@ -1,5 +1,5 @@
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class MarketFormState {
   final String title;
@@ -11,6 +11,10 @@ class MarketFormState {
   final String? errorMessage;
   final String? profanityMessage;
 
+  // 👇 여기에 추가
+  final bool isEditing;
+  final int? marketId;
+
   const MarketFormState({
     this.title = '',
     this.content = '',
@@ -20,6 +24,8 @@ class MarketFormState {
     this.isSubmitting = false,
     this.errorMessage,
     this.profanityMessage,
+    this.isEditing = false,
+    this.marketId,
   });
 
   MarketFormState copyWith({
@@ -31,6 +37,8 @@ class MarketFormState {
     bool? isSubmitting,
     String? errorMessage,
     String? profanityMessage,
+    bool? isEditing,
+    int? marketId,
   }) {
     return MarketFormState(
       title: title ?? this.title,
@@ -41,6 +49,8 @@ class MarketFormState {
       isSubmitting: isSubmitting ?? this.isSubmitting,
       errorMessage: errorMessage ?? this.errorMessage,
       profanityMessage: profanityMessage ?? this.profanityMessage,
+      isEditing: isEditing ?? this.isEditing,
+      marketId: marketId ?? this.marketId,
     );
   }
 

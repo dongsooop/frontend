@@ -117,7 +117,17 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.marketWrite,
-      builder: (context, state) => const MarketWritePageScreen(),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+
+        final isEditing = extra?['isEditing'] as bool? ?? false;
+        final marketId = extra?['marketId'] as int?;
+
+        return MarketWritePageScreen(
+          isEditing: isEditing,
+          marketId: marketId,
+        );
+      },
     ),
     GoRoute(
       path: RoutePaths.marketDetail,

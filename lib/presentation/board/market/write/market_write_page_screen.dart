@@ -19,20 +19,46 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 class MarketWritePageScreen extends HookConsumerWidget {
-  const MarketWritePageScreen({super.key});
+  final bool isEditing;
+  final int? marketId;
+
+  const MarketWritePageScreen({
+    super.key,
+    required this.isEditing,
+    this.marketId,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = ref.watch(marketWriteViewModelProvider.notifier);
-    final state = ref.watch(marketWriteViewModelProvider);
-
-    final titleController = useTextEditingController(text: state.title);
-    final contentController = useTextEditingController(text: state.content);
-    final priceController = useTextEditingController(
-      text: state.price > 0 ? PriceFormatter.format(state.price) : '',
+    final viewModel = ref.watch(
+      marketWriteViewModelProvider(isEditing: isEditing, marketId: marketId)
+          .notifier,
+    );
+    final state = ref.watch(
+      marketWriteViewModelProvider(isEditing: isEditing, marketId: marketId),
     );
 
+    final titleController = useTextEditingController();
+    final contentController = useTextEditingController();
+    final priceController = useTextEditingController();
+    final isInitialized = useState(false);
+
+    // 초기값을 프레임 이후에 설정
     useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        titleController.text = state.title;
+        contentController.text = state.content;
+        priceController.text =
+            state.price > 0 ? PriceFormatter.format(state.price) : '';
+        isInitialized.value = true;
+      });
+      return null;
+    }, [state.title, state.content, state.price]);
+
+    // 리스너는 초기화 이후 등록
+    useEffect(() {
+      if (!isInitialized.value) return null;
+
       titleController.addListener(() {
         viewModel.updateTitle(titleController.text);
       });
@@ -44,7 +70,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
         viewModel.updatePrice(parsed);
       });
       return null;
-    }, []);
+    }, [isInitialized.value]);
 
     Future<void> _pickImage() async {
       final pickedFile =
@@ -86,12 +112,12 @@ class MarketWritePageScreen extends HookConsumerWidget {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: ColorStyles.white,
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: DetailHeader(title: '장터 등록'),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(44),
+          child: DetailHeader(title: isEditing ? '장터 수정' : '장터 등록'),
         ),
         bottomNavigationBar: PrimaryBottomButton(
-          label: '등록하기',
+          label: isEditing ? '수정하기' : '등록하기',
           isEnabled: state.isValid && !state.isSubmitting,
           onPressed: () async {
             try {
@@ -103,7 +129,8 @@ class MarketWritePageScreen extends HookConsumerWidget {
                 context: context,
                 builder: (_) => CustomConfirmDialog(
                   title: '오류',
-                  content: '게시글 등록 중 문제가 발생했습니다.\n${e.toString()}',
+                  content:
+                      '${isEditing ? '수정' : '등록'} 중 문제가 발생했습니다.\n${e.toString()}',
                   confirmText: '확인',
                   onConfirm: () {},
                   isSingleAction: true,

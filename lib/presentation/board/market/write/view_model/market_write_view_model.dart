@@ -5,10 +5,14 @@ import 'package:dongsoop/domain/board/market/entities/market_ai_filter_entity.da
 import 'package:dongsoop/domain/board/market/entities/market_write_entity.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_ai_filter_use_case.dart';
+import 'package:dongsoop/domain/board/market/use_cases/market_detail_use_case.dart';
+import 'package:dongsoop/domain/board/market/use_cases/market_update_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_write_use_case.dart';
 import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/market/state/market_write_state.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_ai_filter_use_case_provider.dart';
+import 'package:dongsoop/presentation/board/providers/market/market_detail_use_case_provider.dart';
+import 'package:dongsoop/presentation/board/providers/market/market_update_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_write_use_case_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -21,38 +25,65 @@ part 'market_write_view_model.g.dart';
 @riverpod
 class MarketWriteViewModel extends _$MarketWriteViewModel {
   MarketWriteUseCase get _writeUseCase => ref.watch(marketWriteUseCaseProvider);
+  MarketUpdateUseCase get _updateUseCase =>
+      ref.watch(marketUpdateUseCaseProvider);
   MarketAIFilterUseCase get _aiFilterUseCase =>
       ref.watch(marketAiFilterUseCaseProvider);
+  MarketDetailUseCase get _detailUseCase =>
+      ref.watch(marketDetailUseCaseProvider);
 
   @override
-  MarketFormState build() => const MarketFormState();
-
-  void updateTitle(String value) {
-    state = state.copyWith(title: value);
+  MarketFormState build({required bool isEditing, int? marketId}) {
+    if (isEditing && marketId != null) {
+      _initializeForm(marketId);
+    }
+    return MarketFormState(
+      isEditing: isEditing,
+      marketId: marketId,
+    );
   }
 
-  void updateContent(String value) {
-    state = state.copyWith(content: value);
+  Future<void> _initializeForm(int marketId) async {
+    try {
+      final detail = await _detailUseCase.execute(id: marketId);
+      final imageFiles = await Future.wait(
+        detail.imageUrlList.map((url) async {
+          final tempDir = await getTemporaryDirectory();
+          final fileName = path.basename(url);
+          final filePath = path.join(tempDir.path, fileName);
+
+          final file = File(filePath);
+          if (!await file.exists()) {
+            final response = await HttpClient().getUrl(Uri.parse(url));
+            final bytes = await (await response.close())
+                .fold<List<int>>([], (a, b) => a..addAll(b));
+            await file.writeAsBytes(bytes);
+          }
+          return XFile(file.path);
+        }),
+      );
+
+      state = state.copyWith(
+        title: detail.title,
+        content: detail.content,
+        price: detail.price,
+        type: MarketType.values.firstWhere((e) => e.name == detail.type),
+        images: imageFiles,
+      );
+    } catch (e, st) {
+      logger.e('[MARKET] 수정 초기화 실패', error: e, stackTrace: st);
+    }
   }
 
-  void updatePrice(int value) {
-    state = state.copyWith(price: value);
-  }
-
-  void updateType(MarketType value) {
-    logger.d('Type updated: $value');
-    state = state.copyWith(type: value);
-  }
-
-  void updateImages(List<XFile> value) {
-    logger.d('Images updated: ${value.map((e) => e.path).toList()}');
-    state = state.copyWith(images: value);
-  }
+  void updateTitle(String value) => state = state.copyWith(title: value);
+  void updateContent(String value) => state = state.copyWith(content: value);
+  void updatePrice(int value) => state = state.copyWith(price: value);
+  void updateType(MarketType value) => state = state.copyWith(type: value);
+  void updateImages(List<XFile> value) => state = state.copyWith(images: value);
 
   void addImage(XFile image) {
     if (state.images.length >= 3) return;
-    final updated = [...state.images, image];
-    updateImages(updated);
+    updateImages([...state.images, image]);
   }
 
   void removeImageAt(int index) {
@@ -64,10 +95,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
     for (final image in state.images) {
       try {
         final file = File(image.path);
-        if (await file.exists()) {
-          await file.delete();
-          logger.i('[MARKET] 임시 이미지 삭제 완료: ${image.path}');
-        }
+        if (await file.exists()) await file.delete();
       } catch (e) {
         logger.w('[MARKET] 이미지 삭제 중 오류 발생: $e');
       }
@@ -113,27 +141,23 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
     }
 
     if (compressedFile != null) {
-      final compressedXFile = XFile(compressedFile.path);
-      final compressedSizeMB = (await compressedFile.length()) / (1024 * 1024);
-      addImage(compressedXFile);
-      logger.i(
-          '[MARKET] 이미지 압축 성공 및 추가 (크기: ${compressedSizeMB.toStringAsFixed(2)} MB)');
+      addImage(XFile(compressedFile.path));
     } else {
       logger.w('[MARKET] 이미지 압축 실패');
     }
   }
 
   Future<void> submitMarket(BuildContext context) async {
-    logger.i('[MARKET] submitMarket 시작');
-
     if (state.isSubmitting || !state.isValid) {
-      logger.w(
-          '중복 제출 혹은 유효하지 않은 상태 - isSubmitting: ${state.isSubmitting}, isValid: ${state.isValid}');
+      logger.w('[MARKET] 중복 제출 혹은 유효하지 않은 상태로 제출 시도됨');
       return;
     }
 
     state = state.copyWith(
-        isSubmitting: true, errorMessage: null, profanityMessage: null);
+      isSubmitting: true,
+      errorMessage: null,
+      profanityMessage: null,
+    );
 
     try {
       logger.i('AI 비속어 필터 검사 요청');
@@ -146,16 +170,26 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       logger.i('AI 필터 통과');
 
       logger.i('게시글 작성 요청 전송');
-      await _writeUseCase.execute(
-        entity: MarketWriteEntity(
-          title: state.title,
-          content: state.content,
-          price: state.price,
-          type: state.type!,
-          images: state.images,
-        ),
+      final entity = MarketWriteEntity(
+        title: state.title,
+        content: state.content,
+        price: state.price,
+        type: state.type!,
+        images: state.images,
       );
-      logger.i('게시글 작성 성공');
+
+      if (state.marketId != null) {
+        logger.i('수정 요청 시작 - marketId: ${state.marketId}');
+        await _updateUseCase.execute(
+          marketId: state.marketId!,
+          entity: entity,
+        );
+        logger.i('수정 요청 성공');
+      } else {
+        logger.i('작성 요청 시작');
+        await _writeUseCase.execute(entity: entity);
+        logger.i('작성 요청 성공');
+      }
     } on ProfanityDetectedException catch (e) {
       logger.w('비속어 감지');
       _setProfanityMessage(e);
@@ -190,7 +224,6 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
     }
   }
 
-  void clearProfanityMessage() {
-    state = state.copyWith(profanityMessage: null);
-  }
+  void clearProfanityMessage() =>
+      state = state.copyWith(profanityMessage: null);
 }
