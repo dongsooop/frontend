@@ -39,16 +39,24 @@ class BoardPageScreen extends HookConsumerWidget {
 
     final isRecruit = selectedIndex.value == 0;
     final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
-    final recruitType = RecruitType.values[selectedSubIndex.value];
-    final marketType = MarketType.values[selectedSubIndex.value];
 
     final user = ref.watch(userSessionProvider);
     final departmentCode = user != null
         ? DepartmentTypeExtension.fromDisplayName(user.departmentType).code
         : '';
 
+    final safeIndex =
+        selectedSubIndex.value.clamp(0, currentSubTabs.length - 1);
+
+    final recruitType = isRecruit && safeIndex < RecruitType.values.length
+        ? RecruitType.values[safeIndex]
+        : null;
+    final marketType = !isRecruit && safeIndex < MarketType.values.length
+        ? MarketType.values[safeIndex]
+        : null;
+
     useEffect(() {
-      if (isRecruit) {
+      if (isRecruit && recruitType != null) {
         final provider = recruitListViewModelProvider(
           type: recruitType,
           departmentCode: departmentCode,
@@ -61,8 +69,7 @@ class BoardPageScreen extends HookConsumerWidget {
           canFetchMore: (state) => !state.isLoading && state.hasMore,
           fetchMore: () => notifier.loadNextPage(),
         );
-      } else {
-        final marketType = MarketType.values[selectedSubIndex.value];
+      } else if (!isRecruit && marketType != null) {
         final provider = marketListViewModelProvider(type: marketType);
         final notifier = ref.read(provider.notifier);
 
@@ -73,21 +80,18 @@ class BoardPageScreen extends HookConsumerWidget {
           fetchMore: () => notifier.fetchNext(),
         );
       }
+      return null;
     }, [
       scrollController,
-      recruitType,
-      departmentCode,
       selectedIndex.value,
       selectedSubIndex.value,
+      departmentCode,
     ]);
 
     void onTapRecruitDetail(int id, RecruitType type) async {
       final didApply = await context.push<bool>(
         RoutePaths.recruitDetail,
-        extra: {
-          'id': id,
-          'type': type,
-        },
+        extra: {'id': id, 'type': type},
       );
 
       if (didApply == true) {
@@ -129,7 +133,7 @@ class BoardPageScreen extends HookConsumerWidget {
                   child: BoardTabSection(
                     categoryTabs: categoryTabs,
                     selectedCategoryIndex: selectedIndex.value,
-                    selectedSubTabIndex: selectedSubIndex.value,
+                    selectedSubTabIndex: safeIndex,
                     subTabs: currentSubTabs,
                     onCategorySelected: (newIndex) {
                       selectedIndex.value = newIndex;
@@ -141,18 +145,20 @@ class BoardPageScreen extends HookConsumerWidget {
                   ),
                 ),
                 Expanded(
-                  child: isRecruit
+                  child: isRecruit && recruitType != null
                       ? RecruitItemListSection(
                           recruitType: recruitType,
                           departmentCode: departmentCode,
                           onTapRecruitDetail: onTapRecruitDetail,
                           scrollController: scrollController,
                         )
-                      : MarketItemListSection(
-                          marketType: marketType,
-                          onTapMarketDetail: onTapMarketDetail,
-                          scrollController: scrollController,
-                        ),
+                      : !isRecruit && marketType != null
+                          ? MarketItemListSection(
+                              marketType: marketType,
+                              onTapMarketDetail: onTapMarketDetail,
+                              scrollController: scrollController,
+                            )
+                          : const SizedBox.shrink(),
                 ),
               ],
             ),
