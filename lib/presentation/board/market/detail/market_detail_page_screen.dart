@@ -1,5 +1,8 @@
+import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/detail/widget/botton_button.dart';
@@ -8,6 +11,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class MarketDetailPageScreen extends ConsumerWidget {
   final int id;
@@ -34,9 +38,32 @@ class MarketDetailPageScreen extends ConsumerWidget {
             title: type.label,
             trailing: IconButton(
               icon: const Icon(Icons.more_vert),
-              iconSize: 24.0,
               onPressed: () {
-                // 메뉴 클릭 처리
+                final detailState = ref.read(
+                  marketDetailViewModelProvider(MarketDetailArgs(id: id)),
+                );
+
+                detailState.whenData((data) {
+                  final viewType = data.marketDetail?.viewType;
+                  if (viewType == 'OWNER') {
+                    customActionSheet(context, onEdit: () {
+                      context.push(RoutePaths.marketWrite, extra: {
+                        'isEditing': true,
+                        'marketId': id,
+                      });
+                    }, onDelete: () {
+                      _showDeleteDialog(context, ref);
+                    });
+                  } else {
+                    customActionSheet(
+                      context,
+                      onDelete: () {
+                        _reportMarket(context);
+                      },
+                      deleteText: '신고',
+                    );
+                  }
+                });
               },
             ),
           ),
@@ -171,6 +198,54 @@ class MarketDetailPageScreen extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => Center(child: Text('에러: $error')),
         ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (_) => CustomConfirmDialog(
+        title: '게시글 삭제',
+        content: '정말로 이 게시글을 삭제하시겠습니까?',
+        confirmText: '삭제',
+        cancelText: '취소',
+        onConfirm: () async {
+          context.pop();
+
+          final viewModel = ref.read(
+            marketDetailViewModelProvider(MarketDetailArgs(id: id)).notifier,
+          );
+
+          try {
+            await viewModel.deleteMarket(id);
+            context.go(RoutePaths.home);
+          } catch (e) {
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '삭제 실패',
+                content: '게시글 삭제 중 문제가 발생했습니다.\n${e.toString()}',
+                confirmText: '확인',
+                onConfirm: () => context.pop(),
+                isSingleAction: true,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  void _reportMarket(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => CustomConfirmDialog(
+        title: '신고 완료',
+        content: '신고가 접수되었습니다.',
+        confirmText: '확인',
+        onConfirm: () => context.pop(),
+        isSingleAction: true,
       ),
     );
   }

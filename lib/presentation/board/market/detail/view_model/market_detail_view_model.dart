@@ -1,6 +1,8 @@
+import 'package:dongsoop/domain/board/market/use_cases/market_delete_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_detail_use_case.dart';
 import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/market/state/market_detail_state.dart';
+import 'package:dongsoop/presentation/board/providers/market/market_delete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_detail_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -27,6 +29,8 @@ class MarketDetailArgs {
 @riverpod
 class MarketDetailViewModel extends _$MarketDetailViewModel {
   MarketDetailUseCase get _useCase => ref.watch(marketDetailUseCaseProvider);
+  MarketDeleteUseCase get _deleteUseCase =>
+      ref.watch(marketDeleteUseCaseProvider);
 
   @override
   FutureOr<MarketDetailState> build(MarketDetailArgs args) async {
@@ -51,5 +55,15 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
   void setButtonEnabled(bool enabled) {
     final current = state.value;
     if (current == null) return;
+  }
+
+  Future<void> deleteMarket(int marketId) async {
+    try {
+      await _deleteUseCase.execute(marketId: marketId);
+      logger.i('[MARKET] 게시글 삭제 성공');
+    } catch (e, st) {
+      logger.e('[MARKET] 게시글 삭제 실패', error: e, stackTrace: st);
+      rethrow;
+    }
   }
 }
