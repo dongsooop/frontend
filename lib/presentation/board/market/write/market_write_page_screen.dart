@@ -112,10 +112,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: ColorStyles.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: DetailHeader(title: isEditing ? '장터 수정' : '장터 등록'),
-        ),
+        appBar: DetailHeader(title: isEditing ? '장터 수정' : '장터 등록'),
         bottomNavigationBar: PrimaryBottomButton(
           label: isEditing ? '수정하기' : '등록하기',
           isEnabled: state.isValid && !state.isSubmitting,

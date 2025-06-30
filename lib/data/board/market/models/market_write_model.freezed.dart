@@ -19,6 +19,7 @@ mixin _$MarketWriteModel {
   String get content;
   int get price;
   String get type;
+  List<String>? get deleteImageUrls;
 
   /// Create a copy of MarketWriteModel
   /// with the given fields replaced by the non-null parameter values.
@@ -36,15 +37,18 @@ mixin _$MarketWriteModel {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.price, price) || other.price == price) &&
-            (identical(other.type, type) || other.type == type));
+            (identical(other.type, type) || other.type == type) &&
+            const DeepCollectionEquality()
+                .equals(other.deleteImageUrls, deleteImageUrls));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, title, content, price, type);
+  int get hashCode => Object.hash(runtimeType, title, content, price, type,
+      const DeepCollectionEquality().hash(deleteImageUrls));
 
   @override
   String toString() {
-    return 'MarketWriteModel(title: $title, content: $content, price: $price, type: $type)';
+    return 'MarketWriteModel(title: $title, content: $content, price: $price, type: $type, deleteImageUrls: $deleteImageUrls)';
   }
 }
 
@@ -54,7 +58,12 @@ abstract mixin class $MarketWriteModelCopyWith<$Res> {
           MarketWriteModel value, $Res Function(MarketWriteModel) _then) =
       _$MarketWriteModelCopyWithImpl;
   @useResult
-  $Res call({String title, String content, int price, String type});
+  $Res call(
+      {String title,
+      String content,
+      int price,
+      String type,
+      List<String>? deleteImageUrls});
 }
 
 /// @nodoc
@@ -74,6 +83,7 @@ class _$MarketWriteModelCopyWithImpl<$Res>
     Object? content = null,
     Object? price = null,
     Object? type = null,
+    Object? deleteImageUrls = freezed,
   }) {
     return _then(MarketWriteModel(
       title: null == title
@@ -92,6 +102,10 @@ class _$MarketWriteModelCopyWithImpl<$Res>
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
               as String,
+      deleteImageUrls: freezed == deleteImageUrls
+          ? _self.deleteImageUrls
+          : deleteImageUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ));
   }
 }

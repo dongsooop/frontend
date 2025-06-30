@@ -10,10 +10,9 @@ class MarketFormState {
   final bool isSubmitting;
   final String? errorMessage;
   final String? profanityMessage;
-
-  // 👇 여기에 추가
   final bool isEditing;
   final int? marketId;
+  final List<String> initialImageUrls;
 
   const MarketFormState({
     this.title = '',
@@ -26,20 +25,21 @@ class MarketFormState {
     this.profanityMessage,
     this.isEditing = false,
     this.marketId,
+    this.initialImageUrls = const [],
   });
 
-  MarketFormState copyWith({
-    String? title,
-    String? content,
-    int? price,
-    List<XFile>? images,
-    MarketType? type,
-    bool? isSubmitting,
-    String? errorMessage,
-    String? profanityMessage,
-    bool? isEditing,
-    int? marketId,
-  }) {
+  MarketFormState copyWith(
+      {String? title,
+      String? content,
+      int? price,
+      List<XFile>? images,
+      MarketType? type,
+      bool? isSubmitting,
+      String? errorMessage,
+      String? profanityMessage,
+      bool? isEditing,
+      int? marketId,
+      List<String>? initialImageUrls}) {
     return MarketFormState(
       title: title ?? this.title,
       content: content ?? this.content,
@@ -51,6 +51,7 @@ class MarketFormState {
       profanityMessage: profanityMessage ?? this.profanityMessage,
       isEditing: isEditing ?? this.isEditing,
       marketId: marketId ?? this.marketId,
+      initialImageUrls: initialImageUrls ?? this.initialImageUrls,
     );
   }
 

@@ -11,12 +11,14 @@ class MarketWriteModel with _$MarketWriteModel {
   final String content;
   final int price;
   final String type;
+  final List<String>? deleteImageUrls;
 
   MarketWriteModel({
     required this.title,
     required this.content,
     required this.price,
     required this.type,
+    required this.deleteImageUrls,
   });
 
   Map<String, dynamic> toJson() => _$MarketWriteModelToJson(this);
@@ -27,6 +29,7 @@ class MarketWriteModel with _$MarketWriteModel {
       content: entity.content,
       price: entity.price,
       type: entity.type.name,
+      deleteImageUrls: entity.deleteImageUrls,
     );
   }
 }

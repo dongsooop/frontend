@@ -156,14 +156,28 @@ class MarketDataSourceImpl implements MarketDataSource {
     final model = MarketWriteModel.fromEntity(entity);
     final url = '${dotenv.get('MARKET_ENDPOINT')}/$marketId';
 
-    final formData = FormData.fromMap({
-      ...model.toJson(),
-      if (entity.images != null)
-        'images': [
-          for (final image in entity.images!)
-            await MultipartFile.fromFile(image.path, filename: image.name)
-        ]
-    });
+    final requestJson = jsonEncode(model.toJson());
+    final formData = FormData();
+
+    formData.files.add(MapEntry(
+      'request',
+      MultipartFile.fromString(
+        requestJson,
+        contentType: DioMediaType('application', 'json'),
+      ),
+    ));
+
+    if (entity.images != null && entity.images!.isNotEmpty) {
+      for (final image in entity.images!) {
+        formData.files.add(MapEntry(
+          'image',
+          await MultipartFile.fromFile(
+            image.path,
+            filename: image.name,
+          ),
+        ));
+      }
+    }
 
     final response = await _authDio.patch(
       url,
@@ -171,7 +185,7 @@ class MarketDataSourceImpl implements MarketDataSource {
       options: Options(contentType: Headers.multipartFormDataContentType),
     );
 
-    if (response.statusCode != HttpStatusCode.ok.code) {
+    if (response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception('status: ${response.statusCode}');
     }
   }

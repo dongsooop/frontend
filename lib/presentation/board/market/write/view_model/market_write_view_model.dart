@@ -69,6 +69,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
         price: detail.price,
         type: MarketType.values.firstWhere((e) => e.name == detail.type),
         images: imageFiles,
+        initialImageUrls: detail.imageUrlList,
       );
     } catch (e, st) {
       logger.e('[MARKET] 수정 초기화 실패', error: e, stackTrace: st);
@@ -169,14 +170,33 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       );
       logger.i('AI 필터 통과');
 
-      logger.i('게시글 작성 요청 전송');
+      logger.i('게시글 ${state.isEditing ? "수정" : "작성"} 요청 전송');
+
+      final currentImageFileNames =
+          state.images.map((x) => path.basename(x.path));
+      final deletedUrls = state.initialImageUrls
+          .where((url) => !currentImageFileNames.contains(path.basename(url)))
+          .toList();
+
       final entity = MarketWriteEntity(
         title: state.title,
         content: state.content,
         price: state.price,
         type: state.type!,
         images: state.images,
+        deleteImageUrls: deletedUrls,
       );
+
+      // 이미지 경로 로그
+      for (final img in state.images) {
+        logger.i('[MARKET] 최종 이미지: ${img.path}');
+      }
+
+      logger.i('[MARKET] 최종 이미지 개수: ${state.images.length}');
+
+      if (state.images.length > 3) {
+        logger.w('[MARKET] 🚨 이미지 개수 초과: ${state.images.length}개');
+      }
 
       if (state.marketId != null) {
         logger.i('수정 요청 시작 - marketId: ${state.marketId}');

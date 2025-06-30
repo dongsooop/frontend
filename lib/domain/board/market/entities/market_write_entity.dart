@@ -7,6 +7,7 @@ class MarketWriteEntity {
   final int price;
   final MarketType type;
   final List<XFile>? images;
+  final List<String>? deleteImageUrls;
 
   MarketWriteEntity({
     required this.title,
@@ -14,5 +15,6 @@ class MarketWriteEntity {
     required this.price,
     required this.type,
     this.images,
+    required this.deleteImageUrls,
   });
 }

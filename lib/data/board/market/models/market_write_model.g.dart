@@ -12,6 +12,9 @@ MarketWriteModel _$MarketWriteModelFromJson(Map<String, dynamic> json) =>
       content: json['content'] as String,
       price: (json['price'] as num).toInt(),
       type: json['type'] as String,
+      deleteImageUrls: (json['deleteImageUrls'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$MarketWriteModelToJson(MarketWriteModel instance) =>
@@ -20,4 +23,5 @@ Map<String, dynamic> _$MarketWriteModelToJson(MarketWriteModel instance) =>
       'content': instance.content,
       'price': instance.price,
       'type': instance.type,
+      'deleteImageUrls': instance.deleteImageUrls,
     };
