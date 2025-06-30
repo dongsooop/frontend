@@ -8,6 +8,7 @@ import 'package:dongsoop/presentation/board/market/detail/view_model/market_deta
 import 'package:dongsoop/presentation/board/market/detail/widget/botton_button.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
     final state = ref.watch(
       marketDetailViewModelProvider(MarketDetailArgs(id: id)),
     );
+    final user = ref.watch(userSessionProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -92,7 +94,8 @@ class MarketDetailPageScreen extends ConsumerWidget {
               label: label,
               price: market.price,
               onPressed: isEnabled
-                  ? () {
+                  ? () async {
+                      // ← 여기 async 추가
                       if (viewType == 'OWNER') {
                         _showCompleteDialog(context, ref);
                       } else if (viewType == 'GUEST') {
@@ -100,9 +103,38 @@ class MarketDetailPageScreen extends ConsumerWidget {
                           context: context,
                           builder: (_) => const LoginRequiredDialog(),
                         );
-                      } else {
-                        // MEMBER일 경우 거래 진행
-                        // TODO: 거래 상태에 따라 변경
+                      } else if (viewType == 'MEMBER') {
+                        final userId = user?.id;
+
+                        if (userId == null) {
+                          showDialog(
+                            context: context,
+                            builder: (_) => const LoginRequiredDialog(),
+                          );
+                          return;
+                        }
+
+                        try {
+                          final viewModel = ref.read(
+                            marketDetailViewModelProvider(
+                                    MarketDetailArgs(id: id))
+                                .notifier,
+                          );
+                          await viewModel.contactMarket(id);
+
+                          // TODO: 채팅방 이동 로직
+                        } catch (e) {
+                          showDialog(
+                            context: context,
+                            builder: (_) => CustomConfirmDialog(
+                              title: '요청 실패',
+                              content: e.toString(),
+                              confirmText: '확인',
+                              isSingleAction: true,
+                              onConfirm: () => context.pop(),
+                            ),
+                          );
+                        }
                       }
                     }
                   : null,
@@ -125,13 +157,16 @@ class MarketDetailPageScreen extends ConsumerWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: ColorStyles.primary5,
+                      color:
+                          isComplete ? ColorStyles.gray1 : ColorStyles.primary5,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       isComplete ? '거래 완료' : '거래 중',
                       style: TextStyles.smallTextBold.copyWith(
-                        color: ColorStyles.primaryColor,
+                        color: isComplete
+                            ? ColorStyles.gray3
+                            : ColorStyles.primaryColor,
                       ),
                     ),
                   ),
@@ -245,9 +280,9 @@ class MarketDetailPageScreen extends ConsumerWidget {
         content: '거래가 완료된 글은 다시 거래할 수 없어요.\n거래를 완료할까요?',
         confirmText: '확인',
         cancelText: '취소',
-        dismissOnConfirm: false, // ✨ 여기 핵심
+        dismissOnConfirm: false,
         onConfirm: () async {
-          Navigator.pop(context); // 다이얼로그만 닫기
+          context.pop();
 
           final viewModel = ref.read(
             marketDetailViewModelProvider(MarketDetailArgs(id: id)).notifier,

@@ -81,6 +81,15 @@ class MarketRepositoryImpl implements MarketRepository {
     }, MarketCloseException());
   }
 
+  @override
+  Future<void> contactMarket({
+    required int marketId,
+  }) async {
+    return _handle(() async {
+      await _dataSource.completeMarket(marketId: marketId);
+    }, MarketContactException());
+  }
+
   Future<T> _handle<T>(
       Future<T> Function() action, Exception defaultException) async {
     try {

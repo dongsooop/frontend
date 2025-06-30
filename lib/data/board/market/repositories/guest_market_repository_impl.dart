@@ -71,6 +71,13 @@ class GuestMarketRepositoryImpl implements MarketRepository {
     throw LoginRequiredException();
   }
 
+  @override
+  Future<void> contactMarket({
+    required int marketId,
+  }) {
+    throw LoginRequiredException();
+  }
+
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();

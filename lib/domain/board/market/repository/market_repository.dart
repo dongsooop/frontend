@@ -34,4 +34,8 @@ abstract class MarketRepository {
   Future<void> completeMarket({
     required int marketId,
   });
+
+  Future<void> contactMarket({
+    required int marketId,
+  });
 }

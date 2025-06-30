@@ -213,4 +213,18 @@ class MarketDataSourceImpl implements MarketDataSource {
       throw Exception('status: ${response.statusCode}');
     }
   }
+
+  @override
+  Future<void> contactMarket({required int marketId}) async {
+    final url = dotenv.get('MARKET_CONTACT_ENDPOINT');
+
+    final response = await _authDio.post(
+      url,
+      data: {'boardId': marketId},
+    );
+
+    if (response.statusCode != HttpStatusCode.created.code) {
+      throw Exception('status: ${response.statusCode}');
+    }
+  }
 }

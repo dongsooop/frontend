@@ -196,6 +196,17 @@ class MarketCloseException implements Exception {
   String toString() => message;
 }
 
+class MarketContactException implements Exception {
+  final String message;
+
+  MarketContactException([
+    this.message = "거래 연결 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
 class ProfanityDetectedException implements Exception {
   final Map<String, dynamic> responseData;
 
