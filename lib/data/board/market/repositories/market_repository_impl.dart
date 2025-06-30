@@ -36,6 +36,15 @@ class MarketRepositoryImpl implements MarketRepository {
   }
 
   @override
+  Future<void> requestMarketAI({
+    required MarketAIFilterEntity entity,
+  }) async {
+    return _handle(() async {
+      await _dataSource.requestMarketAI(entity: entity);
+    }, MarketWriteException());
+  }
+
+  @override
   Future<void> submitMarket({
     required MarketWriteEntity entity,
   }) async {
@@ -64,12 +73,12 @@ class MarketRepositoryImpl implements MarketRepository {
   }
 
   @override
-  Future<void> requestMarketAI({
-    required MarketAIFilterEntity entity,
+  Future<void> completeMarket({
+    required int marketId,
   }) async {
     return _handle(() async {
-      await _dataSource.requestMarketAI(entity: entity);
-    }, MarketWriteException());
+      await _dataSource.completeMarket(marketId: marketId);
+    }, MarketCloseException());
   }
 
   Future<T> _handle<T>(

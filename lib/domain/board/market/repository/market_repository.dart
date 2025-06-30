@@ -14,12 +14,12 @@ abstract class MarketRepository {
     required int id,
   });
 
-  Future<void> submitMarket({
-    required MarketWriteEntity entity,
-  });
-
   Future<void> requestMarketAI({
     required MarketAIFilterEntity entity,
+  });
+
+  Future<void> submitMarket({
+    required MarketWriteEntity entity,
   });
 
   Future<void> updateMarket({
@@ -28,6 +28,10 @@ abstract class MarketRepository {
   });
 
   Future<void> deleteMarket({
+    required int marketId,
+  });
+
+  Future<void> completeMarket({
     required int marketId,
   });
 }

@@ -106,6 +106,21 @@ class BoardPageScreen extends HookConsumerWidget {
       }
     }
 
+    void onTapMarketDetail(int id, MarketType type) async {
+      final didComplete = await context.push<bool>(
+        RoutePaths.marketDetail,
+        extra: {'id': id, 'type': type},
+      );
+
+      if (didComplete == true) {
+        ref
+            .read(
+              marketListViewModelProvider(type: type).notifier,
+            )
+            .refresh();
+      }
+    }
+
     return Stack(
       children: [
         SafeArea(

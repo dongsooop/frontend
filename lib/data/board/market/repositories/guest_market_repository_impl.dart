@@ -36,6 +36,13 @@ class GuestMarketRepositoryImpl implements MarketRepository {
   }
 
   @override
+  Future<void> requestMarketAI({
+    required MarketAIFilterEntity entity,
+  }) {
+    throw LoginRequiredException();
+  }
+
+  @override
   Future<void> submitMarket({
     required MarketWriteEntity entity,
   }) {
@@ -58,8 +65,8 @@ class GuestMarketRepositoryImpl implements MarketRepository {
   }
 
   @override
-  Future<void> requestMarketAI({
-    required MarketAIFilterEntity entity,
+  Future<void> completeMarket({
+    required int marketId,
   }) {
     throw LoginRequiredException();
   }

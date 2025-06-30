@@ -185,6 +185,17 @@ class MarketDeleteException implements Exception {
   String toString() => message;
 }
 
+class MarketCloseException implements Exception {
+  final String message;
+
+  MarketCloseException([
+    this.message = "거래 완료 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
 class ProfanityDetectedException implements Exception {
   final Map<String, dynamic> responseData;
 

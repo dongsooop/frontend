@@ -55,15 +55,16 @@ class GuestMarketDataSourceImpl implements MarketDataSource {
     throw Exception('status: ${response.statusCode}');
   }
 
-  @override
-  Future<void> submitMarket({required entity}) {
-    throw LoginRequiredException();
-  }
-
+  // 이중 막음
   @override
   Future<void> requestMarketAI({
     required entity,
   }) {
+    throw LoginRequiredException();
+  }
+
+  @override
+  Future<void> submitMarket({required entity}) {
     throw LoginRequiredException();
   }
 
@@ -77,6 +78,13 @@ class GuestMarketDataSourceImpl implements MarketDataSource {
 
   @override
   Future<void> deleteMarket({
+    required int marketId,
+  }) {
+    throw LoginRequiredException();
+  }
+
+  @override
+  Future<void> completeMarket({
     required int marketId,
   }) {
     throw LoginRequiredException();

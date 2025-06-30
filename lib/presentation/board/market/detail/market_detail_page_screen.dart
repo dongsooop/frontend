@@ -6,6 +6,7 @@ import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/detail/widget/botton_button.dart';
+import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -32,52 +33,49 @@ class MarketDetailPageScreen extends ConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: DetailHeader(
-            title: type.label,
-            trailing: IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () {
-                final detailState = ref.read(
-                  marketDetailViewModelProvider(MarketDetailArgs(id: id)),
-                );
+        appBar: DetailHeader(
+          title: type.label,
+          trailing: IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {
+              final detailState = ref.read(
+                marketDetailViewModelProvider(MarketDetailArgs(id: id)),
+              );
 
-                detailState.whenData((data) {
-                  final viewType = data.marketDetail?.viewType;
-                  if (viewType == 'OWNER') {
-                    customActionSheet(context, onEdit: () {
-                      context.push(RoutePaths.marketWrite, extra: {
-                        'isEditing': true,
-                        'marketId': id,
-                      });
-                    }, onDelete: () {
-                      _showDeleteDialog(context, ref);
+              detailState.whenData((data) {
+                final viewType = data.marketDetail?.viewType;
+                if (viewType == 'OWNER') {
+                  customActionSheet(context, onEdit: () {
+                    context.push(RoutePaths.marketWrite, extra: {
+                      'isEditing': true,
+                      'marketId': id,
                     });
-                  } else {
-                    customActionSheet(
-                      context,
-                      onDelete: () {
-                        _reportMarket(context);
-                      },
-                      deleteText: '신고',
-                    );
-                  }
-                });
-              },
-            ),
+                  }, onDelete: () {
+                    _showDeleteDialog(context, ref);
+                  });
+                } else {
+                  customActionSheet(
+                    context,
+                    onDelete: () {
+                      _reportMarket(context);
+                    },
+                    deleteText: '신고',
+                  );
+                }
+              });
+            },
           ),
         ),
         bottomNavigationBar: state.when(
           data: (data) {
             final viewType = data.marketDetail?.viewType;
             final market = data.marketDetail!;
-            final isClosed = false; // TODO: 상태 값 추가되면 변경
+            final isComplete = data.isComplete;
 
             // 버튼 라벨 정의
             String label;
             if (viewType == 'OWNER') {
-              label = isClosed ? '거래 완료' : '거래 완료';
+              label = isComplete ? '거래 완료' : '거래 완료';
             } else {
               label = '거래하기';
             }
@@ -85,7 +83,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
             // 버튼 활성 여부 정의
             bool isEnabled;
             if (viewType == 'OWNER') {
-              isEnabled = !isClosed;
+              isEnabled = !isComplete;
             } else {
               isEnabled = true;
             }
@@ -96,8 +94,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
               onPressed: isEnabled
                   ? () {
                       if (viewType == 'OWNER') {
-                        // 거래 완료 처리
-                        // viewModel.setClosed();
+                        _showCompleteDialog(context, ref);
                       } else if (viewType == 'GUEST') {
                         showDialog(
                           context: context,
@@ -117,6 +114,8 @@ class MarketDetailPageScreen extends ConsumerWidget {
         body: state.when(
           data: (data) {
             final market = data.marketDetail!;
+            final isComplete = data.isComplete;
+
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -130,7 +129,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '거래 중', // TODO: 거래 상태에 따라 변경
+                      isComplete ? '거래 완료' : '거래 중',
                       style: TextStyles.smallTextBold.copyWith(
                         color: ColorStyles.primaryColor,
                       ),
@@ -196,7 +195,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(child: Text('에러: $error')),
+          error: (err, stack) => Center(child: Text('$err')),
         ),
       ),
     );
@@ -211,7 +210,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
         confirmText: '삭제',
         cancelText: '취소',
         onConfirm: () async {
-          context.pop();
+          context.pop(); // 닫기
 
           final viewModel = ref.read(
             marketDetailViewModelProvider(MarketDetailArgs(id: id)).notifier,
@@ -219,7 +218,8 @@ class MarketDetailPageScreen extends ConsumerWidget {
 
           try {
             await viewModel.deleteMarket(id);
-            context.go(RoutePaths.home);
+            ref.invalidate(MarketListViewModelProvider(type: type));
+            context.pop(true);
           } catch (e) {
             showDialog(
               context: context,
@@ -237,6 +237,44 @@ class MarketDetailPageScreen extends ConsumerWidget {
     );
   }
 
+  void _showCompleteDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (_) => CustomConfirmDialog(
+        title: '거래 완료',
+        content: '거래가 완료된 글은 다시 거래할 수 없어요.\n거래를 완료할까요?',
+        confirmText: '확인',
+        cancelText: '취소',
+        dismissOnConfirm: false, // ✨ 여기 핵심
+        onConfirm: () async {
+          Navigator.pop(context); // 다이얼로그만 닫기
+
+          final viewModel = ref.read(
+            marketDetailViewModelProvider(MarketDetailArgs(id: id)).notifier,
+          );
+
+          try {
+            await viewModel.completeMarket(id);
+            ref.invalidate(MarketListViewModelProvider(type: type));
+          } catch (e) {
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '오류 발생',
+                content: '$e',
+                confirmText: '확인',
+                isSingleAction: true,
+                onConfirm: () => Navigator.pop(context),
+                dismissOnConfirm: true,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  // TODO: 추후 신고 로직에서 사용할 Dialog
   void _reportMarket(BuildContext context) {
     showDialog(
       context: context,

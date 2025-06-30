@@ -64,6 +64,33 @@ class MarketDataSourceImpl implements MarketDataSource {
   }
 
   @override
+  Future<void> requestMarketAI({
+    required MarketAIFilterEntity entity,
+  }) async {
+    final model = MarketAIFilterModel.fromEntity(entity);
+    final url = dotenv.get("MARKET_FILTER_ENDPOINT");
+
+    try {
+      final response = await _aiDio.post(url, data: model.toJson());
+
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        return;
+      }
+
+      throw Exception('Unexpected status: ${response.statusCode}');
+    } on DioException catch (e) {
+      final status = e.response?.statusCode;
+      final data = e.response?.data;
+
+      if (status == HttpStatusCode.badRequest.code &&
+          data is Map<String, dynamic>) {
+        throw ProfanityDetectedException(data);
+      }
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> submitMarket({
     required MarketWriteEntity entity,
   }) async {
@@ -122,33 +149,6 @@ class MarketDataSourceImpl implements MarketDataSource {
   }
 
   @override
-  Future<void> requestMarketAI({
-    required MarketAIFilterEntity entity,
-  }) async {
-    final model = MarketAIFilterModel.fromEntity(entity);
-    final url = dotenv.get("MARKET_FILTER_ENDPOINT");
-
-    try {
-      final response = await _aiDio.post(url, data: model.toJson());
-
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        return;
-      }
-
-      throw Exception('Unexpected status: ${response.statusCode}');
-    } on DioException catch (e) {
-      final status = e.response?.statusCode;
-      final data = e.response?.data;
-
-      if (status == HttpStatusCode.badRequest.code &&
-          data is Map<String, dynamic>) {
-        throw ProfanityDetectedException(data);
-      }
-      rethrow;
-    }
-  }
-
-  @override
   Future<void> updateMarket({
     required int marketId,
     required MarketWriteEntity entity,
@@ -196,6 +196,18 @@ class MarketDataSourceImpl implements MarketDataSource {
   }) async {
     final url = '${dotenv.get('MARKET_ENDPOINT')}/$marketId';
     final response = await _authDio.delete(url);
+
+    if (response.statusCode != HttpStatusCode.noContent.code) {
+      throw Exception('status: ${response.statusCode}');
+    }
+  }
+
+  @override
+  Future<void> completeMarket({
+    required int marketId,
+  }) async {
+    final url = '${dotenv.get('MARKET_ENDPOINT')}/$marketId';
+    final response = await _authDio.post(url);
 
     if (response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception('status: ${response.statusCode}');
