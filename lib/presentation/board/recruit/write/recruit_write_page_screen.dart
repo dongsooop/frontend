@@ -84,8 +84,20 @@ class RecruitWritePageScreen extends HookConsumerWidget {
         departmentTypeList: deptList,
       );
 
-      await viewModel.submit(type: type, entity: entity);
-      context.pop(true);
+      try {
+        await viewModel.submit(type: type, entity: entity);
+        context.pop(true);
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (_) => CustomConfirmDialog(
+            title: '오류 발생',
+            content: '$e',
+            confirmText: '확인',
+            onConfirm: () => context.pop(),
+          ),
+        );
+      }
     }
 
     Widget buildDateTimeBox(String label, DateTime dateTime, bool isStart) {
