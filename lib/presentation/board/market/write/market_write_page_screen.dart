@@ -4,7 +4,6 @@ import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
-import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
@@ -120,7 +119,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
             try {
               await viewModel.submitMarket(context);
               await viewModel.clearTemporaryImages();
-              context.go(RoutePaths.home);
+              context.pop(true);
             } catch (e) {
               await showDialog(
                 context: context,

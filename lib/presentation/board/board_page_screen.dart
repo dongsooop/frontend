@@ -127,17 +127,45 @@ class BoardPageScreen extends HookConsumerWidget {
           child: Scaffold(
             backgroundColor: ColorStyles.white,
             floatingActionButton: WriteButton(
-              onPressed: () {
+              onPressed: () async {
                 if (user == null) {
                   showDialog(
                     context: context,
                     builder: (_) => LoginRequiredDialog(),
                   );
-                } else {
-                  final route = isRecruit
-                      ? RoutePaths.recruitWrite
-                      : RoutePaths.marketWrite;
-                  context.push(route);
+                  return;
+                }
+
+                final result = isRecruit
+                    ? await context.push<bool>(RoutePaths.recruitWrite)
+                    : await context.push<bool>(
+                        RoutePaths.marketWrite,
+                        extra: {
+                          'isEditing': false,
+                          'marketId': null,
+                        },
+                      );
+
+                if (result == true) {
+                  if (isRecruit) {
+                    if (recruitType == null) return;
+                    ref
+                        .read(
+                          recruitListViewModelProvider(
+                            type: recruitType,
+                            departmentCode: departmentCode,
+                          ).notifier,
+                        )
+                        .refresh();
+                  } else {
+                    if (marketType == null) return;
+                    ref
+                        .read(
+                          marketListViewModelProvider(type: marketType)
+                              .notifier,
+                        )
+                        .refresh();
+                  }
                 }
               },
             ),
