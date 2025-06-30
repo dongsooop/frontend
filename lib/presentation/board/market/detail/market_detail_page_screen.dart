@@ -95,7 +95,6 @@ class MarketDetailPageScreen extends ConsumerWidget {
               price: market.price,
               onPressed: isEnabled
                   ? () async {
-                      // ← 여기 async 추가
                       if (viewType == 'OWNER') {
                         _showCompleteDialog(context, ref);
                       } else if (viewType == 'GUEST') {
@@ -128,7 +127,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
                             context: context,
                             builder: (_) => CustomConfirmDialog(
                               title: '요청 실패',
-                              content: e.toString(),
+                              content: '$e',
                               confirmText: '확인',
                               isSingleAction: true,
                               onConfirm: () => context.pop(),
@@ -299,7 +298,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
                 content: '$e',
                 confirmText: '확인',
                 isSingleAction: true,
-                onConfirm: () => Navigator.pop(context),
+                onConfirm: () => context.pop(),
                 dismissOnConfirm: true,
               ),
             );

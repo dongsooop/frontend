@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/board/market/entities/market_list_entity.dart';
 import 'package:dongsoop/domain/board/market/entities/market_write_entity.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/market/repository/market_repository.dart';
+import 'package:dongsoop/main.dart';
 
 class MarketRepositoryImpl implements MarketRepository {
   final MarketDataSource _dataSource;
@@ -86,17 +87,22 @@ class MarketRepositoryImpl implements MarketRepository {
     required int marketId,
   }) async {
     return _handle(() async {
-      await _dataSource.completeMarket(marketId: marketId);
+      await _dataSource.contactMarket(marketId: marketId);
     }, MarketContactException());
   }
 
   Future<T> _handle<T>(
-      Future<T> Function() action, Exception defaultException) async {
+    Future<T> Function() action,
+    Exception defaultException,
+  ) async {
     try {
       return await action();
     } on ProfanityDetectedException {
       rethrow;
-    } catch (_) {
+    } on MarketAlreadyContactException {
+      rethrow;
+    } catch (e, st) {
+      logger.e('[MARKET] 예외 발생', error: e, stackTrace: st);
       throw defaultException;
     }
   }

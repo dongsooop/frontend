@@ -207,6 +207,17 @@ class MarketContactException implements Exception {
   String toString() => message;
 }
 
+class MarketAlreadyContactException implements Exception {
+  final String message;
+
+  MarketAlreadyContactException([
+    this.message = "이미 연락한 게시글이예요.",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
 class ProfanityDetectedException implements Exception {
   final Map<String, dynamic> responseData;
 
