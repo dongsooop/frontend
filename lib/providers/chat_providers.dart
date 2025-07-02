@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/get_user_nicknames_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/kick_user_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
@@ -113,17 +114,18 @@ final leaveChatRoomUseCaseProvider = Provider<LeaveChatRoomUseCase>((ref) {
   return LeaveChatRoomUseCase(repository);
 });
 
+final kickUserUseCaseProvider = Provider<KickUserUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return KickUserUseCase(repository);
+});
+
 // View Model
 final chatViewModelProvider =
-StateNotifierProvider<ChatViewModel, ChatState>((ref) {
-  logger.i("provider created");
-  ref.onDispose(() {
-    logger.i("provider disposed");
-  });
+StateNotifierProvider.autoDispose<ChatViewModel, ChatState>((ref) {
   final loadChatRoomsUseCase = ref.watch(loadChatRoomsUseCaseProvider);
   final deleteChatDataUseCase = ref.watch(deleteChatDataUseCaseProvider);
 
-  return ChatViewModel(loadChatRoomsUseCase, deleteChatDataUseCase);
+  return ChatViewModel(loadChatRoomsUseCase);
 });
 
 final chatDetailViewModelProvider =
@@ -138,6 +140,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final getOfflineMessagesUseCase = ref.watch(getOfflineMessagesUseCaseProvider);
   final updateReadStatusUseCase = ref.watch(updateReadStatusUseCaseProvider);
   final leaveChatRoomUseCase = ref.watch(leaveChatRoomUseCaseProvider);
+  final kickUserUseCase = ref.watch(kickUserUseCaseProvider);
 
   return ChatDetailViewModel(
     connectUseCase,
@@ -150,6 +153,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
     getOfflineMessagesUseCase,
     updateReadStatusUseCase,
     leaveChatRoomUseCase,
+    kickUserUseCase,
     ref,
   );
 });

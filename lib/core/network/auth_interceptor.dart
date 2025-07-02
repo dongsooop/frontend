@@ -52,6 +52,7 @@ class AuthInterceptor extends Interceptor {
         final url = '$baseUrl$endpoint';
 
         final refreshResponse = await refreshDio.post(url, data: refreshToken);
+        logger.i("refresh: ${refreshResponse.data['accessToken']} / ${refreshResponse.data['refreshToken']}");
         final newAccessToken = refreshResponse.data['accessToken'].toString();
         final newRefreshToken = refreshResponse.data['refreshToken'].toString();
         await _secureStorageService.write('accessToken', newAccessToken);

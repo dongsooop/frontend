@@ -1,4 +1,4 @@
-import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
+import 'package:dongsoop/presentation/board/market/price_formatter.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +7,14 @@ class BottomButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final String label;
   final bool isEnabled;
+  final int price;
 
   BottomButton({
     super.key,
     required this.label,
     this.onPressed,
     this.isEnabled = true,
+    required this.price,
   });
 
   @override
@@ -20,7 +22,6 @@ class BottomButton extends StatefulWidget {
 }
 
 class _BottomButtonState extends State<BottomButton> {
-  final market = marketList[0];
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -37,7 +38,8 @@ class _BottomButtonState extends State<BottomButton> {
                 Text('거래 희망 가격',
                     style: TextStyles.smallTextRegular
                         .copyWith(color: ColorStyles.gray4)),
-                Text(market['market_prices'] + '원',
+                const SizedBox(height: 4),
+                Text('${PriceFormatter.format(widget.price)}원',
                     style: TextStyles.largeTextBold
                         .copyWith(color: ColorStyles.black))
               ],

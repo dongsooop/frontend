@@ -11,8 +11,12 @@ class CommonImgStyle extends StatelessWidget {
     super.key,
     this.imagePath,
     this.size = 88,
-    this.showPlaceholderIfEmpty = true, // 기본은 true (리스트에서 사용)
+    this.showPlaceholderIfEmpty = true,
   });
+
+  bool _isNetworkUrl(String path) {
+    return path.startsWith('http://') || path.startsWith('https://');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,29 +32,43 @@ class CommonImgStyle extends StatelessWidget {
       margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: hasImage ? null : ColorStyles.gray1,
+        color: ColorStyles.gray1, // 항상 배경 적용
       ),
-      child: hasImage
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                imagePath!,
-                width: size,
-                height: size,
-                fit: BoxFit.cover,
-              ),
-            )
-          : Center(
-              child: SvgPicture.asset(
-                'assets/icons/image_not_supported.svg',
-                width: 32,
-                height: 32,
-                colorFilter: const ColorFilter.mode(
-                  ColorStyles.gray3,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: hasImage
+            ? _isNetworkUrl(imagePath!)
+                ? Image.network(
+                    imagePath!,
+                    width: size,
+                    height: size,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return _buildFallbackIcon();
+                    },
+                  )
+                : Image.asset(
+                    imagePath!,
+                    width: size,
+                    height: size,
+                    fit: BoxFit.cover,
+                  )
+            : _buildFallbackIcon(),
+      ),
+    );
+  }
+
+  Widget _buildFallbackIcon() {
+    return Center(
+      child: SvgPicture.asset(
+        'assets/icons/image_not_supported.svg',
+        width: 32,
+        height: 32,
+        colorFilter: const ColorFilter.mode(
+          ColorStyles.gray3,
+          BlendMode.srcIn,
+        ),
+      ),
     );
   }
 }

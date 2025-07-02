@@ -1,41 +1,62 @@
 import 'package:dongsoop/core/presentation/components/common_img_style.dart';
-import 'package:dongsoop/presentation/board/market/temp/temp_market_data.dart';
+import 'package:dongsoop/domain/board/market/entities/market_list_entity.dart';
+import 'package:dongsoop/domain/board/market/enum/market_type.dart';
+import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
+import 'package:dongsoop/presentation/board/market/price_formatter.dart';
+import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MarketItemListSection extends StatelessWidget {
+class MarketItemListSection extends ConsumerWidget {
+  final MarketType marketType;
+  final void Function(int id, MarketType type) onTapMarketDetail;
   final ScrollController scrollController;
-  final void Function(Map<String, dynamic> item)? onTapItem;
 
   const MarketItemListSection({
     super.key,
+    required this.marketType,
+    required this.onTapMarketDetail,
     required this.scrollController,
-    this.onTapItem,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: marketList.length,
-      itemBuilder: (context, index) {
-        final market = marketList[index];
-        final isLast = index == marketList.length - 1;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(marketListViewModelProvider(type: marketType));
+    final viewModel =
+        ref.read(marketListViewModelProvider(type: marketType).notifier);
 
-        return _MarketListItem(
-          market: market,
-          isLastItem: isLast,
-          onTap: () => onTapItem?.call(market),
-        );
-      },
+    // 추후 수정
+    if (state.items.isEmpty) {
+      final emptyText =
+          marketType == MarketType.SELL ? '판매 중인 게시글이 없어요!' : '구매 중인 게시글이 없어요!';
+      return Center(child: Text(emptyText));
+    }
+
+    return RefreshIndicator(
+      onRefresh: viewModel.refresh,
+      child: ListView.builder(
+        controller: scrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: state.items.length,
+        itemBuilder: (context, index) {
+          final market = state.items[index];
+          final isLast = index == state.items.length - 1;
+
+          return _MarketListItem(
+            market: market,
+            isLastItem: isLast,
+            onTap: () => onTapMarketDetail(market.id, marketType),
+          );
+        },
+      ),
     );
   }
 }
 
 class _MarketListItem extends StatelessWidget {
-  final Map<String, dynamic> market;
+  final MarketListEntity market;
   final VoidCallback onTap;
   final bool isLastItem;
 
@@ -45,62 +66,75 @@ class _MarketListItem extends StatelessWidget {
     required this.isLastItem,
   });
 
-  String formatRelativeTime(dynamic rawDate) {
-    final dateTime = rawDate is DateTime
-        ? rawDate
-        : DateTime.tryParse(rawDate.toString()) ?? DateTime.now();
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inMinutes < 1) return '방금 전';
-    if (difference.inMinutes < 60) return '${difference.inMinutes}분 전';
-    if (difference.inHours < 24) return '${difference.inHours}시간 전';
-    if (difference.inDays < 7) return '${difference.inDays}일 전';
-
-    return '${dateTime.year}. ${dateTime.month}. ${dateTime.day}. ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final imageList = market['images'];
-    final hasImage =
-        imageList != null && imageList is List && imageList.isNotEmpty;
-    final firstImage = hasImage ? imageList.first : null;
+    final imagePath = market.imageUrl;
 
     return GestureDetector(
       onTap: onTap,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32),
+            padding: const EdgeInsets.symmetric(vertical: 24),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CommonImgStyle(imagePath: hasImage ? firstImage : null),
-                const SizedBox(width: 12),
+                CommonImgStyle(imagePath: imagePath),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(market['market_title'] ?? '',
-                          style: TextStyles.largeTextRegular
-                              .copyWith(color: ColorStyles.black)),
                       Text(
-                        formatRelativeTime(market['market_created_at']),
-                        style: TextStyles.smallTextRegular
-                            .copyWith(color: ColorStyles.gray4),
+                        market.title,
+                        style: TextStyles.largeTextRegular.copyWith(
+                          color: ColorStyles.black,
+                        ),
                       ),
-                      Text('${market['market_prices'] ?? 0}원',
-                          style: TextStyles.largeTextBold
-                              .copyWith(color: ColorStyles.black)),
+                      const SizedBox(height: 4),
+                      Text(
+                        formatRelativeTime(market.createdAt),
+                        style: TextStyles.smallTextRegular.copyWith(
+                          color: ColorStyles.gray4,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${PriceFormatter.format(market.price)}원',
+                        style: TextStyles.largeTextBold.copyWith(
+                          color: ColorStyles.black,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      if (market.contactCount > 0)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Icon(
+                              Icons.chat_bubble_outline,
+                              size: 20,
+                              color: ColorStyles.gray4,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${market.contactCount}',
+                              style: TextStyles.smallTextRegular.copyWith(
+                                color: ColorStyles.gray4,
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          if (!isLastItem) const Divider(color: ColorStyles.gray2, height: 1),
+          if (!isLastItem)
+            const Divider(
+              color: ColorStyles.gray2,
+              height: 1,
+            ),
         ],
       ),
     );

@@ -86,6 +86,11 @@ class HiveService {
     await chatMessageBoxManager.deleteAll();
     await chatMemberBoxManager.deleteAll();
   }
+
+  // 특정 채팅방 내역 삭제
+  Future<void> deleteChatMessagesByRoomId(String roomId) async {
+    await chatMessageBoxManager.deleteChatBox(roomId);
+  }
 }
 
 final hiveServiceProvider = Provider<HiveService>((ref) {
@@ -139,5 +144,12 @@ class BoxManager<T> {
       logger.i('$name is deleted');
       _boxes.remove(name); // 삭제한 박스는 Map에서 제거
     }
+  }
+
+  // 특정 박스 삭제
+  Future<void> deleteChatBox(String roomId) async {
+    final boxName = '${boxPrefix}_$roomId';
+    await _boxes[boxName]?.close();
+    await Hive.deleteBoxFromDisk(boxName);
   }
 }
