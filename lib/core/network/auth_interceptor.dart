@@ -57,7 +57,7 @@ class AuthInterceptor extends Interceptor {
         final newRefreshToken = refreshResponse.data['refreshToken'].toString();
         await _secureStorageService.write('accessToken', newAccessToken);
         await _secureStorageService.write('refreshToken', newRefreshToken);
-
+        logger.i('reissue token: $newRefreshToken / $newRefreshToken');
         final originalRequest = err.requestOptions;
         originalRequest.headers['Authorization'] = 'Bearer $newAccessToken';
         final retryResponse = await Dio(

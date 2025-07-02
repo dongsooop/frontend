@@ -15,9 +15,25 @@ class SettingScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.read(settingViewModelProvider.notifier);
-    final signUpState = ref.watch(settingViewModelProvider);
+    final settingState = ref.watch(settingViewModelProvider);
 
     const notionUrl = 'https://zircon-football-529.notion.site/DongSoop-1af3ee6f25618080bb7dc4f985eda9c7?pvs=74';
+
+    if (settingState.errorMessage != null) {
+      // error dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => CustomConfirmDialog(
+          title: '',
+          content: settingState.errorMessage!,
+          onConfirm: () async {
+            // 로그아웃
+            Navigator.of(context).pop(); // 다이얼로그 닫기
+          },
+        ),
+      );
+    }
 
     return SafeArea(
       child: Scaffold(
@@ -80,6 +96,24 @@ class SettingScreen extends HookConsumerWidget {
                     label: '알림 설정',
                     onTap: () {
                       // 알림 설정
+                    },
+                  ),
+                  buildSettingsItem(
+                    label: '채팅 캐시 삭제',
+                    onTap: () async {
+                      // 채팅 캐시 삭제 다이얼로그
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (_) => CustomConfirmDialog(
+                          title: '채팅 캐시 삭제',
+                          content: '채팅 내역을 삭제하시겠어요?',
+                          onConfirm: () async {
+                            await viewModel.localDataDelete();
+                            Navigator.of(context).pop(); // 다이얼로그 닫기
+                          },
+                        ),
+                      );
                     },
                   ),
                   buildSettingsItem(

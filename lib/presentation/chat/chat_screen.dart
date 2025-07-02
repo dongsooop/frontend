@@ -55,7 +55,7 @@ class ChatScreen extends HookConsumerWidget {
         });
       }
       return null;
-    }, []);
+    }, [selectedCategory.value]);
 
     // 로딩 상태 표시
     if (chatState.isLoading) {
