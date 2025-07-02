@@ -1,11 +1,11 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
-import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
+import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
 import 'package:dongsoop/presentation/board/recruit/write/view_models/date_time_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/write/view_models/recruit_write_view_model.dart';
@@ -84,9 +84,20 @@ class RecruitWritePageScreen extends HookConsumerWidget {
         departmentTypeList: deptList,
       );
 
-      await viewModel.submit(type: type, entity: entity);
-      context.pop();
-      context.go(RoutePaths.board);
+      try {
+        await viewModel.submit(type: type, entity: entity);
+        context.pop(true);
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (_) => CustomConfirmDialog(
+            title: '오류 발생',
+            content: '$e',
+            confirmText: '확인',
+            onConfirm: () => context.pop(),
+          ),
+        );
+      }
     }
 
     Widget buildDateTimeBox(String label, DateTime dateTime, bool isStart) {
@@ -207,51 +218,30 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                 buildDateTimeBox('모집 마감일',
                     ref.watch(dateTimeViewModelProvider).endDateTime, false),
                 const SizedBox(height: 40),
+
+                // 제목
                 RequiredLabel('제목'),
                 const SizedBox(height: 16),
-                TextFormField(
+                BoardTextFormField(
                   controller: titleController,
                   maxLength: 20,
+                  hintText: '모집 글 제목을 입력해 주세요',
                   onChanged: (value) =>
                       updateField((s) => s.copyWith(title: value)),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.all(16),
-                    hintText: '모집 글 제목을 입력해 주세요',
-                    hintStyle: TextStyles.normalTextRegular
-                        .copyWith(color: ColorStyles.gray3),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorStyles.gray2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorStyles.primary100),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
+
                 const SizedBox(height: 40),
+
+                // 내용
                 RequiredLabel('내용'),
                 const SizedBox(height: 16),
-                TextFormField(
+                BoardTextFormField(
                   controller: contentController,
                   maxLength: 500,
                   maxLines: 5,
+                  hintText: '모집 세부 내용을 입력해 주세요',
                   onChanged: (value) =>
                       updateField((s) => s.copyWith(content: value)),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.all(16),
-                    hintText: '모집 세부 내용을 입력해 주세요',
-                    hintStyle: TextStyles.normalTextRegular
-                        .copyWith(color: ColorStyles.gray3),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorStyles.gray2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorStyles.primary100),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 40),
                 MajorTagSection(
