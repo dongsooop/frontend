@@ -131,3 +131,98 @@ class ApplyMotivationException implements Exception {
   @override
   String toString() => message;
 }
+
+class MarketListException implements Exception {
+  final String message;
+  MarketListException([
+    this.message = "장터 게시글 목록을 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class MarketDetailException implements Exception {
+  final String message;
+  MarketDetailException([
+    this.message = "장터 게시글 상세 정보를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class MarketWriteException implements Exception {
+  final String message;
+
+  MarketWriteException([
+    this.message = "장터 게시글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class MarketUpdateException implements Exception {
+  final String message;
+
+  MarketUpdateException([
+    this.message = "장터 게시글 수정 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class MarketDeleteException implements Exception {
+  final String message;
+
+  MarketDeleteException([
+    this.message = "장터 게시글 삭제 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class MarketCloseException implements Exception {
+  final String message;
+
+  MarketCloseException([
+    this.message = "거래 완료 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class MarketContactException implements Exception {
+  final String message;
+
+  MarketContactException([
+    this.message = "거래 연결 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class MarketAlreadyContactException implements Exception {
+  final String message;
+
+  MarketAlreadyContactException([
+    this.message = "이미 연락한 게시글이예요.",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class ProfanityDetectedException implements Exception {
+  final Map<String, dynamic> responseData;
+
+  ProfanityDetectedException(this.responseData);
+
+  @override
+  String toString() => '수정 후 다시 작성 버튼을 눌러주세요. \n $responseData';
+}
