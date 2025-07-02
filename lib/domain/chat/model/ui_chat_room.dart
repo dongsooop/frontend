@@ -4,6 +4,7 @@ import 'chat_room.dart';
 class UiChatRoom {
   final String roomId;
   final String title;
+  final int? managerId;
   final String participantCount;
   final DateTime lastActivityAt;
   final String lastActivityText;
@@ -13,6 +14,7 @@ class UiChatRoom {
   UiChatRoom({
     required this.roomId,
     required this.title,
+    this.managerId,
     required this.participantCount,
     required this.lastActivityAt,
     required this.lastActivityText,
@@ -24,6 +26,7 @@ class UiChatRoom {
     return UiChatRoom(
       roomId: entity.roomId,
       title: entity.title ?? "채팅방 이름 없음",
+      managerId: entity.managerId,
       lastActivityAt: entity.lastActivityAt,
       lastActivityText: formatLastActivityTime(entity.lastActivityAt),
       participantCount: entity.participants.length.toString(),

@@ -9,16 +9,17 @@ import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
 import 'package:dongsoop/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import 'auth_data_source.dart';
 
 class AuthDataSourceImpl implements AuthDataSource {
   final Dio _plainDio;
+  final Dio _authDio;
   final SecureStorageService _secureStorageService;
   final PreferencesService _preferencesService;
 
   AuthDataSourceImpl(
     this._plainDio,
+    this._authDio,
     this._secureStorageService,
     this._preferencesService,
   );
@@ -93,10 +94,25 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<void> logout() async {
-    // 닉네임, 학과 삭제
-    _preferencesService.clearUser();
+    // 닉네임, 학과, id 삭제
+    await _preferencesService.clearUser();
     // token 삭제
-    _secureStorageService.delete();
+    await _secureStorageService.delete();
+  }
+
+  @override
+  Future<bool> deleteUser() async {
+    final endpoint = dotenv.get('DELETE_USER_ENDPOINT');
+    try {
+      await _authDio.delete(endpoint);
+      logger.i('delete user');
+      return true;
+    } on DioException catch (e) {
+      logger.e("delete user error statusCode: ${e.response?.statusCode}");
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override

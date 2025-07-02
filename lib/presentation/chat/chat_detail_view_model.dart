@@ -4,6 +4,7 @@ import 'package:dongsoop/domain/chat/use_case/connect_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/disconnect_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
+import 'package:dongsoop/domain/chat/use_case/kick_user_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/send_message_use_case.dart';
@@ -28,6 +29,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   final GetOfflineMessagesUseCase _getOfflineMessagesUseCase;
   final UpdateReadStatusUseCase _updateReadStatusUseCase;
   final LeaveChatRoomUseCase _leaveChatRoomUseCase;
+  final KickUserUseCase _kickUserUseCase;
   final Ref _ref;
 
   StreamSubscription<ChatMessage>? _subscription;
@@ -44,6 +46,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     this._getOfflineMessagesUseCase,
     this._updateReadStatusUseCase,
     this._leaveChatRoomUseCase,
+    this._kickUserUseCase,
     this._ref,
   ) : super(ChatDetailState(isLoading: false));
 
@@ -164,7 +167,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       logger.e('get local message error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅 내역을 불러오는 중 오류가 발생했습니다.',
+        errorMessage: '채팅 내역을 불러오는 중\n오류가 발생했습니다.',
       );
       return [];
     }
@@ -179,7 +182,21 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       logger.e('leave chat error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅방을 나가는 중 오류가 발생했습니다.',
+        errorMessage: '채팅방을 나가는 중\n오류가 발생했습니다.',
+      );
+    }
+  }
+
+  Future<void> kickUser(String roomId, int userId) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      await _kickUserUseCase.execute(roomId, userId);
+      state = state.copyWith(isLoading: false);
+    } catch (e, st) {
+      logger.e('leave chat error: ${e.runtimeType}', error: e, stackTrace: st);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '채팅방을 나가는 중\n오류가 발생했습니다.',
       );
     }
   }

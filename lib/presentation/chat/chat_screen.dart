@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
-import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
+import '../../core/presentation/components/custom_confirm_dialog.dart';
+import '../../core/presentation/components/login_required_dialog.dart';
 
 class ChatScreen extends HookConsumerWidget {
   final void Function(UiChatRoom room) onTapChatDetail;
@@ -27,38 +28,49 @@ class ChatScreen extends HookConsumerWidget {
     final selectedTap = useState('채팅');
     final selectedCategory = useState('전체');
 
+    // 오류
     useEffect(() {
-      Future.microtask(() async {
-        if (user != null) {
-          await viewModel.loadChatRooms();
-        }
-      });
-
+      if (chatState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '채팅 오류',
+              content: chatState.errorMessage!,
+              onConfirm: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          );
+        });
+      }
       return null;
-    }, [user, selectedCategory.value]);
+    }, [chatState.errorMessage]);
 
+    useEffect(() {
+      if (user != null) {
+        Future.microtask(() async {
+          await viewModel.loadChatRooms();
+        });
+      }
+      return null;
+    }, []);
+
+    // 로딩 상태 표시
     if (chatState.isLoading) {
       return Center(
         child: CircularProgressIndicator(color: ColorStyles.primaryColor,)
       );
     }
 
-    if (chatState.errorMessage != null) {
-      return Center(
-        child: Text(
-          chatState.errorMessage!,
-          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-        )
-      );
-    }
-
     final allRooms = chatState.chatRooms ?? [];
 
     final filteredRooms = selectedCategory.value == '1:1 채팅'
-        ? allRooms.where((room) => room.isGroupChat == false).toList()
-        : selectedCategory.value == '그룹 채팅'
-          ? allRooms.where((room) => room.isGroupChat == true).toList()
-          : allRooms;
+      ? allRooms.where((room) => room.isGroupChat == false).toList()
+      : selectedCategory.value == '그룹 채팅'
+        ? allRooms.where((room) => room.isGroupChat == true).toList()
+        : allRooms;
 
     return Stack(
       children: [
@@ -70,26 +82,10 @@ class ChatScreen extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               child: _buildChatBody(context, filteredRooms, selectedTap, selectedCategory),
             ),
-            // SizedBox(height: 16,),
-            // local data delete test
-            // ElevatedButton(
-            //   style: ElevatedButton.styleFrom(
-            //     minimumSize: const Size.fromHeight(44),
-            //     backgroundColor: ColorStyles.primaryColor,
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(8),
-            //     ),
-            //     elevation: 0,
-            //   ),
-            //   onPressed: () async {
-            //     await viewModel.localDataDelete();
-            //   },
-            //   child: Text('로컬 데이터 삭제', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
-            // ),
           ),
         ),
         if (user == null)
-          const LoginRequiredDialog(),
+          LoginRequiredDialog()
       ]
     );
   }

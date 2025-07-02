@@ -41,6 +41,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> deleteUser() async {
+    await _authDataSource.deleteUser();
+  }
+
+  @override
   Future<void> saveUser(StoredUser storedUser) async {
     String departmentTypeExt = DepartmentTypeExtension.fromCode(storedUser.departmentType).displayName;
     final saveUser = storedUser.copyWith(departmentType: departmentTypeExt);

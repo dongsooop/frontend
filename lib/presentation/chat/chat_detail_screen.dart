@@ -30,8 +30,9 @@ class ChatDetailScreen extends HookConsumerWidget {
     final chatDetailState = ref.watch(chatDetailViewModelProvider);
     final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
 
-    // 사용자 닉네임
+    // 사용자
     final String? userNickname = user?.nickname;
+    final int? userId = user?.id;
 
     // text field controller
     final textController = useTextEditingController();
@@ -56,6 +57,25 @@ class ChatDetailScreen extends HookConsumerWidget {
         });
       };
     }, []);
+
+    useEffect(() {
+      if (chatDetailState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '채팅 오류',
+              content: chatDetailState.errorMessage!,
+              onConfirm: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          );
+        });
+      }
+      return null;
+    }, [chatDetailState.errorMessage]);
 
     scrollController.addListener(() {
       if (scrollController.offset >= scrollController.position.maxScrollExtent - 100) {
@@ -88,34 +108,6 @@ class ChatDetailScreen extends HookConsumerWidget {
       );
     }
 
-    if (chatDetailState.errorMessage != null) {
-      return Scaffold(
-        backgroundColor: ColorStyles.gray1,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: AppBar(
-            backgroundColor: ColorStyles.gray1,
-            leading: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: Icon(
-                Icons.chevron_left_outlined,
-                size: 24,
-                color: ColorStyles.black,
-              ),
-            ),
-          )
-        ),
-        body: Center(
-          child: Text(
-            chatDetailState.errorMessage!,
-            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-          ),
-        ),
-      );
-    }
-
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true, // 가상 키보드가 나타날 때 Scattold가 자동으로 크기를 조정하여 가상 키보드와 겹치지 않도록 함
@@ -130,7 +122,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                 spacing: 8,
                 children: [
                   Text(
-                    '채팅방 이름', // 채팅방 이름
+                    chatRoom.title, // 채팅방 이름
                     style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
                   ),
                   Text(
@@ -165,8 +157,8 @@ class ChatDetailScreen extends HookConsumerWidget {
                             content: '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
                             confirmText: '나가기',
                             cancelText: '취소',
-                            onConfirm: () {
-                              viewModel.leaveChatRoom(chatRoom.roomId);
+                            onConfirm: () async {
+                              await viewModel.leaveChatRoom(chatRoom.roomId);
                               Navigator.of(context).pop(); // 다이얼로그 닫기
                             },
                           ),
@@ -210,10 +202,35 @@ class ChatDetailScreen extends HookConsumerWidget {
                         final nickname = viewModel.getNickname(msg.senderId.toString());
                         return ChatBubbleScreen(
                           nickname,
+                          msg.senderId,
                           msg.content,
                           formatTimestamp(msg.timestamp),
                           nickname == userNickname,
                           msg.type,
+                          () async {
+                            if (chatRoom.managerId != userId) return;
+                            // 채팅 내보내기(관리자 == 사옹자)
+                            customActionSheet(
+                              context,
+                              onDelete: () {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (_) => CustomConfirmDialog(
+                                    title: '채팅 내보내기',
+                                    content: '퇴장한 채팅방은 다시 참여할 수 없어요.\n정말로 내보내시겠어요?',
+                                    confirmText: '내보내기',
+                                    cancelText: '취소',
+                                    onConfirm: () async {
+                                      await viewModel.kickUser(msg.roomId, msg.senderId);
+                                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                                    },
+                                  ),
+                                );
+                              },
+                              deleteText: '채팅 내보내기',
+                            );
+                          },
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(

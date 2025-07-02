@@ -4,9 +4,6 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
-
-import '../../../main.dart';
 
 class LoggedInUserCard extends HookConsumerWidget {
   final User user;
@@ -17,8 +14,6 @@ class LoggedInUserCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context,  WidgetRef ref) {
-    final viewModel = ref.read(myPageViewModelProvider.notifier);
-    final myPageState = ref.watch(myPageViewModelProvider);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -80,8 +75,8 @@ class LoggedInUserCard extends HookConsumerWidget {
           width: double.infinity,
           padding: EdgeInsets.all(16),
           decoration: ShapeDecoration(
-              color: ColorStyles.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+            color: ColorStyles.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -137,36 +132,6 @@ class LoggedInUserCard extends HookConsumerWidget {
           ),
         ),
         SizedBox(height: 16,),
-        // logout test
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size.fromHeight(44),
-            backgroundColor: ColorStyles.primaryColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            elevation: 0
-          ),
-          onPressed: myPageState is AsyncLoading
-            ? null
-            : () async {
-              await viewModel.logout();
-
-              final state = ref.read(myPageViewModelProvider);
-              logger.i("state: $state");
-              state.whenOrNull(
-                data: (_) {
-                  logger.i("로그아웃 성공");
-                },
-                error: (err, _) {
-                  logger.i("로그아웃 실패: ${err.toString()}");
-                },
-              );
-            },
-          child: myPageState is AsyncLoading
-            ? const CircularProgressIndicator(color: Colors.white)
-            : Text('로그아웃', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
-        ),
       ],
     );
   }

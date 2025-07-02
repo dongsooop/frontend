@@ -1,6 +1,9 @@
 import 'package:dongsoop/core/storage/preferences_service.dart';
+import 'package:dongsoop/domain/auth/use_case/delete_user_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
+import 'package:dongsoop/providers/auth_dio.dart';
+import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,20 +16,20 @@ import 'package:dongsoop/presentation/sign_in/sign_in_view_model.dart';
 import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
 import 'package:dongsoop/domain/auth/use_case/logout_use_case.dart';
 import 'package:dongsoop/presentation/my_page/my_page_view_model.dart';
-
-import '../domain/auth/use_case/check_duplicate_use_case.dart';
-import '../domain/auth/use_case/sign_up_use_case.dart';
-import '../presentation/sign_up/sign_up_view_model.dart';
+import 'package:dongsoop/domain/auth/use_case/check_duplicate_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
+import 'package:dongsoop/presentation/sign_up/sign_up_view_model.dart';
 
 // 추후 기능, 책임 별로 providers 분리
 
 // Data Source
 final authDataSourceProvider = Provider<AuthDataSource>((ref) {
   final plainDio = ref.watch(plainDioProvider);
+  final authDio = ref.watch(authDioProvider);
   final secureStorage = ref.watch(secureStorageProvider);
   final preferences = ref.watch(preferencesProvider);
 
-  return AuthDataSourceImpl(plainDio, secureStorage, preferences);
+  return AuthDataSourceImpl(plainDio, authDio, secureStorage, preferences);
 });
 
 // Repository
@@ -51,6 +54,13 @@ final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
 
   return LogoutUseCase(repository);
+});
+
+final deleteUserUseCaseProvider = Provider<DeleteUserUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  final chatRepository = ref.watch(chatRepositoryProvider);
+
+  return DeleteUserUseCase(authRepository, chatRepository);
 });
 
 final SignUpUseCaseProvider = Provider<SignUpUseCase>((ref) {
@@ -81,9 +91,8 @@ final signUpViewModelProvider = StateNotifierProvider.autoDispose<SignUpViewMode
 final myPageViewModelProvider =
 StateNotifierProvider<MyPageViewModel, AsyncValue<User?>>((ref) {
   final loadUserUseCase = ref.watch(loadUserUseCaseProvider);
-  final logoutUseCase = ref.watch(logoutUseCaseProvider);
 
-  return MyPageViewModel(loadUserUseCase, logoutUseCase, ref);
+  return MyPageViewModel(loadUserUseCase, ref);
 });
 
 
