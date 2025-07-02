@@ -167,7 +167,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       logger.e('get local message error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅 내역을 불러오는 중 오류가 발생했습니다.',
+        errorMessage: '채팅 내역을 불러오는 중\n오류가 발생했습니다.',
       );
       return [];
     }
@@ -182,7 +182,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       logger.e('leave chat error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅방을 나가는 중 오류가 발생했습니다.',
+        errorMessage: '채팅방을 나가는 중\n오류가 발생했습니다.',
       );
     }
   }
@@ -196,7 +196,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       logger.e('leave chat error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅방을 나가는 중 오류가 발생했습니다.',
+        errorMessage: '채팅방을 나가는 중\n오류가 발생했습니다.',
       );
     }
   }

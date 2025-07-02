@@ -58,6 +58,25 @@ class ChatDetailScreen extends HookConsumerWidget {
       };
     }, []);
 
+    useEffect(() {
+      if (chatDetailState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '채팅 오류',
+              content: chatDetailState.errorMessage!,
+              onConfirm: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          );
+        });
+      }
+      return null;
+    }, [chatDetailState.errorMessage]);
+
     scrollController.addListener(() {
       if (scrollController.offset >= scrollController.position.maxScrollExtent - 100) {
         ref.read(chatMessagesProvider.notifier).loadMore();
@@ -85,34 +104,6 @@ class ChatDetailScreen extends HookConsumerWidget {
         ),
         body: Center(
           child: CircularProgressIndicator(color: ColorStyles.primaryColor,),
-        ),
-      );
-    }
-
-    if (chatDetailState.errorMessage != null) {
-      return Scaffold(
-        backgroundColor: ColorStyles.gray1,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: AppBar(
-            backgroundColor: ColorStyles.gray1,
-            leading: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: Icon(
-                Icons.chevron_left_outlined,
-                size: 24,
-                color: ColorStyles.black,
-              ),
-            ),
-          )
-        ),
-        body: Center(
-          child: Text(
-            chatDetailState.errorMessage!,
-            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-          ),
         ),
       );
     }

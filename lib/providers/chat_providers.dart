@@ -123,9 +123,8 @@ final kickUserUseCaseProvider = Provider<KickUserUseCase>((ref) {
 final chatViewModelProvider =
 StateNotifierProvider.autoDispose<ChatViewModel, ChatState>((ref) {
   final loadChatRoomsUseCase = ref.watch(loadChatRoomsUseCaseProvider);
-  final deleteChatDataUseCase = ref.watch(deleteChatDattaUseCaseProvider);
 
-  return ChatViewModel(loadChatRoomsUseCase, deleteChatDataUseCase);
+  return ChatViewModel(loadChatRoomsUseCase);
 });
 
 final chatDetailViewModelProvider =
