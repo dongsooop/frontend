@@ -272,7 +272,7 @@ class SignUpScreen extends HookConsumerWidget {
               ),
             ),
             child: _customTextFormField(password, '비밀번호 입력', obscureText: true),
-          ),
+          ),x
           Container(
             height: 44,
             padding: EdgeInsets.symmetric(horizontal: 16),
