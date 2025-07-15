@@ -37,43 +37,69 @@ class RecruitApplicantListPage extends ConsumerWidget {
             }
 
             return ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 final applicant = list[index];
                 final name = applicant.memberName;
                 final statusInfo = _statusBadge(applicant.status);
 
-                return ListTile(
-                  leading: Image.asset(
-                    'assets/images/profile.png',
-                    width: 48,
-                    height: 48,
-                  ),
-                  title: Text(name,
-                      style: TextStyles.normalTextBold.copyWith(
-                        color: ColorStyles.black,
-                      )),
-                  subtitle: Text(
-                    applicant.departmentName,
-                    style: TextStyles.smallTextRegular.copyWith(
-                      color: ColorStyles.gray4,
-                    ),
-                  ),
-                  trailing: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: statusInfo.backgroundColor,
-                      borderRadius: BorderRadius.circular(32),
-                    ),
-                    child: Text(
-                      statusInfo.label,
-                      style: TextStyles.smallTextBold.copyWith(
-                        color: statusInfo.textColor,
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: 48,
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/profile.png',
+                            width: 48,
+                            height: 48,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  name,
+                                  style: TextStyles.normalTextBold.copyWith(
+                                    color: ColorStyles.black,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  applicant.departmentName,
+                                  style: TextStyles.smallTextRegular.copyWith(
+                                    color: ColorStyles.gray4,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: statusInfo.backgroundColor,
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            child: Text(
+                              statusInfo.label,
+                              style: TextStyles.smallTextBold.copyWith(
+                                color: statusInfo.textColor,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 24),
+                  ],
                 );
               },
             );
