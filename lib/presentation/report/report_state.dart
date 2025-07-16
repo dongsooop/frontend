@@ -1,23 +1,23 @@
 class ReportState {
   final bool isLoading;
   final String? errorMessage;
-  final bool isSelected;
+  final bool isSuccessed;
 
   ReportState({
     required this.isLoading,
     this.errorMessage,
-    required this.isSelected,
+    required this.isSuccessed,
   });
 
   ReportState copyWith({
     bool? isLoading,
     String? errorMessage,
-    bool? isSelected,
+    bool? isSuccessed,
   }) {
    return ReportState(
-    isLoading: isLoading ?? this.isLoading,
-    errorMessage: errorMessage,
-    isSelected: isSelected ?? this.isSelected,
+     isLoading: isLoading ?? this.isLoading,
+     errorMessage: errorMessage,
+     isSuccessed: isSuccessed ?? this.isSuccessed,
    );
   }
 }

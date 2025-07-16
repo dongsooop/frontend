@@ -3,6 +3,8 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
+import 'package:dongsoop/domain/report/enum/report_type.dart';
+import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/widget/botton_button.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
@@ -11,20 +13,27 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/presentation/components/custom_action_sheet.dart';
+import '../../../../providers/auth_providers.dart';
+
 class RecruitDetailPageScreen extends ConsumerWidget {
   final int id;
   final RecruitType type;
   final Future<bool?> Function() onTapRecruitApply;
+  final void Function(String reportType, int targetId) onTapReport;
 
   const RecruitDetailPageScreen({
     required this.id,
     required this.type,
     required this.onTapRecruitApply,
+    required this.onTapReport,
     super.key,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userSessionProvider);
+
     final detailState = ref.watch(
       recruitDetailViewModelProvider(
         RecruitDetailArgs(id: id, type: type),
@@ -38,10 +47,18 @@ class RecruitDetailPageScreen extends ConsumerWidget {
           preferredSize: const Size.fromHeight(44),
           child: DetailHeader(
             title: type.label,
-            trailing: IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () {},
-            ),
+            trailing: user != null
+              ? IconButton(
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () {
+                    customActionSheet(
+                      context,
+                      onReport: () => onTapReport(type.reportType.name, id),
+                      onDelete: () {},
+                    );
+                  },
+                )
+              : null,
           ),
         ),
         bottomNavigationBar: detailState.maybeWhen(

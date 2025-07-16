@@ -23,4 +23,5 @@ abstract class RoutePaths {
   static const String chatDetail = '/chat/detail';
   static const String marketWrite = '/marketWrite';
   static const String marketDetail = '/marketDetail';
+  static const String report = '/report';
 }

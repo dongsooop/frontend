@@ -1,19 +1,24 @@
+import 'package:dongsoop/domain/report/model/report_write_request.dart';
 import 'package:dongsoop/presentation/report/widgets/report_select_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-import '../../core/presentation/components/custom_confirm_dialog.dart';
-import '../../core/presentation/components/primary_bottom_button.dart';
-import '../../domain/report/enum/report_reason.dart';
-import '../../providers/report_providers.dart';
-import '../../ui/color_styles.dart';
-import '../../ui/text_styles.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
+import 'package:dongsoop/domain/report/enum/report_reason.dart';
+import 'package:dongsoop/providers/report_providers.dart';
+import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/ui/text_styles.dart';
 
 class ReportScreen extends HookConsumerWidget {
+  final String reportType;
+  final int targetId;
 
   const ReportScreen({
-    super.key
+    super.key,
+    required this.reportType,
+    required this.targetId,
   });
 
   @override
@@ -26,7 +31,23 @@ class ReportScreen extends HookConsumerWidget {
 
     // 오류
     useEffect(() {
-      if (reportState.errorMessage != null) {
+      if (reportState.isSuccessed) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '신고 완료',
+              content: '신고가 정상적으로 접수되었어요',
+              isSingleAction: true,
+              confirmText: '확인',
+              onConfirm: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          );
+        });
+      } else if (!reportState.isSuccessed && reportState.errorMessage != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
@@ -34,6 +55,8 @@ class ReportScreen extends HookConsumerWidget {
             builder: (_) => CustomConfirmDialog(
               title: '신고 실패',
               content: reportState.errorMessage!,
+              isSingleAction: true,
+              confirmText: '확인',
               onConfirm: () async {
                 Navigator.of(context).pop();
               },
@@ -42,16 +65,23 @@ class ReportScreen extends HookConsumerWidget {
         });
       }
       return null;
-    }, [reportState.errorMessage]);
+    }, [reportState.errorMessage, reportState.isSuccessed]);
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-
-        ),
+        backgroundColor: ColorStyles.white,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(44),
+            child: DetailHeader(
+              title: '신고',
+            ),
+          ),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(16),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 16,
             children: [
               SizedBox(height: 24,),
@@ -65,7 +95,7 @@ class ReportScreen extends HookConsumerWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: '신고를 제출하면 동숲에서 조사를 시작하며,\n이때 사실 관계 확인을 위해',
+                      text: '신고를 제출하면 동숲에서 조사를 시작하며,\n이때 사실 관계 확인을 위해 ',
                       style: TextStyles.normalTextRegular.copyWith(
                         color: ColorStyles.black,
                       ),
@@ -177,7 +207,8 @@ class ReportScreen extends HookConsumerWidget {
                     ),
                   ),
                   child: TextFormField(
-                    maxLines: 3,
+                    maxLines: 5,
+                    maxLength: 500,
                     keyboardType: TextInputType.text,
                     controller: textController,
                     textInputAction: TextInputAction.done,
@@ -189,7 +220,7 @@ class ReportScreen extends HookConsumerWidget {
                       border: InputBorder.none,
                       hintText: '최대 500글자까지 입력 가능해요',
                       hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-                      // contentPadding: EdgeInsets.symmetric(vertical: 11),
+                      counterText: '',
                     ),
                   ),
                 )
@@ -198,10 +229,12 @@ class ReportScreen extends HookConsumerWidget {
           ),
         ),
         bottomNavigationBar: PrimaryBottomButton(
-          onPressed: () {},
+          onPressed: () async {
+            await viewModel.reportWrite(ReportWriteRequest(reportType: reportType, targetId: targetId, reason: selectedReportReason.value!.reason, description: textController.text));
+          },
           label: '신고하기',
           isLoading: reportState.isLoading,
-          isEnabled: false,
+          isEnabled: selectedReportReason.value != null ? true : false,
         )
       ),
     );

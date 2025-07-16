@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 void customActionSheet(
   BuildContext context, {
   VoidCallback? onEdit,
+  VoidCallback? onReport,
   required VoidCallback onDelete,
   String? deleteText,
 }) {
@@ -36,6 +37,19 @@ void customActionSheet(
                   ),
                 ),
               ),
+            if (onReport != null)
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  onReport();
+                },
+                child: Text(
+                  '신고',
+                  style: TextStyles.largeTextRegular.copyWith(
+                    color: ColorStyles.warning100,
+                  ),
+                ),
+              ),
             CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.pop(context);
@@ -44,7 +58,9 @@ void customActionSheet(
               isDestructiveAction: true,
               child: Text(
                 deleteText ?? '삭제',
-                style: TextStyles.largeTextRegular,
+                style: TextStyles.largeTextRegular.copyWith(
+                  color: ColorStyles.warning100,
+                ),
               ),
             ),
           ],
