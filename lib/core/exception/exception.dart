@@ -131,6 +131,24 @@ class RecruitApplicantListException implements Exception {
   String toString() => message;
 }
 
+class RecruitApplicantDetailException implements Exception {
+  final String message;
+  RecruitApplicantDetailException(
+      [this.message = "지원 내용 확인하는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
+class RecruitApplicantException implements Exception {
+  final String message;
+  RecruitApplicantException(
+      [this.message = "결과를 처리하는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
 class ApplyIntroductionException implements Exception {
   final String message;
   ApplyIntroductionException(

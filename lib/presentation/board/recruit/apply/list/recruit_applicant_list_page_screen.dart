@@ -9,11 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class RecruitApplicantListPage extends ConsumerWidget {
   final int boardId;
   final RecruitType type;
+  final Future<void> Function(int memberId) onTapApplicantDetail;
 
   const RecruitApplicantListPage({
     Key? key,
     required this.boardId,
     required this.type,
+    required this.onTapApplicantDetail,
   }) : super(key: key);
 
   @override
@@ -22,12 +24,11 @@ class RecruitApplicantListPage extends ConsumerWidget {
       recruitApplicantListViewModelProvider(boardId: boardId, type: type),
     );
 
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(44),
-        child: DetailHeader(
-          title: "지원자 확인",
-        ),
+        child: const DetailHeader(title: "지원자 확인"),
       ),
       body: SafeArea(
         child: applicantListAsync.when(
@@ -44,62 +45,67 @@ class RecruitApplicantListPage extends ConsumerWidget {
                 final name = applicant.memberName;
                 final statusInfo = _statusBadge(applicant.status);
 
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: 48,
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            'assets/images/profile.png',
-                            width: 48,
-                            height: 48,
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  name,
-                                  style: TextStyles.normalTextBold.copyWith(
-                                    color: ColorStyles.black,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  applicant.departmentName,
-                                  style: TextStyles.smallTextRegular.copyWith(
-                                    color: ColorStyles.gray4,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+                return GestureDetector(
+                  onTap: () async {
+                    await onTapApplicantDetail(applicant.memberId);
+                  },
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 48,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/images/profile.png',
+                              width: 48,
+                              height: 48,
                             ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: statusInfo.backgroundColor,
-                              borderRadius: BorderRadius.circular(32),
-                            ),
-                            child: Text(
-                              statusInfo.label,
-                              style: TextStyles.smallTextBold.copyWith(
-                                color: statusInfo.textColor,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    name,
+                                    style: TextStyles.normalTextBold.copyWith(
+                                      color: ColorStyles.black,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    applicant.departmentName,
+                                    style: TextStyles.smallTextRegular.copyWith(
+                                      color: ColorStyles.gray4,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                        ],
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: statusInfo.backgroundColor,
+                                borderRadius: BorderRadius.circular(32),
+                              ),
+                              child: Text(
+                                statusInfo.label,
+                                style: TextStyles.smallTextBold.copyWith(
+                                  color: statusInfo.textColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 );
               },
             );
@@ -108,7 +114,7 @@ class RecruitApplicantListPage extends ConsumerWidget {
           error: (e, _) => Center(child: Text('$e')),
         ),
       ),
-    );
+    ));
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/apply/detail/recruit_applicant_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/list/recruit_applicant_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
@@ -145,7 +146,31 @@ final router = GoRouter(
         final extra = state.extra as Map<String, dynamic>?;
         final id = extra?['id'];
         final type = extra?['type'];
-        return RecruitApplicantListPage(boardId: id, type: type);
+        return RecruitApplicantListPage(
+            boardId: id,
+            type: type,
+            onTapApplicantDetail: (memberId) async {
+              context.push(RoutePaths.recruitApplicantDetail, extra: {
+                'id': id,
+                'type': type,
+                'memberId': memberId,
+              });
+            });
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.recruitApplicantDetail,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final boardId = extra?['id'];
+        final type = extra?['type'];
+        final memberId = extra?['memberId'];
+
+        return RecruitApplicantDetailPage(
+          type: type,
+          boardId: boardId,
+          memberId: memberId,
+        );
       },
     ),
     GoRoute(
