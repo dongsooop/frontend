@@ -18,8 +18,6 @@ class ReportViewModel extends StateNotifier<ReportState> {
   Future<bool> reportWrite(ReportWriteRequest request) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
-    logger.i("신고 정보: ${request}");
-
     try {
       await _reportWriteUseCase.execute(request);
       state = state.copyWith(isLoading: false, isSuccessed: true);

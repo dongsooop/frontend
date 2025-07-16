@@ -22,7 +22,19 @@ class SignUpException implements Exception {
 
 class LoginException implements Exception {
   final String message;
-  LoginException([this.message = "아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요"]);
+  const LoginException([this.message = "알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+class InvalidCredentialsException extends LoginException {
+  const InvalidCredentialsException([String message = "아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요"]) : super(message);
+
+  @override
+  String toString() => message;
+}
+class UserSanctionedException extends LoginException {
+  const UserSanctionedException([String message = "현재 제재 중인 계정입니다. 자세한 내용은 고객센터에 문의해 주세요."]) : super(message);
 
   @override
   String toString() => message;

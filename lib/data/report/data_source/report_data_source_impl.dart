@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
+import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_write_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -36,6 +37,26 @@ class ReportDataSourceImpl implements ReportDataSource {
       logger.e("report error statusCode: ${e.response?.statusCode}");
       rethrow;
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ReportSanctionResponse> getSanctionStatus() async {
+    final endpoint = dotenv.get('SANCTION_CHECK_ENDPOINT');
+
+    try {
+      final response = await _authDio.get(endpoint);
+
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        logger.i('report sanction Response data: $data');
+
+        return ReportSanctionResponse.fromJson(data);
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      logger.e("report error: ${e}");
       rethrow;
     }
   }

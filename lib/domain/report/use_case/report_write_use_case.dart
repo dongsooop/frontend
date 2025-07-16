@@ -1,5 +1,4 @@
 import 'package:dongsoop/domain/report/model/report_write_request.dart';
-
 import '../repository/report_repository.dart';
 
 class ReportWriteUseCase {

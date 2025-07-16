@@ -29,7 +29,7 @@ class ReportScreen extends HookConsumerWidget {
     final textController = useTextEditingController();
     final selectedReportReason = useState<ReportReason?>(null);
 
-    // 오류
+    // 다이얼로그
     useEffect(() {
       if (reportState.isSuccessed) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
