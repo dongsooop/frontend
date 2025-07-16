@@ -2,7 +2,7 @@ import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_entity.
 import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_apply_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/main.dart';
-import 'package:dongsoop/presentation/board/providers/recruit/recruit_apply_use_case_provider.dart';
+import 'package:dongsoop/presentation/board/providers/recruit/apply/recruit_apply_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

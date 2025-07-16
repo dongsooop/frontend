@@ -4,7 +4,6 @@ import 'package:dongsoop/core/presentation/components/login_required_dialog.dart
 import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/widget/botton_button.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
@@ -12,21 +11,22 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../../../core/presentation/components/custom_action_sheet.dart';
-import '../../../../providers/auth_providers.dart';
+import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 
 class RecruitDetailPageScreen extends ConsumerWidget {
   final int id;
   final RecruitType type;
   final Future<bool?> Function() onTapRecruitApply;
   final void Function(String reportType, int targetId) onTapReport;
+  final VoidCallback onTapApplicantList;
 
   const RecruitDetailPageScreen({
     required this.id,
     required this.type,
     required this.onTapRecruitApply,
     required this.onTapReport,
+    required this.onTapApplicantList,
     super.key,
   });
 
@@ -66,7 +66,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
             final detail = data.recruitDetail;
             if (detail == null) return const SizedBox.shrink();
 
-            final viewType = detail.viewType; // 'OWNER' | 'MEMBER' | 'GUEST'
+            final viewType = detail.viewType;
             final isAuthor = viewType == 'OWNER';
             final isGuest = viewType == 'GUEST';
 
@@ -87,7 +87,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
               isEnabled: isEnabled,
               onPressed: () async {
                 if (isAuthor) {
-                  // TODO: 지원자 확인 화면 이동
+                  onTapApplicantList();
                 } else if (isGuest) {
                   showDialog(
                     context: context,

@@ -44,6 +44,8 @@ class RecruitListViewModel extends _$RecruitListViewModel {
   late RecruitType _type;
   late String _departmentCode;
 
+  static const int _pageSize = 10;
+
   @override
   RecruitListState build({
     required RecruitType type,
@@ -80,7 +82,7 @@ class RecruitListViewModel extends _$RecruitListViewModel {
         posts: [...state.posts, ...filtered],
         page: state.page + 1,
         isLoading: false,
-        hasMore: filtered.isNotEmpty,
+        hasMore: filtered.length == _pageSize,
       );
     } catch (e) {
       print('$e');

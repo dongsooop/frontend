@@ -122,6 +122,15 @@ class RecruitApplyException implements Exception {
   String toString() => message;
 }
 
+class RecruitApplicantListException implements Exception {
+  final String message;
+  RecruitApplicantListException(
+      [this.message = "모집 지원 리스트 조회 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
 class ApplyIntroductionException implements Exception {
   final String message;
   ApplyIntroductionException(
