@@ -1,0 +1,137 @@
+// dart format width=80
+// coverage:ignore-file
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'recruit_applicant_detail_model.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+
+/// @nodoc
+mixin _$RecruitApplicantDetailModel {
+  int get boardId;
+  int get applierId;
+  String get applierName;
+  String get departmentName;
+  DateTime get applyTime;
+  String? get introduction;
+  String? get motivation;
+
+  /// Create a copy of RecruitApplicantDetailModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $RecruitApplicantDetailModelCopyWith<RecruitApplicantDetailModel>
+      get copyWith => _$RecruitApplicantDetailModelCopyWithImpl<
+              RecruitApplicantDetailModel>(
+          this as RecruitApplicantDetailModel, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is RecruitApplicantDetailModel &&
+            (identical(other.boardId, boardId) || other.boardId == boardId) &&
+            (identical(other.applierId, applierId) ||
+                other.applierId == applierId) &&
+            (identical(other.applierName, applierName) ||
+                other.applierName == applierName) &&
+            (identical(other.departmentName, departmentName) ||
+                other.departmentName == departmentName) &&
+            (identical(other.applyTime, applyTime) ||
+                other.applyTime == applyTime) &&
+            (identical(other.introduction, introduction) ||
+                other.introduction == introduction) &&
+            (identical(other.motivation, motivation) ||
+                other.motivation == motivation));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, boardId, applierId, applierName,
+      departmentName, applyTime, introduction, motivation);
+
+  @override
+  String toString() {
+    return 'RecruitApplicantDetailModel(boardId: $boardId, applierId: $applierId, applierName: $applierName, departmentName: $departmentName, applyTime: $applyTime, introduction: $introduction, motivation: $motivation)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $RecruitApplicantDetailModelCopyWith<$Res> {
+  factory $RecruitApplicantDetailModelCopyWith(
+          RecruitApplicantDetailModel value,
+          $Res Function(RecruitApplicantDetailModel) _then) =
+      _$RecruitApplicantDetailModelCopyWithImpl;
+  @useResult
+  $Res call(
+      {int boardId,
+      int applierId,
+      String applierName,
+      String departmentName,
+      DateTime applyTime,
+      String? introduction,
+      String? motivation});
+}
+
+/// @nodoc
+class _$RecruitApplicantDetailModelCopyWithImpl<$Res>
+    implements $RecruitApplicantDetailModelCopyWith<$Res> {
+  _$RecruitApplicantDetailModelCopyWithImpl(this._self, this._then);
+
+  final RecruitApplicantDetailModel _self;
+  final $Res Function(RecruitApplicantDetailModel) _then;
+
+  /// Create a copy of RecruitApplicantDetailModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? boardId = null,
+    Object? applierId = null,
+    Object? applierName = null,
+    Object? departmentName = null,
+    Object? applyTime = null,
+    Object? introduction = freezed,
+    Object? motivation = freezed,
+  }) {
+    return _then(RecruitApplicantDetailModel(
+      boardId: null == boardId
+          ? _self.boardId
+          : boardId // ignore: cast_nullable_to_non_nullable
+              as int,
+      applierId: null == applierId
+          ? _self.applierId
+          : applierId // ignore: cast_nullable_to_non_nullable
+              as int,
+      applierName: null == applierName
+          ? _self.applierName
+          : applierName // ignore: cast_nullable_to_non_nullable
+              as String,
+      departmentName: null == departmentName
+          ? _self.departmentName
+          : departmentName // ignore: cast_nullable_to_non_nullable
+              as String,
+      applyTime: null == applyTime
+          ? _self.applyTime
+          : applyTime // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      introduction: freezed == introduction
+          ? _self.introduction
+          : introduction // ignore: cast_nullable_to_non_nullable
+              as String?,
+      motivation: freezed == motivation
+          ? _self.motivation
+          : motivation // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+// dart format on
