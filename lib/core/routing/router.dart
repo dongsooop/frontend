@@ -3,6 +3,7 @@ import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/apply/list/recruit_applicant_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
@@ -116,6 +117,15 @@ final router = GoRouter(
             );
             return result == true;
           },
+          onTapApplicantList: () async {
+            context.push(
+              RoutePaths.recruitApplicantList,
+              extra: {
+                'id': id,
+                'type': type,
+              },
+            );
+          },
         );
       },
     ),
@@ -127,6 +137,15 @@ final router = GoRouter(
         final type = extra?['type'];
 
         return RecruitApplyPageScreen(id: id, type: type);
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.recruitApplicantList,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final id = extra?['id'];
+        final type = extra?['type'];
+        return RecruitApplicantListPage(boardId: id, type: type);
       },
     ),
     GoRoute(
@@ -241,14 +260,11 @@ final router = GoRouter(
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.mypage,
-            builder: (context, state) => MyPageScreen(
-              onTapSignIn: () {
-                context.push(RoutePaths.signIn);
-              },
-              onTapSetting: () {
-                context.push(RoutePaths.setting);
-              }
-            ),
+            builder: (context, state) => MyPageScreen(onTapSignIn: () {
+              context.push(RoutePaths.signIn);
+            }, onTapSetting: () {
+              context.push(RoutePaths.setting);
+            }),
           ),
         ]),
       ],

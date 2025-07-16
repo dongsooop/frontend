@@ -15,11 +15,13 @@ class RecruitDetailPageScreen extends ConsumerWidget {
   final int id;
   final RecruitType type;
   final Future<bool?> Function() onTapRecruitApply;
+  final VoidCallback onTapApplicantList;
 
   const RecruitDetailPageScreen({
     required this.id,
     required this.type,
     required this.onTapRecruitApply,
+    required this.onTapApplicantList,
     super.key,
   });
 
@@ -49,7 +51,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
             final detail = data.recruitDetail;
             if (detail == null) return const SizedBox.shrink();
 
-            final viewType = detail.viewType; // 'OWNER' | 'MEMBER' | 'GUEST'
+            final viewType = detail.viewType;
             final isAuthor = viewType == 'OWNER';
             final isGuest = viewType == 'GUEST';
 
@@ -70,7 +72,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
               isEnabled: isEnabled,
               onPressed: () async {
                 if (isAuthor) {
-                  // TODO: 지원자 확인 화면 이동
+                  onTapApplicantList();
                 } else if (isGuest) {
                   showDialog(
                     context: context,
