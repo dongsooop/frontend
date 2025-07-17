@@ -15,6 +15,7 @@ import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
+import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
@@ -30,7 +31,7 @@ final router = GoRouter(
   initialLocation: RoutePaths.splash,
   routes: [
     GoRoute(
-      path: '/splash',
+      path: RoutePaths.splash,
       builder: (context, state) => SplashScreen(),
     ),
     GoRoute(
@@ -117,6 +118,15 @@ final router = GoRouter(
             );
             return result == true;
           },
+          onTapReport: (reportType, targetId) {
+            context.push(
+              RoutePaths.report,
+              extra: {
+                'reportType': reportType,
+                'targetId': targetId,
+              }
+            );
+          },
           onTapApplicantList: () async {
             context.push(
               RoutePaths.recruitApplicantList,
@@ -173,8 +183,30 @@ final router = GoRouter(
         return MarketDetailPageScreen(
           id: id,
           type: type,
+          onTapReport: (reportType, targetId) {
+            context.push(
+                RoutePaths.report,
+                extra: {
+                  'reportType': reportType,
+                  'targetId': targetId,
+                }
+            );
+          },
         );
       },
+    ),
+    GoRoute(
+      path: RoutePaths.report,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final reportType = extra?['reportType'] as String? ?? '';
+        final targetId = extra?['targetId'] as int? ?? 0;
+
+        return ReportScreen(
+          reportType: reportType,
+          targetId: targetId,
+        );
+      }
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {

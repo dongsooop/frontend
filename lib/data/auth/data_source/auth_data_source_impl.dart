@@ -40,7 +40,9 @@ class AuthDataSourceImpl implements AuthDataSource {
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
-        throw LoginException();
+        throw InvalidCredentialsException();
+      } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
+        throw UserSanctionedException();
       }
       logger.e("Login error statusCode: ${e.response?.statusCode}");
       rethrow;

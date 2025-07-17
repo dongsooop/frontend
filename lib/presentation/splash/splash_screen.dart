@@ -8,6 +8,9 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/providers/splash_providers.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 
+import '../../core/presentation/components/custom_confirm_dialog.dart';
+import '../../providers/auth_providers.dart';
+
 class SplashScreen extends HookConsumerWidget {
 
   @override
@@ -20,6 +23,34 @@ class SplashScreen extends HookConsumerWidget {
         await Future.delayed(Duration(seconds: 2));
         // 자동 로그인
         await viewModel.autoLogin();
+        // 제재 대상 확인
+        final user = ref.watch(userSessionProvider);
+        if (user != null) {
+          final reportSanction = await viewModel.checkSanction();
+          if (reportSanction != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => CustomConfirmDialog(
+                  title: '동숲 이용 제재',
+                  content: '${reportSanction.reason}\n${reportSanction.description}됩니다.\n'
+                    '${reportSanction.startDate} ~ ${reportSanction.endDate}',
+                  isSingleAction: true,
+                  confirmText: '확인',
+                  onConfirm: () async {
+                    Future.microtask(() => context.go(RoutePaths.home));
+                    // WidgetsBinding.instance.addPostFrameCallback((_) {
+                    //
+                    // });
+                  },
+                ),
+              );
+            });
+          } else {
+            Future.microtask(() => context.go(RoutePaths.home));
+          }
+        }
       });
       return null;
     }, []);
