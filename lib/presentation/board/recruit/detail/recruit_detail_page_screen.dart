@@ -53,8 +53,8 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                   onPressed: () {
                     customActionSheet(
                       context,
-                      onReport: () => onTapReport(type.reportType.name, id),
-                      onDelete: () {},
+                      deleteText: '신고',
+                      onDelete: () => onTapReport(type.reportType.name, id),
                     );
                   },
                 )

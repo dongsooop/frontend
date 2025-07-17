@@ -1,3 +1,4 @@
+import '../../board/market/enum/market_type.dart';
 import '../../board/recruit/enum/recruit_type.dart';
 
 enum ReportType {
@@ -17,5 +18,11 @@ extension RecruitTypeToReportType on RecruitType {
       case RecruitType.project:
         return ReportType.PROJECT_BOARD;
     }
+  }
+}
+
+extension MarketTypeToReportType on MarketType {
+  ReportType get reportType {
+    return ReportType.MARKETPLACE_BOARD;
   }
 }

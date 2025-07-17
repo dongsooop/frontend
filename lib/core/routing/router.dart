@@ -183,6 +183,15 @@ final router = GoRouter(
         return MarketDetailPageScreen(
           id: id,
           type: type,
+          onTapReport: (reportType, targetId) {
+            context.push(
+                RoutePaths.report,
+                extra: {
+                  'reportType': reportType,
+                  'targetId': targetId,
+                }
+            );
+          },
         );
       },
     ),
