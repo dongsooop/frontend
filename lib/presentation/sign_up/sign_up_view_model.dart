@@ -360,7 +360,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
 
     try {
       final request = SignUpRequest(
-        email: state.email.email! + '@dongyang.ac.kr' ?? '',
+        email: state.email.email! + '@dongyang.ac.kr',
         password: state.password.password ?? '',
         nickname: state.nickname.nickname ?? '',
         departmentType: state.dept.dept ?? '',

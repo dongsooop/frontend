@@ -3,6 +3,7 @@ import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
+import 'package:dongsoop/presentation/board/recruit/apply/list/recruit_applicant_list_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
@@ -14,6 +15,7 @@ import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
+import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
@@ -29,7 +31,7 @@ final router = GoRouter(
   initialLocation: RoutePaths.splash,
   routes: [
     GoRoute(
-      path: '/splash',
+      path: RoutePaths.splash,
       builder: (context, state) => SplashScreen(),
     ),
     GoRoute(
@@ -116,6 +118,24 @@ final router = GoRouter(
             );
             return result == true;
           },
+          onTapReport: (reportType, targetId) {
+            context.push(
+              RoutePaths.report,
+              extra: {
+                'reportType': reportType,
+                'targetId': targetId,
+              }
+            );
+          },
+          onTapApplicantList: () async {
+            context.push(
+              RoutePaths.recruitApplicantList,
+              extra: {
+                'id': id,
+                'type': type,
+              },
+            );
+          },
         );
       },
     ),
@@ -127,6 +147,15 @@ final router = GoRouter(
         final type = extra?['type'];
 
         return RecruitApplyPageScreen(id: id, type: type);
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.recruitApplicantList,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final id = extra?['id'];
+        final type = extra?['type'];
+        return RecruitApplicantListPage(boardId: id, type: type);
       },
     ),
     GoRoute(
@@ -154,8 +183,30 @@ final router = GoRouter(
         return MarketDetailPageScreen(
           id: id,
           type: type,
+          onTapReport: (reportType, targetId) {
+            context.push(
+                RoutePaths.report,
+                extra: {
+                  'reportType': reportType,
+                  'targetId': targetId,
+                }
+            );
+          },
         );
       },
+    ),
+    GoRoute(
+      path: RoutePaths.report,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final reportType = extra?['reportType'] as String? ?? '';
+        final targetId = extra?['targetId'] as int? ?? 0;
+
+        return ReportScreen(
+          reportType: reportType,
+          targetId: targetId,
+        );
+      }
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -241,14 +292,11 @@ final router = GoRouter(
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.mypage,
-            builder: (context, state) => MyPageScreen(
-              onTapSignIn: () {
-                context.push(RoutePaths.signIn);
-              },
-              onTapSetting: () {
-                context.push(RoutePaths.setting);
-              }
-            ),
+            builder: (context, state) => MyPageScreen(onTapSignIn: () {
+              context.push(RoutePaths.signIn);
+            }, onTapSetting: () {
+              context.push(RoutePaths.setting);
+            }),
           ),
         ]),
       ],
