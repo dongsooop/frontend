@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
-import 'package:dongsoop/domain/auth/model/department_type.dart';
-import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
+import 'package:dongsoop/domain/auth/enum/department_type.dart';
+import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DeptSelectBottomSheet extends HookConsumerWidget {

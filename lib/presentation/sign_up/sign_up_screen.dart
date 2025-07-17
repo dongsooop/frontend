@@ -1,4 +1,5 @@
-import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
+import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
+import 'package:dongsoop/presentation/sign_up/widgets/agreement_bottom_sheet.dart';
 import 'package:dongsoop/presentation/sign_up/widgets/check_duplication_button.dart';
 import 'package:dongsoop/presentation/sign_up/widgets/dept_select_bottom_sheet.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -9,7 +10,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
-import 'package:dongsoop/domain/auth/model/department_type.dart';
+import 'package:dongsoop/domain/auth/enum/department_type.dart';
+
+import '../../core/presentation/components/custom_confirm_dialog.dart';
+import '../../domain/auth/enum/agreement_type.dart';
 
 class SignUpScreen extends HookConsumerWidget {
 
@@ -27,6 +31,12 @@ class SignUpScreen extends HookConsumerWidget {
     final passwordCheckController = useTextEditingController();
     final nicknameController = useTextEditingController();
     final selectedDept = useState<DepartmentType?>(null);
+    final agreement = useState<Map<AgreementType, bool>>({
+      AgreementType.termsOfService: false,
+      AgreementType.privacyPolicy: false,
+    });
+
+    const notionUrl = 'https://zircon-football-529.notion.site/DongSoop-1af3ee6f25618080bb7dc4f985eda9c7?pvs=74';
 
     useEffect(() {
       emailController.addListener(() {
@@ -52,14 +62,25 @@ class SignUpScreen extends HookConsumerWidget {
       return null;
     }, [nicknameController]);
 
-    if (signUpState.errorMessage != null) {
-      return Center(
-        child: Text(
-          signUpState.errorMessage!,
-          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-        ),
-      );
-    }
+    // 오류
+    useEffect(() {
+      if (signUpState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '회원가입 오류',
+              content: signUpState.errorMessage!,
+              onConfirm: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          );
+        });
+      }
+      return null;
+    }, [signUpState.errorMessage]);
 
     return SafeArea(
       child: Scaffold(
@@ -82,7 +103,7 @@ class SignUpScreen extends HookConsumerWidget {
           ),
         ),
         body: SingleChildScrollView(
-          padding: EdgeInsets.only(top: 48),
+          padding: EdgeInsets.symmetric(vertical: 48),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,23 +113,30 @@ class SignUpScreen extends HookConsumerWidget {
               _buildPasswordSection(passwordController, passwordCheckController, ref),
               _buildNicknameSection(nicknameController, ref),
               _buildDeptSection(context, selectedDept, ref),
-              // 이용약관
+              _buildAgreement(context, agreement, ref, notionUrl),
             ],
           ),
         ),
         bottomNavigationBar: PrimaryBottomButton(
           onPressed: () async {
-            if (!signUpState.isEmailValid || !signUpState.isNicknameValid || !signUpState.isPasswordValid || !signUpState.isDeptValid)
+            if (!signUpState.isEmailValid ||
+                !signUpState.isNicknameValid ||
+                !signUpState.isPasswordValid ||
+                !signUpState.isDeptValid ||
+                !agreement.value.values.every((v) => v)) {
               return;
+            }
             // 회원가입
             final isSuccessed = await viewModel.signUp();
             if (isSuccessed) context.pop();
           },
           label: '가입하기',
           isLoading: signUpState.isLoading,
-          isEnabled: (!signUpState.isEmailValid || !signUpState.isNicknameValid || !signUpState.isPasswordValid || !signUpState.isDeptValid)
-            ? false
-            : true,
+          isEnabled: signUpState.isEmailValid &&
+              signUpState.isNicknameValid &&
+              signUpState.isPasswordValid &&
+              signUpState.isDeptValid &&
+              agreement.value.values.every((v) => v),
         ),
       ),
     );
@@ -440,6 +468,88 @@ class SignUpScreen extends HookConsumerWidget {
                   ),
                 ],
               )
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAgreement(BuildContext context, ValueNotifier<Map<AgreementType, bool>> agreement, WidgetRef ref, String notionUrl) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        spacing: 16,
+        children: [
+          // 필드 구분 & 입력 체크 메시지
+          _sectionLabel('이용약관 동의', ''),
+          // 텍스트 필드 & 버튼
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => AgreementBottomSheet(
+                  initialValues: {
+                    AgreementType.termsOfService: false,
+                    AgreementType.privacyPolicy: false,
+                  },
+                  onViewDetail: (type) {
+                    if (type == AgreementType.termsOfService) {
+                      context.push(
+                        '/mypageWebView?url=$notionUrl&title=개인정보처리방침'
+                      );
+                    } else if (type == AgreementType.privacyPolicy) {
+                      context.push(
+                        '/mypageWebView?url=$notionUrl&title=개인정보처리방침'
+                      );
+                    }
+                  },
+                  onChanged: (state) {
+                    agreement.value = state;
+                  },
+                ),
+              );
+            },
+            child: Container(
+                height: 44,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                decoration: ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      width: 1,
+                      color: agreement.value.values.every((v) => v)
+                          ? ColorStyles.primaryColor
+                          : ColorStyles.gray2,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        agreement.value.values.every((v) => v)
+                            ? '약관에 동의했어요'
+                            : '이용약관 확인 및 동의',
+                        style: TextStyles.normalTextRegular.copyWith(
+                          color: agreement.value.values.every((v) => v)
+                              ? ColorStyles.primaryColor
+                              : ColorStyles.gray4,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_outlined,
+                      size: 24,
+                      color: agreement.value.values.every((v) => v)
+                          ? ColorStyles.primaryColor
+                          : ColorStyles.gray5,
+                    ),
+                  ],
+                )
             ),
           ),
         ],
