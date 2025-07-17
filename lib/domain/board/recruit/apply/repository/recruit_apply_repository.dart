@@ -19,4 +19,11 @@ abstract class RecruitApplyRepository {
     required int boardId,
     required int memberId,
   });
+
+  Future<void> recruitDecision({
+    required RecruitType type,
+    required int boardId,
+    required int applierId,
+    required String status,
+  });
 }

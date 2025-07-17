@@ -8,18 +8,22 @@ part 'recruit_applicant_detail_model.g.dart';
 @JsonSerializable()
 class RecruitApplicantDetailModel with _$RecruitApplicantDetailModel {
   final int boardId;
+  final String title;
   final int applierId;
   final String applierName;
   final String departmentName;
+  final String status;
   final DateTime applyTime;
   final String? introduction;
   final String? motivation;
 
   RecruitApplicantDetailModel({
     required this.boardId,
+    required this.title,
     required this.applierId,
     required this.applierName,
     required this.departmentName,
+    required this.status,
     required this.applyTime,
     this.introduction,
     this.motivation,
@@ -34,8 +38,10 @@ extension RecruitApplicantDetailModelMapper on RecruitApplicantDetailModel {
     return RecruitApplicantDetailEntity(
       boardId: boardId,
       applierId: applierId,
+      title: title,
       applierName: applierName,
       departmentName: departmentName,
+      status: status,
       applyTime: applyTime,
       introduction: introduction,
       motivation: motivation,

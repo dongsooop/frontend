@@ -24,10 +24,11 @@ class RecruitApplicantDetailArgs {
       other is RecruitApplicantDetailArgs &&
           runtimeType == other.runtimeType &&
           type == other.type &&
-          boardId == other.boardId;
+          boardId == other.boardId &&
+          memberId == other.memberId;
 
   @override
-  int get hashCode => type.hashCode ^ boardId.hashCode;
+  int get hashCode => type.hashCode ^ boardId.hashCode ^ memberId.hashCode;
 }
 
 @riverpod

@@ -16,9 +16,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RecruitApplicantDetailModel {
   int get boardId;
+  String get title;
   int get applierId;
   String get applierName;
   String get departmentName;
+  String get status;
   DateTime get applyTime;
   String? get introduction;
   String? get motivation;
@@ -38,12 +40,14 @@ mixin _$RecruitApplicantDetailModel {
         (other.runtimeType == runtimeType &&
             other is RecruitApplicantDetailModel &&
             (identical(other.boardId, boardId) || other.boardId == boardId) &&
+            (identical(other.title, title) || other.title == title) &&
             (identical(other.applierId, applierId) ||
                 other.applierId == applierId) &&
             (identical(other.applierName, applierName) ||
                 other.applierName == applierName) &&
             (identical(other.departmentName, departmentName) ||
                 other.departmentName == departmentName) &&
+            (identical(other.status, status) || other.status == status) &&
             (identical(other.applyTime, applyTime) ||
                 other.applyTime == applyTime) &&
             (identical(other.introduction, introduction) ||
@@ -54,12 +58,12 @@ mixin _$RecruitApplicantDetailModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, boardId, applierId, applierName,
-      departmentName, applyTime, introduction, motivation);
+  int get hashCode => Object.hash(runtimeType, boardId, title, applierId,
+      applierName, departmentName, status, applyTime, introduction, motivation);
 
   @override
   String toString() {
-    return 'RecruitApplicantDetailModel(boardId: $boardId, applierId: $applierId, applierName: $applierName, departmentName: $departmentName, applyTime: $applyTime, introduction: $introduction, motivation: $motivation)';
+    return 'RecruitApplicantDetailModel(boardId: $boardId, title: $title, applierId: $applierId, applierName: $applierName, departmentName: $departmentName, status: $status, applyTime: $applyTime, introduction: $introduction, motivation: $motivation)';
   }
 }
 
@@ -72,9 +76,11 @@ abstract mixin class $RecruitApplicantDetailModelCopyWith<$Res> {
   @useResult
   $Res call(
       {int boardId,
+      String title,
       int applierId,
       String applierName,
       String departmentName,
+      String status,
       DateTime applyTime,
       String? introduction,
       String? motivation});
@@ -94,9 +100,11 @@ class _$RecruitApplicantDetailModelCopyWithImpl<$Res>
   @override
   $Res call({
     Object? boardId = null,
+    Object? title = null,
     Object? applierId = null,
     Object? applierName = null,
     Object? departmentName = null,
+    Object? status = null,
     Object? applyTime = null,
     Object? introduction = freezed,
     Object? motivation = freezed,
@@ -106,6 +114,10 @@ class _$RecruitApplicantDetailModelCopyWithImpl<$Res>
           ? _self.boardId
           : boardId // ignore: cast_nullable_to_non_nullable
               as int,
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
       applierId: null == applierId
           ? _self.applierId
           : applierId // ignore: cast_nullable_to_non_nullable
@@ -117,6 +129,10 @@ class _$RecruitApplicantDetailModelCopyWithImpl<$Res>
       departmentName: null == departmentName
           ? _self.departmentName
           : departmentName // ignore: cast_nullable_to_non_nullable
+              as String,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
               as String,
       applyTime: null == applyTime
           ? _self.applyTime

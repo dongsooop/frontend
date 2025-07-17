@@ -50,6 +50,24 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
     }, RecruitApplicantDetailException());
   }
 
+  @override
+  Future<void> recruitDecision({
+    required RecruitType type,
+    required int boardId,
+    required int applierId,
+    required String status,
+  }) async {
+    return _handle(() async {
+      final model = await _dataSource.recruitDecision(
+        type: type,
+        boardId: boardId,
+        applierId: applierId,
+        status: status,
+      );
+      return model;
+    }, RecruitApplicantDetailException());
+  }
+
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();

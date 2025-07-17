@@ -63,4 +63,27 @@ class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
     }
     throw Exception('status: ${response.statusCode}');
   }
+
+  @override
+  Future<void> recruitDecision({
+    required RecruitType type,
+    required int boardId,
+    required int applierId,
+    required String status,
+  }) async {
+    final baseUrl = RecruitTypeConfig.getApplyEndpoint(type);
+    final url = '$baseUrl/$boardId';
+
+    final response = await _authDio.patch(
+      url,
+      data: {
+        'status': status,
+        'applierId': applierId,
+      },
+    );
+
+    if (response.statusCode != HttpStatusCode.noContent.code) {
+      throw Exception('status: ${response.statusCode}');
+    }
+  }
 }
