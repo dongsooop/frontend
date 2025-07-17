@@ -44,7 +44,9 @@ void customActionSheet(
               isDestructiveAction: true,
               child: Text(
                 deleteText ?? '삭제',
-                style: TextStyles.largeTextRegular,
+                style: TextStyles.largeTextRegular.copyWith(
+                  color: ColorStyles.warning100,
+                ),
               ),
             ),
           ],

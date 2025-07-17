@@ -20,3 +20,7 @@ String formatLastActivityTime(DateTime time) {
 String formatTimestamp(DateTime time) {
   return DateFormat('a h:mm', 'ko').format(time);
 }
+
+String formatSanctionTime(DateTime time) {
+  return '${time.year}. ${time.month}. ${time.day} ${time.hour}:${time.minute.toString().padLeft(2, '0')}';
+}

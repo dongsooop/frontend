@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
-import 'package:dongsoop/domain/auth/enum/department_type.dart';
-import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class DeptSelectBottomSheet extends HookConsumerWidget {
-  final DepartmentType? selectedDept;
-  final void Function(DepartmentType dept) onSelected;
+import '../../../domain/report/enum/report_reason.dart';
 
-  const DeptSelectBottomSheet({
+class ReportSelectBottomSheet extends HookConsumerWidget {
+  final ReportReason? selectedReason;
+  final void Function(ReportReason reason) onSelected;
+
+  const ReportSelectBottomSheet({
     super.key,
-    required this.selectedDept,
+    required this.selectedReason,
     required this.onSelected,
   });
 
+
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = DepartmentTypeExtension.infoMap.entries
-        .where((entry) => entry.key != DepartmentType.Unknown)
-        .toList();
+    final items = ReportReason.values;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -40,7 +39,7 @@ class DeptSelectBottomSheet extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '학과 선택',
+                    '신고 사유 선택',
                     style: TextStyles.titleTextBold.copyWith(
                       color: ColorStyles.black,
                     ),
@@ -53,22 +52,21 @@ class DeptSelectBottomSheet extends HookConsumerWidget {
                       itemCount: items.length,
                       separatorBuilder: (context, idx) => SizedBox(height: 8),
                       itemBuilder: (context, idx) {
-                        final deptType = items[idx].key;
-                        final deptInfo = items[idx].value;
+                        final reason = items[idx];
                         return SizedBox(
                           height: 44,
                           width: double.infinity,
                           child: GestureDetector(
                             onTap: () {
-                              onSelected(deptType);
+                              onSelected(reason);
                               Navigator.of(context).pop();
                             },
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                deptInfo.displayName,
+                                reason.message,
                                 style: TextStyles.largeTextRegular.copyWith(
-                                  color: ColorStyles.black
+                                  color: ColorStyles.black,
                                 ),
                               ),
                             ),

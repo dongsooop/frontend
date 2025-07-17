@@ -4,6 +4,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
+import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/detail/widget/botton_button.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
@@ -18,11 +19,13 @@ import 'package:go_router/go_router.dart';
 class MarketDetailPageScreen extends ConsumerWidget {
   final int id;
   final MarketType type;
+  final void Function(String reportType, int targetId) onTapReport;
 
   const MarketDetailPageScreen({
     super.key,
     required this.id,
     required this.type,
+    required this.onTapReport,
   });
 
   @override
@@ -58,10 +61,8 @@ class MarketDetailPageScreen extends ConsumerWidget {
                 } else {
                   customActionSheet(
                     context,
-                    onDelete: () {
-                      _reportMarket(context);
-                    },
                     deleteText: '신고',
+                    onDelete: () => onTapReport(type.reportType.name, id),
                   );
                 }
               });
@@ -304,20 +305,6 @@ class MarketDetailPageScreen extends ConsumerWidget {
             );
           }
         },
-      ),
-    );
-  }
-
-  // TODO: 추후 신고 로직에서 사용할 Dialog
-  void _reportMarket(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => CustomConfirmDialog(
-        title: '신고 완료',
-        content: '신고가 접수되었습니다.',
-        confirmText: '확인',
-        onConfirm: () => context.pop(),
-        isSingleAction: true,
       ),
     );
   }

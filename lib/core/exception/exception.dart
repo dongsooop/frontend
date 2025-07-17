@@ -22,7 +22,19 @@ class SignUpException implements Exception {
 
 class LoginException implements Exception {
   final String message;
-  LoginException([this.message = "아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요"]);
+  const LoginException([this.message = "알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+class InvalidCredentialsException extends LoginException {
+  const InvalidCredentialsException([String message = "아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요"]) : super(message);
+
+  @override
+  String toString() => message;
+}
+class UserSanctionedException extends LoginException {
+  const UserSanctionedException([String message = "현재 제재 중인 계정입니다. 자세한 내용은 고객센터에 문의해 주세요."]) : super(message);
 
   @override
   String toString() => message;
@@ -260,4 +272,37 @@ class ProfanityDetectedException implements Exception {
 
   @override
   String toString() => '수정 후 다시 작성 버튼을 눌러주세요. \n $responseData';
+}
+
+// 신고
+class ReportException implements Exception {
+  final String message;
+  const ReportException([this.message = "알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+class SelfReportException extends ReportException {
+  const SelfReportException([String message = '본인은 신고할 수 없어요.']) : super(message);
+
+  @override
+  String toString() => message;
+}
+class AlreadySanctionedException extends ReportException {
+  const AlreadySanctionedException([String message = "이미 제제 중인 사용자예요."]) : super(message);
+
+  @override
+  String toString() => message;
+}
+class NotFoundException extends ReportException {
+  const NotFoundException([String message = "신고 대상이 존재하지 않아요."]) : super(message);
+
+  @override
+  String toString() => message;
+}
+class DuplicateReportException extends ReportException {
+  const DuplicateReportException([String message = "중복 신고는 불가능해요."]) : super(message);
+
+  @override
+  String toString() => message;
 }
