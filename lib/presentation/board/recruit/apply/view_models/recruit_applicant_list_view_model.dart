@@ -9,15 +9,14 @@ part 'recruit_applicant_list_view_model.g.dart';
 
 @riverpod
 class RecruitApplicantListViewModel extends _$RecruitApplicantListViewModel {
-  late final RecruitApplicantListUseCase _useCase;
+  RecruitApplicantListUseCase get _useCase =>
+      ref.read(recruitApplicantUseCaseProvider);
 
   @override
   FutureOr<List<RecruitApplicantListEntity>> build({
     required RecruitType type,
     required int boardId,
   }) async {
-    _useCase = ref.read(recruitApplicantUseCaseProvider);
-
     try {
       final list = await _useCase.execute(type: type, boardId: boardId);
       return list;

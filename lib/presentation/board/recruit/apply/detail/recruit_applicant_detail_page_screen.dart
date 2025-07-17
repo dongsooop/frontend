@@ -218,7 +218,6 @@ class _DecisionButtons extends StatelessWidget {
                       cancelText: '취소',
                       confirmText: '확인',
                       onConfirm: () async {
-                        context.pop();
                         await onFail();
                       },
                     ),
@@ -249,7 +248,6 @@ class _DecisionButtons extends StatelessWidget {
                       cancelText: '취소',
                       confirmText: '확인',
                       onConfirm: () async {
-                        context.pop();
                         await onPass();
                       },
                     ),

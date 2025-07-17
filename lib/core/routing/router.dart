@@ -136,7 +136,6 @@ final router = GoRouter(
         final extra = state.extra as Map<String, dynamic>?;
         final id = extra?['id'];
         final type = extra?['type'];
-
         return RecruitApplyPageScreen(id: id, type: type);
       },
     ),
@@ -146,6 +145,7 @@ final router = GoRouter(
         final extra = state.extra as Map<String, dynamic>?;
         final id = extra?['id'];
         final type = extra?['type'];
+
         return RecruitApplicantListPage(
           boardId: id,
           type: type,
