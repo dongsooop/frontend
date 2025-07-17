@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
+import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
 import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
 import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dongsoop/domain/auth/model/department_type.dart';
+import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/auth/use_case/check_duplicate_use_case.dart';
 

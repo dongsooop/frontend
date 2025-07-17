@@ -1,5 +1,5 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
-import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
+import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';

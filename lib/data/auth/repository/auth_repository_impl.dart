@@ -4,7 +4,7 @@ import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
 import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
 import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
-import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
+import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthDataSource _authDataSource;

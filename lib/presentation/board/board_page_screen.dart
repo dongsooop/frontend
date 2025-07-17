@@ -1,7 +1,7 @@
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
-import 'package:dongsoop/domain/auth/model/department_type_ext.dart';
+import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
