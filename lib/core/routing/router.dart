@@ -147,15 +147,20 @@ final router = GoRouter(
         final id = extra?['id'];
         final type = extra?['type'];
         return RecruitApplicantListPage(
-            boardId: id,
-            type: type,
-            onTapApplicantDetail: (memberId) async {
-              context.push(RoutePaths.recruitApplicantDetail, extra: {
+          boardId: id,
+          type: type,
+          onTapApplicantDetail: (memberId) async {
+            final result = await context.push<String>(
+              RoutePaths.recruitApplicantDetail,
+              extra: {
                 'id': id,
                 'type': type,
                 'memberId': memberId,
-              });
-            });
+              },
+            );
+            return result;
+          },
+        );
       },
     ),
     GoRoute(

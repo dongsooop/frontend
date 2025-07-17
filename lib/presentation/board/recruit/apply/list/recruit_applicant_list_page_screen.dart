@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class RecruitApplicantListPage extends ConsumerWidget {
   final int boardId;
   final RecruitType type;
-  final Future<void> Function(int memberId) onTapApplicantDetail;
+  final Future<String?> Function(int memberId) onTapApplicantDetail;
 
   const RecruitApplicantListPage({
     Key? key,
@@ -25,13 +25,12 @@ class RecruitApplicantListPage extends ConsumerWidget {
     );
 
     return SafeArea(
-        child: Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(44),
-        child: const DetailHeader(title: "지원자 확인"),
-      ),
-      body: SafeArea(
-        child: applicantListAsync.when(
+      child: Scaffold(
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(44),
+          child: DetailHeader(title: "지원자 확인"),
+        ),
+        body: applicantListAsync.when(
           data: (list) {
             if (list.isEmpty) {
               return const Center(child: Text('지원자가 없습니다.'));
@@ -42,12 +41,20 @@ class RecruitApplicantListPage extends ConsumerWidget {
               itemCount: list.length,
               itemBuilder: (context, index) {
                 final applicant = list[index];
-                final name = applicant.memberName;
                 final statusInfo = _statusBadge(applicant.status);
 
                 return GestureDetector(
                   onTap: () async {
-                    await onTapApplicantDetail(applicant.memberId);
+                    final result =
+                        await onTapApplicantDetail(applicant.memberId);
+                    if (result == 'PASS' || result == 'FAIL') {
+                      ref.invalidate(
+                        recruitApplicantListViewModelProvider(
+                          boardId: boardId,
+                          type: type,
+                        ),
+                      );
+                    }
                   },
                   child: Column(
                     children: [
@@ -67,7 +74,7 @@ class RecruitApplicantListPage extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    name,
+                                    applicant.memberName,
                                     style: TextStyles.normalTextBold.copyWith(
                                       color: ColorStyles.black,
                                     ),
@@ -111,10 +118,10 @@ class RecruitApplicantListPage extends ConsumerWidget {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('$e')),
+          error: (e, _) => Center(child: Text('에러: $e')),
         ),
       ),
-    ));
+    );
   }
 }
 
@@ -133,7 +140,7 @@ _StatusInfo _statusBadge(String status) {
           '합격', ColorStyles.primary5, ColorStyles.primaryColor);
     case 'FAIL':
       return const _StatusInfo(
-          '불합격', ColorStyles.warning10, ColorStyles.warning100);
+          '불합격', ColorStyles.labelColorRed10, ColorStyles.labelColorRed100);
     case 'APPLY':
     default:
       return const _StatusInfo('미정', ColorStyles.gray1, ColorStyles.gray3);
