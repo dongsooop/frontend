@@ -70,4 +70,18 @@ class RecruitDataSourceImpl implements RecruitDataSource {
       throw Exception('status: ${response.statusCode}');
     }
   }
+
+  @override
+  Future<void> deletePost({
+    required int id,
+    required RecruitType type,
+  }) async {
+    final baseUrl = RecruitTypeConfig.getRecruitEndpoint(type);
+    final url = '$baseUrl/$id';
+    final response = await _authDio.delete(url);
+
+    if (response.statusCode != HttpStatusCode.noContent.code) {
+      throw Exception('status: ${response.statusCode}');
+    }
+  }
 }

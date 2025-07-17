@@ -27,14 +27,20 @@ class LoginException implements Exception {
   @override
   String toString() => message;
 }
+
 class InvalidCredentialsException extends LoginException {
-  const InvalidCredentialsException([String message = "아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요"]) : super(message);
+  const InvalidCredentialsException(
+      [String message = "아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요"])
+      : super(message);
 
   @override
   String toString() => message;
 }
+
 class UserSanctionedException extends LoginException {
-  const UserSanctionedException([String message = "현재 제재 중인 계정입니다. 자세한 내용은 고객센터에 문의해 주세요."]) : super(message);
+  const UserSanctionedException(
+      [String message = "현재 제재 중인 계정입니다. 자세한 내용은 고객센터에 문의해 주세요."])
+      : super(message);
 
   @override
   String toString() => message;
@@ -70,6 +76,16 @@ class RecruitDetailException implements Exception {
   final String message;
   RecruitDetailException([
     this.message = "모집 게시글 상세 정보를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+class RecruitDeleteException implements Exception {
+  final String message;
+  RecruitDeleteException([
+    this.message = "해당 모집 게시글 삭제 과정에서 문제가 발생했어요. 잠시 후 다시 시도해주세요",
   ]);
 
   @override
@@ -225,7 +241,7 @@ class MarketDeleteException implements Exception {
   final String message;
 
   MarketDeleteException([
-    this.message = "장터 게시글 삭제 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "장터 게시글 삭제 과정에서 문제가 발생했어요. 잠시 후 다시 시도해주세요",
   ]);
 
   @override
@@ -282,26 +298,34 @@ class ReportException implements Exception {
   @override
   String toString() => message;
 }
+
 class SelfReportException extends ReportException {
-  const SelfReportException([String message = '본인은 신고할 수 없어요.']) : super(message);
+  const SelfReportException([String message = '본인은 신고할 수 없어요.'])
+      : super(message);
 
   @override
   String toString() => message;
 }
+
 class AlreadySanctionedException extends ReportException {
-  const AlreadySanctionedException([String message = "이미 제제 중인 사용자예요."]) : super(message);
+  const AlreadySanctionedException([String message = "이미 제제 중인 사용자예요."])
+      : super(message);
 
   @override
   String toString() => message;
 }
+
 class NotFoundException extends ReportException {
-  const NotFoundException([String message = "신고 대상이 존재하지 않아요."]) : super(message);
+  const NotFoundException([String message = "신고 대상이 존재하지 않아요."])
+      : super(message);
 
   @override
   String toString() => message;
 }
+
 class DuplicateReportException extends ReportException {
-  const DuplicateReportException([String message = "중복 신고는 불가능해요."]) : super(message);
+  const DuplicateReportException([String message = "중복 신고는 불가능해요."])
+      : super(message);
 
   @override
   String toString() => message;
