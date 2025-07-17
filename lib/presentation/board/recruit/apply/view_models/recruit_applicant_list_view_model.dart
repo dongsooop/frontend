@@ -19,7 +19,8 @@ class RecruitApplicantListViewModel extends _$RecruitApplicantListViewModel {
   }) async {
     try {
       final list = await _useCase.execute(type: type, boardId: boardId);
-      return list;
+      final sorted = _sortApplicants(list);
+      return sorted;
     } catch (e, st) {
       logger.e('지원자 목록 조회 실패', error: e, stackTrace: st);
       throw e;
@@ -34,10 +35,20 @@ class RecruitApplicantListViewModel extends _$RecruitApplicantListViewModel {
 
     try {
       final list = await _useCase.execute(type: type, boardId: boardId);
-      state = AsyncData(list);
+      final sorted = _sortApplicants(list);
+      state = AsyncData(sorted);
     } catch (e, st) {
       logger.e('지원자 목록 새로고침 실패', error: e, stackTrace: st);
       state = AsyncError(e, st);
     }
+  }
+
+  List<RecruitApplicantListEntity> _sortApplicants(
+      List<RecruitApplicantListEntity> list) {
+    return [...list]..sort((a, b) {
+        if (a.status == 'APPLY' && b.status != 'APPLY') return -1;
+        if (a.status != 'APPLY' && b.status == 'APPLY') return 1;
+        return 0;
+      });
   }
 }
