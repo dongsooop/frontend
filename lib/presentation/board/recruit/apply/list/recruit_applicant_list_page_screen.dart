@@ -9,11 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class RecruitApplicantListPage extends ConsumerWidget {
   final int boardId;
   final RecruitType type;
+  final Future<String?> Function(int memberId) onTapApplicantDetail;
 
   const RecruitApplicantListPage({
     Key? key,
     required this.boardId,
     required this.type,
+    required this.onTapApplicantDetail,
   }) : super(key: key);
 
   @override
@@ -22,90 +24,107 @@ class RecruitApplicantListPage extends ConsumerWidget {
       recruitApplicantListViewModelProvider(boardId: boardId, type: type),
     );
 
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(44),
-        child: DetailHeader(
-          title: "지원자 확인",
+    return SafeArea(
+      child: Scaffold(
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(44),
+          child: DetailHeader(title: "지원자 확인"),
         ),
-      ),
-      body: SafeArea(
-        child: applicantListAsync.when(
+        body: applicantListAsync.when(
           data: (list) {
             if (list.isEmpty) {
               return const Center(child: Text('지원자가 없습니다.'));
             }
 
             return ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 final applicant = list[index];
-                final name = applicant.memberName;
                 final statusInfo = _statusBadge(applicant.status);
 
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: 48,
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            'assets/images/profile.png',
-                            width: 48,
-                            height: 48,
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  name,
-                                  style: TextStyles.normalTextBold.copyWith(
-                                    color: ColorStyles.black,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  applicant.departmentName,
-                                  style: TextStyles.smallTextRegular.copyWith(
-                                    color: ColorStyles.gray4,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: statusInfo.backgroundColor,
-                              borderRadius: BorderRadius.circular(32),
-                            ),
-                            child: Text(
-                              statusInfo.label,
-                              style: TextStyles.smallTextBold.copyWith(
-                                color: statusInfo.textColor,
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () async {
+                    final result =
+                        await onTapApplicantDetail(applicant.memberId);
+                    if (result == 'PASS' || result == 'FAIL') {
+                      ref.invalidate(
+                        recruitApplicantListViewModelProvider(
+                          boardId: boardId,
+                          type: type,
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    // 전체 터치 영역 확보
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                'assets/images/profile.png',
+                                width: 48,
+                                height: 48,
                               ),
-                            ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      applicant.memberName,
+                                      style: TextStyles.normalTextBold.copyWith(
+                                        color: ColorStyles.black,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      applicant.departmentName,
+                                      style:
+                                          TextStyles.smallTextRegular.copyWith(
+                                        color: ColorStyles.gray4,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: statusInfo.backgroundColor,
+                                  borderRadius: BorderRadius.circular(32),
+                                ),
+                                child: Text(
+                                  statusInfo.label,
+                                  style: TextStyles.smallTextBold.copyWith(
+                                    color: statusInfo.textColor,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-                  ],
+                  ),
                 );
               },
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('$e')),
+          error: (e, _) => Center(child: Text('에러: $e')),
         ),
       ),
     );
@@ -127,7 +146,7 @@ _StatusInfo _statusBadge(String status) {
           '합격', ColorStyles.primary5, ColorStyles.primaryColor);
     case 'FAIL':
       return const _StatusInfo(
-          '불합격', ColorStyles.warning10, ColorStyles.warning100);
+          '불합격', ColorStyles.labelColorRed10, ColorStyles.labelColorRed100);
     case 'APPLY':
     default:
       return const _StatusInfo('미정', ColorStyles.gray1, ColorStyles.gray3);

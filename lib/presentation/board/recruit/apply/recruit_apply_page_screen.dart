@@ -134,6 +134,7 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
                   TextFormField(
                     controller: introduceController,
                     maxLines: 5,
+                    maxLength: 500,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(16),
                       hintText: '자기소개를 적어주세요',
@@ -160,6 +161,7 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
                   TextFormField(
                     controller: supportController,
                     maxLines: 5,
+                    maxLength: 500,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(16),
                       hintText: '지원 동기를 적어주세요',
