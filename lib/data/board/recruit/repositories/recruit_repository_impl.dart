@@ -53,6 +53,16 @@ class RecruitRepositoryImpl implements RecruitRepository {
     }, RecruitWriteException());
   }
 
+  @override
+  Future<void> deleteRecruitPost({
+    required int id,
+    required RecruitType type,
+  }) async {
+    return _handle(() async {
+      await _dataSource.deletePost(id: id, type: type);
+    }, RecruitDeleteException());
+  }
+
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();

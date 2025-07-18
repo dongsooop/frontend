@@ -1,4 +1,6 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
+import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
@@ -6,13 +8,14 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/widget/botton_button.dart';
+import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:go_router/go_router.dart';
 
 class RecruitDetailPageScreen extends ConsumerWidget {
   final int id;
@@ -47,18 +50,32 @@ class RecruitDetailPageScreen extends ConsumerWidget {
           preferredSize: const Size.fromHeight(44),
           child: DetailHeader(
             title: type.label,
-            trailing: user != null
-              ? IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () {
-                    customActionSheet(
-                      context,
-                      deleteText: '신고',
-                      onDelete: () => onTapReport(type.reportType.name, id),
-                    );
-                  },
-                )
-              : null,
+            trailing: user == null
+                ? null
+                : detailState.maybeWhen(
+                    data: (data) {
+                      final viewType = data.recruitDetail?.viewType;
+                      final isOwner = viewType == 'OWNER';
+
+                      return IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        onPressed: () {
+                          customActionSheet(
+                            context,
+                            deleteText: isOwner ? '삭제' : '신고',
+                            onDelete: () {
+                              if (isOwner) {
+                                _showDeleteDialog(context, ref);
+                              } else {
+                                onTapReport(type.reportType.name, id);
+                              }
+                            },
+                          );
+                        },
+                      );
+                    },
+                    orElse: () => null,
+                  ),
           ),
         ),
         bottomNavigationBar: detailState.maybeWhen(
@@ -219,6 +236,47 @@ class RecruitDetailPageScreen extends ConsumerWidget {
             );
           },
         ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userSessionProvider);
+    showDialog(
+      context: context,
+      builder: (_) => CustomConfirmDialog(
+        title: '게시글 삭제',
+        content: '정말로 이 게시글을 삭제하시겠습니까?',
+        confirmText: '삭제',
+        cancelText: '취소',
+        onConfirm: () async {
+          final viewModel = ref.read(
+            recruitDetailViewModelProvider(
+              RecruitDetailArgs(id: id, type: type),
+            ).notifier,
+          );
+
+          try {
+            await viewModel.deleteRecruit(id, type);
+            if (user == null) return;
+            ref.invalidate(RecruitListViewModelProvider(
+              type: type,
+              departmentCode: user.departmentType,
+            ));
+            context.pop(true);
+          } catch (e) {
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '삭제 실패',
+                content: '$e',
+                confirmText: '확인',
+                isSingleAction: true,
+                onConfirm: () => context.pop(),
+              ),
+            );
+          }
+        },
       ),
     );
   }

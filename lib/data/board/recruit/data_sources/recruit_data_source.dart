@@ -19,4 +19,9 @@ abstract class RecruitDataSource {
     required RecruitType type,
     required RecruitWriteEntity entity,
   });
+
+  Future<void> deletePost({
+    required int id,
+    required RecruitType type,
+  });
 }

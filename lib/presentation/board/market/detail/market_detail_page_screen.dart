@@ -245,8 +245,6 @@ class MarketDetailPageScreen extends ConsumerWidget {
         confirmText: '삭제',
         cancelText: '취소',
         onConfirm: () async {
-          context.pop(); // 닫기
-
           final viewModel = ref.read(
             marketDetailViewModelProvider(MarketDetailArgs(id: id)).notifier,
           );
