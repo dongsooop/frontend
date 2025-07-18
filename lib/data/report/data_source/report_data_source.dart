@@ -1,7 +1,11 @@
+import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_write_request.dart';
+import 'package:dongsoop/domain/report/model/report_admin_sanction_response.dart';
 
 abstract class ReportDataSource {
   Future<void> writeReport(ReportWriteRequest request);
   Future<ReportSanctionResponse> getSanctionStatus();
+  Future<void> sanctionWriteReport(ReportAdminSanctionRequest request);
+  Future<List<ReportAdminSanctionResponse>?> getReports(String type, String sort);
 }

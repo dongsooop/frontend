@@ -288,3 +288,42 @@ class DuplicateReportException extends ReportException {
   @override
   String toString() => message;
 }
+
+// 제재
+class SanctionException implements Exception {
+  final String message;
+  const SanctionException([this.message = "알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+class SanctionRequestValidationException extends SanctionException {
+  const SanctionRequestValidationException([String message = '요청 데이터 검증에 실패했어요.']) : super(message);
+
+  @override
+  String toString() => message;
+}
+class AlreadyProcessedException extends SanctionException {
+  const AlreadyProcessedException([String message = "이미 처리된 신고예요."]) : super(message);
+
+  @override
+  String toString() => message;
+}
+class NotFoundSanctionException extends SanctionException {
+  const NotFoundSanctionException([String message = "신고 또는 회원을 찾을 수 없어요."]) : super(message);
+
+  @override
+  String toString() => message;
+}
+class BadRequestParameterException extends SanctionException {
+  const BadRequestParameterException([String message = '필터 또는 페이질 파라미터가 잘못됐어요.']) : super(message);
+
+  @override
+  String toString() => message;
+}
+class NoAdminAuthorityException extends SanctionException {
+  const NoAdminAuthorityException([String message = '관리자 권한이 없어요.']) : super(message);
+
+  @override
+  String toString() => message;
+}

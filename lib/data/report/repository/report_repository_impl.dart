@@ -1,9 +1,10 @@
 import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
+import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
+import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_write_request.dart';
 import 'package:dongsoop/domain/report/repository/report_repository.dart';
-
 import '../../../domain/report/enum/sanction_type.dart';
 import '../../../main.dart';
 
@@ -29,8 +30,8 @@ class ReportRepositoryImpl implements ReportRepository {
       return null;
     }
 
-    final sanctionType = SanctionType.fromApiValue(response.sanctionType!);
-    switch (sanctionType!) {
+    final sanctionType = SanctionType.fromString(response.sanctionType!);
+    switch (sanctionType) {
       case SanctionType.WARNING:
         // 경고
         break;
@@ -49,5 +50,25 @@ class ReportRepositoryImpl implements ReportRepository {
         break;
     }
     return response;
+  }
+
+  @override
+  Future<void> sanctionWriteReport(ReportAdminSanctionRequest request) async {
+    await _reportDataSource.sanctionWriteReport(request);
+  }
+
+  @override
+  Future<List<ReportAdminSanction>?> getReports(String type, String sort) async {
+    final response = await _reportDataSource.getReports(type, sort);
+    if (response == null || response.isEmpty) return [];
+
+    final List<ReportAdminSanction> reports = [];
+
+    // 병렬 처리
+    await Future.wait(response.map((report) async {
+      reports.add(ReportAdminSanction.fromEntity(report));
+    }));
+
+    return reports;
   }
 }

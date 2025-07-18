@@ -27,6 +27,9 @@ import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../presentation/my_page/admin/report/report_admin_sanction_screen.dart';
+import '../../presentation/my_page/admin/report/report_admin_screen.dart';
+
 final router = GoRouter(
   initialLocation: RoutePaths.splash,
   routes: [
@@ -89,6 +92,33 @@ final router = GoRouter(
         final title = state.uri.queryParameters['title'] ?? '';
         return MypageWebView(url: url, title: title);
       },
+    ),
+    GoRoute(
+      path: RoutePaths.adminReport,
+      builder: (context, state) => ReportAdminScreen(
+        onTapReportSanction: (reportId, targetMemberId) {
+          context.push(
+            RoutePaths.adminReportSanction,
+            extra: {
+              'reportId': reportId,
+              'targetMemberId': targetMemberId,
+            },
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.adminReportSanction,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final reportId = extra?['reportId'] as int? ?? 0;
+        final targetMemberId = extra?['targetMemberId'] as int? ?? 0;
+
+        return ReportAdminSanctionScreen(
+          reportId: reportId,
+          targetMemberId: targetMemberId,
+        );
+      }
     ),
     GoRoute(
       path: RoutePaths.setting,
@@ -185,11 +215,11 @@ final router = GoRouter(
           type: type,
           onTapReport: (reportType, targetId) {
             context.push(
-                RoutePaths.report,
-                extra: {
-                  'reportType': reportType,
-                  'targetId': targetId,
-                }
+              RoutePaths.report,
+              extra: {
+                'reportType': reportType,
+                'targetId': targetId,
+              },
             );
           },
         );
@@ -292,11 +322,17 @@ final router = GoRouter(
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.mypage,
-            builder: (context, state) => MyPageScreen(onTapSignIn: () {
-              context.push(RoutePaths.signIn);
-            }, onTapSetting: () {
-              context.push(RoutePaths.setting);
-            }),
+            builder: (context, state) => MyPageScreen(
+              onTapSignIn: () {
+                context.push(RoutePaths.signIn);
+              },
+              onTapSetting: () {
+                context.push(RoutePaths.setting);
+              },
+              onTapAdminReport: () {
+                context.push(RoutePaths.adminReport);
+              },
+            ),
           ),
         ]),
       ],

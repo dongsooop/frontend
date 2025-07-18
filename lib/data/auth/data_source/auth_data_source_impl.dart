@@ -129,7 +129,8 @@ class AuthDataSourceImpl implements AuthDataSource {
       User(
         id: storedUser.id,
         nickname: storedUser.nickname,
-        departmentType: storedUser.departmentType
+        departmentType: storedUser.departmentType,
+        role: storedUser.role,
       )
     );
     // token 저장

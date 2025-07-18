@@ -20,6 +20,7 @@ mixin _$StoredUser {
   String get departmentType;
   String get accessToken;
   String get refreshToken;
+  String get role;
 
   /// Create a copy of StoredUser
   /// with the given fields replaced by the non-null parameter values.
@@ -41,16 +42,17 @@ mixin _$StoredUser {
             (identical(other.accessToken, accessToken) ||
                 other.accessToken == accessToken) &&
             (identical(other.refreshToken, refreshToken) ||
-                other.refreshToken == refreshToken));
+                other.refreshToken == refreshToken) &&
+            (identical(other.role, role) || other.role == role));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, nickname, departmentType, accessToken, refreshToken);
+  int get hashCode => Object.hash(runtimeType, id, nickname, departmentType,
+      accessToken, refreshToken, role);
 
   @override
   String toString() {
-    return 'StoredUser(id: $id, nickname: $nickname, departmentType: $departmentType, accessToken: $accessToken, refreshToken: $refreshToken)';
+    return 'StoredUser(id: $id, nickname: $nickname, departmentType: $departmentType, accessToken: $accessToken, refreshToken: $refreshToken, role: $role)';
   }
 }
 
@@ -65,7 +67,8 @@ abstract mixin class $StoredUserCopyWith<$Res> {
       String nickname,
       String departmentType,
       String accessToken,
-      String refreshToken});
+      String refreshToken,
+      String role});
 }
 
 /// @nodoc
@@ -85,6 +88,7 @@ class _$StoredUserCopyWithImpl<$Res> implements $StoredUserCopyWith<$Res> {
     Object? departmentType = null,
     Object? accessToken = null,
     Object? refreshToken = null,
+    Object? role = null,
   }) {
     return _then(StoredUser(
       id: null == id
@@ -106,6 +110,10 @@ class _$StoredUserCopyWithImpl<$Res> implements $StoredUserCopyWith<$Res> {
       refreshToken: null == refreshToken
           ? _self.refreshToken
           : refreshToken // ignore: cast_nullable_to_non_nullable
+              as String,
+      role: null == role
+          ? _self.role
+          : role // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }

@@ -21,6 +21,7 @@ mixin _$SignInResponse {
   String get nickname;
   String get email;
   String get departmentType;
+  List<String> get role;
 
   /// Create a copy of SignInResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -44,17 +45,25 @@ mixin _$SignInResponse {
                 other.nickname == nickname) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.departmentType, departmentType) ||
-                other.departmentType == departmentType));
+                other.departmentType == departmentType) &&
+            const DeepCollectionEquality().equals(other.role, role));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, accessToken, refreshToken,
-      nickname, email, departmentType);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      accessToken,
+      refreshToken,
+      nickname,
+      email,
+      departmentType,
+      const DeepCollectionEquality().hash(role));
 
   @override
   String toString() {
-    return 'SignInResponse(id: $id, accessToken: $accessToken, refreshToken: $refreshToken, nickname: $nickname, email: $email, departmentType: $departmentType)';
+    return 'SignInResponse(id: $id, accessToken: $accessToken, refreshToken: $refreshToken, nickname: $nickname, email: $email, departmentType: $departmentType, role: $role)';
   }
 }
 
@@ -70,7 +79,8 @@ abstract mixin class $SignInResponseCopyWith<$Res> {
       String refreshToken,
       String nickname,
       String email,
-      String departmentType});
+      String departmentType,
+      List<String> role});
 }
 
 /// @nodoc
@@ -92,6 +102,7 @@ class _$SignInResponseCopyWithImpl<$Res>
     Object? nickname = null,
     Object? email = null,
     Object? departmentType = null,
+    Object? role = null,
   }) {
     return _then(SignInResponse(
       id: null == id
@@ -118,6 +129,10 @@ class _$SignInResponseCopyWithImpl<$Res>
           ? _self.departmentType
           : departmentType // ignore: cast_nullable_to_non_nullable
               as String,
+      role: null == role
+          ? _self.role
+          : role // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ));
   }
 }

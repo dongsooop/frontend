@@ -9,11 +9,13 @@ class User with _$User {
   final int id;
   final String nickname;
   final String departmentType;
+  final String role;
 
   const User({
     required this.id,
     required this.nickname,
     required this.departmentType,
+    required this.role,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

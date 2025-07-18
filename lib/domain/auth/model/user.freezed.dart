@@ -18,6 +18,7 @@ mixin _$User {
   int get id;
   String get nickname;
   String get departmentType;
+  String get role;
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.
@@ -35,16 +36,18 @@ mixin _$User {
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
             (identical(other.departmentType, departmentType) ||
-                other.departmentType == departmentType));
+                other.departmentType == departmentType) &&
+            (identical(other.role, role) || other.role == role));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, nickname, departmentType);
+  int get hashCode =>
+      Object.hash(runtimeType, id, nickname, departmentType, role);
 
   @override
   String toString() {
-    return 'User(id: $id, nickname: $nickname, departmentType: $departmentType)';
+    return 'User(id: $id, nickname: $nickname, departmentType: $departmentType, role: $role)';
   }
 }
 
@@ -53,7 +56,7 @@ abstract mixin class $UserCopyWith<$Res> {
   factory $UserCopyWith(User value, $Res Function(User) _then) =
       _$UserCopyWithImpl;
   @useResult
-  $Res call({int id, String nickname, String departmentType});
+  $Res call({int id, String nickname, String departmentType, String role});
 }
 
 /// @nodoc
@@ -71,6 +74,7 @@ class _$UserCopyWithImpl<$Res> implements $UserCopyWith<$Res> {
     Object? id = null,
     Object? nickname = null,
     Object? departmentType = null,
+    Object? role = null,
   }) {
     return _then(User(
       id: null == id
@@ -84,6 +88,10 @@ class _$UserCopyWithImpl<$Res> implements $UserCopyWith<$Res> {
       departmentType: null == departmentType
           ? _self.departmentType
           : departmentType // ignore: cast_nullable_to_non_nullable
+              as String,
+      role: null == role
+          ? _self.role
+          : role // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }

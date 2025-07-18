@@ -7,9 +7,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class LoggedInUserCard extends HookConsumerWidget {
   final User user;
+  final VoidCallback onTapAdminReport;
+
   const LoggedInUserCard({
     super.key,
     required this.user,
+    required this.onTapAdminReport,
   });
 
   @override
@@ -84,12 +87,12 @@ class LoggedInUserCard extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 16,
             children: [
-              _myPageMenuItem(
-                icon: Icons.browse_gallery_outlined,
-                label: '시간표 관리',
-                routePath: 'schedule',
-                context: context,
-              ),
+              // _myPageMenuItem(
+              //   icon: Icons.browse_gallery_outlined,
+              //   label: '시간표 관리',
+              //   routePath: 'schedule',
+              //   context: context,
+              // ),
               _myPageMenuItem(
                 icon: Icons.calendar_month_outlined,
                 label: '일정 관리',
@@ -116,15 +119,20 @@ class LoggedInUserCard extends HookConsumerWidget {
                 children: [
                   _myActivityItem(
                     label: '개설한 모집글',
-                    routePath: '',
+                    onTap: onTapAdminReport,
                   ),
                   _myActivityItem(
                     label: '지원한 모집글',
-                    routePath: '',
+                    onTap: onTapAdminReport,
                   ),
                   _myActivityItem(
                     label: '장터 내역',
-                    routePath: '',
+                    onTap: onTapAdminReport,
+                  ),
+                  // 관리자
+                  _myActivityItem(
+                    label: '신고 관리',
+                    onTap: onTapAdminReport,
                   ),
                 ],
               )
@@ -172,13 +180,14 @@ class LoggedInUserCard extends HookConsumerWidget {
 
   Widget _myActivityItem({
     required String label,
-    // required VoidCallback onTap,
-    required String routePath
+    required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: () {
-
-      },
+    return InkWell(
+      onTap: onTap,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
       child: SizedBox(
         width: double.infinity,
         height: 44,

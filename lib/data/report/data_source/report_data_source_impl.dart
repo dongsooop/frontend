@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
+import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
+import 'package:dongsoop/domain/report/model/report_admin_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_write_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -20,10 +22,7 @@ class ReportDataSourceImpl implements ReportDataSource {
     final endpoint = dotenv.get('REPORT_WRITE_ENDPOINT');
 
     try {
-      final response = await _authDio.post(endpoint, data: request.toJson());
-      if (response.statusCode == HttpStatusCode.created.code) {
-        logger.i('신고 성공');
-      }
+      await _authDio.post(endpoint, data: request.toJson());
     } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw SelfReportException();
@@ -57,6 +56,59 @@ class ReportDataSourceImpl implements ReportDataSource {
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
       logger.e("report error: ${e}");
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> sanctionWriteReport(ReportAdminSanctionRequest request) async {
+    final endpoint = dotenv.get('SANCTION_WRITE_ENDPOINT');
+
+    try {
+      final response = await _authDio.post(endpoint, data: request.toJson());
+      if (response.statusCode == HttpStatusCode.created.code) {
+        logger.i('제재 성공');
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw SanctionRequestValidationException();
+      } else if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw NotFoundSanctionException();
+      } else if (e.response?.statusCode == HttpStatusCode.conflict.code) {
+        throw AlreadyProcessedException();
+      }
+      logger.e("report error statusCode: ${e.response?.statusCode}");
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<ReportAdminSanctionResponse>?> getReports(String filter, String sort) async {
+    final reports = dotenv.get('REPORTS_ENDPOINT');
+    final query = 'filter=$filter&sort=$sort';
+    final endpint = '$reports?$query';
+
+    try {
+      final response = await _authDio.get(endpint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<dynamic> data = response.data;
+
+        final List<ReportAdminSanctionResponse> reports = data.map((e) => ReportAdminSanctionResponse.fromJson(e as Map<String, dynamic>)).toList();
+        logger.i("reports: ${reports.first.sanctionReason}");
+        return reports;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw BadRequestParameterException();
+      } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
+        throw NoAdminAuthorityException();
+      }
+      logger.e("report error statusCode: ${e.response?.statusCode}");
+      rethrow;
+    } catch (e) {
       rethrow;
     }
   }
