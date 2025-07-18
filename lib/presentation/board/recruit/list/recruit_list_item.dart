@@ -1,9 +1,8 @@
-import 'package:dongsoop/core/presentation/components/common_tag.dart';
+import 'package:dongsoop/core/presentation/components/common_recruit_list_item.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
-import 'package:dongsoop/ui/color_styles.dart';
-import 'package:dongsoop/ui/text_styles.dart';
+import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -88,73 +87,21 @@ class RecruitListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final statusText = '모집 중';
+    final volunteerText = '${recruit.volunteer}명이 지원했어요';
+    final periodText = formatRecruitPeriod(recruit.startAt, recruit.endAt);
+
+    final tags = recruit.tags.split(',');
+
+    return CommonRecruitListItem(
+      statusText: statusText,
+      volunteerText: volunteerText,
+      periodText: periodText,
+      title: recruit.title,
+      content: recruit.content,
+      tags: tags,
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.task_alt,
-                            size: 16, color: ColorStyles.primaryColor),
-                        const SizedBox(width: 4),
-                        Text('모집 중',
-                            style: TextStyles.smallTextBold
-                                .copyWith(color: ColorStyles.black)),
-                        const SizedBox(width: 8),
-                        Text('${recruit.volunteer}명이 지원했어요',
-                            style: TextStyles.smallTextRegular
-                                .copyWith(color: ColorStyles.gray4)),
-                      ],
-                    ),
-                    Text(
-                      '${recruit.startAt.month.toString().padLeft(2)}. ${recruit.startAt.day.toString().padLeft(2)}. ~ ${recruit.endAt.month.toString().padLeft(2)}. ${recruit.endAt.day.toString().padLeft(2)}.',
-                      style: TextStyles.smallTextRegular
-                          .copyWith(color: ColorStyles.gray4),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(recruit.title,
-                    style: TextStyles.largeTextBold
-                        .copyWith(color: ColorStyles.black)),
-                const SizedBox(height: 8),
-                FractionallySizedBox(
-                  widthFactor: 0.8,
-                  child: Text(
-                    recruit.content,
-                    style: TextStyles.smallTextRegular
-                        .copyWith(color: ColorStyles.black),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  children: recruit.tags
-                      .split(',')
-                      .asMap()
-                      .entries
-                      .map((entry) => CommonTag(
-                            label: entry.value,
-                            index: entry.key,
-                          ))
-                      .toList(),
-                ),
-              ],
-            ),
-          ),
-          if (!isLastItem) const Divider(color: ColorStyles.gray2, height: 1),
-        ],
-      ),
+      isLastItem: isLastItem,
     );
   }
 }

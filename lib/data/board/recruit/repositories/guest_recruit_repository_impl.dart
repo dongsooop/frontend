@@ -51,6 +51,15 @@ class GuestRecruitRepositoryImpl implements RecruitRepository {
     throw LoginRequiredException();
   }
 
+  @override
+  Future<void> deleteRecruitPost({
+    required int id,
+    required RecruitType type,
+  }) {
+    // 이중 방어
+    throw LoginRequiredException();
+  }
+
   Future<T> _handle<T>(
     Future<T> Function() action,
     Exception exception,
