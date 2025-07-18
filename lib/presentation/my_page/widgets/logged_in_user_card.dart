@@ -130,10 +130,11 @@ class LoggedInUserCard extends HookConsumerWidget {
                     onTap: onTapAdminReport,
                   ),
                   // 관리자
-                  _myActivityItem(
-                    label: '신고 관리',
-                    onTap: onTapAdminReport,
-                  ),
+                  if (user.role == 'ADMIN')
+                    _myActivityItem(
+                      label: '신고 관리',
+                      onTap: onTapAdminReport,
+                    ),
                 ],
               )
             ],

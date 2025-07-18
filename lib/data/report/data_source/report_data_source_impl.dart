@@ -88,15 +88,15 @@ class ReportDataSourceImpl implements ReportDataSource {
   Future<List<ReportAdminSanctionResponse>?> getReports(String filter, String sort) async {
     final reports = dotenv.get('REPORTS_ENDPOINT');
     final query = 'filter=$filter&sort=$sort';
-    final endpint = '$reports?$query';
+    final endpoint = '$reports?$query';
 
     try {
-      final response = await _authDio.get(endpint);
+      final response = await _authDio.get(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
 
         final List<ReportAdminSanctionResponse> reports = data.map((e) => ReportAdminSanctionResponse.fromJson(e as Map<String, dynamic>)).toList();
-        logger.i("reports: ${reports.first.sanctionReason}");
+
         return reports;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');

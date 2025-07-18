@@ -10,14 +10,21 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/presentation/components/custom_action_sheet.dart';
 import '../../../../core/presentation/components/custom_confirm_dialog.dart';
 import '../../../../core/presentation/components/detail_header.dart';
+import '../../../../domain/board/market/enum/market_type.dart';
+import '../../../../domain/board/recruit/enum/recruit_type.dart';
 import '../../../../domain/report/enum/sanction_type.dart';
 
 class ReportAdminScreen extends HookConsumerWidget {
   final void Function(int reportId, int targetMemberId) onTapReportSanction;
 
+  final void Function(int reportId, RecruitType type) onTapRecruit;
+  final void Function(int reportId, MarketType type) onTapMarket;
+
   const ReportAdminScreen({
     super.key,
     required this.onTapReportSanction,
+    required this.onTapRecruit,
+    required this.onTapMarket,
   });
 
   @override
@@ -29,6 +36,8 @@ class ReportAdminScreen extends HookConsumerWidget {
     final viewModel = ref.read(reportAdminViewModelProvider.notifier);
     final reportAdminState = ref.watch(reportAdminViewModelProvider);
 
+    final reports = reportAdminState.reports ?? [];
+
     useEffect(() {
       Future.microtask(() async {
         await viewModel.loadReports(filterTypes[selectedIndex.value]);
@@ -36,7 +45,6 @@ class ReportAdminScreen extends HookConsumerWidget {
       return null;
     }, [selectedIndex.value]);
 
-    final reports = reportAdminState.reports ?? [];
 
     // 오류
     useEffect(() {
@@ -100,7 +108,6 @@ class ReportAdminScreen extends HookConsumerWidget {
                       isSelected: selectedIndex.value == index,
                       onTap: () {
                         selectedIndex.value = index;
-                        // 원하는 동작 추가 (ex. 리스트 필터링)
                       },
                     );
                   }),
@@ -122,12 +129,32 @@ class ReportAdminScreen extends HookConsumerWidget {
                             context,
                             editText: '게시글 확인',
                             onEdit: () {
-                              // reportType에 따라서 페이지 이동
+                              final ReportType type = ReportType.fromString(report.reportType);
+
+                              switch (type) {
+                                case ReportType.PROJECT_BOARD:
+                                case ReportType.STUDY_BOARD:
+                                case ReportType.TUTORING_BOARD:
+                                  final recruitType = toRecruitType(type);
+                                  onTapRecruit(
+                                    report.targetId,
+                                    recruitType!,
+                                  );
+                                  break;
+                                case ReportType.MARKETPLACE_BOARD:
+                                  onTapMarket(
+                                    report.targetId,
+                                    MarketType.REPORT,
+                                  );
+                                  break;
+                                case ReportType.MEMBER:
+                                  break;
+                              }
                             },
                             deleteText: '제재',
                             onDelete: () => onTapReportSanction(
                               report.id,
-                              0 // report.targetMemberId,
+                              report.targetMemberId,
                             ),
                           )
                         : null,
@@ -320,5 +347,18 @@ class ReportAdminScreen extends HookConsumerWidget {
         ),
       ),
     );
+  }
+
+  RecruitType? toRecruitType(ReportType type) {
+    switch (type) {
+      case ReportType.PROJECT_BOARD:
+        return RecruitType.project;
+      case ReportType.STUDY_BOARD:
+        return RecruitType.study;
+      case ReportType.TUTORING_BOARD:
+        return RecruitType.tutoring;
+      default:
+        return null;
+    }
   }
 }

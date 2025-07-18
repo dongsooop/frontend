@@ -14,12 +14,12 @@ class ReportAdminState {
   ReportAdminState copyWith({
     bool? isLoading,
     String? errorMessage,
-    List<ReportAdminSanction>? report,
+    List<ReportAdminSanction>? reports,
   }) {
     return ReportAdminState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
-      reports: report ?? this.reports,
+      reports: reports ?? this.reports,
     );
   }
 }

@@ -12,12 +12,12 @@ class ReportAdminViewModel extends StateNotifier<ReportAdminState> {
   ) : super(ReportAdminState(isLoading: false));
 
   Future<void> loadReports(String type) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, errorMessage: null,);
 
     try {
-      final reports = await _getReportsUseCase.execute(type);
-      logger.i('reports view model: ${reports?.first.sanctionReason}');
-      state = state.copyWith(isLoading: false, report: reports);
+      final reports = await _getReportsUseCase.execute(type) ?? [];
+
+      state = state.copyWith(isLoading: false, reports: reports);
     } catch (e, st) {
       logger.e('load reports error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(

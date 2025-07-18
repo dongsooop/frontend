@@ -10,8 +10,8 @@ class ReportAdminSanction with _$ReportAdminSanction {
   final int id;
   final String reporterNickname;
   final String reportType;
-  // final int targetId;
-  final int? targetMemberId;
+  final int targetId;
+  final int targetMemberId;
   final String reportReason;
   final String? description;
   final String? adminNickname;
@@ -25,8 +25,8 @@ class ReportAdminSanction with _$ReportAdminSanction {
     required this.id,
     required this.reporterNickname,
     required this.reportType,
-    // required this.targetId,
-    this.targetMemberId,
+    required this.targetId,
+    required this.targetMemberId,
     required this.reportReason,
     this.description,
     this.adminNickname,
@@ -42,7 +42,7 @@ class ReportAdminSanction with _$ReportAdminSanction {
       id: entity.id,
       reporterNickname: entity.reporterNickname,
       reportType: entity.reportType,
-      // targetId: entity.targetId,
+      targetId: entity.targetId,
       targetMemberId: entity.targetMemberId,
       reportReason: entity.reportReason,
       description: entity.description,

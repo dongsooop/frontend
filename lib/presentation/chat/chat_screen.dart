@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';

@@ -17,8 +17,9 @@ T _$identity<T>(T value) => value;
 mixin _$ReportAdminSanction {
   int get id;
   String get reporterNickname;
-  String get reportType; // final int targetId;
-  int? get targetMemberId;
+  String get reportType;
+  int get targetId;
+  int get targetMemberId;
   String get reportReason;
   String? get description;
   String? get adminNickname;
@@ -46,6 +47,8 @@ mixin _$ReportAdminSanction {
                 other.reporterNickname == reporterNickname) &&
             (identical(other.reportType, reportType) ||
                 other.reportType == reportType) &&
+            (identical(other.targetId, targetId) ||
+                other.targetId == targetId) &&
             (identical(other.targetMemberId, targetMemberId) ||
                 other.targetMemberId == targetMemberId) &&
             (identical(other.reportReason, reportReason) ||
@@ -72,6 +75,7 @@ mixin _$ReportAdminSanction {
       id,
       reporterNickname,
       reportType,
+      targetId,
       targetMemberId,
       reportReason,
       description,
@@ -84,7 +88,7 @@ mixin _$ReportAdminSanction {
 
   @override
   String toString() {
-    return 'ReportAdminSanction(id: $id, reporterNickname: $reporterNickname, reportType: $reportType, targetMemberId: $targetMemberId, reportReason: $reportReason, description: $description, adminNickname: $adminNickname, sanctionType: $sanctionType, sanctionReason: $sanctionReason, sanctionStartDate: $sanctionStartDate, sanctionEndDate: $sanctionEndDate, createdAt: $createdAt)';
+    return 'ReportAdminSanction(id: $id, reporterNickname: $reporterNickname, reportType: $reportType, targetId: $targetId, targetMemberId: $targetMemberId, reportReason: $reportReason, description: $description, adminNickname: $adminNickname, sanctionType: $sanctionType, sanctionReason: $sanctionReason, sanctionStartDate: $sanctionStartDate, sanctionEndDate: $sanctionEndDate, createdAt: $createdAt)';
   }
 }
 
@@ -98,7 +102,8 @@ abstract mixin class $ReportAdminSanctionCopyWith<$Res> {
       {int id,
       String reporterNickname,
       String reportType,
-      int? targetMemberId,
+      int targetId,
+      int targetMemberId,
       String reportReason,
       String? description,
       String? adminNickname,
@@ -125,7 +130,8 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
     Object? id = null,
     Object? reporterNickname = null,
     Object? reportType = null,
-    Object? targetMemberId = freezed,
+    Object? targetId = null,
+    Object? targetMemberId = null,
     Object? reportReason = null,
     Object? description = freezed,
     Object? adminNickname = freezed,
@@ -148,10 +154,14 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
           ? _self.reportType
           : reportType // ignore: cast_nullable_to_non_nullable
               as String,
-      targetMemberId: freezed == targetMemberId
+      targetId: null == targetId
+          ? _self.targetId
+          : targetId // ignore: cast_nullable_to_non_nullable
+              as int,
+      targetMemberId: null == targetMemberId
           ? _self.targetMemberId
           : targetMemberId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as int,
       reportReason: null == reportReason
           ? _self.reportReason
           : reportReason // ignore: cast_nullable_to_non_nullable

@@ -9,8 +9,8 @@ class ReportAdminSanctionResponse with _$ReportAdminSanctionResponse {
   final int id;
   final String reporterNickname;
   final String reportType;
-  // final int targetId;
-  final int? targetMemberId;
+  final int targetId;
+  final int targetMemberId;
   final String reportReason;
   final String? description;
   final String? adminNickname;
@@ -24,8 +24,8 @@ class ReportAdminSanctionResponse with _$ReportAdminSanctionResponse {
     required this.id,
     required this.reporterNickname,
     required this.reportType,
-    // required this.targetId,
-    this.targetMemberId,
+    required this.targetId,
+    required this.targetMemberId,
     required this.reportReason,
     this.description,
     this.adminNickname,

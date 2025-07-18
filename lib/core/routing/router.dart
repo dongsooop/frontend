@@ -106,6 +106,25 @@ final router = GoRouter(
             },
           );
         },
+
+        onTapRecruit: (targetId, type) {
+          context.push(
+            RoutePaths.recruitDetail,
+            extra: {
+              'id': targetId,
+              'type': type,
+            },
+          );
+        },
+        onTapMarket: (targetId, type) {
+          context.push(
+            RoutePaths.marketDetail,
+            extra: {
+              'id': targetId,
+              'type': type,
+            },
+          );
+        },
       ),
     ),
     GoRoute(

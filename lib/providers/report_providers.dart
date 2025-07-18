@@ -64,7 +64,7 @@ StateNotifierProvider.autoDispose<ReportViewModel, ReportState>((ref) {
 });
 
 final reportAdminViewModelProvider =
-StateNotifierProvider.autoDispose<ReportAdminViewModel, ReportAdminState>((ref) {
+StateNotifierProvider<ReportAdminViewModel, ReportAdminState>((ref) {
   final getReportsUseCase = ref.watch(getReportsUseCaseProvider);
 
   return ReportAdminViewModel(getReportsUseCase);
