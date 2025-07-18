@@ -16,16 +16,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../main.dart';
+
 class MarketDetailPageScreen extends ConsumerWidget {
   final int id;
   final MarketType type;
   final void Function(String reportType, int targetId) onTapReport;
+  final String? status;
 
   const MarketDetailPageScreen({
     super.key,
     required this.id,
     required this.type,
     required this.onTapReport,
+    this.status,
   });
 
   @override
@@ -73,7 +77,11 @@ class MarketDetailPageScreen extends ConsumerWidget {
           data: (data) {
             final viewType = data.marketDetail?.viewType;
             final market = data.marketDetail!;
-            final isComplete = data.isComplete;
+            final isComplete = status == 'CLOSED'
+                ? true
+                : status == 'OPEN'
+                ? false
+                : data.isComplete;
 
             // 버튼 라벨 정의
             String label;
@@ -146,7 +154,12 @@ class MarketDetailPageScreen extends ConsumerWidget {
         body: state.when(
           data: (data) {
             final market = data.marketDetail!;
-            final isComplete = data.isComplete;
+            final isComplete = status == 'CLOSED'
+                ? true
+                : status == 'OPEN'
+                ? false
+                : data.isComplete;
+            logger.i('status: ${status} / isComplete: ${isComplete}');
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
