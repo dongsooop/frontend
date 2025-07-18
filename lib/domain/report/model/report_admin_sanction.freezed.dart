@@ -19,7 +19,7 @@ mixin _$ReportAdminSanction {
   String get reporterNickname;
   String get reportType;
   int get targetId;
-  int get targetMemberId;
+  int? get targetMemberId;
   String get reportReason;
   String? get description;
   String? get adminNickname;
@@ -103,7 +103,7 @@ abstract mixin class $ReportAdminSanctionCopyWith<$Res> {
       String reporterNickname,
       String reportType,
       int targetId,
-      int targetMemberId,
+      int? targetMemberId,
       String reportReason,
       String? description,
       String? adminNickname,
@@ -131,7 +131,7 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
     Object? reporterNickname = null,
     Object? reportType = null,
     Object? targetId = null,
-    Object? targetMemberId = null,
+    Object? targetMemberId = freezed,
     Object? reportReason = null,
     Object? description = freezed,
     Object? adminNickname = freezed,
@@ -158,10 +158,10 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
           ? _self.targetId
           : targetId // ignore: cast_nullable_to_non_nullable
               as int,
-      targetMemberId: null == targetMemberId
+      targetMemberId: freezed == targetMemberId
           ? _self.targetMemberId
           : targetMemberId // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       reportReason: null == reportReason
           ? _self.reportReason
           : reportReason // ignore: cast_nullable_to_non_nullable

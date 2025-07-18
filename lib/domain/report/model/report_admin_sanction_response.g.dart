@@ -13,7 +13,7 @@ ReportAdminSanctionResponse _$ReportAdminSanctionResponseFromJson(
       reporterNickname: json['reporterNickname'] as String,
       reportType: json['reportType'] as String,
       targetId: (json['targetId'] as num).toInt(),
-      targetMemberId: (json['targetMemberId'] as num).toInt(),
+      targetMemberId: (json['targetMemberId'] as num?)?.toInt(),
       reportReason: json['reportReason'] as String,
       description: json['description'] as String?,
       adminNickname: json['adminNickname'] as String?,

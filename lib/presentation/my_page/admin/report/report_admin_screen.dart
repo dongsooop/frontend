@@ -154,7 +154,7 @@ class ReportAdminScreen extends HookConsumerWidget {
                             deleteText: '제재',
                             onDelete: () => onTapReportSanction(
                               report.id,
-                              report.targetMemberId,
+                              report.targetMemberId!,
                             ),
                           )
                         : null,

@@ -65,6 +65,7 @@ class ReportDataSourceImpl implements ReportDataSource {
     final endpoint = dotenv.get('SANCTION_WRITE_ENDPOINT');
 
     try {
+      logger.i('sanction: ${request.toJson()}');
       final response = await _authDio.post(endpoint, data: request.toJson());
       if (response.statusCode == HttpStatusCode.created.code) {
         logger.i('제재 성공');

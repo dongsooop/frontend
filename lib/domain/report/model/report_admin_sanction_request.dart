@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/report/enum/sanction_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'report_admin_sanction_request.freezed.dart';
@@ -8,7 +9,7 @@ part 'report_admin_sanction_request.g.dart';
 class ReportAdminSanctionRequest with _$ReportAdminSanctionRequest {
   final int reportId;
   final int targetMemberId;
-  final String sanctionType;
+  final SanctionType sanctionType;
   final String sanctionReason;
   final DateTime? sanctionEndAt;
 

@@ -17,7 +17,7 @@ T _$identity<T>(T value) => value;
 mixin _$ReportAdminSanctionRequest {
   int get reportId;
   int get targetMemberId;
-  String get sanctionType;
+  SanctionType get sanctionType;
   String get sanctionReason;
   DateTime? get sanctionEndAt;
 
@@ -66,7 +66,7 @@ abstract mixin class $ReportAdminSanctionRequestCopyWith<$Res> {
   $Res call(
       {int reportId,
       int targetMemberId,
-      String sanctionType,
+      SanctionType sanctionType,
       String sanctionReason,
       DateTime? sanctionEndAt});
 }
@@ -102,7 +102,7 @@ class _$ReportAdminSanctionRequestCopyWithImpl<$Res>
       sanctionType: null == sanctionType
           ? _self.sanctionType
           : sanctionType // ignore: cast_nullable_to_non_nullable
-              as String,
+              as SanctionType,
       sanctionReason: null == sanctionReason
           ? _self.sanctionReason
           : sanctionReason // ignore: cast_nullable_to_non_nullable

@@ -324,7 +324,7 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
             await viewModel.sanctionWrite(ReportAdminSanctionRequest(
               reportId: reportId,
               targetMemberId: targetMemberId,
-              sanctionType: selectedReportReason.value!.message,
+              sanctionType: selectedReportReason.value!,
               sanctionReason: sanctionTextController.text,
               sanctionEndAt: selectedDate.value));
           },
