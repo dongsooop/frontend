@@ -34,7 +34,7 @@ class SplashScreen extends HookConsumerWidget {
                 barrierDismissible: false,
                 builder: (_) => CustomConfirmDialog(
                   title: '동숲 이용 제재',
-                  content: '${reportSanction.reason}\n${reportSanction.description}됩니다.\n'
+                  content: '${reportSanction.reason}\n${reportSanction.description}\n'
                     '${reportSanction.startDate} ~ ${reportSanction.endDate}',
                   isSingleAction: true,
                   confirmText: '확인',
