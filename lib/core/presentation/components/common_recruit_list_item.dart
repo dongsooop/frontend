@@ -29,6 +29,8 @@ class CommonRecruitListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasRealTags = tags.any((tag) => tag.trim().isNotEmpty);
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -83,19 +85,20 @@ class CommonRecruitListItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(height: 16),
 
-                // 태그
-                Wrap(
-                  children: tags
-                      .asMap()
-                      .entries
-                      .map((entry) => CommonTag(
-                            label: entry.value,
-                            index: entry.key,
-                          ))
-                      .toList(),
-                ),
+                if (hasRealTags) ...[
+                  const SizedBox(height: 16),
+                  Wrap(
+                    children: tags
+                        .asMap()
+                        .entries
+                        .map((entry) => CommonTag(
+                              label: entry.value,
+                              index: entry.key,
+                            ))
+                        .toList(),
+                  ),
+                ],
               ],
             ),
           ),
