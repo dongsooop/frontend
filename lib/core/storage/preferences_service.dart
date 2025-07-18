@@ -6,6 +6,7 @@ class PreferencesService {
   static const _idKey = 'id';
   static const _nicknameKey = 'nickname';
   static const _departmentKey = 'departmentType';
+  static const _roleKey = 'role';
 
   static const _noticeCachedOnceKey = 'notice_cached_once';
   static const _noticeCachedTimeKey = 'notice_last_cached_time';
@@ -15,6 +16,7 @@ class PreferencesService {
     await _prefs.setInt(_idKey, user.id);
     await _prefs.setString(_nicknameKey, user.nickname);
     await _prefs.setString(_departmentKey, user.departmentType);
+    await _prefs.setString(_roleKey, user.role);
   }
 
   Future<User?> getUser() async {
@@ -22,9 +24,10 @@ class PreferencesService {
     final id = _prefs.getInt(_idKey);
     final nickname = _prefs.getString(_nicknameKey);
     final departmentType = _prefs.getString(_departmentKey);
+    final role = _prefs.getString(_roleKey);
 
-    if (id != null && nickname != null && departmentType != null) {
-      return User(id: id, nickname: nickname, departmentType: departmentType);
+    if (id != null && nickname != null && departmentType != null && role != null) {
+      return User(id: id, nickname: nickname, departmentType: departmentType, role: role);
     }
     return null;
   }

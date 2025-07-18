@@ -20,6 +20,6 @@ class GetSanctionStatusUseCase {
    final startDate = formatSanctionTime(sanction.startDate!);
    final endDate = formatSanctionTime(sanction.endDate!);
 
-   return ReportSanctionStatus(reason: sanction.reason!, startDate: startDate, endDate: endDate, description: sanction.description!);
+   return ReportSanctionStatus(reason: sanction.reason!, startDate: startDate!, endDate: endDate!, description: sanction.description!);
   }
 }

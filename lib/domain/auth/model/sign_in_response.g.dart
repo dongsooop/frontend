@@ -14,6 +14,7 @@ SignInResponse _$SignInResponseFromJson(Map<String, dynamic> json) =>
       nickname: json['nickname'] as String,
       email: json['email'] as String,
       departmentType: json['departmentType'] as String,
+      role: (json['role'] as List<dynamic>).map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$SignInResponseToJson(SignInResponse instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$SignInResponseToJson(SignInResponse instance) =>
       'nickname': instance.nickname,
       'email': instance.email,
       'departmentType': instance.departmentType,
+      'role': instance.role,
     };

@@ -230,7 +230,7 @@ class ReportScreen extends HookConsumerWidget {
         ),
         bottomNavigationBar: PrimaryBottomButton(
           onPressed: () async {
-            await viewModel.reportWrite(ReportWriteRequest(reportType: reportType, targetId: targetId, reason: selectedReportReason.value!.reason, description: textController.text));
+            await viewModel.reportWrite(ReportWriteRequest(reportType: reportType, targetId: targetId, reason: selectedReportReason.value!.name, description: textController.text));
           },
           label: '신고하기',
           isLoading: reportState.isLoading,

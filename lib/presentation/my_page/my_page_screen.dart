@@ -11,11 +11,13 @@ import 'package:dongsoop/providers/auth_providers.dart';
 class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSignIn;
   final VoidCallback onTapSetting;
+  final VoidCallback onTapAdminReport;
 
   const MyPageScreen({
     super.key,
     required this.onTapSignIn,
     required this.onTapSetting,
+    required this.onTapAdminReport,
   });
 
   @override
@@ -75,7 +77,7 @@ class MyPageScreen extends HookConsumerWidget {
                   if (user == null) {
                     return LoggedOutPromptCard(onTapLogin: onTapSignIn);
                   } else {
-                    return LoggedInUserCard(user: user);
+                    return LoggedInUserCard(user: user, onTapAdminReport: onTapAdminReport);
                   }
                 },
                 error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),

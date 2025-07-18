@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 void customActionSheet(
   BuildContext context, {
   VoidCallback? onEdit,
+  String? editText,
   required VoidCallback onDelete,
   String? deleteText,
 }) {
@@ -30,7 +31,7 @@ void customActionSheet(
                   onEdit();
                 },
                 child: Text(
-                  '수정',
+                  editText ?? '수정',
                   style: TextStyles.largeTextRegular.copyWith(
                     color: ColorStyles.primaryColor,
                   ),

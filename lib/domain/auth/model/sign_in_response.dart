@@ -12,6 +12,7 @@ class SignInResponse with _$SignInResponse {
   final String nickname;
   final String email;
   final String departmentType;
+  final List<String> role;
 
   const SignInResponse({
     required this.id,
@@ -20,6 +21,7 @@ class SignInResponse with _$SignInResponse {
     required this.nickname,
     required this.email,
     required this.departmentType,
+    required this.role,
   });
 
   factory SignInResponse.fromJson(Map<String, dynamic> json) => _$SignInResponseFromJson(json);

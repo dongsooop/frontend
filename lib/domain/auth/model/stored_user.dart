@@ -9,11 +9,14 @@ class StoredUser with _$StoredUser {
   final String departmentType;
   final String accessToken;
   final String refreshToken;
+  final String role;
 
-  const StoredUser(
-      {required this.id,
-      required this.nickname,
-      required this.departmentType,
-      required this.accessToken,
-      required this.refreshToken});
+  const StoredUser({
+    required this.id,
+    required this.nickname,
+    required this.departmentType,
+    required this.accessToken,
+    required this.refreshToken,
+    required this.role,
+  });
 }
