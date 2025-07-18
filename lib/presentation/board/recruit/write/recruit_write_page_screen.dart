@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
+import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
@@ -65,13 +66,19 @@ class RecruitWritePageScreen extends HookConsumerWidget {
       final type = RecruitType.values[typeIndex];
       final baseMajor =
           DepartmentTypeExtension.fromDisplayName(writerMajor).code;
+
       final deptList = typeIndex == 0
           ? [baseMajor]
-          : {
-              baseMajor,
-              ...state.majors
-                  .map((e) => DepartmentTypeExtension.fromDisplayName(e).code)
-            }.whereType<String>().toSet().toList();
+          : state.majors.contains('전체 학과')
+              ? DepartmentType.values
+                  .where((e) => e != DepartmentType.Unknown)
+                  .map((e) => e.code)
+                  .toList()
+              : {
+                  baseMajor,
+                  ...state.majors.map(
+                      (e) => DepartmentTypeExtension.fromDisplayName(e).code)
+                }.whereType<String>().toSet().toList();
 
       final dateState = ref.read(dateTimeViewModelProvider);
 

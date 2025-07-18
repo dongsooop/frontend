@@ -91,7 +91,9 @@ class RecruitListItem extends StatelessWidget {
     final volunteerText = '${recruit.volunteer}명이 지원했어요';
     final periodText = formatRecruitPeriod(recruit.startAt, recruit.endAt);
 
-    final tags = recruit.tags.split(',');
+    final rawTags =
+        recruit.tags.split(',').where((tag) => tag.trim().isNotEmpty).toList();
+    final tags = rawTags.isEmpty ? [''] : rawTags;
 
     return CommonRecruitListItem(
       statusText: statusText,

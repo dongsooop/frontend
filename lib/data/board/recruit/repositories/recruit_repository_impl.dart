@@ -7,6 +7,7 @@ import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart'
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_repository.dart';
+import 'package:dongsoop/main.dart';
 
 class RecruitRepositoryImpl implements RecruitRepository {
   final RecruitDataSource _dataSource;
@@ -66,7 +67,9 @@ class RecruitRepositoryImpl implements RecruitRepository {
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();
-    } catch (_) {
+    } catch (e, st) {
+      logger.e('예외 발생: $e');
+      logger.e('$st');
       throw exception;
     }
   }
