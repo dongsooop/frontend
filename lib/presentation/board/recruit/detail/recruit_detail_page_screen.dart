@@ -3,6 +3,7 @@ import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
+import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
@@ -134,6 +135,11 @@ class RecruitDetailPageScreen extends ConsumerWidget {
               return const Center(child: Text('상세정보가 없습니다.'));
             }
 
+            final allDepartments = DepartmentType.values
+                .where((e) => e != DepartmentType.Unknown)
+                .map((e) => e.code)
+                .toSet();
+
             return Padding(
               padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(
@@ -218,14 +224,24 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 16),
                         Wrap(
+                          spacing: 4,
+                          runSpacing: 8,
                           children: [
-                            ...detail.departmentTypeList.map(
-                              (dep) => CommonTag(
-                                label: DepartmentTypeExtension.fromCode(dep)
-                                    .displayName,
+                            if (detail.departmentTypeList
+                                .toSet()
+                                .containsAll(allDepartments))
+                              const CommonTag(
+                                label: '전체 학과',
                                 index: -1,
+                              )
+                            else
+                              ...detail.departmentTypeList.map(
+                                (dep) => CommonTag(
+                                  label: DepartmentTypeExtension.fromCode(dep)
+                                      .displayName,
+                                  index: -1,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ],
