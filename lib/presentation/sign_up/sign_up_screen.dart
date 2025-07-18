@@ -36,7 +36,8 @@ class SignUpScreen extends HookConsumerWidget {
       AgreementType.privacyPolicy: false,
     });
 
-    const notionUrl = 'https://zircon-football-529.notion.site/DongSoop-1af3ee6f25618080bb7dc4f985eda9c7?pvs=74';
+    const termsOfService = 'https://zircon-football-529.notion.site/Dongsoop-2333ee6f2561800cb85fdc87fbe9b4c2';
+    const privacyPolicy = 'https://zircon-football-529.notion.site/Dongsoop-2333ee6f256180a0821fdbf087345a1d';
 
     useEffect(() {
       emailController.addListener(() {
@@ -113,7 +114,7 @@ class SignUpScreen extends HookConsumerWidget {
               _buildPasswordSection(passwordController, passwordCheckController, ref),
               _buildNicknameSection(nicknameController, ref),
               _buildDeptSection(context, selectedDept, ref),
-              _buildAgreement(context, agreement, ref, notionUrl),
+              _buildAgreement(context, agreement, ref, termsOfService, privacyPolicy),
             ],
           ),
         ),
@@ -475,7 +476,7 @@ class SignUpScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildAgreement(BuildContext context, ValueNotifier<Map<AgreementType, bool>> agreement, WidgetRef ref, String notionUrl) {
+  Widget _buildAgreement(BuildContext context, ValueNotifier<Map<AgreementType, bool>> agreement, WidgetRef ref, String termsOfService, String privacyPolicy) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16),
@@ -499,11 +500,11 @@ class SignUpScreen extends HookConsumerWidget {
                   onViewDetail: (type) {
                     if (type == AgreementType.termsOfService) {
                       context.push(
-                        '/mypageWebView?url=$notionUrl&title=개인정보처리방침'
+                        '/mypageWebView?url=$termsOfService&title=서비스 이용약관'
                       );
                     } else if (type == AgreementType.privacyPolicy) {
                       context.push(
-                        '/mypageWebView?url=$notionUrl&title=개인정보처리방침'
+                        '/mypageWebView?url=$privacyPolicy&title=개인정보처리방침'
                       );
                     }
                   },

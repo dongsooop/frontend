@@ -17,7 +17,8 @@ class SettingScreen extends HookConsumerWidget {
     final viewModel = ref.read(settingViewModelProvider.notifier);
     final settingState = ref.watch(settingViewModelProvider);
 
-    const notionUrl = 'https://zircon-football-529.notion.site/DongSoop-1af3ee6f25618080bb7dc4f985eda9c7?pvs=74';
+    const termsOfService = 'https://zircon-football-529.notion.site/Dongsoop-2333ee6f2561800cb85fdc87fbe9b4c2';
+    const privacyPolicy = 'https://zircon-football-529.notion.site/Dongsoop-2333ee6f256180a0821fdbf087345a1d';
 
     if (settingState.errorMessage != null) {
       // error dialog
@@ -74,7 +75,7 @@ class SettingScreen extends HookConsumerWidget {
                     label: '서비스 이용약관',
                     onTap: () {
                       context.push(
-                        '/mypageWebView?url=$notionUrl&title=개인정보처리방침'
+                        '/mypageWebView?url=$termsOfService&title=서비스 이용약관'
                       );
                     },
                   ),
@@ -82,7 +83,7 @@ class SettingScreen extends HookConsumerWidget {
                     label: '개인정보 처리방침',
                     onTap: () {
                       context.push(
-                        '/mypageWebView?url=$notionUrl&title=개인정보처리방침'
+                        '/mypageWebView?url=$privacyPolicy&title=개인정보처리방침'
                       );
                     },
                   ),
@@ -192,7 +193,7 @@ class SettingScreen extends HookConsumerWidget {
   }) {
     return SizedBox(
       height: 44,
-      child: GestureDetector(
+      child: InkWell(
         onTap: onTap,
         child: Align(
           alignment: Alignment.centerLeft,

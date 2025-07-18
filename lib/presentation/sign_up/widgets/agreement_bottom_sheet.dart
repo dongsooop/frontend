@@ -64,8 +64,8 @@ class AgreementBottomSheet extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     type == AgreementType.termsOfService
-                        ? '[필수] 동숲 이용약관'
-                        : '[필수] 개인정보 수집 및 이용 동의',
+                        ? '[필수] 동숲 서비스 이용약관'
+                        : '[필수] 개인정보 처리방침',
                     style: TextStyles.largeTextRegular.copyWith(
                         color: ColorStyles.black
                     ),
