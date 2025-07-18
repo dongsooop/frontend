@@ -30,13 +30,12 @@ class MajorTagSection extends StatelessWidget {
   });
 
   List<String> get allTags {
-    final Set<String> tagSet = {writerMajor};
     if (selectedMajors.contains('전체 학과')) {
-      tagSet.add('전체 학과');
-    } else {
-      tagSet.addAll(selectedMajors);
+      return ['전체 학과', ...manualTags];
     }
-    return [...tagSet, ...manualTags];
+
+    final tagSet = <String>{...selectedMajors, writerMajor, ...manualTags};
+    return tagSet.toList();
   }
 
   @override
@@ -54,7 +53,6 @@ class MajorTagSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             RequiredLabel('모집 학과'),
           ],
@@ -125,7 +123,6 @@ class MajorTagSection extends StatelessWidget {
         ),
         const SizedBox(height: 40),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             RequiredLabel('태그'),
             const SizedBox(width: 8),
@@ -133,7 +130,7 @@ class MajorTagSection extends StatelessWidget {
               '작성자의 학과와 모집 학과는 자동으로 입력돼요',
               style: TextStyles.smallTextRegular
                   .copyWith(color: ColorStyles.gray4),
-            )
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -184,23 +181,23 @@ class MajorTagSection extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: allTags.map((tag) {
-              final isDeletable = tag != writerMajor;
+              final isStaticTag = tag == writerMajor;
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: SizedBox(
                   height: 44,
                   child: CommonTag(
                     label: tag,
+                    index: isStaticTag ? -1 : manualTags.indexOf(tag),
+                    isDeletable: !isStaticTag,
                     textStyle: TextStyles.normalTextBold,
-                    index: manualTags.indexOf(tag),
-                    isDeletable: isDeletable,
                     onDeleted: () => onTagRemoved(tag),
                   ),
                 ),
               );
             }).toList(),
           ),
-        )
+        ),
       ],
     );
   }
