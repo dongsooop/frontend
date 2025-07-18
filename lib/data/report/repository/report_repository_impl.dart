@@ -58,8 +58,13 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<List<ReportAdminSanction>?> getReports(String type, String sort) async {
-    final response = await _reportDataSource.getReports(type, sort);
+  Future<List<ReportAdminSanction>?> getReports(
+    String type,
+    String sort, {
+      int page = 0,
+      int size = 10,
+    }) async {
+    final response = await _reportDataSource.getReports(type, sort, page: page, size: size);
     if (response == null || response.isEmpty) return [];
 
     final List<ReportAdminSanction> reports = [];

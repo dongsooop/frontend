@@ -1,6 +1,7 @@
 import 'package:dongsoop/domain/report/enum/report_reason.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
+import 'package:dongsoop/main.dart';
 import 'package:dongsoop/providers/report_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -32,6 +33,7 @@ class ReportAdminScreen extends HookConsumerWidget {
     final selectedIndex = useState(0);
     final List<String> tabs = ['미처리', '활성 제재', '처리 완료'];
     final List<String> filterTypes = ['UNPROCESSED', 'ACTIVE_SANCTIONS', 'PROCESSED'];
+    final scrollController = useScrollController();
 
     final viewModel = ref.read(reportAdminViewModelProvider.notifier);
     final reportAdminState = ref.watch(reportAdminViewModelProvider);
@@ -44,6 +46,20 @@ class ReportAdminScreen extends HookConsumerWidget {
       });
       return null;
     }, [selectedIndex.value]);
+
+    useEffect(() {
+      void scrollListener() {
+        if (!scrollController.hasClients) return;
+        if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+          viewModel.fetchNextPage(filterTypes[selectedIndex.value]);
+        }
+      }
+      scrollController.addListener(scrollListener);
+
+      return () {
+        scrollController.removeListener(scrollListener);
+      };
+    }, [selectedIndex.value, scrollController]);
 
 
     // 오류
@@ -116,6 +132,7 @@ class ReportAdminScreen extends HookConsumerWidget {
               // 신고 내용
               Expanded(
                 child: ListView.builder(
+                  controller: scrollController,
                   itemCount: reports.length,
                   itemBuilder: (context, index) {
                     final report = reports[index];

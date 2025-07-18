@@ -26,4 +26,26 @@ class ReportAdminViewModel extends StateNotifier<ReportAdminState> {
       );
     }
   }
+
+  // 페이징
+  Future<void> fetchNextPage(String type) async {
+    if (!state.hasNext || state.isLoading) return; // 이미 끝이거나 로딩 중이면 무시
+
+    state = state.copyWith(isLoading: true);
+
+    try {
+      final nextPage = state.page + 1;
+      final newReports = await _getReportsUseCase.execute(type, page: nextPage, size: 10);
+
+      final isLast = newReports == null || newReports.length < 10;
+      state = state.copyWith(
+        isLoading: false,
+        reports: [...(state.reports ?? []), ...?newReports],
+        page: nextPage,
+        hasNext: !isLast,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: '신고 목록을 불러오는 중 오류가 발생했습니다.');
+    }
+  }
 }

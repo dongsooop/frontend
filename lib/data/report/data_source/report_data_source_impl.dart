@@ -86,9 +86,14 @@ class ReportDataSourceImpl implements ReportDataSource {
   }
 
   @override
-  Future<List<ReportAdminSanctionResponse>?> getReports(String filter, String sort) async {
+  Future<List<ReportAdminSanctionResponse>?> getReports(
+    String type,
+    String sort, {
+      int page = 0,
+      int size = 10,
+  }) async {
     final reports = dotenv.get('REPORTS_ENDPOINT');
-    final query = 'filter=$filter&sort=$sort';
+    final query = 'filter=$type&sort=$sort&page=$page&size=$size';
     final endpoint = '$reports?$query';
 
     try {
