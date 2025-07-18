@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/widget/botton_button.dart';
+import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -240,6 +241,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
   }
 
   void _showDeleteDialog(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userSessionProvider);
     showDialog(
       context: context,
       builder: (_) => CustomConfirmDialog(
@@ -248,8 +250,6 @@ class RecruitDetailPageScreen extends ConsumerWidget {
         confirmText: '삭제',
         cancelText: '취소',
         onConfirm: () async {
-          context.pop();
-
           final viewModel = ref.read(
             recruitDetailViewModelProvider(
               RecruitDetailArgs(id: id, type: type),
@@ -258,6 +258,11 @@ class RecruitDetailPageScreen extends ConsumerWidget {
 
           try {
             await viewModel.deleteRecruit(id, type);
+            if (user == null) return;
+            ref.invalidate(RecruitListViewModelProvider(
+              type: type,
+              departmentCode: user.departmentType,
+            ));
             context.pop(true);
           } catch (e) {
             showDialog(
