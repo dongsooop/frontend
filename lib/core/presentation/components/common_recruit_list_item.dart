@@ -54,7 +54,8 @@ class CommonRecruitListItem extends StatelessWidget {
                         Icon(Icons.task_alt,
                             size: 16, color: ColorStyles.primaryColor),
                         const SizedBox(width: 4),
-                        Text(statusText,
+                        Text(
+                            statusText,
                             style: TextStyles.smallTextBold
                                 .copyWith(color: ColorStyles.black)),
                         const SizedBox(width: 8),

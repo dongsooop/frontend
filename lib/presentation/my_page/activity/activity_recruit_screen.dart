@@ -11,7 +11,7 @@ import '../../board/utils/date_time_formatter.dart';
 
 class ActivityRecruitScreen extends HookConsumerWidget {
   final bool isApply;
-  final void Function(int id, RecruitType type,) onTapRecruitDetail;
+  final void Function(int id, RecruitType type, String status) onTapRecruitDetail;
 
   const ActivityRecruitScreen({
     super.key,
@@ -100,18 +100,17 @@ class ActivityRecruitScreen extends HookConsumerWidget {
                     itemBuilder: (context, index) {
                       final post = posts[index];
                       final isLast = index == posts.length - 1;
-                      final statusText = '모집 중';
                       final volunteerText = '${post.volunteer}명이 지원했어요';
                       final periodText = formatRecruitPeriod(post.startAt, post.endAt);
 
                       return CommonRecruitListItem(
-                        statusText: statusText,
+                        statusText: post.status,
                         volunteerText: volunteerText,
                         periodText: periodText,
                         title: post.title,
                         content: post.content,
                         tags: post.tags,
-                        onTap: () => onTapRecruitDetail(post.id, post.boardType),
+                        onTap: () => onTapRecruitDetail(post.id, post.boardType, post.status),
                         isLastItem: isLast,
                       );
                     },

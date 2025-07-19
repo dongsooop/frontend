@@ -151,12 +151,13 @@ final router = GoRouter(
 
         return ActivityRecruitScreen(
           isApply: isApply,
-          onTapRecruitDetail: (targetId, type) {
+          onTapRecruitDetail: (targetId, type, status) {
             context.push(
               RoutePaths.recruitDetail,
               extra: {
                 'id': targetId,
                 'type': type,
+                'status': status,
               },
             );
           },
@@ -190,10 +191,12 @@ final router = GoRouter(
         final extra = state.extra as Map<String, dynamic>?;
         final id = extra?['id'];
         final type = extra?['type'];
+        final status = extra?['status'];
 
         return RecruitDetailPageScreen(
           id: id,
           type: type,
+          status: status,
           onTapRecruitApply: () async {
             final result = await GoRouter.of(context).push<bool>(
               RoutePaths.recruitApply,

@@ -24,6 +24,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
   final Future<bool?> Function() onTapRecruitApply;
   final void Function(String reportType, int targetId) onTapReport;
   final VoidCallback onTapApplicantList;
+  final String? status;
 
   const RecruitDetailPageScreen({
     required this.id,
@@ -31,6 +32,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
     required this.onTapRecruitApply,
     required this.onTapReport,
     required this.onTapApplicantList,
+    this.status = '모집 중',
     super.key,
   });
 
@@ -154,13 +156,17 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: ColorStyles.primary5,
+                            color: status == '모집 중'
+                              ? ColorStyles.primary5
+                              : ColorStyles.gray1,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '모집 중',
+                            status!,
                             style: TextStyles.smallTextBold.copyWith(
-                              color: ColorStyles.primaryColor,
+                              color: status == '모집 중'
+                                ? ColorStyles.primaryColor
+                                : ColorStyles.gray3,
                             ),
                           ),
                         ),

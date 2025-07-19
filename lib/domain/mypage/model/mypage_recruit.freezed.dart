@@ -25,7 +25,7 @@ mixin _$MypageRecruit {
   DateTime get endAt;
   DateTime get createdAt;
   int get volunteer;
-  bool get isRecruiting;
+  String get status;
 
   /// Create a copy of MypageRecruit
   /// with the given fields replaced by the non-null parameter values.
@@ -54,8 +54,7 @@ mixin _$MypageRecruit {
                 other.createdAt == createdAt) &&
             (identical(other.volunteer, volunteer) ||
                 other.volunteer == volunteer) &&
-            (identical(other.isRecruiting, isRecruiting) ||
-                other.isRecruiting == isRecruiting));
+            (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -72,11 +71,11 @@ mixin _$MypageRecruit {
       endAt,
       createdAt,
       volunteer,
-      isRecruiting);
+      status);
 
   @override
   String toString() {
-    return 'MypageRecruit(id: $id, title: $title, content: $content, tags: $tags, departmentTypeList: $departmentTypeList, boardType: $boardType, startAt: $startAt, endAt: $endAt, createdAt: $createdAt, volunteer: $volunteer, isRecruiting: $isRecruiting)';
+    return 'MypageRecruit(id: $id, title: $title, content: $content, tags: $tags, departmentTypeList: $departmentTypeList, boardType: $boardType, startAt: $startAt, endAt: $endAt, createdAt: $createdAt, volunteer: $volunteer, status: $status)';
   }
 }
 
@@ -97,7 +96,7 @@ abstract mixin class $MypageRecruitCopyWith<$Res> {
       DateTime endAt,
       DateTime createdAt,
       int volunteer,
-      bool isRecruiting});
+      String status});
 }
 
 /// @nodoc
@@ -123,7 +122,7 @@ class _$MypageRecruitCopyWithImpl<$Res>
     Object? endAt = null,
     Object? createdAt = null,
     Object? volunteer = null,
-    Object? isRecruiting = null,
+    Object? status = null,
   }) {
     return _then(MypageRecruit(
       id: null == id
@@ -166,10 +165,10 @@ class _$MypageRecruitCopyWithImpl<$Res>
           ? _self.volunteer
           : volunteer // ignore: cast_nullable_to_non_nullable
               as int,
-      isRecruiting: null == isRecruiting
-          ? _self.isRecruiting
-          : isRecruiting // ignore: cast_nullable_to_non_nullable
-              as bool,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }

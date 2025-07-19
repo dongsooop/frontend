@@ -159,7 +159,6 @@ class MarketDetailPageScreen extends ConsumerWidget {
                 : status == 'OPEN'
                 ? false
                 : data.isComplete;
-            logger.i('status: ${status} / isComplete: ${isComplete}');
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),

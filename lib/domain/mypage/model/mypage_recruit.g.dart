@@ -18,7 +18,7 @@ MypageRecruit _$MypageRecruitFromJson(Map<String, dynamic> json) =>
       endAt: DateTime.parse(json['endAt'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
       volunteer: (json['volunteer'] as num).toInt(),
-      isRecruiting: json['isRecruiting'] as bool,
+      status: _statusToKo(json['status'] as String),
     );
 
 Map<String, dynamic> _$MypageRecruitToJson(MypageRecruit instance) =>
@@ -33,7 +33,7 @@ Map<String, dynamic> _$MypageRecruitToJson(MypageRecruit instance) =>
       'endAt': instance.endAt.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
       'volunteer': instance.volunteer,
-      'isRecruiting': instance.isRecruiting,
+      'status': instance.status,
     };
 
 const _$RecruitTypeEnumMap = {

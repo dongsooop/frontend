@@ -20,7 +20,8 @@ class MypageRecruit with _$MypageRecruit {
   final DateTime endAt;
   final DateTime createdAt;
   final int volunteer;
-  final bool isRecruiting;
+  @JsonKey(fromJson: _statusToKo)
+  final String status;
 
   const MypageRecruit({
     required this.id,
@@ -33,7 +34,7 @@ class MypageRecruit with _$MypageRecruit {
     required this.endAt,
     required this.createdAt,
     required this.volunteer,
-    required this.isRecruiting,
+    required this.status,
   });
 
   Map<String, dynamic> toJson() => _$MypageRecruitToJson(this);
@@ -62,5 +63,18 @@ RecruitType _recruitTypeFromJson(String value) {
       return RecruitType.project;
     default:
       throw ArgumentError('Unknown RecruitType: $value');
+  }
+}
+
+String _statusToKo(String value) {
+  switch (value) {
+    case 'RECRUITING':
+      return '모집 중';
+    case 'ENDED':
+      return '모집 종료';
+    case 'WAITING':
+      return '모집 대기';
+    default:
+      return value;
   }
 }
