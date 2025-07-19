@@ -28,9 +28,9 @@ import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.da
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
+import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_screen.dart';
+import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:go_router/go_router.dart';
-import '../../presentation/my_page/admin/report/report_admin_sanction_screen.dart';
-import '../../presentation/my_page/admin/report/report_admin_screen.dart';
 
 final router = GoRouter(
   initialLocation: RoutePaths.splash,

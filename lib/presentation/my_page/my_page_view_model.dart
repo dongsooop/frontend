@@ -27,5 +27,9 @@ class MyPageViewModel extends StateNotifier<AsyncValue<User?>> {
     }
     return null;
   }
+
+  void reset() {
+    state = const AsyncValue.data(null);
+  }
 }
 

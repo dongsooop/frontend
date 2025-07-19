@@ -57,7 +57,6 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       // 로컬 저장
       for (final msg in offlineMessages) {
         await _saveChatMessageUseCase.execute(msg);
-        logger.i("message test: $msg");
       }
       state = state.copyWith(isLoading: false);
     } catch (e, st) {
