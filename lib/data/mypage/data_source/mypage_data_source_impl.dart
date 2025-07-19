@@ -24,7 +24,6 @@ class MypageDataSourceImpl implements MypageDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
         final List<MypageMarket> posts = data.map((e) => MypageMarket.fromJson(e as Map<String, dynamic>)).toList();
-        logger.i('market post: ${posts.first.toJson()}');
         return posts;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
@@ -47,7 +46,6 @@ class MypageDataSourceImpl implements MypageDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
         final List<MypageRecruit> posts = data.map((e) => MypageRecruit.fromJson(e)).toList();
-        logger.i('recruit post: ${posts.first.toJson()}');
         return posts;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
