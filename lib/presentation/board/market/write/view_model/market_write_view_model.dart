@@ -148,10 +148,10 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
     }
   }
 
-  Future<void> submitMarket(BuildContext context) async {
+  Future<bool> submitMarket(BuildContext context) async {
     if (state.isSubmitting || !state.isValid) {
       logger.w('[MARKET] 중복 제출 혹은 유효하지 않은 상태로 제출 시도됨');
-      return;
+      return false;
     }
 
     state = state.copyWith(
@@ -162,10 +162,15 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
 
     try {
       logger.i('AI 비속어 필터 검사 요청');
+
+      // AI 필터링 전용: 파이프 제거
+      final filteredTitle = state.title.replaceAll('|', '');
+      final filteredContent = state.content.replaceAll('|', '');
+
       await _aiFilterUseCase.execute(
         entity: MarketAIFilterEntity(
-          title: state.title,
-          content: state.content,
+          title: filteredTitle,
+          content: filteredContent,
         ),
       );
       logger.i('AI 필터 통과');
@@ -179,21 +184,19 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
           .toList();
 
       final entity = MarketWriteEntity(
-        title: state.title,
-        content: state.content,
+        title: state.title, // 원본 텍스트 사용
+        content: state.content, // 원본 텍스트 사용
         price: state.price,
         type: state.type!,
         images: state.images,
         deleteImageUrls: deletedUrls,
       );
 
-      // 이미지 경로 로그
       for (final img in state.images) {
         logger.i('[MARKET] 최종 이미지: ${img.path}');
       }
 
       logger.i('[MARKET] 최종 이미지 개수: ${state.images.length}');
-
       if (state.images.length > 3) {
         logger.w('[MARKET] 🚨 이미지 개수 초과: ${state.images.length}개');
       }
@@ -210,12 +213,16 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
         await _writeUseCase.execute(entity: entity);
         logger.i('작성 요청 성공');
       }
+
+      return true;
     } on ProfanityDetectedException catch (e) {
       logger.w('비속어 감지');
       _setProfanityMessage(e);
+      return false;
     } catch (e, st) {
       logger.e('게시글 작성 실패', error: e, stackTrace: st);
       state = state.copyWith(errorMessage: e.toString());
+      return false;
     } finally {
       logger.i('submitMarket 종료');
       state = state.copyWith(isSubmitting: false);

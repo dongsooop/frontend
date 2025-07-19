@@ -12,6 +12,7 @@ class CustomConfirmDialog extends StatelessWidget {
   final bool isSingleAction;
   final bool dismissOnConfirm;
   final bool dismissOnCancel;
+  final bool useRootNavigator;
 
   const CustomConfirmDialog({
     super.key,
@@ -24,6 +25,7 @@ class CustomConfirmDialog extends StatelessWidget {
     this.isSingleAction = false,
     this.dismissOnConfirm = true,
     this.dismissOnCancel = true,
+    this.useRootNavigator = false,
   });
 
   @override

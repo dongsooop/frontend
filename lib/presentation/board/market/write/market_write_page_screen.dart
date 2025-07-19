@@ -91,12 +91,12 @@ class MarketWritePageScreen extends HookConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
-            builder: (_) => CustomConfirmDialog(
+            useRootNavigator: true,
+            builder: (dialogContext) => CustomConfirmDialog(
               title: '비속어 감지',
               content: state.profanityMessage!,
               confirmText: '확인',
               onConfirm: () {
-                context.pop();
                 viewModel.clearProfanityMessage();
               },
               isSingleAction: true,
@@ -117,9 +117,12 @@ class MarketWritePageScreen extends HookConsumerWidget {
           isEnabled: state.isValid && !state.isSubmitting,
           onPressed: () async {
             try {
-              await viewModel.submitMarket(context);
+              final success = await viewModel.submitMarket(context);
+              if (!success) return;
               await viewModel.clearTemporaryImages();
-              context.pop(true);
+              if (success && context.mounted) {
+                context.pop(true);
+              }
             } catch (e) {
               await showDialog(
                 context: context,
