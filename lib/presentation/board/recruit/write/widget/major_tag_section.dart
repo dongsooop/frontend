@@ -38,6 +38,18 @@ class MajorTagSection extends StatelessWidget {
     return tagSet.toList();
   }
 
+  void handleTagAdd(BuildContext context) {
+    final text = tagController.text.trim();
+
+    if (text.isEmpty) return;
+    if (text.length > 8) return;
+    if (manualTags.contains(text)) return;
+    if (manualTags.length >= 3) return;
+
+    onTagAdded(text);
+    tagController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isAllSelected = selectedMajors.contains('전체 학과');
@@ -146,10 +158,12 @@ class MajorTagSection extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: tagController,
-                  onSubmitted: onTagAdded,
+                  onSubmitted: (_) => handleTagAdd(context),
+                  maxLength: 8,
                   style: TextStyles.normalTextRegular,
                   decoration: InputDecoration(
                     isDense: true,
+                    counterText: '',
                     hintText: '최대 3개, 8글자까지 입력 가능해요',
                     hintStyle: TextStyles.normalTextRegular
                         .copyWith(color: ColorStyles.gray4),
@@ -159,7 +173,7 @@ class MajorTagSection extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () => onTagAdded(tagController.text),
+                onTap: () => handleTagAdd(context),
                 child: SizedBox(
                   width: 44,
                   height: 44,
