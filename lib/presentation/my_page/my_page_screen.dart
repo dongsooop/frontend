@@ -13,6 +13,7 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSetting;
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapMarket;
+  final void Function(bool isApply) onTapRecruit;
 
   const MyPageScreen({
     super.key,
@@ -20,6 +21,7 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapSetting,
     required this.onTapAdminReport,
     required this.onTapMarket,
+    required this.onTapRecruit,
   });
 
   @override
@@ -79,7 +81,7 @@ class MyPageScreen extends HookConsumerWidget {
                   if (user == null) {
                     return LoggedOutPromptCard(onTapLogin: onTapSignIn);
                   } else {
-                    return LoggedInUserCard(user: user, onTapAdminReport: onTapAdminReport, onTapMarket: onTapMarket);
+                    return LoggedInUserCard(user: user, onTapAdminReport: onTapAdminReport, onTapMarket: onTapMarket, onTapRecruit: onTapRecruit);
                   }
                 },
                 error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),

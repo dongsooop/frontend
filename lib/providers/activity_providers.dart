@@ -2,12 +2,15 @@
 import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
 import 'package:dongsoop/domain/mypage/repository/mypage_repository.dart';
 import 'package:dongsoop/domain/mypage/use_case/get_my_market_posts_use_case.dart';
+import 'package:dongsoop/domain/mypage/use_case/get_my_recruit_posts_use_case.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_state.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/mypage/data_source/mypage_data_source_impl.dart';
 import '../data/mypage/repository/mypage_repository_impl.dart';
+import '../presentation/my_page/activity/activity_recruit_state.dart';
+import '../presentation/my_page/activity/activity_recruit_view_model.dart';
 import 'auth_dio.dart';
 
 // DataSource
@@ -29,6 +32,10 @@ final getMyMarketPostsUseCaseProvider = Provider<GetMyMarketPostsUseCase>((ref) 
   final repository = ref.watch(mypageRepositoryProvider);
   return GetMyMarketPostsUseCase(repository);
 });
+final getMyRecruitPostsUseCaseProvider = Provider<GetMyRecruitPostsUseCase>((ref) {
+  final repository = ref.watch(mypageRepositoryProvider);
+  return GetMyRecruitPostsUseCase(repository);
+});
 
 // View Model
 final activityMarketViewModelProvider =
@@ -36,4 +43,11 @@ StateNotifierProvider.autoDispose<ActivityMarketViewModel, ActivityMarketState>(
   final getMyMarketPostsUseCase = ref.watch(getMyMarketPostsUseCaseProvider);
 
   return ActivityMarketViewModel(getMyMarketPostsUseCase);
+});
+
+final activityRecruitViewModelProvider =
+StateNotifierProvider.autoDispose<ActivityRecruitViewModel, ActivityRecruitState>((ref) {
+  final getMyRecruitPostsUseCase = ref.watch(getMyRecruitPostsUseCaseProvider);
+
+  return ActivityRecruitViewModel(getMyRecruitPostsUseCase);
 });
