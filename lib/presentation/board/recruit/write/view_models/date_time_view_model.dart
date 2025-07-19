@@ -92,7 +92,9 @@ class DateTimeViewModel extends _$DateTimeViewModel {
   void confirmStartTime() => state = state.copyWith(startTimePicked: true);
   void confirmEndTime() => state = state.copyWith(endTimePicked: true);
 
-  bool validateStartTime() => _validator.isValidStartTime(state.startDateTime);
+  bool validateStartTime() {
+    return true;
+  }
 
   bool validateEndTime() => _validator.isValidEndDateTime(
         start: state.startDateTime,

@@ -120,9 +120,7 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                   final isValid = viewModel.confirmDateTime(widget.isStart);
                   if (!isValid) {
                     setState(() {
-                      _errorMessage = widget.isStart
-                          ? '지금보다 이른 시간은 선택할 수 없어요'
-                          : '모집 기간은 최소 1일(24시간) 이상이어야 해요';
+                      _errorMessage = '모집 기간은 최소 1일(24시간) 이상이어야 해요';
                     });
                     return;
                   }
