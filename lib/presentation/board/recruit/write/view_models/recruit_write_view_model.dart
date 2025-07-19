@@ -5,9 +5,11 @@ import 'package:dongsoop/domain/board/recruit/use_cases/recruit_write_use_case.d
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';
 import 'package:dongsoop/main.dart';
+import 'package:dongsoop/presentation/board/providers/recruit/recruit_group_chat_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_write_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dongsoop/domain/chat/use_case/create_group_chat_room_use_case.dart';
 
 part 'recruit_write_view_model.g.dart';
 
@@ -16,6 +18,7 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
   RecruitWriteUseCase get _useCase => ref.watch(recruitWriteUseCaseProvider);
   ValidateWriteUseCase get _validator =>
       ref.watch(validateWriteUseCaseProvider);
+  CreateGroupChatRoomUseCase get _chatRoomUseCase => ref.watch(recruitGroupChatUseCaseProvider);
 
   @override
   RecruitFormState build() => RecruitFormState();
@@ -57,6 +60,7 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
   Future<void> submit({
     required RecruitType type,
     required RecruitWriteEntity entity,
+    required int userId,
   }) async {
     if (state.isLoading) return;
 
@@ -70,6 +74,8 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
         type: type,
         entity: entity,
       );
+      await _chatRoomUseCase.execute(entity.title, userId);
+      
       ref.invalidateSelf();
       logger.i('[Submit Success] 게시글 작성 완료');
     } on LoginRequiredException catch (e) {
