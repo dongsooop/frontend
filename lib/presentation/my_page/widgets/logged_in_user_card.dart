@@ -8,11 +8,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class LoggedInUserCard extends HookConsumerWidget {
   final User user;
   final VoidCallback onTapAdminReport;
+  final VoidCallback onTapMarket;
 
   const LoggedInUserCard({
     super.key,
     required this.user,
     required this.onTapAdminReport,
+    required this.onTapMarket,
   });
 
   @override
@@ -127,7 +129,7 @@ class LoggedInUserCard extends HookConsumerWidget {
                   ),
                   _myActivityItem(
                     label: '장터 내역',
-                    onTap: onTapAdminReport,
+                    onTap: onTapMarket,
                   ),
                   // 관리자
                   if (user.role == 'ADMIN')

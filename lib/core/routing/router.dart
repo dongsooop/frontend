@@ -15,6 +15,7 @@ import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
+import 'package:dongsoop/presentation/my_page/activity/activity_market_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
@@ -27,7 +28,6 @@ import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.da
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../presentation/my_page/admin/report/report_admin_sanction_screen.dart';
 import '../../presentation/my_page/admin/report/report_admin_screen.dart';
 
@@ -122,6 +122,21 @@ final router = GoRouter(
             extra: {
               'id': targetId,
               'type': type,
+            },
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.mypageMarket,
+      builder: (context, state) => ActivityMarketScreen(
+        onTapMarketDetail: (targetId, type, status) {
+          context.push(
+            RoutePaths.marketDetail,
+            extra: {
+              'id': targetId,
+              'type': type,
+              'status': status,
             },
           );
         },
@@ -258,10 +273,12 @@ final router = GoRouter(
 
         final id = extra?['id'];
         final type = extra?['type'];
+        final status = extra?['status'];
 
         return MarketDetailPageScreen(
           id: id,
           type: type,
+          status: status,
           onTapReport: (reportType, targetId) {
             context.push(
               RoutePaths.report,
@@ -377,6 +394,9 @@ final router = GoRouter(
               },
               onTapSetting: () {
                 context.push(RoutePaths.setting);
+              },
+              onTapMarket: () {
+                context.push(RoutePaths.mypageMarket);
               },
               onTapAdminReport: () {
                 context.push(RoutePaths.adminReport);
