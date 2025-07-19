@@ -77,7 +77,6 @@ class AuthInterceptor extends Interceptor {
           logger.w('🔓 RefreshToken 만료, 로그아웃 처리');
           _ref.read(userSessionProvider.notifier).state = null;
           _ref.read(myPageViewModelProvider.notifier).reset();
-          _ref.read(logoutReasonProvider.notifier).state = "refreshExpired";
 
           await _secureStorageService.delete();
           await _preferencesService.clearUser();

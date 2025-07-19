@@ -1,18 +1,14 @@
 import 'dart:io';
 import 'package:dongsoop/core/routing/router.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
-import 'core/presentation/components/custom_confirm_dialog.dart';
-import 'core/routing/route_paths.dart';
 import 'domain/chat/model/chat_message.dart';
 import 'domain/chat/model/chat_room_member.dart';
 
@@ -49,40 +45,6 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _setupLogoutListener();
-  }
-
-  bool _hasSetupLogoutListener = false;
-  void _setupLogoutListener() {
-    if (_hasSetupLogoutListener) return;
-    _hasSetupLogoutListener = true;
-    final ref = ProviderScope.containerOf(context);
-    ref.listen<String?>(logoutReasonProvider, (prev, next) async {
-      if (next == "refreshExpired") {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => CustomConfirmDialog(
-            title: '로그아웃',
-            content: '로그인 정보가 만료되었습니다.\n다시 로그인 해주세요',
-            isSingleAction: true,
-            confirmText: '확인',
-            onConfirm: () async {
-              navigatorKey.currentContext!.go(RoutePaths.home);
-              ref.read(logoutReasonProvider.notifier).state = null;
-            },
-          ),
-        );
-        // 로그인 화면으로 이동
-        navigatorKey.currentState?.pushNamedAndRemoveUntil('/login', (route) => false);
-        ref.read(logoutReasonProvider.notifier).state = null;
-      }
-    });
   }
 
   @override

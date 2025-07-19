@@ -31,10 +31,8 @@ import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:dongsoop/main.dart';
 
 final router = GoRouter(
-  navigatorKey: navigatorKey,
   initialLocation: RoutePaths.splash,
   routes: [
     GoRoute(
