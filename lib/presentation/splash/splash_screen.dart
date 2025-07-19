@@ -40,9 +40,6 @@ class SplashScreen extends HookConsumerWidget {
                   confirmText: '확인',
                   onConfirm: () async {
                     Future.microtask(() => context.go(RoutePaths.home));
-                    // WidgetsBinding.instance.addPostFrameCallback((_) {
-                    //
-                    // });
                   },
                 ),
               );

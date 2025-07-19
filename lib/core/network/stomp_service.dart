@@ -33,7 +33,6 @@ class StompService {
         onWebSocketError: (error) => logger.e('WebSocket error: $error'),
         onStompError: (frame) => logger.e('STOMP error: ${frame.body}'),
         onDisconnect: (_) => logger.d('Disconnected'),
-        onDebugMessage: (msg) => logger.d('DEBUG: $msg'),
       ),
     );
 

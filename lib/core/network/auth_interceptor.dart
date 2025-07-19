@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/main.dart';
@@ -76,12 +75,11 @@ class AuthInterceptor extends Interceptor {
       } on DioException catch (e) {
         if (e.response?.statusCode == HttpStatusCode.unauthorized.code) {
           logger.w('🔓 RefreshToken 만료, 로그아웃 처리');
+          _ref.read(userSessionProvider.notifier).state = null;
+          _ref.read(myPageViewModelProvider.notifier).reset();
+
           await _secureStorageService.delete();
           await _preferencesService.clearUser();
-
-          _ref.read(logoutCallbackProvider)();
-
-          throw ReIssueException();
         }
         return handler.reject(e);
       }

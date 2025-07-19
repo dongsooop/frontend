@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +11,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'domain/chat/model/chat_message.dart';
 import 'domain/chat/model/chat_room_member.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,8 +66,6 @@ class _MyAppState extends ConsumerState<MyApp> {
       ),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
-
-      // DatePicker 등에서 한국어 오류 방지
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
