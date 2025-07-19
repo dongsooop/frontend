@@ -6,7 +6,7 @@ part of 'date_time_view_model.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dateTimeViewModelHash() => r'e7545419bcba0ae0674b83137ccb8d72574b32d7';
+String _$dateTimeViewModelHash() => r'2df13df39562da6c1aa341b49f6503f7e2407811';
 
 /// See also [DateTimeViewModel].
 @ProviderFor(DateTimeViewModel)

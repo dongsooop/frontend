@@ -92,6 +92,30 @@ class DateTimeViewModel extends _$DateTimeViewModel {
   void confirmStartTime() => state = state.copyWith(startTimePicked: true);
   void confirmEndTime() => state = state.copyWith(endTimePicked: true);
 
+  void applyDefaultIfNotPicked() {
+    final now = DateTime.now();
+    final roundedNow = _roundUpTo10(now);
+
+    DateTime start = state.startDateTime;
+    DateTime end = state.endDateTime;
+
+    // 시작 시간이 확정되지 않았으면 now로 설정
+    if (!state.startTimePicked) {
+      start = roundedNow;
+    }
+
+    // 마감 시간이 "유효하지 않으면" 강제로 보정
+    final minEnd = start.add(const Duration(hours: 24));
+    if (end.isBefore(minEnd)) {
+      end = minEnd;
+    }
+
+    state = state.copyWith(
+      startDateTime: start,
+      endDateTime: end,
+    );
+  }
+
   bool validateStartTime() {
     return true;
   }
@@ -102,9 +126,16 @@ class DateTimeViewModel extends _$DateTimeViewModel {
       );
 
   bool confirmDateTime(bool isStart) {
-    final isValid = isStart ? validateStartTime() : validateEndTime();
+    // isStart == true이면 무조건 true 반환 + 상태 업데이트만 수행
+    if (isStart) {
+      confirmStartTime();
+      return true;
+    }
+
+    final isValid = validateEndTime();
     if (!isValid) return false;
-    isStart ? confirmStartTime() : confirmEndTime();
+
+    confirmEndTime();
     return true;
   }
 

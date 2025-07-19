@@ -125,6 +125,8 @@ class RecruitWritePageScreen extends HookConsumerWidget {
     Widget buildDateTimeBox(String label, DateTime dateTime, bool isStart) {
       return GestureDetector(
         onTap: () {
+          final viewModel = ref.read(dateTimeViewModelProvider.notifier);
+
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
@@ -132,7 +134,9 @@ class RecruitWritePageScreen extends HookConsumerWidget {
               borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             ),
             builder: (_) => DateTimeBottomSheet(isStart: isStart),
-          );
+          ).then((_) {
+            viewModel.applyDefaultIfNotPicked();
+          });
         },
         child: Container(
           height: 50,
