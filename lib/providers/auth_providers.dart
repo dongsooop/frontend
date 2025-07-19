@@ -21,15 +21,7 @@ import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_view_model.dart';
 
 // 추후 기능, 책임 별로 providers 분리
-
-// 순환참조 방지
-final logoutCallbackProvider = Provider<void Function()>((ref) {
-  return () {
-    // logger.i('');
-    ref.invalidate(userSessionProvider);
-    ref.invalidate(myPageViewModelProvider);
-  };
-});
+final logoutReasonProvider = StateProvider<String?>((ref) => null);
 
 // Data Source
 final authDataSourceProvider = Provider<AuthDataSource>((ref) {
