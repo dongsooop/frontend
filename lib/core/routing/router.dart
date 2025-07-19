@@ -16,6 +16,7 @@ import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_screen.dart';
+import 'package:dongsoop/presentation/my_page/activity/activity_recruit_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
@@ -141,6 +142,26 @@ final router = GoRouter(
           );
         },
       ),
+    ),
+    GoRoute(
+      path: RoutePaths.mypageRecruit,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final isApply = extra?['isApply'] as bool? ?? false;
+
+        return ActivityRecruitScreen(
+          isApply: isApply,
+          onTapRecruitDetail: (targetId, type) {
+            context.push(
+              RoutePaths.recruitDetail,
+              extra: {
+                'id': targetId,
+                'type': type,
+              },
+            );
+          },
+        );
+      }
     ),
     GoRoute(
       path: RoutePaths.adminReportSanction,
@@ -397,6 +418,14 @@ final router = GoRouter(
               },
               onTapMarket: () {
                 context.push(RoutePaths.mypageMarket);
+              },
+              onTapRecruit: (isApply) {
+                context.push(
+                  RoutePaths.mypageRecruit,
+                  extra: {
+                    'isApply': isApply,
+                  }
+                );
               },
               onTapAdminReport: () {
                 context.push(RoutePaths.adminReport);

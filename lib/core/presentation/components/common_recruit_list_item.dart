@@ -31,8 +31,12 @@ class CommonRecruitListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasRealTags = tags.any((tag) => tag.trim().isNotEmpty);
 
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

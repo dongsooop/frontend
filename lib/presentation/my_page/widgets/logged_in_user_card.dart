@@ -9,12 +9,14 @@ class LoggedInUserCard extends HookConsumerWidget {
   final User user;
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapMarket;
+  final void Function(bool isApply) onTapRecruit;
 
   const LoggedInUserCard({
     super.key,
     required this.user,
     required this.onTapAdminReport,
     required this.onTapMarket,
+    required this.onTapRecruit,
   });
 
   @override
@@ -121,11 +123,11 @@ class LoggedInUserCard extends HookConsumerWidget {
                 children: [
                   _myActivityItem(
                     label: '개설한 모집글',
-                    onTap: onTapAdminReport,
+                    onTap: () => onTapRecruit(false),
                   ),
                   _myActivityItem(
                     label: '지원한 모집글',
-                    onTap: onTapAdminReport,
+                    onTap: () => onTapRecruit(true),
                   ),
                   _myActivityItem(
                     label: '장터 내역',
