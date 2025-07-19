@@ -15,6 +15,7 @@ abstract class ChatDataSource {
   Future<int> getUnreadChatMessageCount(String roomId);
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
+  Future<void> createGroupChatRoom(String title, List<int> userId);
 
   // stomp
   Future<void> connect(String roomId);

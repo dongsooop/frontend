@@ -25,6 +25,21 @@ class ChatDataSourceImpl implements ChatDataSource {
   );
 
   @override
+  Future<void> createGroupChatRoom(String title, List<int> userId) async {
+    final endpoint = dotenv.get('GROUP_CHAT');
+    final requestBody = {
+      'title': title,
+      'participants': userId
+    };
+
+    try {
+      final response = await _authDio.post(endpoint, data: requestBody);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<List<ChatRoom>?> getChatRooms() async {
     final endpoint = dotenv.get('CHATROOMS_ENDPOINT');
 
@@ -102,7 +117,6 @@ class ChatDataSourceImpl implements ChatDataSource {
         }
         // 업데이트된 로컬 목록 반환
         final updatedMembers = await _hiveService.getAllMembers(roomId);
-        logger.i('get local updatedMembers: ${updatedMembers.map((m) => '(${m.userId}, ${m.nickname}, left: ${m.hasLeft})').toList()}');
         return {
           for (var m in updatedMembers) m.userId: m.nickname,
         };
@@ -144,7 +158,6 @@ class ChatDataSourceImpl implements ChatDataSource {
   Future<ChatMessage?> getLatestMessage(String roomId) async {
     try {
       final message = await _hiveService.getLatestMessage(roomId);
-      logger.i('latest message: $message');
 
       if (message == null) return null;
       return message;

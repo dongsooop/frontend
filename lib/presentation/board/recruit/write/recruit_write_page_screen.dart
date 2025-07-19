@@ -92,7 +92,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
       );
 
       try {
-        await viewModel.submit(type: type, entity: entity);
+        await viewModel.submit(type: type, entity: entity, userId: user!.id);
         context.pop(true);
       } catch (e) {
         showDialog(
