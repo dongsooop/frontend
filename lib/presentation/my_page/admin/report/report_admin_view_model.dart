@@ -16,8 +16,13 @@ class ReportAdminViewModel extends StateNotifier<ReportAdminState> {
 
     try {
       final reports = await _getReportsUseCase.execute(type) ?? [];
-
-      state = state.copyWith(isLoading: false, reports: reports);
+      final isLast = reports.length < 10;
+      state = state.copyWith(
+        isLoading: false,
+        reports: reports,
+        page: 0,
+        hasNext: !isLast,
+      );
     } catch (e, st) {
       logger.e('load reports error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(

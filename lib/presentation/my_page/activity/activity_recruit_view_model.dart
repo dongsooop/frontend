@@ -15,8 +15,13 @@ class ActivityRecruitViewModel extends StateNotifier<ActivityRecruitState> {
 
     try {
       final posts = await _getMyRecruitPostsUseCase.execute(isApply: isApply) ?? [];
-
-      state = state.copyWith(isLoading: false, posts: posts);
+      final isLast = posts.length < 10;
+      state = state.copyWith(
+        isLoading: false,
+        posts: posts,
+        page: 0,
+        hasNext: !isLast,
+      );
     } catch (e, st) {
       logger.e('load posts error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(
