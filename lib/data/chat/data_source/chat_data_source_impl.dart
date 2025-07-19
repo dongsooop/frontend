@@ -1,15 +1,14 @@
-import 'dart:math';
-
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/core/network/stomp_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:dongsoop/core/network/stomp_service.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
 import 'package:dongsoop/main.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import '../../../core/exception/exception.dart';
 import 'chat_data_source.dart';
 
@@ -25,6 +24,18 @@ class ChatDataSourceImpl implements ChatDataSource {
   );
 
   @override
+  Future<void> createGroupChatRoom(String title, List<int> userId) async {
+    final endpoint = dotenv.get('GROUP_CHAT');
+    final requestBody = {'title': title, 'participants': userId};
+
+    try {
+      await _authDio.post(endpoint, data: requestBody);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<List<ChatRoom>?> getChatRooms() async {
     final endpoint = dotenv.get('CHATROOMS_ENDPOINT');
 
@@ -33,7 +44,9 @@ class ChatDataSourceImpl implements ChatDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
 
-        final List<ChatRoom> chatRooms = data.map((e) => ChatRoom.fromJson(e as Map<String, dynamic>)).toList();
+        final List<ChatRoom> chatRooms = data
+            .map((e) => ChatRoom.fromJson(e as Map<String, dynamic>))
+            .toList();
         return chatRooms;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
@@ -81,9 +94,8 @@ class ChatDataSourceImpl implements ChatDataSource {
           // 로컬에 없는 userId 추가 또는 닉네임 업데이트
           for (final entry in nicknameMap.entries) {
             final localMember = localMembers.firstWhere(
-              (member) => member.userId == entry.key,
-              orElse: () => ChatRoomMember(userId: '', nickname: '')
-            );
+                (member) => member.userId == entry.key,
+                orElse: () => ChatRoomMember(userId: '', nickname: ''));
 
             if (localMember.userId.isEmpty) {
               // 로컬에 없는 사용자(채팅방에 초대된 사용자)
@@ -96,13 +108,13 @@ class ChatDataSourceImpl implements ChatDataSource {
               );
             } else if (localMember.nickname != entry.value) {
               // 닉네임이 변경된 사용자
-              await _hiveService.updateChatMemberNickname(roomId, entry.key, entry.value);
+              await _hiveService.updateChatMemberNickname(
+                  roomId, entry.key, entry.value);
             }
           }
         }
         // 업데이트된 로컬 목록 반환
         final updatedMembers = await _hiveService.getAllMembers(roomId);
-        logger.i('get local updatedMembers: ${updatedMembers.map((m) => '(${m.userId}, ${m.nickname}, left: ${m.hasLeft})').toList()}');
         return {
           for (var m in updatedMembers) m.userId: m.nickname,
         };
@@ -123,7 +135,8 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<List<ChatMessage>?> getPagedMessages(String roomId, int offset, int limit) async {
+  Future<List<ChatMessage>?> getPagedMessages(
+      String roomId, int offset, int limit) async {
     try {
       return await _hiveService.getPagedMessages(roomId, offset, limit);
     } catch (e) {
@@ -144,7 +157,6 @@ class ChatDataSourceImpl implements ChatDataSource {
   Future<ChatMessage?> getLatestMessage(String roomId) async {
     try {
       final message = await _hiveService.getLatestMessage(roomId);
-      logger.i('latest message: $message');
 
       if (message == null) return null;
       return message;
@@ -163,8 +175,8 @@ class ChatDataSourceImpl implements ChatDataSource {
       final response = await _authDio.get(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<ChatMessage> messages = (response.data['messages'] as List)
-          .map((e) => ChatMessage.fromJson(e))
-          .toList();
+            .map((e) => ChatMessage.fromJson(e))
+            .toList();
         return messages;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
@@ -174,7 +186,8 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<List<ChatMessage>?> getChatMessagesAfter(String roomId, String messageId) async {
+  Future<List<ChatMessage>?> getChatMessagesAfter(
+      String roomId, String messageId) async {
     final chat = dotenv.get('CHAT');
     final afterMessage = dotenv.get('CHAT_AFTER_MESSAGES_ENDPOINT');
     final endpoint = '$chat/$roomId$afterMessage/$messageId';
@@ -234,7 +247,8 @@ class ChatDataSourceImpl implements ChatDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         // 채팅 내역 로컬 삭제
         await _hiveService.deleteChatMessagesByRoomId(roomId);
-      } else ChatLeaveException();
+      } else
+        ChatLeaveException();
     } catch (e) {
       rethrow;
     }
@@ -245,15 +259,14 @@ class ChatDataSourceImpl implements ChatDataSource {
     final chat = dotenv.get('CHAT');
     final kick = dotenv.get('KICK_ENDPOINT');
     final endpoint = '$chat/$roomId$kick';
-    final requestBody = {
-      'userId': userId
-    };
+    final requestBody = {'userId': userId};
 
     try {
       final response = await _authDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
         logger.i('user id: $userId is kicked');
-      } else ChatLeaveException();
+      } else
+        ChatLeaveException();
     } catch (e) {
       rethrow;
     }
@@ -267,7 +280,8 @@ class ChatDataSourceImpl implements ChatDataSource {
   void disconnect() => _stompService.disconnect();
 
   @override
-  void sendMessage(ChatMessageRequest message) => _stompService.sendMessage(message);
+  void sendMessage(ChatMessageRequest message) =>
+      _stompService.sendMessage(message);
 
   @override
   Stream<ChatMessage> subscribeMessages() => _stompService.messageStream;

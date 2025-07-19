@@ -15,7 +15,6 @@ class ChatViewModel extends StateNotifier<ChatState> {
 
     try {
       final chatRooms = await _loadChatRoomsUseCase.execute();
-      logger.i("chat rooms: ${chatRooms?.length}");
       state = state.copyWith(isLoading: false, chatRooms: chatRooms);
     } catch (e, st) {
       logger.e('load char rooms error: ${e.runtimeType}', error: e, stackTrace: st);
