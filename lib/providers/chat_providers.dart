@@ -20,10 +20,10 @@ import '../core/network/stomp_service.dart';
 import '../core/storage/secure_storage_service.dart';
 import '../domain/chat/model/chat_message.dart';
 import '../domain/chat/use_case/connect_chat_room_use_case.dart';
+import '../domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
 import '../domain/chat/use_case/disconnect_chat_room_use_case.dart';
 import '../domain/chat/use_case/send_message_use_case.dart';
 import '../domain/chat/use_case/subscribe_messages_use_case.dart';
-import '../main.dart';
 import '../presentation/chat/chat_detail_view_model.dart';
 import '../presentation/chat/chat_state.dart';
 
@@ -53,6 +53,11 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 });
 
 // Use Case
+final createOneToOneChatRoomUseCaseProvider = Provider<CreateOneToOneChatRoomUseCase>((ref) {
+  final repository = ref.read(chatRepositoryProvider);
+  return CreateOneToOneChatRoomUseCase(repository);
+});
+
 final loadChatRoomsUseCaseProvider = Provider<GetChatRoomsUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
 
@@ -123,7 +128,6 @@ final kickUserUseCaseProvider = Provider<KickUserUseCase>((ref) {
 final chatViewModelProvider =
 StateNotifierProvider.autoDispose<ChatViewModel, ChatState>((ref) {
   final loadChatRoomsUseCase = ref.watch(loadChatRoomsUseCaseProvider);
-  final deleteChatDataUseCase = ref.watch(deleteChatDataUseCaseProvider);
 
   return ChatViewModel(loadChatRoomsUseCase);
 });

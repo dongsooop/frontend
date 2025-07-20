@@ -17,6 +17,7 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 
 class RecruitDetailPageScreen extends ConsumerWidget {
   final int id;
@@ -25,6 +26,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
   final void Function(String reportType, int targetId) onTapReport;
   final VoidCallback onTapApplicantList;
   final String? status;
+  final void Function(UiChatRoom chatRoom) onTapChatDetail;
 
   const RecruitDetailPageScreen({
     required this.id,
@@ -33,6 +35,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
     required this.onTapReport,
     required this.onTapApplicantList,
     this.status = '모집 중',
+    required this.onTapChatDetail,
     super.key,
   });
 
@@ -124,6 +127,45 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                   }
                 }
               },
+              onIconPressed: () async {
+                if (isAuthor) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => CustomConfirmDialog(
+                      title: '모집 문의',
+                      content: '자기 자신과 채팅은 불가능해요.',
+                      isSingleAction: true,
+                      confirmText: '확인',
+                      onConfirm: () async {
+                      },
+                    ),
+                  );
+                } else if (isGuest) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => LoginRequiredDialog(),
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (_) => CustomConfirmDialog(
+                      title: '모집 문의',
+                      content: '작성자에게 모집글과 관련한 문의를 할 수 있어요',
+                      confirmText: '문의하기',
+                      onConfirm: () async {
+                        final viewModel = ref.read(
+                          recruitDetailViewModelProvider(
+                            RecruitDetailArgs(id: id, type: type),
+                          ).notifier,
+                        );
+
+                        final chatRoom = await viewModel.createChatRoom(detail.title, detail.authorId);
+                        onTapChatDetail(chatRoom);
+                      }
+                    ),
+                  );
+                }
+              },
             );
           },
           orElse: () => const SizedBox.shrink(),
@@ -156,15 +198,15 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: status == '모집 중'
+                            color: (status ?? '모집 중') == '모집 중'
                               ? ColorStyles.primary5
                               : ColorStyles.gray1,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            status!,
+                            status ?? '모집 중',
                             style: TextStyles.smallTextBold.copyWith(
-                              color: status == '모집 중'
+                              color:  (status ?? '모집 중') == '모집 중'
                                 ? ColorStyles.primaryColor
                                 : ColorStyles.gray3,
                             ),

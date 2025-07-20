@@ -2,6 +2,7 @@ import 'package:dongsoop/domain/board/market/use_cases/market_complete_use_case.
 import 'package:dongsoop/domain/board/market/use_cases/market_contact_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_delete_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_detail_use_case.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/market/state/market_detail_state.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_complete_use_case_provider.dart';
@@ -9,6 +10,8 @@ import 'package:dongsoop/presentation/board/providers/market/market_contact_use_
 import 'package:dongsoop/presentation/board/providers/market/market_delete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_detail_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dongsoop/domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
+import 'package:dongsoop/providers/chat_providers.dart';
 
 part 'market_detail_view_model.g.dart';
 
@@ -39,6 +42,8 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
       ref.watch(marketCompleteUseCaseProvider);
   MarketContactUseCase get _contactUseCase =>
       ref.watch(marketContactUseCaseProvider);
+  CreateOneToOneChatRoomUseCase get _createOneToOneChatRoomUseCase =>
+      ref.watch(createOneToOneChatRoomUseCaseProvider);
 
   @override
   FutureOr<MarketDetailState> build(MarketDetailArgs args) async {
@@ -91,6 +96,15 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
       logger.i('거래 연락 완료');
     } catch (e, st) {
       logger.e('거래 연락 실패', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
+  Future<UiChatRoom> createChatRoom(String title, int targetUserId) async {
+    try {
+      final chatRoom = await _createOneToOneChatRoomUseCase.execute(title, targetUserId);
+      return chatRoom;
+    } catch (e) {
       rethrow;
     }
   }

@@ -74,7 +74,6 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
         type: type,
         entity: entity,
       );
-      await _chatRoomUseCase.execute(entity.title, userId);
       
       ref.invalidateSelf();
       logger.i('[Submit Success] 게시글 작성 완료');
