@@ -35,10 +35,14 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
         ? DepartmentTypeExtension.fromDisplayName(user.departmentType).code
         : '';
 
+    final viewModel = ref.watch(recruitApplyViewModelProvider.notifier);
+    final state = ref.watch(recruitApplyViewModelProvider);
+
     final isFormValid = useState(false);
 
     void updateFormValidState() {
-      isFormValid.value = true;
+      isFormValid.value = introduceController.text.trim().isNotEmpty &&
+          supportController.text.trim().isNotEmpty;
     }
 
     useEffect(() {
@@ -49,6 +53,27 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
         supportController.removeListener(updateFormValidState);
       };
     }, []);
+
+    useEffect(() {
+      if (state.profanityMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await showDialog(
+            context: context,
+            useRootNavigator: true,
+            builder: (_) => CustomConfirmDialog(
+              title: '비속어 감지',
+              content: state.profanityMessage!,
+              confirmText: '확인',
+              onConfirm: () {
+                viewModel.clearProfanityMessage();
+              },
+              isSingleAction: true,
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.profanityMessageTriggerKey]);
 
     return SafeArea(
       child: Scaffold(
@@ -69,11 +94,7 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
                 cancelText: '취소',
                 confirmText: '제출',
                 onConfirm: () async {
-                  context.pop(); // 다이얼로그 닫기
-
-                  final notifier =
-                      ref.read(recruitApplyViewModelProvider.notifier);
-                  await notifier.submitRecruitApply(
+                  final success = await viewModel.submitRecruitApply(
                     boardId: id,
                     introduction: introduceController.text.trim(),
                     motivation: supportController.text.trim(),
@@ -81,14 +102,13 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
                     departmentCode: departmentCode,
                   );
 
-                  final resultState = ref.read(recruitApplyViewModelProvider);
-
-                  if (resultState is AsyncData && !resultState.hasError) {
-                    context.pop(true); // 지원 성공 → 상세 페이지에 true 전달
-                  } else {
-                    // 임시
+                  if (success) {
+                    context.pop(true); // 성공 시 true 반환
+                  } else if (state.profanityMessage == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('제출에 실패했어요. 다시 시도해주세요.')),
+                      const SnackBar(
+                        content: Text('제출에 실패했어요. 다시 시도해주세요.'),
+                      ),
                     );
                   }
                 },

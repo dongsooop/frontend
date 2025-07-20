@@ -1,8 +1,13 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_entity.dart';
+import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_text_filter_entity.dart';
+import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_apply_text_filter_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_apply_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/main.dart';
+import 'package:dongsoop/presentation/board/providers/recruit/apply/recruit_apply_text_filter_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/apply/recruit_apply_use_case_provider.dart';
+import 'package:dongsoop/presentation/board/recruit/apply/state/recruit_apply_state.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -12,10 +17,13 @@ part 'recruit_apply_view_model.g.dart';
 @riverpod
 class RecruitApplyViewModel extends _$RecruitApplyViewModel {
   late final RecruitApplyUseCase _useCase;
+  late final RecruitApplyTextFilterUseCase _textFilterUseCase;
 
   @override
-  FutureOr<void> build() {
+  RecruitApplyState build() {
     _useCase = ref.read(recruitApplyUseCaseProvider);
+    _textFilterUseCase = ref.read(recruitApplyTextFilterUseCaseProvider);
+    return const RecruitApplyState();
   }
 
   Future<bool> submitRecruitApply({
@@ -25,24 +33,32 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
     required RecruitType type,
     required String departmentCode,
   }) async {
-    state = const AsyncLoading();
-
-    final entity = RecruitApplyEntity(
-      boardId: boardId,
-      introduction: introduction,
-      motivation: motivation,
-    );
+    state = state.copyWith(isLoading: true, profanityMessage: null);
 
     try {
-      await _useCase.execute(entity: entity, type: type);
-      logger.i('지원 성공 - 서버 응답 완료');
+      final filteredIntroduction = introduction.replaceAll('|', '');
+      final filteredMotivation = motivation.replaceAll('|', '');
 
-      // 비동기 상태 갱신 - await 없이
-      ref.invalidate(
-        recruitDetailViewModelProvider(
-          RecruitDetailArgs(id: boardId, type: type),
+      await _textFilterUseCase.execute(
+        entity: RecruitApplyTextFilterEntity(
+          introduction: filteredIntroduction,
+          motivation: filteredMotivation,
         ),
       );
+
+      await _useCase.execute(
+        entity: RecruitApplyEntity(
+          boardId: boardId,
+          introduction: introduction,
+          motivation: motivation,
+        ),
+        type: type,
+      );
+
+      ref.invalidate(recruitDetailViewModelProvider(
+        RecruitDetailArgs(id: boardId, type: type),
+      ));
+
       ref
           .read(
             recruitListViewModelProvider(
@@ -52,18 +68,38 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
           )
           .refresh();
 
-      if (state is! AsyncData) {
-        state = const AsyncData(null); // 안전하게 완료 상태로 설정
-      }
+      state = const RecruitApplyState();
       return true;
-    } catch (e, st) {
-      if (state.isLoading) {
-        logger.e('지원 실패', error: e, stackTrace: st);
-        state = AsyncError(e, st);
-      } else {
-        logger.w('지원 실패 시도 - 이미 완료된 상태');
+    } on ProfanityDetectedException catch (e) {
+      final badSentences = <String>[];
+      final data = e.responseData;
+
+      for (final field in ['자기소개', '지원동기']) {
+        final section = data[field];
+        if (section != null && section['results'] is List) {
+          for (final result in section['results']) {
+            if (result['label'] == '비속어') {
+              final sentence = result['sentence'];
+              badSentences.add('[$field]에서 "$sentence" 에 비속어가 포함되었습니다.');
+            }
+          }
+        }
       }
+
+      state = state.copyWith(
+        isLoading: false,
+        profanityMessage: badSentences.join('\n'),
+        profanityMessageTriggerKey: state.profanityMessageTriggerKey + 1,
+      );
+      return false;
+    } catch (e, st) {
+      logger.e('지원 실패', error: e, stackTrace: st);
+      state = state.copyWith(isLoading: false);
       return false;
     }
+  }
+
+  void clearProfanityMessage() {
+    state = state.copyWith(profanityMessage: null);
   }
 }
