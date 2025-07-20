@@ -8,6 +8,7 @@ part 'recruit_detail_model.g.dart';
 @JsonSerializable()
 class RecruitDetailModel with _$RecruitDetailModel {
   final int id;
+  final int authorId;
   final int volunteer;
   final DateTime startAt;
   final DateTime endAt;
@@ -22,6 +23,7 @@ class RecruitDetailModel with _$RecruitDetailModel {
 
   RecruitDetailModel({
     required this.id,
+    required this.authorId,
     required this.volunteer,
     required this.startAt,
     required this.endAt,
@@ -43,6 +45,7 @@ extension RecruitDetailModelMapper on RecruitDetailModel {
   RecruitDetailEntity toEntity() {
     return RecruitDetailEntity(
       id: id,
+      authorId: authorId,
       volunteer: volunteer,
       startAt: startAt,
       endAt: endAt,
