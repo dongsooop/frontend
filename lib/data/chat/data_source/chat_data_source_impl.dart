@@ -24,6 +24,25 @@ class ChatDataSourceImpl implements ChatDataSource {
   );
 
   @override
+  Future<ChatRoom> createOneToOneChatRoom(String title, int targetUserId) async {
+    final endpoint = dotenv.get('ONE_TO_ONE_CHAT');
+    final requestBody = {'title': title, 'targetUserId': targetUserId};
+
+    try {
+      final response = await _authDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+
+        final ChatRoom room = ChatRoom.fromJson(data as Map<String, dynamic>);
+        return room;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> createGroupChatRoom(String title, List<int> userId) async {
     final endpoint = dotenv.get('GROUP_CHAT');
     final requestBody = {'title': title, 'participants': userId};

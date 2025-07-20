@@ -4,6 +4,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/detail/widget/botton_button.dart';
@@ -16,12 +17,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../main.dart';
-
 class MarketDetailPageScreen extends ConsumerWidget {
   final int id;
   final MarketType type;
   final void Function(String reportType, int targetId) onTapReport;
+  final void Function(UiChatRoom chatRoom) onTapChatDetail;
   final String? status;
 
   const MarketDetailPageScreen({
@@ -29,6 +29,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
     required this.id,
     required this.type,
     required this.onTapReport,
+    required this.onTapChatDetail,
     this.status,
   });
 
@@ -129,8 +130,8 @@ class MarketDetailPageScreen extends ConsumerWidget {
                                 .notifier,
                           );
                           await viewModel.contactMarket(id);
-
-                          // TODO: 채팅방 이동 로직
+                          final chatRoom = await viewModel.createChatRoom(market.title, market.authorId);
+                          onTapChatDetail(chatRoom);
                         } catch (e) {
                           showDialog(
                             context: context,

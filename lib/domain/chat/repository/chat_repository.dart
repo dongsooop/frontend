@@ -14,6 +14,7 @@ abstract class ChatRepository {
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
   Future<void> createGroupChatRoom(String title, int userId);
+  Future<UiChatRoom> createOneToOneChatRoom(String title, int targetUserId);
 
   // stomp
   Future<void> connect(String roomId);
