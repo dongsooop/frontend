@@ -12,6 +12,12 @@ class ChatRepositoryImpl implements ChatRepository {
   );
 
   @override
+  Future<UiChatRoom> createOneToOneChatRoom(String title, int targetUserId) async {
+    final chatRoom = await _chatDataSource.createOneToOneChatRoom(title, targetUserId);
+    return UiChatRoom.fromEntityMinimal(chatRoom);
+  }
+
+  @override
   Future<void> createGroupChatRoom(String title, int userId) async {
     await _chatDataSource.createGroupChatRoom(title, [userId]);
   }

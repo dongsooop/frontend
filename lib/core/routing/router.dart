@@ -225,6 +225,9 @@ final router = GoRouter(
               },
             );
           },
+          onTapChatDetail: (room) {
+            context.push(RoutePaths.chatDetail, extra: room);
+          },
         );
       },
     ),
@@ -311,6 +314,9 @@ final router = GoRouter(
                 'targetId': targetId,
               },
             );
+          },
+          onTapChatDetail: (room) {
+            context.push(RoutePaths.chatDetail, extra: room);
           },
         );
       },

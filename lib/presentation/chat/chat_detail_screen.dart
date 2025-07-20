@@ -126,7 +126,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                     style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
                   ),
                   Text(
-                    chatRoom.participantCount, // 채팅방 이름
+                    chatRoom.participantCount,
                     style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
                   ),
                 ],

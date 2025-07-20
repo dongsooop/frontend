@@ -34,4 +34,17 @@ class UiChatRoom {
       isGroupChat: entity.groupChat,
     );
   }
+
+  factory UiChatRoom.fromEntityMinimal(ChatRoom entity) {
+    return UiChatRoom(
+      roomId: entity.roomId,
+      title: entity.title ?? "채팅방 이름 없음",
+      participantCount: entity.participants.length.toString(),
+      lastActivityAt: entity.lastActivityAt,
+      lastActivityText: "",
+      unreadCount: "0",
+      isGroupChat: entity.groupChat,
+      managerId: entity.managerId,
+    );
+  }
 }

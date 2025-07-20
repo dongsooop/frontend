@@ -6,12 +6,14 @@ class RecruitBottomButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String label;
   final bool isEnabled;
+  final VoidCallback? onIconPressed;
 
   const RecruitBottomButton({
     super.key,
     required this.label,
     this.onPressed,
     this.isEnabled = true,
+    this.onIconPressed,
   });
 
   @override
@@ -30,7 +32,9 @@ class RecruitBottomButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: IconButton(
-                onPressed: isEnabled ? onPressed : null,
+                onPressed: isEnabled
+                    ? onIconPressed
+                    : null,
                 icon: const Icon(Icons.chat_bubble_outline,
                     size: 24, color: ColorStyles.gray4),
               ),
