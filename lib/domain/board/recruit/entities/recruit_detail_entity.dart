@@ -1,5 +1,6 @@
 class RecruitDetailEntity {
   final int id;
+  final int authorId;
   final int volunteer;
   final DateTime startAt;
   final DateTime endAt;
@@ -14,6 +15,7 @@ class RecruitDetailEntity {
 
   const RecruitDetailEntity({
     required this.id,
+    required this.authorId,
     required this.volunteer,
     required this.startAt,
     required this.endAt,

@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RecruitDetailModel {
   int get id;
+  int get authorId;
   int get volunteer;
   DateTime get startAt;
   DateTime get endAt;
@@ -42,6 +43,8 @@ mixin _$RecruitDetailModel {
         (other.runtimeType == runtimeType &&
             other is RecruitDetailModel &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.authorId, authorId) ||
+                other.authorId == authorId) &&
             (identical(other.volunteer, volunteer) ||
                 other.volunteer == volunteer) &&
             (identical(other.startAt, startAt) || other.startAt == startAt) &&
@@ -65,6 +68,7 @@ mixin _$RecruitDetailModel {
   int get hashCode => Object.hash(
       runtimeType,
       id,
+      authorId,
       volunteer,
       startAt,
       endAt,
@@ -79,7 +83,7 @@ mixin _$RecruitDetailModel {
 
   @override
   String toString() {
-    return 'RecruitDetailModel(id: $id, volunteer: $volunteer, startAt: $startAt, endAt: $endAt, title: $title, content: $content, tags: $tags, departmentTypeList: $departmentTypeList, author: $author, createdAt: $createdAt, viewType: $viewType, isAlreadyApplied: $isAlreadyApplied)';
+    return 'RecruitDetailModel(id: $id, authorId: $authorId, volunteer: $volunteer, startAt: $startAt, endAt: $endAt, title: $title, content: $content, tags: $tags, departmentTypeList: $departmentTypeList, author: $author, createdAt: $createdAt, viewType: $viewType, isAlreadyApplied: $isAlreadyApplied)';
   }
 }
 
@@ -91,6 +95,7 @@ abstract mixin class $RecruitDetailModelCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
+      int authorId,
       int volunteer,
       DateTime startAt,
       DateTime endAt,
@@ -118,6 +123,7 @@ class _$RecruitDetailModelCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? authorId = null,
     Object? volunteer = null,
     Object? startAt = null,
     Object? endAt = null,
@@ -134,6 +140,10 @@ class _$RecruitDetailModelCopyWithImpl<$Res>
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      authorId: null == authorId
+          ? _self.authorId
+          : authorId // ignore: cast_nullable_to_non_nullable
               as int,
       volunteer: null == volunteer
           ? _self.volunteer

@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MarketDetailModel {
   int get id;
+  int get authorId;
   String get title;
   String get content;
   int get price;
@@ -39,6 +40,8 @@ mixin _$MarketDetailModel {
         (other.runtimeType == runtimeType &&
             other is MarketDetailModel &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.authorId, authorId) ||
+                other.authorId == authorId) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.price, price) || other.price == price) &&
@@ -58,6 +61,7 @@ mixin _$MarketDetailModel {
   int get hashCode => Object.hash(
       runtimeType,
       id,
+      authorId,
       title,
       content,
       price,
@@ -69,7 +73,7 @@ mixin _$MarketDetailModel {
 
   @override
   String toString() {
-    return 'MarketDetailModel(id: $id, title: $title, content: $content, price: $price, createdAt: $createdAt, type: $type, contactCount: $contactCount, imageUrlList: $imageUrlList, viewType: $viewType)';
+    return 'MarketDetailModel(id: $id, authorId: $authorId, title: $title, content: $content, price: $price, createdAt: $createdAt, type: $type, contactCount: $contactCount, imageUrlList: $imageUrlList, viewType: $viewType)';
   }
 }
 
@@ -81,6 +85,7 @@ abstract mixin class $MarketDetailModelCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
+      int authorId,
       String title,
       String content,
       int price,
@@ -105,6 +110,7 @@ class _$MarketDetailModelCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? authorId = null,
     Object? title = null,
     Object? content = null,
     Object? price = null,
@@ -118,6 +124,10 @@ class _$MarketDetailModelCopyWithImpl<$Res>
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      authorId: null == authorId
+          ? _self.authorId
+          : authorId // ignore: cast_nullable_to_non_nullable
               as int,
       title: null == title
           ? _self.title

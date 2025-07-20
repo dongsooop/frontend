@@ -1,5 +1,6 @@
 class MarketDetailEntity {
   final int id;
+  final int authorId;
   final String title;
   final String content;
   final int price;
@@ -11,6 +12,7 @@ class MarketDetailEntity {
 
   MarketDetailEntity({
     required this.id,
+    required this.authorId,
     required this.title,
     required this.content,
     required this.price,
