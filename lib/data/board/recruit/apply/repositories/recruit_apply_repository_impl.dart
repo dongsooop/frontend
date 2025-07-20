@@ -5,6 +5,7 @@ import 'package:dongsoop/data/board/recruit/apply/models/recruit_applicant_list_
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_applicant_detail_entity.dart';
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_applicant_entity.dart';
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_entity.dart';
+import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_text_filter_entity.dart';
 import 'package:dongsoop/domain/board/recruit/apply/repository/recruit_apply_repository.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 
@@ -12,6 +13,15 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
   final RecruitApplyDataSource _dataSource;
 
   RecruitApplyRepositoryImpl(this._dataSource);
+
+  @override
+  Future<void> filterApply({
+    required RecruitApplyTextFilterEntity entity,
+  }) async {
+    return _handle(() async {
+      await _dataSource.filterApply(entity: entity);
+    }, RecruitApplyException());
+  }
 
   @override
   Future<void> submitRecruitApply({
@@ -71,6 +81,8 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();
+    } on ProfanityDetectedException {
+      rethrow;
     } catch (_) {
       throw exception;
     }
