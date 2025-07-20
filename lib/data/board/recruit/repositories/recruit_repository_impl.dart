@@ -4,6 +4,7 @@ import 'package:dongsoop/data/board/recruit/models/recruit_detail_model.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_list_model.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_detail_entity.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_text_filter_entity.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_repository.dart';
@@ -42,6 +43,15 @@ class RecruitRepositoryImpl implements RecruitRepository {
       );
       return model.toEntity();
     }, RecruitDetailException());
+  }
+
+  @override
+  Future<void> filterPost({
+    required RecruitTextFilterEntity entity,
+  }) async {
+    return _handle(() async {
+      await _dataSource.filterPost(entity: entity);
+    }, RecruitWriteException());
   }
 
   @override
