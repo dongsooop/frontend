@@ -1,15 +1,16 @@
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_text_filter_entity.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
+import 'package:dongsoop/domain/board/recruit/use_cases/recruit_text_filter_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_write_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';
 import 'package:dongsoop/main.dart';
-import 'package:dongsoop/presentation/board/providers/recruit/recruit_group_chat_use_case_provider.dart';
+import 'package:dongsoop/presentation/board/providers/recruit/recruit_text_filter_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_write_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:dongsoop/domain/chat/use_case/create_group_chat_room_use_case.dart';
 
 part 'recruit_write_view_model.g.dart';
 
@@ -18,7 +19,8 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
   RecruitWriteUseCase get _useCase => ref.watch(recruitWriteUseCaseProvider);
   ValidateWriteUseCase get _validator =>
       ref.watch(validateWriteUseCaseProvider);
-  CreateGroupChatRoomUseCase get _chatRoomUseCase => ref.watch(recruitGroupChatUseCaseProvider);
+  RecruitTextFilterUseCase get _textFilterUseCase =>
+      ref.watch(recruitTextFilterUseCaseProvider);
 
   @override
   RecruitFormState build() => RecruitFormState();
@@ -57,34 +59,108 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
       _validator.isValidContent(state.content) &&
       _validator.isValidTags(state.tags);
 
-  Future<void> submit({
+  Future<bool> submit({
     required RecruitType type,
     required RecruitWriteEntity entity,
     required int userId,
   }) async {
-    if (state.isLoading) return;
+    if (state.isLoading) return false;
+
+    String? prevProfanityMessage;
 
     state = state.copyWith(
       isLoading: true,
       errMessage: null,
+      profanityMessage: null,
     );
 
     try {
-      await _useCase.execute(
-        type: type,
-        entity: entity,
+      logger.i('[Recruit] AI 필터 검사 요청');
+
+      final filteredTitle = state.title.replaceAll('|', '');
+      final filteredTags =
+          state.tags.map((e) => e.replaceAll('|', '')).join(' ');
+      final filteredContent = state.content.replaceAll('|', '');
+
+      await _textFilterUseCase.execute(
+        entity: RecruitTextFilterEntity(
+          title: filteredTitle,
+          tags: filteredTags,
+          content: filteredContent,
+        ),
       );
-      
-      ref.invalidateSelf();
+
+      logger.i('[Recruit] AI 필터 통과');
+
+      await _useCase.execute(type: type, entity: entity);
       logger.i('[Submit Success] 게시글 작성 완료');
+      return true;
+    } on ProfanityDetectedException catch (e) {
+      logger.w('[Recruit] 비속어 감지됨');
+      _setProfanityMessage(e);
+      prevProfanityMessage = state.profanityMessage;
+      return false;
     } on LoginRequiredException catch (e) {
       logger.w('[Submit Error] 로그인 필요: ${e.message}');
       state = state.copyWith(errMessage: e.message);
-    } catch (e, stack) {
-      logger.e('[Submit Error] 예외 발생: $e', stackTrace: stack);
+      return false;
+    } catch (e, st) {
+      logger.e('[Submit Error] 예외 발생: $e', stackTrace: st);
       state = state.copyWith(errMessage: '알 수 없는 오류가 발생했어요.');
+      return false;
     } finally {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(
+        isLoading: false,
+        profanityMessage: prevProfanityMessage ?? state.profanityMessage,
+      );
+      logger.d('[ViewModel] 최종 상태: $state');
     }
+  }
+
+  void _setProfanityMessage(ProfanityDetectedException e) {
+    final badSentences = <String>[];
+    final Map<String, dynamic> data = e.responseData;
+
+    logger.d('[Profanity] 원본 필터 응답: $data');
+
+    // 서버 → 클라이언트 키 변환 맵
+    final fieldNameMap = {
+      '제목': '제목',
+      '태그': '태그',
+      '본문': '내용',
+    };
+
+    // 사용자에게 보여줄 필드 순서
+    final displayOrder = ['제목', '내용', '태그'];
+
+    for (final field in displayOrder) {
+      final serverKey =
+          fieldNameMap.entries.firstWhere((entry) => entry.value == field).key;
+
+      final section = data[serverKey];
+      if (section != null && section['results'] is List) {
+        for (final result in section['results']) {
+          if (result['label'] == '비속어') {
+            final sentence = result['sentence'];
+            badSentences.add('[$field]에서 "$sentence" 에 비속어가 포함되어 있습니다.');
+          }
+        }
+      }
+    }
+
+    if (badSentences.isNotEmpty) {
+      final message = badSentences.join('\n');
+      state = state.copyWith(
+        profanityMessage: message,
+        profanityMessageTriggerKey: state.profanityMessageTriggerKey + 1,
+      );
+    }
+  }
+
+  void clearProfanityMessage() {
+    state = state.copyWith(
+      profanityMessage: null,
+      profanityMessageTriggerKey: null,
+    );
   }
 }

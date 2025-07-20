@@ -7,12 +7,12 @@ part of 'recruit_apply_view_model.dart';
 // **************************************************************************
 
 String _$recruitApplyViewModelHash() =>
-    r'6bdd8757d239587781d7bd0ec9751634c212ea57';
+    r'e76026baffc0c3884566751f7d0ce2f47b02216f';
 
 /// See also [RecruitApplyViewModel].
 @ProviderFor(RecruitApplyViewModel)
-final recruitApplyViewModelProvider =
-    AutoDisposeAsyncNotifierProvider<RecruitApplyViewModel, void>.internal(
+final recruitApplyViewModelProvider = AutoDisposeNotifierProvider<
+    RecruitApplyViewModel, RecruitApplyState>.internal(
   RecruitApplyViewModel.new,
   name: r'recruitApplyViewModelProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -22,6 +22,6 @@ final recruitApplyViewModelProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$RecruitApplyViewModel = AutoDisposeAsyncNotifier<void>;
+typedef _$RecruitApplyViewModel = AutoDisposeNotifier<RecruitApplyState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

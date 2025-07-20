@@ -4,6 +4,7 @@ import 'package:dongsoop/data/board/recruit/models/recruit_detail_model.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_list_model.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_detail_entity.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_text_filter_entity.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_repository.dart';
@@ -45,6 +46,15 @@ class RecruitRepositoryImpl implements RecruitRepository {
   }
 
   @override
+  Future<void> filterPost({
+    required RecruitTextFilterEntity entity,
+  }) async {
+    return _handle(() async {
+      await _dataSource.filterPost(entity: entity);
+    }, RecruitWriteException());
+  }
+
+  @override
   Future<void> submitRecruitPost({
     required RecruitType type,
     required RecruitWriteEntity entity,
@@ -67,6 +77,8 @@ class RecruitRepositoryImpl implements RecruitRepository {
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();
+    } on ProfanityDetectedException {
+      rethrow;
     } catch (e, st) {
       logger.e('예외 발생: $e');
       logger.e('$st');

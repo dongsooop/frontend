@@ -1,9 +1,14 @@
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_applicant_detail_entity.dart';
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_applicant_entity.dart';
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_entity.dart';
+import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_text_filter_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 
 abstract class RecruitApplyRepository {
+  Future<void> filterApply({
+    required RecruitApplyTextFilterEntity entity,
+  });
+
   Future<void> submitRecruitApply({
     required RecruitType type,
     required RecruitApplyEntity entity,

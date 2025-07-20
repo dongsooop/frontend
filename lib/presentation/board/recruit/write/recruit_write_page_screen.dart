@@ -34,6 +34,26 @@ class RecruitWritePageScreen extends HookConsumerWidget {
     final user = ref.watch(userSessionProvider);
     final writerMajor = user?.departmentType ?? '';
 
+    useEffect(() {
+      if (state.profanityMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await showDialog(
+            context: context,
+            useRootNavigator: true,
+            builder: (dialogContext) => CustomConfirmDialog(
+              title: '비속어 감지',
+              content: state.profanityMessage!,
+              confirmText: '확인',
+              onConfirm: () {},
+              isSingleAction: true,
+            ),
+          );
+          viewModel.clearProfanityMessage();
+        });
+      }
+      return null;
+    }, [state.profanityMessageTriggerKey]);
+
     void updateField(RecruitFormState Function(RecruitFormState) update) {
       viewModel.updateForm(update(state));
     }
@@ -107,10 +127,16 @@ class RecruitWritePageScreen extends HookConsumerWidget {
       );
 
       try {
-        await viewModel.submit(type: type, entity: entity, userId: user!.id);
-        context.pop(true);
+        final success = await viewModel.submit(
+          type: type,
+          entity: entity,
+          userId: user!.id,
+        );
+        if (success) {
+          context.pop(true);
+        }
       } catch (e) {
-        showDialog(
+        await showDialog(
           context: context,
           builder: (_) => CustomConfirmDialog(
             title: '오류 발생',
@@ -185,9 +211,39 @@ class RecruitWritePageScreen extends HookConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '모집이 시작되면 지원자가 작성한 자기소개 및 지원 동기를 확인할 수 있어요',
-                  style: TextStyle(color: Colors.black54),
+                Text.rich(
+                  TextSpan(
+                    text: '모집이 시작되면 지원자가 작성한\n',
+                    style: TextStyles.largeTextRegular.copyWith(
+                      color: ColorStyles.gray4,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: '자기소개',
+                        style: TextStyles.largeTextBold.copyWith(
+                          color: ColorStyles.black,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' 및 ',
+                        style: TextStyles.largeTextRegular.copyWith(
+                          color: ColorStyles.gray4,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '지원 동기',
+                        style: TextStyles.largeTextBold.copyWith(
+                          color: ColorStyles.black,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '를 확인할 수 있어요',
+                        style: TextStyles.largeTextRegular.copyWith(
+                          color: ColorStyles.gray4,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 40),
                 RequiredLabel('모집 유형'),
@@ -244,8 +300,6 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                 buildDateTimeBox('모집 마감일',
                     ref.watch(dateTimeViewModelProvider).endDateTime, false),
                 const SizedBox(height: 40),
-
-                // 제목
                 RequiredLabel('제목'),
                 const SizedBox(height: 16),
                 BoardTextFormField(
@@ -255,10 +309,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                   onChanged: (value) =>
                       updateField((s) => s.copyWith(title: value)),
                 ),
-
                 const SizedBox(height: 40),
-
-                // 내용
                 RequiredLabel('내용'),
                 const SizedBox(height: 16),
                 BoardTextFormField(

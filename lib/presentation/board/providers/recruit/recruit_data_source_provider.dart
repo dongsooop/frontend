@@ -9,5 +9,8 @@ final guestRecruitDataSourceProvider = Provider(
 );
 
 final recruitDataSourceProvider = Provider(
-  (ref) => RecruitDataSourceImpl(ref.watch(authDioProvider)),
+  (ref) => RecruitDataSourceImpl(
+    ref.watch(authDioProvider),
+    createAuthDio(ref: ref, useAi: true),
+  ),
 );

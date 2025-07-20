@@ -1,5 +1,6 @@
 import 'package:dongsoop/data/board/recruit/models/recruit_detail_model.dart';
 import 'package:dongsoop/data/board/recruit/models/recruit_list_model.dart';
+import 'package:dongsoop/domain/board/recruit/entities/recruit_text_filter_entity.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 
@@ -13,6 +14,10 @@ abstract class RecruitDataSource {
   Future<RecruitDetailModel> fetchDetail({
     required int id,
     required RecruitType type,
+  });
+
+  Future<void> filterPost({
+    required RecruitTextFilterEntity entity,
   });
 
   Future<void> submitPost({
