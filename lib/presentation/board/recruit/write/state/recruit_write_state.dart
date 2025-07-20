@@ -6,6 +6,8 @@ class RecruitFormState {
   final List<String> majors;
   final bool isLoading;
   final String? errMessage;
+  final String? profanityMessage;
+  final int profanityMessageTriggerKey;
 
   const RecruitFormState({
     this.selectedTypeIndex,
@@ -15,6 +17,8 @@ class RecruitFormState {
     this.majors = const [],
     this.isLoading = false,
     this.errMessage,
+    this.profanityMessage,
+    this.profanityMessageTriggerKey = 0,
   });
 
   RecruitFormState copyWith({
@@ -25,6 +29,8 @@ class RecruitFormState {
     List<String>? majors,
     bool? isLoading,
     String? errMessage,
+    String? profanityMessage,
+    int? profanityMessageTriggerKey,
   }) {
     return RecruitFormState(
       selectedTypeIndex: selectedTypeIndex ?? this.selectedTypeIndex,
@@ -34,6 +40,9 @@ class RecruitFormState {
       majors: majors ?? this.majors,
       isLoading: isLoading ?? this.isLoading,
       errMessage: errMessage ?? this.errMessage,
+      profanityMessage: profanityMessage ?? this.profanityMessage,
+      profanityMessageTriggerKey:
+          profanityMessageTriggerKey ?? this.profanityMessageTriggerKey,
     );
   }
 }

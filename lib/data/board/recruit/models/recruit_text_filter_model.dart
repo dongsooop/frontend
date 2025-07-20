@@ -17,6 +17,6 @@ class RecruitTextFilterModel with _$RecruitTextFilterModel {
 
   factory RecruitTextFilterModel.fromEntity(RecruitTextFilterEntity entity) {
     return RecruitTextFilterModel(
-        text: '${entity.title} | ${entity.content} | ${entity.tags}');
+        text: '${entity.title} | ${entity.tags} | ${entity.content}');
   }
 }

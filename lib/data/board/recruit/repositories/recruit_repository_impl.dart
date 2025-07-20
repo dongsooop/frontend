@@ -77,6 +77,8 @@ class RecruitRepositoryImpl implements RecruitRepository {
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();
+    } on ProfanityDetectedException {
+      rethrow;
     } catch (e, st) {
       logger.e('예외 발생: $e');
       logger.e('$st');
