@@ -8,6 +8,7 @@ part 'market_detail_model.g.dart';
 @JsonSerializable()
 class MarketDetailModel with _$MarketDetailModel {
   final int id;
+  final int authorId;
   final String title;
   final String content;
   final int price;
@@ -19,6 +20,7 @@ class MarketDetailModel with _$MarketDetailModel {
 
   MarketDetailModel({
     required this.id,
+    required this.authorId,
     required this.title,
     required this.content,
     required this.price,
@@ -37,6 +39,7 @@ extension MarketDetailModelMapper on MarketDetailModel {
   MarketDetailEntity toEntity() {
     return MarketDetailEntity(
       id: id,
+      authorId: authorId,
       title: title,
       content: content,
       price: price,

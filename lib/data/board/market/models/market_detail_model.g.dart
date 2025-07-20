@@ -9,6 +9,7 @@ part of 'market_detail_model.dart';
 MarketDetailModel _$MarketDetailModelFromJson(Map<String, dynamic> json) =>
     MarketDetailModel(
       id: (json['id'] as num).toInt(),
+      authorId: (json['authorId'] as num).toInt(),
       title: json['title'] as String,
       content: json['content'] as String,
       price: (json['price'] as num).toInt(),
@@ -24,6 +25,7 @@ MarketDetailModel _$MarketDetailModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$MarketDetailModelToJson(MarketDetailModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'authorId': instance.authorId,
       'title': instance.title,
       'content': instance.content,
       'price': instance.price,
