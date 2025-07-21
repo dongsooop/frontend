@@ -8,10 +8,9 @@ final guestMarketDataSourceProvider = Provider(
   (ref) => GuestMarketDataSourceImpl(ref.watch(plainDioProvider)),
 );
 
-// AI 요청을 위해 useAi: true 설정
 final marketDataSourceProvider = Provider(
   (ref) => MarketDataSourceImpl(
-    ref.watch(authDioProvider), // 일반 인증용 Dio
-    createAuthDio(ref: ref, useAi: true), // AI 요청용 Dio
+    ref.watch(authDioProvider),
+    createAuthDio(ref: ref, useAi: true),
   ),
 );

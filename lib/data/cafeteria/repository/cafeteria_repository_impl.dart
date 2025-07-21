@@ -27,7 +27,7 @@ class CafeteriaRepositoryImpl implements CafeteriaRepository {
       await _local.cacheCafeteria(response);
 
       return response.toEntity();
-    } catch (e, stack) {
+    } catch (e) {
       throw CafeteriaException();
     }
   }
@@ -38,7 +38,6 @@ class CafeteriaRepositoryImpl implements CafeteriaRepository {
     return cached?.toEntity();
   }
 
-  /// 🔽 오늘 날짜가 캐시된 주차 범위 안에 있는지 확인 (날짜만 비교)
   bool _shouldRefreshCache(CafeteriaResponse? cached) {
     if (cached == null) return true;
 

@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/presentation/components/search_bar.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -41,10 +40,11 @@ class BoardTabSection extends StatelessWidget {
           ),
         ),
 
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: SearchBarComponent(),
-        ),
+        /// 추후 개발 기능
+        // const Padding(
+        //   padding: EdgeInsets.symmetric(vertical: 16),
+        //   child: SearchBarComponent(),
+        // ),
 
         Container(
           child: Row(

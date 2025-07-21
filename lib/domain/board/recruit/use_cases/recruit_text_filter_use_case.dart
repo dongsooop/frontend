@@ -6,7 +6,6 @@ class RecruitTextFilterUseCase {
 
   RecruitTextFilterUseCase(this.repository);
 
-  /// 비속어 감지용 호출
   Future<void> execute({
     required RecruitTextFilterEntity entity,
   }) async {
