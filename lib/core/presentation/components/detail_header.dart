@@ -7,8 +7,15 @@ class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final Widget? trailing;
   final Color? backgroundColor;
+  final bool showBackButton;
 
-  const DetailHeader({super.key, this.title, this.trailing, this.backgroundColor,});
+  const DetailHeader({
+    super.key,
+    this.title,
+    this.trailing,
+    this.backgroundColor,
+    this.showBackButton = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,17 +26,19 @@ class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
         elevation: 0,
         automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          visualDensity: VisualDensity.compact,
-          onPressed: () => context.pop(),
-          highlightColor: Colors.transparent,
-          icon: const Icon(
-            Icons.navigate_before,
-            size: 24,
-          ),
-        ),
+        leading: showBackButton
+          ? IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            visualDensity: VisualDensity.compact,
+            onPressed: () => context.pop(),
+            highlightColor: Colors.transparent,
+            icon: const Icon(
+              Icons.navigate_before,
+              size: 24,
+            ),
+          )
+        : null,
         title: title != null
             ? Text(
                 title!,

@@ -48,6 +48,7 @@ class MyPageScreen extends HookConsumerWidget {
         appBar: DetailHeader(
           title: '마이페이지',
           backgroundColor: ColorStyles.gray1,
+          showBackButton: false,
           trailing: user != null
             ? IconButton(
               onPressed: onTapSetting,
