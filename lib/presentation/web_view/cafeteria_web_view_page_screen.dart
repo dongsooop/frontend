@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -25,7 +26,7 @@ class _CafeteriaWebViewPageScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('학식 배너 웹뷰')),
+      appBar: DetailHeader(),
       body: WebViewWidget(controller: controller),
     );
   }
