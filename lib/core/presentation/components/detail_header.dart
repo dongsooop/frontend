@@ -6,15 +6,16 @@ import 'package:go_router/go_router.dart';
 class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final Widget? trailing;
+  final Color? backgroundColor;
 
-  const DetailHeader({super.key, this.title, this.trailing});
+  const DetailHeader({super.key, this.title, this.trailing, this.backgroundColor,});
 
   @override
   Widget build(BuildContext context) {
     return PreferredSize(
       preferredSize: const Size.fromHeight(44),
       child: AppBar(
-        backgroundColor: ColorStyles.white,
+        backgroundColor: backgroundColor ?? ColorStyles.white,
         elevation: 0,
         automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,

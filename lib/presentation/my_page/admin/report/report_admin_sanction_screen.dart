@@ -146,11 +146,8 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: DetailHeader(
-            title: '제재 처리',
-          ),
+        appBar: DetailHeader(
+          title: '제재 처리',
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(16),

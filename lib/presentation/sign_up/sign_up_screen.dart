@@ -11,9 +11,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
-
-import '../../core/presentation/components/custom_confirm_dialog.dart';
-import '../../domain/auth/enum/agreement_type.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/domain/auth/enum/agreement_type.dart';
 
 class SignUpScreen extends HookConsumerWidget {
 
@@ -86,22 +86,8 @@ class SignUpScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: AppBar(
-          leading: IconButton(
-            onPressed: () {
-              context.pop();
-            },
-            icon: Icon(
-              Icons.chevron_left_outlined,
-              size: 24,
-              color: ColorStyles.black,
-            ),
-          ),
-          centerTitle: true,
-          title: Text(
-            '동숲 회원가입',
-            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-          ),
+        appBar: DetailHeader(
+          title: '동숲 회원가입',
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 48),

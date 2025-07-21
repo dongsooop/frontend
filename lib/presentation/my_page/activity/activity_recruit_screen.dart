@@ -82,11 +82,8 @@ class ActivityRecruitScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: DetailHeader(
-            title: isApply ? '지원한 모집글' : '개설한 모집글',
-          ),
+        appBar: DetailHeader(
+          title: isApply ? '지원한 모집글' : '개설한 모집글',
         ),
         body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),

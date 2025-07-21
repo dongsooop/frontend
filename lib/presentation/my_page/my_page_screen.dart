@@ -7,6 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
 
 class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSignIn;
@@ -42,35 +43,23 @@ class MyPageScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.gray1,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: AppBar(
-            backgroundColor: ColorStyles.gray1,
-            title: Text(
-              '마이페이지',
-              style: TextStyles.largeTextBold.copyWith(
-                color: ColorStyles.black
+        appBar: DetailHeader(
+          title: '마이페이지',
+          backgroundColor: ColorStyles.gray1,
+          trailing: user != null
+            ? IconButton(
+              onPressed: onTapSetting,
+              icon: SvgPicture.asset(
+                'assets/icons/setting.svg',
+                width: 24,
+                height: 24,
+                colorFilter: const ColorFilter.mode(
+                  ColorStyles.black,
+                  BlendMode.srcIn,
+                ),
               ),
-            ),
-            centerTitle: true,
-            actions: user != null
-              ? [
-                IconButton(
-                  onPressed: onTapSetting,
-                  icon: SvgPicture.asset(
-                    'assets/icons/setting.svg',
-                    width: 24,
-                    height: 24,
-                    colorFilter: const ColorFilter.mode(
-                      ColorStyles.black,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                )
-              ]
-              : [],
-            automaticallyImplyLeading: false, // 뒤로가기 버튼 X
-          ),
+            )
+            : null,
         ),
         body: Column(
           children: [

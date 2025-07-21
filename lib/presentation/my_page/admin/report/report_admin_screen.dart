@@ -97,11 +97,8 @@ class ReportAdminScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: DetailHeader(
-            title: '신고 관리',
-          ),
+        appBar: DetailHeader(
+          title: '신고 관리',
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),

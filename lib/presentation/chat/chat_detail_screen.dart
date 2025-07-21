@@ -13,6 +13,7 @@ import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
 
 class ChatDetailScreen extends HookConsumerWidget {
   final UiChatRoom chatRoom;
@@ -86,21 +87,9 @@ class ChatDetailScreen extends HookConsumerWidget {
     if (chatDetailState.isLoading) {
       return Scaffold(
         backgroundColor: ColorStyles.gray1,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: AppBar(
-            backgroundColor: ColorStyles.gray1,
-            leading: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: Icon(
-                Icons.chevron_left_outlined,
-                size: 24,
-                color: ColorStyles.black,
-              ),
-            ),
-          )
+        appBar: DetailHeader(
+          title: '제재 처리',
+          backgroundColor: ColorStyles.gray1,
         ),
         body: Center(
           child: CircularProgressIndicator(color: ColorStyles.primaryColor,),

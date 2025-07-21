@@ -70,11 +70,8 @@ class ReportScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(44),
-            child: DetailHeader(
-              title: '신고',
-            ),
+          appBar: DetailHeader(
+            title: '신고',
           ),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(16),

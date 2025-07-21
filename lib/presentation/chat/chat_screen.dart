@@ -210,7 +210,11 @@ class ChatScreen extends HookConsumerWidget {
                 itemCount: rooms.length,
                 itemBuilder: (context, index) {
                   final room = rooms[index];
-                  return GestureDetector(
+                  return InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    focusColor: Colors.transparent,
                     onTap: () => onTapChatDetail(room),
                     child: ChatCard(chatRoom: room),
                   );

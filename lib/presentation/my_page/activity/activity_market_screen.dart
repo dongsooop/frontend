@@ -82,11 +82,8 @@ class ActivityMarketScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: DetailHeader(
-            title: '장터 내역',
-          ),
+        appBar: DetailHeader(
+          title: '장터 내역',
         ),
         body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),

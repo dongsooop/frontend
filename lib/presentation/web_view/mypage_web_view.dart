@@ -1,10 +1,6 @@
-import 'package:dongsoop/ui/color_styles.dart';
-import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
-import '../../main.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
 
 class MypageWebView extends StatefulWidget {
   final String url;
@@ -25,7 +21,6 @@ class _MypageWebViewState extends State<MypageWebView> {
 
   @override
   void initState() {
-    logger.i("url: ${widget.url}");
     super.initState();
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -35,23 +30,7 @@ class _MypageWebViewState extends State<MypageWebView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(44),
-        child: AppBar(
-          title: Text(widget.title, style: TextStyles.largeTextBold.copyWith(
-            color: ColorStyles.black
-          )),
-          centerTitle: true,
-          leading: IconButton(
-            onPressed: () => context.pop(),
-            icon: Icon(
-              Icons.chevron_left_outlined,
-              size: 24,
-              color: ColorStyles.black,
-            ),
-          ),
-        ),
-      ),
+      appBar: DetailHeader(),
       body: WebViewWidget(controller: controller),
     );
   }
