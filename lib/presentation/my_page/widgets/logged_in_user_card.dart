@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class LoggedInUserCard extends HookConsumerWidget {
   final User user;
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapMarket;
+  final VoidCallback onTapCalendar;
   final void Function(bool isApply) onTapRecruit;
 
   const LoggedInUserCard({
@@ -16,6 +16,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.user,
     required this.onTapAdminReport,
     required this.onTapMarket,
+    required this.onTapCalendar,
     required this.onTapRecruit,
   });
 
@@ -100,8 +101,7 @@ class LoggedInUserCard extends HookConsumerWidget {
               _myPageMenuItem(
                 icon: Icons.calendar_month_outlined,
                 label: '일정 관리',
-                routePath: 'calendar',
-                context: context,
+                onTap: onTapCalendar,
               ),
             ],
           ),
@@ -152,14 +152,15 @@ class LoggedInUserCard extends HookConsumerWidget {
   Widget _myPageMenuItem({
     required IconData icon,
     required String label,
-    required String routePath,
-    required BuildContext context,
+    required VoidCallback onTap,
   }) {
     return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          context.pushNamed(routePath);
-        },
+      child: InkWell(
+        onTap: onTap,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        focusColor: Colors.transparent,
         child: SizedBox(
           height: 44,
           child: Row(

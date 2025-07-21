@@ -12,6 +12,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSignIn;
   final VoidCallback onTapSetting;
+  final VoidCallback onTapCalendar;
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapMarket;
   final void Function(bool isApply) onTapRecruit;
@@ -20,6 +21,7 @@ class MyPageScreen extends HookConsumerWidget {
     super.key,
     required this.onTapSignIn,
     required this.onTapSetting,
+    required this.onTapCalendar,
     required this.onTapAdminReport,
     required this.onTapMarket,
     required this.onTapRecruit,
@@ -70,7 +72,13 @@ class MyPageScreen extends HookConsumerWidget {
                   if (user == null) {
                     return LoggedOutPromptCard(onTapLogin: onTapSignIn);
                   } else {
-                    return LoggedInUserCard(user: user, onTapAdminReport: onTapAdminReport, onTapMarket: onTapMarket, onTapRecruit: onTapRecruit);
+                    return LoggedInUserCard(
+                      user: user,
+                      onTapAdminReport: onTapAdminReport,
+                      onTapMarket: onTapMarket,
+                      onTapRecruit: onTapRecruit,
+                      onTapCalendar: onTapCalendar,
+                    );
                   }
                 },
                 error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),
