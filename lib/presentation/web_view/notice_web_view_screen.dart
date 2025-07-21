@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -43,7 +44,7 @@ class _NoticeWebViewScreenState extends State<NoticeWebViewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('공지 상세보기')),
+      appBar: DetailHeader(),
       body: _controller == null
           ? const Center(child: Text('잘못된 URL입니다.'))
           : WebViewWidget(controller: _controller!),
