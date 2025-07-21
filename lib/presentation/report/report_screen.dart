@@ -70,162 +70,163 @@ class ReportScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(44),
-            child: DetailHeader(
-              title: '신고',
-            ),
+          appBar: DetailHeader(
+            title: '신고',
           ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16,
-            children: [
-              SizedBox(height: 24,),
-              Text(
-                '신고 대상이 정확한지 다시 한 번 확인해 주시기 바랍니다.',
-                style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.black,
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 16,
+              children: [
+                SizedBox(height: 24,),
+                Text(
+                  '신고 대상이 정확한지 다시 한 번 확인해 주시기 바랍니다.',
+                  style: TextStyles.normalTextRegular.copyWith(
+                    color: ColorStyles.black,
+                  ),
                 ),
-              ),
-              Text.rich(
-                TextSpan(
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '신고를 제출하면 동숲에서 조사를 시작하며,\n이때 사실 관계 확인을 위해 ',
+                        style: TextStyles.normalTextRegular.copyWith(
+                          color: ColorStyles.black,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '신고자에게 객관적인 자료를 요청',
+                        style: TextStyles.normalTextBold.copyWith(
+                          color: ColorStyles.black,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '할 수 있습니다.',
+                        style: TextStyles.normalTextRegular.copyWith(
+                          color: ColorStyles.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 24,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  spacing: 8,
                   children: [
-                    TextSpan(
-                      text: '신고를 제출하면 동숲에서 조사를 시작하며,\n이때 사실 관계 확인을 위해 ',
-                      style: TextStyles.normalTextRegular.copyWith(
-                        color: ColorStyles.black,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '신고자에게 객관적인 자료를 요청',
-                      style: TextStyles.normalTextBold.copyWith(
-                        color: ColorStyles.black,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '할 수 있습니다.',
-                      style: TextStyles.normalTextRegular.copyWith(
-                        color: ColorStyles.black,
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '신고 유형',
+                            style: TextStyles.normalTextBold.copyWith(
+                              color: ColorStyles.black,
+                            ),
+                          ),
+                          TextSpan(
+                            text: ' *',
+                            style: TextStyles.normalTextBold.copyWith(
+                              color: ColorStyles.primaryColor,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 24,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 8,
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '신고 유형',
-                          style: TextStyles.normalTextBold.copyWith(
-                            color: ColorStyles.black,
+                // 텍스트 필드 & 버튼
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => ReportSelectBottomSheet(
+                        selectedReason: selectedReportReason.value,
+                        onSelected: (reason) {
+                          selectedReportReason.value = reason;
+                          // ref.read(signUpViewModelProvider.notifier).selectDept(selectedReportReason.value);
+                        },
+                      ),
+                    );
+                  },
+                  child: Container(
+                      height: 44,
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            width: 1,
+                            color: selectedReportReason.value == null
+                                ? ColorStyles.gray2
+                                : ColorStyles.primaryColor,
                           ),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        TextSpan(
-                          text: ' *',
-                          style: TextStyles.normalTextBold.copyWith(
-                            color: ColorStyles.primaryColor,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              selectedReportReason.value?.message ?? '신고 사유 선택',
+                              style: TextStyles.normalTextRegular.copyWith(
+                                color: selectedReportReason.value == null
+                                    ? ColorStyles.gray4
+                                    : ColorStyles.primaryColor,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                          Icon(
+                            Icons.chevron_right_outlined,
+                            size: 24,
+                            color: selectedReportReason.value == null
+                                ? ColorStyles.gray5
+                                : ColorStyles.primaryColor,
+                          ),
+                        ],
+                      )
                   ),
-                ],
-              ),
-              // 텍스트 필드 & 버튼
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => ReportSelectBottomSheet(
-                      selectedReason: selectedReportReason.value,
-                      onSelected: (reason) {
-                        selectedReportReason.value = reason;
-                        // ref.read(signUpViewModelProvider.notifier).selectDept(selectedReportReason.value);
-                      },
-                    ),
-                  );
-                },
-                child: Container(
-                    height: 44,
+                ),
+                selectedReportReason.value != null
+                ? Container(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
                           width: 1,
-                          color: selectedReportReason.value == null
-                              ? ColorStyles.gray2
-                              : ColorStyles.primaryColor,
+                          color: ColorStyles.gray2,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            selectedReportReason.value?.message ?? '신고 사유 선택',
-                            style: TextStyles.normalTextRegular.copyWith(
-                              color: selectedReportReason.value == null
-                                  ? ColorStyles.gray4
-                                  : ColorStyles.primaryColor,
-                            ),
-                          ),
-                        ),
-                        Icon(
-                          Icons.chevron_right_outlined,
-                          size: 24,
-                          color: selectedReportReason.value == null
-                              ? ColorStyles.gray5
-                              : ColorStyles.primaryColor,
-                        ),
-                      ],
-                    )
-                ),
-              ),
-              selectedReportReason.value != null
-              ? Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        width: 1,
-                        color: ColorStyles.gray2,
+                    child: TextFormField(
+                      maxLines: 5,
+                      maxLength: 500,
+                      keyboardType: TextInputType.text,
+                      controller: textController,
+                      textInputAction: TextInputAction.done,
+                      textAlignVertical: TextAlignVertical.center,
+                      style: TextStyles.normalTextRegular.copyWith(
+                        color: ColorStyles.black,
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: '최대 500글자까지 입력 가능해요',
+                        hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+                        counterText: '',
+                      ),
                     ),
-                  ),
-                  child: TextFormField(
-                    maxLines: 5,
-                    maxLength: 500,
-                    keyboardType: TextInputType.text,
-                    controller: textController,
-                    textInputAction: TextInputAction.done,
-                    textAlignVertical: TextAlignVertical.center,
-                    style: TextStyles.normalTextRegular.copyWith(
-                      color: ColorStyles.black,
-                    ),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: '최대 500글자까지 입력 가능해요',
-                      hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-                      counterText: '',
-                    ),
-                  ),
-                )
-              : SizedBox(),
-            ],
+                  )
+                : SizedBox(),
+              ],
+            ),
           ),
         ),
         bottomNavigationBar: PrimaryBottomButton(

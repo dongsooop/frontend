@@ -6,7 +6,6 @@ import 'package:dongsoop/domain/board/recruit/use_cases/recruit_text_filter_use_
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_write_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_write_use_case.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_text_filter_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_write_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
@@ -75,8 +74,6 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
     );
 
     try {
-      logger.i('[Recruit] AI 필터 검사 요청');
-
       final filteredTitle = state.title.replaceAll('|', '');
       final filteredTags =
           state.tags.map((e) => e.replaceAll('|', '')).join(' ');
@@ -90,22 +87,16 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
         ),
       );
 
-      logger.i('[Recruit] AI 필터 통과');
-
       await _useCase.execute(type: type, entity: entity);
-      logger.i('[Submit Success] 게시글 작성 완료');
       return true;
     } on ProfanityDetectedException catch (e) {
-      logger.w('[Recruit] 비속어 감지됨');
       _setProfanityMessage(e);
       prevProfanityMessage = state.profanityMessage;
       return false;
     } on LoginRequiredException catch (e) {
-      logger.w('[Submit Error] 로그인 필요: ${e.message}');
       state = state.copyWith(errMessage: e.message);
       return false;
-    } catch (e, st) {
-      logger.e('[Submit Error] 예외 발생: $e', stackTrace: st);
+    } catch (e) {
       state = state.copyWith(errMessage: '알 수 없는 오류가 발생했어요.');
       return false;
     } finally {
@@ -113,15 +104,12 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
         isLoading: false,
         profanityMessage: prevProfanityMessage ?? state.profanityMessage,
       );
-      logger.d('[ViewModel] 최종 상태: $state');
     }
   }
 
   void _setProfanityMessage(ProfanityDetectedException e) {
     final badSentences = <String>[];
     final Map<String, dynamic> data = e.responseData;
-
-    logger.d('[Profanity] 원본 필터 응답: $data');
 
     // 서버 → 클라이언트 키 변환 맵
     final fieldNameMap = {

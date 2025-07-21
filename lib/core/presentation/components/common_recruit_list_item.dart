@@ -45,7 +45,6 @@ class CommonRecruitListItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 상단 정보
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -73,13 +72,11 @@ class CommonRecruitListItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // 제목
                 Text(title,
                     style: TextStyles.largeTextBold
                         .copyWith(color: ColorStyles.black)),
                 const SizedBox(height: 8),
 
-                // 내용 한 줄
                 FractionallySizedBox(
                   widthFactor: 0.8,
                   child: Text(

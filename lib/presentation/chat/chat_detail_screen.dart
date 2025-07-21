@@ -13,6 +13,7 @@ import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
 
 class ChatDetailScreen extends HookConsumerWidget {
   final UiChatRoom chatRoom;
@@ -86,21 +87,9 @@ class ChatDetailScreen extends HookConsumerWidget {
     if (chatDetailState.isLoading) {
       return Scaffold(
         backgroundColor: ColorStyles.gray1,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: AppBar(
-            backgroundColor: ColorStyles.gray1,
-            leading: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: Icon(
-                Icons.chevron_left_outlined,
-                size: 24,
-                color: ColorStyles.black,
-              ),
-            ),
-          )
+        appBar: DetailHeader(
+          title: '제재 처리',
+          backgroundColor: ColorStyles.gray1,
         ),
         body: Center(
           child: CircularProgressIndicator(color: ColorStyles.primaryColor,),
@@ -180,16 +169,15 @@ class ChatDetailScreen extends HookConsumerWidget {
               ],
             )
         ),
-        body: Container(
-          margin: EdgeInsets.symmetric(vertical: 24),
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus(); // 채팅 리스트 터치 시 가상 키보드 숨기기
-                  },
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 24),
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                Expanded(
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: ListView.separated(
@@ -239,69 +227,69 @@ class ChatDetailScreen extends HookConsumerWidget {
                     ),
                   ),
                 ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 52,
-                margin: EdgeInsets.only(top: 16),
-                padding: EdgeInsets.only(left: 16, right: 8),
-                decoration: ShapeDecoration(
-                    color: ColorStyles.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        maxLines: null,
-                        cursorColor: ColorStyles.gray4,
-                        keyboardType: TextInputType.multiline,
-                        controller: textController,
-                        style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                        decoration: InputDecoration(border: InputBorder.none,),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 44,
-                      width: 44,
-                      child: IconButton(
-                        onPressed: () {
-                          // 메시지 전송
-                          final content = textController.text.trim();
-                          if (content.isNotEmpty) {
-                            final roomId = chatRoom.roomId;
-                            final message = ChatMessageRequest(
-                              roomId: roomId,
-                              content: content,
-                              type: 'CHAT',
-                            );
-                            viewModel.send(message);
-                            textController.clear();
-                            // 스크롤 맨 아래로 이동
-                            scrollController.animateTo(
-                              0,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          }
-                        },
-                        icon: SvgPicture.asset(
-                          'assets/icons/send.svg',
-                          width: 24,
-                          height: 24,
-                          colorFilter: const ColorFilter.mode(
-                            ColorStyles.primaryColor,
-                            BlendMode.srcIn,
-                          ),
+                Container(
+                  width: double.infinity,
+                  height: 52,
+                  margin: EdgeInsets.only(top: 16),
+                  padding: EdgeInsets.only(left: 16, right: 8),
+                  decoration: ShapeDecoration(
+                      color: ColorStyles.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          maxLines: null,
+                          cursorColor: ColorStyles.gray4,
+                          keyboardType: TextInputType.multiline,
+                          controller: textController,
+                          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+                          decoration: InputDecoration(border: InputBorder.none,),
                         ),
                       ),
-                    )
-                  ],
-                ),
-              )
-            ],
+                      SizedBox(
+                        height: 44,
+                        width: 44,
+                        child: IconButton(
+                          onPressed: () {
+                            // 메시지 전송
+                            final content = textController.text.trim();
+                            if (content.isNotEmpty) {
+                              final roomId = chatRoom.roomId;
+                              final message = ChatMessageRequest(
+                                roomId: roomId,
+                                content: content,
+                                type: 'CHAT',
+                              );
+                              viewModel.send(message);
+                              textController.clear();
+                              // 스크롤 맨 아래로 이동
+                              scrollController.animateTo(
+                                0,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          },
+                          icon: SvgPicture.asset(
+                            'assets/icons/send.svg',
+                            width: 24,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(
+                              ColorStyles.primaryColor,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

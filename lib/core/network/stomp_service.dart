@@ -4,7 +4,6 @@ import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
-import '../../main.dart';
 import '../storage/secure_storage_service.dart';
 
 class StompService {
@@ -30,9 +29,6 @@ class StompService {
         webSocketConnectHeaders: {
           'Authorization': 'Bearer $accessToken',
         },
-        onWebSocketError: (error) => logger.e('WebSocket error: $error'),
-        onStompError: (frame) => logger.e('STOMP error: ${frame.body}'),
-        onDisconnect: (_) => logger.d('Disconnected'),
       ),
     );
 

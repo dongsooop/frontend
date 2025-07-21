@@ -4,7 +4,6 @@ import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_text_fi
 import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_apply_text_filter_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_apply_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/apply/recruit_apply_text_filter_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/apply/recruit_apply_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/state/recruit_apply_state.dart';
@@ -92,8 +91,7 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
         profanityMessageTriggerKey: state.profanityMessageTriggerKey + 1,
       );
       return false;
-    } catch (e, st) {
-      logger.e('지원 실패', error: e, stackTrace: st);
+    } catch (e) {
       state = state.copyWith(isLoading: false);
       return false;
     }

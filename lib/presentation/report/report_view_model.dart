@@ -4,8 +4,6 @@ import 'package:dongsoop/domain/report/use_case/report_write_use_case.dart';
 import 'package:dongsoop/presentation/report/report_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../main.dart';
-
 class ReportViewModel extends StateNotifier<ReportState> {
   final ReportWriteUseCase _reportWriteUseCase;
 
@@ -23,7 +21,6 @@ class ReportViewModel extends StateNotifier<ReportState> {
       state = state.copyWith(isLoading: false, isSuccessed: true);
       return true;
     } on ReportException catch (e) {
-      logger.i("신고 오류: ${e.message}");
       state = state.copyWith(
         isLoading: false,
         isSuccessed: false,

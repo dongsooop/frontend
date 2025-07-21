@@ -2,7 +2,6 @@ import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/auth/use_case/sign_in_use_case.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 
 class SignInViewModel extends StateNotifier<AsyncValue<void>> {
@@ -28,7 +27,6 @@ class SignInViewModel extends StateNotifier<AsyncValue<void>> {
     } on LoginException catch (e, st) {
       state = AsyncValue.error(e.message, st);
     } catch (e, st) {
-      logger.e("Login Error: ${e.runtimeType}", error: e, stackTrace: st);
       state = AsyncValue.error("로그인 중 오류가 발생했습니다.", st);
     }
   }

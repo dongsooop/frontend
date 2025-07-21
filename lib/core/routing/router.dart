@@ -439,6 +439,9 @@ final router = GoRouter(
               onTapAdminReport: () {
                 context.push(RoutePaths.adminReport);
               },
+              onTapCalendar: () {
+                context.push(RoutePaths.calendar);
+              },
             ),
           ),
         ]),

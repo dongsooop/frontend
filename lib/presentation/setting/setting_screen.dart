@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
 
 class SettingScreen extends HookConsumerWidget {
 
@@ -39,26 +40,9 @@ class SettingScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.gray1,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: AppBar(
-            backgroundColor: ColorStyles.gray1,
-            title: Text(
-              '설정',
-              style: TextStyles.largeTextBold.copyWith(
-                color: ColorStyles.black,
-              ),
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              onPressed: () => context.pop(),
-              icon: Icon(
-                Icons.chevron_left_outlined,
-                size: 24,
-                color: ColorStyles.black,
-              ),
-            ),
-          ),
+        appBar: DetailHeader(
+          title: '설정',
+          backgroundColor: ColorStyles.gray1,
         ),
         body: Padding(
           padding: const EdgeInsets.only(top: 24, left: 16.0, right: 16),
@@ -93,12 +77,12 @@ class SettingScreen extends HookConsumerWidget {
               buildSettingsSection(
                 title: '기타',
                 children: [
-                  buildSettingsItem(
-                    label: '알림 설정',
-                    onTap: () {
-                      // 알림 설정
-                    },
-                  ),
+                  // buildSettingsItem(
+                  //   label: '알림 설정',
+                  //   onTap: () {
+                  //     // 알림 설정
+                  //   },
+                  // ),
                   buildSettingsItem(
                     label: '채팅 캐시 삭제',
                     onTap: () async {

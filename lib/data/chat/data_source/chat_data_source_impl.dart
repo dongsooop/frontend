@@ -6,10 +6,8 @@ import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
-import 'package:dongsoop/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import '../../../core/exception/exception.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'chat_data_source.dart';
 
 class ChatDataSourceImpl implements ChatDataSource {
@@ -85,20 +83,16 @@ class ChatDataSourceImpl implements ChatDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         final nicknameMap = Map<String, String>.from(response.data);
 
-        // 서버 응답 userId 목록
         final serverUserIds = nicknameMap.keys.toSet();
 
-        // 로컬 저장 목록 조회
         final localMembers = await _hiveService.getAllMembers(roomId);
         final localUserIds = localMembers.map((m) => m.userId).toSet();
 
-        // response에는 없고 local에만 있는 userId(채팅방을 떠난 사용자)
         final leftUserIds = localUserIds.difference(serverUserIds);
         for (final userId in leftUserIds) {
           await _hiveService.updateChatMemberLeft(roomId, userId);
         }
 
-        // 로컬 저장 목록이 비어있음 -> 응답값 전부 저장
         if (localMembers.isEmpty) {
           for (final entry in nicknameMap.entries) {
             await _hiveService.saveChatMember(
@@ -110,14 +104,12 @@ class ChatDataSourceImpl implements ChatDataSource {
             );
           }
         } else {
-          // 로컬에 없는 userId 추가 또는 닉네임 업데이트
           for (final entry in nicknameMap.entries) {
             final localMember = localMembers.firstWhere(
                 (member) => member.userId == entry.key,
                 orElse: () => ChatRoomMember(userId: '', nickname: ''));
 
             if (localMember.userId.isEmpty) {
-              // 로컬에 없는 사용자(채팅방에 초대된 사용자)
               await _hiveService.saveChatMember(
                 roomId,
                 ChatRoomMember(
@@ -126,13 +118,11 @@ class ChatDataSourceImpl implements ChatDataSource {
                 ),
               );
             } else if (localMember.nickname != entry.value) {
-              // 닉네임이 변경된 사용자
               await _hiveService.updateChatMemberNickname(
                   roomId, entry.key, entry.value);
             }
           }
         }
-        // 업데이트된 로컬 목록 반환
         final updatedMembers = await _hiveService.getAllMembers(roomId);
         return {
           for (var m in updatedMembers) m.userId: m.nickname,
@@ -264,7 +254,6 @@ class ChatDataSourceImpl implements ChatDataSource {
     try {
       final response = await _authDio.post(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
-        // 채팅 내역 로컬 삭제
         await _hiveService.deleteChatMessagesByRoomId(roomId);
       } else
         ChatLeaveException();
@@ -283,7 +272,6 @@ class ChatDataSourceImpl implements ChatDataSource {
     try {
       final response = await _authDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
-        logger.i('user id: $userId is kicked');
       } else
         ChatLeaveException();
     } catch (e) {
@@ -291,7 +279,6 @@ class ChatDataSourceImpl implements ChatDataSource {
     }
   }
 
-  // STOMP
   @override
   Future<void> connect(String roomId) => _stompService.connect(roomId);
 

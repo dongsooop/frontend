@@ -70,7 +70,6 @@ class NoticeRepositoryImpl implements NoticeRepository {
     await _local?.saveHasCachedOnce(true);
   }
 
-  // 정해진 갱신 시간대 지나쳤는지 체크
   bool _isExpired(DateTime? lastCachedTime) {
     final now = DateTime.now();
     final fetchTimes = [

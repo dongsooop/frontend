@@ -17,7 +17,6 @@ class CalendarDataSourceImpl implements CalendarDataSource {
     required DateTime currentMonth,
   }) async {
     final calendarBase = dotenv.get('CALENDAR_ENDPOINT');
-    // 'yyyy-MM' 형식으로 직접 포맷
     final yearMonth =
         '${currentMonth.year}-${currentMonth.month.toString().padLeft(2, '0')}';
     final url = '$calendarBase/$memberId/year-month/$yearMonth';

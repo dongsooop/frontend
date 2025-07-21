@@ -21,28 +21,21 @@ class AuthInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     try {
-      // AccessToken read
       final accessToken = await _secureStorageService.read('accessToken');
-      // header에 AccessToken 포함
       options.headers['Authorization'] = 'Bearer $accessToken';
-      
-      logger.i('➡️ [AUTH] ${options.method} ${options.uri}');
     } catch (e) {
-      logger.e('AuthInterceptor error: $e');
     }
     super.onRequest(options, handler);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    logger.i('✅ [AUTH] ${response.statusCode} ${response.requestOptions.uri}');
     super.onResponse(response, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == HttpStatusCode.unauthorized.code) {
-      logger.i("401: AccessToken 만료");
       try {
         final refreshToken = await _secureStorageService.read('refreshToken');
         final refreshDio = Dio();
@@ -51,12 +44,10 @@ class AuthInterceptor extends Interceptor {
         final url = '$baseUrl$endpoint';
 
         final refreshResponse = await refreshDio.post(url, data: refreshToken);
-        logger.i("refresh: ${refreshResponse.data['accessToken']} / ${refreshResponse.data['refreshToken']}");
         final newAccessToken = refreshResponse.data['accessToken'].toString();
         final newRefreshToken = refreshResponse.data['refreshToken'].toString();
         await _secureStorageService.write('accessToken', newAccessToken);
         await _secureStorageService.write('refreshToken', newRefreshToken);
-        logger.i('reissue token: $newRefreshToken / $newRefreshToken');
         final originalRequest = err.requestOptions;
         originalRequest.headers['Authorization'] = 'Bearer $newAccessToken';
         final retryResponse = await Dio(
@@ -74,7 +65,6 @@ class AuthInterceptor extends Interceptor {
         return handler.resolve(retryResponse);
       } on DioException catch (e) {
         if (e.response?.statusCode == HttpStatusCode.unauthorized.code) {
-          logger.w('🔓 RefreshToken 만료, 로그아웃 처리');
           _ref.read(userSessionProvider.notifier).state = null;
           _ref.read(myPageViewModelProvider.notifier).reset();
 

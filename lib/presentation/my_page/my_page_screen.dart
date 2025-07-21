@@ -7,10 +7,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
 
 class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSignIn;
   final VoidCallback onTapSetting;
+  final VoidCallback onTapCalendar;
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapMarket;
   final void Function(bool isApply) onTapRecruit;
@@ -19,6 +21,7 @@ class MyPageScreen extends HookConsumerWidget {
     super.key,
     required this.onTapSignIn,
     required this.onTapSetting,
+    required this.onTapCalendar,
     required this.onTapAdminReport,
     required this.onTapMarket,
     required this.onTapRecruit,
@@ -42,35 +45,24 @@ class MyPageScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.gray1,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: AppBar(
-            backgroundColor: ColorStyles.gray1,
-            title: Text(
-              '마이페이지',
-              style: TextStyles.largeTextBold.copyWith(
-                color: ColorStyles.black
+        appBar: DetailHeader(
+          title: '마이페이지',
+          backgroundColor: ColorStyles.gray1,
+          showBackButton: false,
+          trailing: user != null
+            ? IconButton(
+              onPressed: onTapSetting,
+              icon: SvgPicture.asset(
+                'assets/icons/setting.svg',
+                width: 24,
+                height: 24,
+                colorFilter: const ColorFilter.mode(
+                  ColorStyles.black,
+                  BlendMode.srcIn,
+                ),
               ),
-            ),
-            centerTitle: true,
-            actions: user != null
-              ? [
-                IconButton(
-                  onPressed: onTapSetting,
-                  icon: SvgPicture.asset(
-                    'assets/icons/setting.svg',
-                    width: 24,
-                    height: 24,
-                    colorFilter: const ColorFilter.mode(
-                      ColorStyles.black,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                )
-              ]
-              : [],
-            automaticallyImplyLeading: false, // 뒤로가기 버튼 X
-          ),
+            )
+            : null,
         ),
         body: Column(
           children: [
@@ -81,7 +73,13 @@ class MyPageScreen extends HookConsumerWidget {
                   if (user == null) {
                     return LoggedOutPromptCard(onTapLogin: onTapSignIn);
                   } else {
-                    return LoggedInUserCard(user: user, onTapAdminReport: onTapAdminReport, onTapMarket: onTapMarket, onTapRecruit: onTapRecruit);
+                    return LoggedInUserCard(
+                      user: user,
+                      onTapAdminReport: onTapAdminReport,
+                      onTapMarket: onTapMarket,
+                      onTapRecruit: onTapRecruit,
+                      onTapCalendar: onTapCalendar,
+                    );
                   }
                 },
                 error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),

@@ -12,7 +12,6 @@ class RecruitWriteUseCase {
     required RecruitType type,
     required RecruitWriteEntity entity,
   }) {
-    logger.i('[USECASE] 호출됨');
     return repository.submitRecruitPost(
       type: type,
       entity: entity,

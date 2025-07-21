@@ -8,7 +8,6 @@ import 'package:dongsoop/domain/board/market/entities/market_list_entity.dart';
 import 'package:dongsoop/domain/board/market/entities/market_write_entity.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/market/repository/market_repository.dart';
-import 'package:dongsoop/main.dart';
 
 class MarketRepositoryImpl implements MarketRepository {
   final MarketDataSource _dataSource;
@@ -101,8 +100,7 @@ class MarketRepositoryImpl implements MarketRepository {
       rethrow;
     } on MarketAlreadyContactException {
       rethrow;
-    } catch (e, st) {
-      logger.e('[MARKET] 예외 발생', error: e, stackTrace: st);
+    } catch (e) {
       throw defaultException;
     }
   }

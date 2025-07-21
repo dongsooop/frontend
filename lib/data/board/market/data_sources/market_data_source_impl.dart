@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/exception/exception.dart';
@@ -12,7 +11,6 @@ import 'package:dongsoop/data/board/market/models/market_write_model.dart';
 import 'package:dongsoop/domain/board/market/entities/market_ai_filter_entity.dart';
 import 'package:dongsoop/domain/board/market/entities/market_write_entity.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
-import 'package:dongsoop/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MarketDataSourceImpl implements MarketDataSource {
@@ -97,13 +95,10 @@ class MarketDataSourceImpl implements MarketDataSource {
     final model = MarketWriteModel.fromEntity(entity);
     final url = dotenv.get("MARKET_ENDPOINT");
 
-    // 요청 JSON 직렬화 및 로그
     final requestJson = jsonEncode(model.toJson());
-    logger.i('[MARKET] 요청 JSON: $requestJson');
 
     final formData = FormData();
 
-    // JSON 데이터 추가
     formData.files.add(MapEntry(
       'request',
       MultipartFile.fromString(
@@ -112,13 +107,8 @@ class MarketDataSourceImpl implements MarketDataSource {
       ),
     ));
 
-    // 이미지들 추가: 키 이름은 모두 'image'
     if (entity.images != null && entity.images!.isNotEmpty) {
       for (final image in entity.images!) {
-        final fileSizeMB = (await File(image.path).length()) / (1024 * 1024);
-        logger.i(
-            '[MARKET] 이미지 업로드 준비: ${image.name}, ${fileSizeMB.toStringAsFixed(2)}MB');
-
         formData.files.add(MapEntry(
           'image',
           await MultipartFile.fromFile(
@@ -136,14 +126,10 @@ class MarketDataSourceImpl implements MarketDataSource {
         options: Options(contentType: Headers.multipartFormDataContentType),
       );
 
-      logger.i('[MARKET] 서버 응답 status: ${response.statusCode}');
-      logger.i('[MARKET] 서버 응답 body: ${response.data}');
-
       if (response.statusCode != HttpStatusCode.created.code) {
         throw Exception('status: ${response.statusCode}');
       }
-    } catch (e, st) {
-      logger.e('게시글 등록 실패', error: e, stackTrace: st);
+    } catch (e) {
       rethrow;
     }
   }

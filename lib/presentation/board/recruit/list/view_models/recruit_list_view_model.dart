@@ -67,7 +67,6 @@ class RecruitListViewModel extends _$RecruitListViewModel {
         hasMore: filtered.length == _pageSize,
       );
     } catch (e) {
-      print('$e');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

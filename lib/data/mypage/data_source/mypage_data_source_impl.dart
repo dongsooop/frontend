@@ -3,8 +3,7 @@ import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../../../core/http_status_code.dart';
-import '../../../main.dart';
+import 'package:dongsoop/core/http_status_code.dart';
 
 class MypageDataSourceImpl implements MypageDataSource {
   final Dio _authDio;
@@ -27,9 +26,6 @@ class MypageDataSourceImpl implements MypageDataSource {
         return posts;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
-    } on DioException catch (e) {
-      logger.e("mypage market error statusCode: ${e.response?.statusCode}");
-      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -49,9 +45,6 @@ class MypageDataSourceImpl implements MypageDataSource {
         return posts;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
-    } on DioException catch (e) {
-      logger.e("mypage recruit error statusCode: ${e.response?.statusCode}");
-      rethrow;
     } catch (e) {
       rethrow;
     }

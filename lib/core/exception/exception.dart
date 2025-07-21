@@ -290,7 +290,6 @@ class ProfanityDetectedException implements Exception {
   String toString() => '수정 후 다시 작성 버튼을 눌러주세요. \n $responseData';
 }
 
-// 신고
 class ReportException implements Exception {
   final String message;
   const ReportException([this.message = "알 수 없는 오류가 발생했습니다."]);
@@ -331,7 +330,6 @@ class DuplicateReportException extends ReportException {
   String toString() => message;
 }
 
-// 제재
 class SanctionException implements Exception {
   final String message;
   const SanctionException([this.message = "알 수 없는 오류가 발생했습니다."]);
