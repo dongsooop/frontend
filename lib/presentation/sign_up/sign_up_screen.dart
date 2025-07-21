@@ -89,19 +89,23 @@ class SignUpScreen extends HookConsumerWidget {
         appBar: DetailHeader(
           title: '동숲 회원가입',
         ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: 48),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 48,
-            children: [
-              _buildEmailSection(emailController, ref),
-              _buildPasswordSection(passwordController, passwordCheckController, ref),
-              _buildNicknameSection(nicknameController, ref),
-              _buildDeptSection(context, selectedDept, ref),
-              _buildAgreement(context, agreement, ref, termsOfService, privacyPolicy),
-            ],
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(vertical: 48),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 48,
+              children: [
+                _buildEmailSection(emailController, ref),
+                _buildPasswordSection(passwordController, passwordCheckController, ref),
+                _buildNicknameSection(nicknameController, ref),
+                _buildDeptSection(context, selectedDept, ref),
+                _buildAgreement(context, agreement, ref, termsOfService, privacyPolicy),
+              ],
+            ),
           ),
         ),
         bottomNavigationBar: PrimaryBottomButton(

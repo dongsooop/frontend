@@ -77,12 +77,12 @@ class SettingScreen extends HookConsumerWidget {
               buildSettingsSection(
                 title: '기타',
                 children: [
-                  buildSettingsItem(
-                    label: '알림 설정',
-                    onTap: () {
-                      // 알림 설정
-                    },
-                  ),
+                  // buildSettingsItem(
+                  //   label: '알림 설정',
+                  //   onTap: () {
+                  //     // 알림 설정
+                  //   },
+                  // ),
                   buildSettingsItem(
                     label: '채팅 캐시 삭제',
                     onTap: () async {

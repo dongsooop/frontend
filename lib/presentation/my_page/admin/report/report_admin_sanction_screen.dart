@@ -149,66 +149,142 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
         appBar: DetailHeader(
           title: '제재 처리',
         ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16,
-            children: [
-              SizedBox(height: 24,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 8,
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '제재 유형',
-                          style: TextStyles.normalTextBold.copyWith(
-                            color: ColorStyles.black,
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 16,
+              children: [
+                SizedBox(height: 24,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  spacing: 8,
+                  children: [
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '제재 유형',
+                            style: TextStyles.normalTextBold.copyWith(
+                              color: ColorStyles.black,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: ' *',
-                          style: TextStyles.normalTextBold.copyWith(
-                            color: ColorStyles.primaryColor,
+                          TextSpan(
+                            text: ' *',
+                            style: TextStyles.normalTextBold.copyWith(
+                              color: ColorStyles.primaryColor,
+                            ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                // 텍스트 필드 & 버튼
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => ReportSanctionSelectBottomSheet(
+                        selectedSanction: selectedReportReason.value,
+                        onSelected: (type) {
+                          selectedReportReason.value = type;
+                          // ref.read(signUpViewModelProvider.notifier).selectDept(selectedReportReason.value);
+                        },
+                      ),
+                    );
+                  },
+                  child: Container(
+                      height: 44,
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            width: 1,
+                            color: selectedReportReason.value == null
+                                ? ColorStyles.gray2
+                                : ColorStyles.primaryColor,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              selectedReportReason.value?.message ?? '제재 방법 선택',
+                              style: TextStyles.normalTextRegular.copyWith(
+                                color: selectedReportReason.value == null
+                                    ? ColorStyles.gray4
+                                    : ColorStyles.primaryColor,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right_outlined,
+                            size: 24,
+                            color: selectedReportReason.value == null
+                                ? ColorStyles.gray5
+                                : ColorStyles.primaryColor,
+                          ),
+                        ],
+                      )
+                  ),
+                ),
+                selectedReportReason.value != null
+                    ? Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  decoration: ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        width: 1,
+                        color: ColorStyles.gray2,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                ],
-              ),
-              // 텍스트 필드 & 버튼
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => ReportSanctionSelectBottomSheet(
-                      selectedSanction: selectedReportReason.value,
-                      onSelected: (type) {
-                        selectedReportReason.value = type;
-                        // ref.read(signUpViewModelProvider.notifier).selectDept(selectedReportReason.value);
-                      },
+                  child: TextFormField(
+                    maxLines: 5,
+                    maxLength: 500,
+                    keyboardType: TextInputType.text,
+                    controller: sanctionTextController,
+                    textInputAction: TextInputAction.done,
+                    textAlignVertical: TextAlignVertical.center,
+                    style: TextStyles.normalTextRegular.copyWith(
+                      color: ColorStyles.black,
                     ),
-                  );
-                },
-                child: Container(
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: '최대 500글자까지 입력 가능해요',
+                      hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+                      counterText: '',
+                    ),
+                  ),
+                )
+                : SizedBox(),
+                // 기간 설정
+                selectedReportReason.value != null
+                ? // 텍스트 필드 & 버튼
+                GestureDetector(
+                  onTap: showDateTimePicker,
+                  child: Container(
                     height: 44,
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
                           width: 1,
-                          color: selectedReportReason.value == null
-                              ? ColorStyles.gray2
-                              : ColorStyles.primaryColor,
+                          color: selectedDate.value != null
+                            ? ColorStyles.primaryColor
+                            : ColorStyles.gray2,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -217,103 +293,31 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            selectedReportReason.value?.message ?? '제재 방법 선택',
+                            selectedDate.value != null
+                              ? '${selectedDate.value!.year}.${selectedDate.value!.month.toString().padLeft(2, '0')}.${selectedDate.value!.day.toString().padLeft(2, '0')} '
+                              '${selectedDate.value!.hour.toString().padLeft(2, '0')}:${selectedDate.value!.minute.toString().padLeft(2, '0')}'
+                              : '제재 적용 기간 선택',
                             style: TextStyles.normalTextRegular.copyWith(
-                              color: selectedReportReason.value == null
-                                  ? ColorStyles.gray4
-                                  : ColorStyles.primaryColor,
+                              color: selectedDate.value != null
+                                ? ColorStyles.primaryColor
+                                : ColorStyles.gray4,
                             ),
                           ),
                         ),
                         Icon(
                           Icons.chevron_right_outlined,
                           size: 24,
-                          color: selectedReportReason.value == null
-                              ? ColorStyles.gray5
-                              : ColorStyles.primaryColor,
+                          color: selectedDate.value != null
+                            ? ColorStyles.primaryColor
+                            : ColorStyles.gray5,
                         ),
                       ],
-                    )
-                ),
-              ),
-              selectedReportReason.value != null
-                  ? Container(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(
-                      width: 1,
-                      color: ColorStyles.gray2,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: TextFormField(
-                  maxLines: 5,
-                  maxLength: 500,
-                  keyboardType: TextInputType.text,
-                  controller: sanctionTextController,
-                  textInputAction: TextInputAction.done,
-                  textAlignVertical: TextAlignVertical.center,
-                  style: TextStyles.normalTextRegular.copyWith(
-                    color: ColorStyles.black,
-                  ),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: '최대 500글자까지 입력 가능해요',
-                    hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-                    counterText: '',
-                  ),
-                ),
-              )
-              : SizedBox(),
-              // 기간 설정
-              selectedReportReason.value != null
-              ? // 텍스트 필드 & 버튼
-              GestureDetector(
-                onTap: showDateTimePicker,
-                child: Container(
-                  height: 44,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        width: 1,
-                        color: selectedDate.value != null
-                          ? ColorStyles.primaryColor
-                          : ColorStyles.gray2,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          selectedDate.value != null
-                            ? '${selectedDate.value!.year}.${selectedDate.value!.month.toString().padLeft(2, '0')}.${selectedDate.value!.day.toString().padLeft(2, '0')} '
-                            '${selectedDate.value!.hour.toString().padLeft(2, '0')}:${selectedDate.value!.minute.toString().padLeft(2, '0')}'
-                            : '제재 적용 기간 선택',
-                          style: TextStyles.normalTextRegular.copyWith(
-                            color: selectedDate.value != null
-                              ? ColorStyles.primaryColor
-                              : ColorStyles.gray4,
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right_outlined,
-                        size: 24,
-                        color: selectedDate.value != null
-                          ? ColorStyles.primaryColor
-                          : ColorStyles.gray5,
-                      ),
-                    ],
-                  ),
-                ),
-              )
-              : SizedBox(),
-            ],
+                )
+                : SizedBox(),
+              ],
+            ),
           ),
         ),
         bottomNavigationBar: PrimaryBottomButton(
