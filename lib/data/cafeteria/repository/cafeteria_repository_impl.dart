@@ -16,25 +16,18 @@ class CafeteriaRepositoryImpl implements CafeteriaRepository {
     try {
       final cached = await _local.getCachedCafeteria();
 
-      print('🔥 캐시 확인됨? ${cached != null}');
       final shouldRefresh = _shouldRefreshCache(cached);
-      print('🔥 shouldRefreshCache = $shouldRefresh');
 
       if (!shouldRefresh) {
-        print('📦 캐시 사용함');
         return cached!.toEntity();
       }
 
-      print('🌐 서버 요청 보냄');
       final response = await _remote.fetchCafeteriaMeals();
 
-      print('💾 서버 응답 도착, 캐시 저장 시도');
       await _local.cacheCafeteria(response);
 
       return response.toEntity();
     } catch (e, stack) {
-      print('❌ 예외 발생: $e');
-      print(stack);
       throw CafeteriaException();
     }
   }

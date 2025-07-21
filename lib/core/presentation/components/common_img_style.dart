@@ -32,7 +32,7 @@ class CommonImgStyle extends StatelessWidget {
       margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: ColorStyles.gray1, // 항상 배경 적용
+        color: ColorStyles.gray1,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),

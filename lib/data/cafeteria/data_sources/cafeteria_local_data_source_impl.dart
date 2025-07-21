@@ -11,13 +11,8 @@ class CafeteriaLocalDataSourceImpl implements CafeteriaLocalDataSource {
   @override
   Future<void> cacheCafeteria(CafeteriaResponse response) async {
     final prefs = await SharedPreferences.getInstance();
-    final encoded = jsonEncode(response.toJson());
-
-    print('💾 [SharedPreferences] 저장 시도: $encoded');
-
-    // 검증
-    final verify = prefs.getString(_cafeteriaKey);
-    print('📦 저장된 최종 캐시:\n$verify');
+    jsonEncode(response.toJson());
+    prefs.getString(_cafeteriaKey);
   }
 
   @override
@@ -26,11 +21,9 @@ class CafeteriaLocalDataSourceImpl implements CafeteriaLocalDataSource {
     final json = prefs.getString(_cafeteriaKey);
 
     if (json == null) {
-      print('📦 [SharedPreferences] 캐시 없음');
       return null;
     }
 
-    print('📦 [SharedPreferences] 캐시된 JSON:\n$json');
     final decoded = jsonDecode(json);
     return CafeteriaResponse.fromJson(decoded);
   }
@@ -39,6 +32,5 @@ class CafeteriaLocalDataSourceImpl implements CafeteriaLocalDataSource {
   Future<void> clearCacheCafeteria() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_cafeteriaKey);
-    print('🧹 [SharedPreferences] 캐시 삭제 완료');
   }
 }

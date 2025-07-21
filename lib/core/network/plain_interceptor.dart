@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:dongsoop/core/http_status_code.dart';
-import 'package:dongsoop/main.dart';
 
 class PlainInterceptor extends Interceptor {
   @override

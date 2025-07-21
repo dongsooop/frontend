@@ -29,13 +29,11 @@ class ChatRepositoryImpl implements ChatRepository {
 
     final List<UiChatRoom> uiRooms = [];
 
-    // 병렬 처리
     await Future.wait(rooms.map((room) async {
       try {
         final unreadCount = await _chatDataSource.getUnreadChatMessageCount(room.roomId);
         uiRooms.add(UiChatRoom.fromEntity(room, unreadCount));
       } catch (e) {
-        // 실패 시 기본값 0으로 처리
         uiRooms.add(UiChatRoom.fromEntity(room, 0));
       }
     }));

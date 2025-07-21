@@ -21,7 +21,6 @@ class AuthInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     try {
-      // AccessToken read
       final accessToken = await _secureStorageService.read('accessToken');
       options.headers['Authorization'] = 'Bearer $accessToken';
     } catch (e) {

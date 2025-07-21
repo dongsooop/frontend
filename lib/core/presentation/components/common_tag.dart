@@ -20,7 +20,6 @@ class CommonTag extends StatelessWidget {
 
   Map<String, Color> _getColorsByIndex(int index) {
     if (index < 0) {
-      // 학과용 기본 회색 스타일
       return {
         'bg': ColorStyles.gray1,
         'text': ColorStyles.gray3,

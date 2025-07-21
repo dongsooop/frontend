@@ -42,10 +42,8 @@ class NoticeHomeUseCase {
     required bool force,
   }) async {
     if (departmentType == null) {
-      print('[Fetch] 학교 공지 요청');
       return await _repository.fetchSchoolNotices(page: page, force: force);
     } else {
-      print('[Fetch] 학교 + 학과 공지 요청');
       final schoolNotices =
           await _repository.fetchSchoolNotices(page: page, force: force);
       final departmentNotices = await _repository.fetchDepartmentNotices(

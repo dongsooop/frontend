@@ -26,10 +26,6 @@ class AuthRepositoryImpl implements AuthRepository {
     return await _authDataSource.validate(data, type);
   }
 
-  // change nickname
-  // change password
-  // change dept
-
   @override
   Future<User?> getUser() async {
     return await _authDataSource.getUser();

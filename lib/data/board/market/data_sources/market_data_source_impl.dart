@@ -95,12 +95,10 @@ class MarketDataSourceImpl implements MarketDataSource {
     final model = MarketWriteModel.fromEntity(entity);
     final url = dotenv.get("MARKET_ENDPOINT");
 
-    // 요청 JSON 직렬화 및 로그
     final requestJson = jsonEncode(model.toJson());
 
     final formData = FormData();
 
-    // JSON 데이터 추가
     formData.files.add(MapEntry(
       'request',
       MultipartFile.fromString(
@@ -109,7 +107,6 @@ class MarketDataSourceImpl implements MarketDataSource {
       ),
     ));
 
-    // 이미지들 추가: 키 이름은 모두 'image'
     if (entity.images != null && entity.images!.isNotEmpty) {
       for (final image in entity.images!) {
         formData.files.add(MapEntry(

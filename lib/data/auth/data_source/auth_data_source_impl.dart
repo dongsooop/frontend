@@ -91,9 +91,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<void> logout() async {
-    // 닉네임, 학과, id 삭제
     await _preferencesService.clearUser();
-    // token 삭제
     await _secureStorageService.delete();
   }
 
@@ -115,7 +113,6 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<void> saveUser(StoredUser storedUser) async {
-    // 닉네임, 학과 저장
     await _preferencesService.saveUser(
       User(
         id: storedUser.id,
@@ -124,7 +121,6 @@ class AuthDataSourceImpl implements AuthDataSource {
         role: storedUser.role,
       )
     );
-    // token 저장
     await _secureStorageService.write('accessToken', storedUser.accessToken);
     await _secureStorageService.write('refreshToken', storedUser.refreshToken);
   }

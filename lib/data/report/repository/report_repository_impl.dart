@@ -62,7 +62,6 @@ class ReportRepositoryImpl implements ReportRepository {
 
     final List<ReportAdminSanction> reports = [];
 
-    // 병렬 처리
     await Future.wait(response.map((report) async {
       reports.add(ReportAdminSanction.fromEntity(report));
     }));
