@@ -6,7 +6,6 @@ class MarketWriteUseCase {
 
   MarketWriteUseCase(this._repo);
 
-  /// 작성 최종 서버 제출
   Future<void> execute({
     required MarketWriteEntity entity,
   }) async {

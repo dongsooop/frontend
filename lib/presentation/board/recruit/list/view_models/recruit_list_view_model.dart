@@ -24,7 +24,6 @@ class RecruitListViewModel extends _$RecruitListViewModel {
     _type = type;
     _departmentCode = departmentCode;
 
-    // 상태 초기화
     state = RecruitListState();
 
     Future.microtask(() => _initialize());
@@ -52,7 +51,6 @@ class RecruitListViewModel extends _$RecruitListViewModel {
 
       final filtered = newPosts.where((e) => e.state).toList();
 
-      // 중복 제거 (id 기준)
       final uniquePosts = filtered
           .where(
             (newPost) =>

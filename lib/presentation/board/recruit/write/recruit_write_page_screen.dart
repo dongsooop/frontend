@@ -78,7 +78,6 @@ class RecruitWritePageScreen extends HookConsumerWidget {
       List<String> majors;
 
       if (selected.contains('전체 학과') && selected.length > 1) {
-        // 전체 학과 + 기타 학과가 섞여 있을 경우 → 전체 학과 제거
         majors = selected.where((e) => e != '전체 학과').toList();
       } else if (selected.contains('전체 학과')) {
         majors = ['전체 학과'];
@@ -97,7 +96,6 @@ class RecruitWritePageScreen extends HookConsumerWidget {
       final baseMajor =
           DepartmentTypeExtension.fromDisplayName(writerMajor).code;
 
-      // '전체 학과'를 제외한 실제 학과만 필터링
       final filteredMajors = state.majors.where((m) => m != '전체 학과').toList();
 
       final deptList = typeIndex == 0

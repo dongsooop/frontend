@@ -29,7 +29,6 @@ class RecruitItemListSection extends ConsumerWidget {
 
     final state = ref.watch(viewModelProvider);
 
-    // 상태 처리
     if (state.error != null) {
       return Center(child: Text('에러: ${state.error}'));
     }
@@ -38,7 +37,6 @@ class RecruitItemListSection extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // 추후 수정
     if (state.posts.isEmpty) {
       return const Center(child: Text('모집 중인 게시글이 없어요!'));
     }
