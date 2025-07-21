@@ -5,10 +5,8 @@ import 'package:dongsoop/domain/report/model/report_admin_sanction_response.dart
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_write_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import '../../../core/exception/exception.dart';
-import '../../../core/http_status_code.dart';
-import '../../../main.dart';
+import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/core/http_status_code.dart';
 
 class ReportDataSourceImpl implements ReportDataSource {
   final Dio _authDio;
@@ -33,7 +31,6 @@ class ReportDataSourceImpl implements ReportDataSource {
       } else if (e.response?.statusCode == HttpStatusCode.conflict.code) {
         throw DuplicateReportException();
       }
-      logger.e("report error statusCode: ${e.response?.statusCode}");
       rethrow;
     } catch (e) {
       rethrow;
@@ -49,13 +46,11 @@ class ReportDataSourceImpl implements ReportDataSource {
 
       if (response.statusCode == HttpStatusCode.ok.code) {
         final data = response.data;
-        logger.i('report sanction Response data: $data');
 
         return ReportSanctionResponse.fromJson(data);
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
-      logger.e("report error: ${e}");
       rethrow;
     }
   }
@@ -65,11 +60,7 @@ class ReportDataSourceImpl implements ReportDataSource {
     final endpoint = dotenv.get('SANCTION_WRITE_ENDPOINT');
 
     try {
-      logger.i('sanction: ${request.toJson()}');
-      final response = await _authDio.post(endpoint, data: request.toJson());
-      if (response.statusCode == HttpStatusCode.created.code) {
-        logger.i('제재 성공');
-      }
+      await _authDio.post(endpoint, data: request.toJson());
     } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw SanctionRequestValidationException();
@@ -78,7 +69,6 @@ class ReportDataSourceImpl implements ReportDataSource {
       } else if (e.response?.statusCode == HttpStatusCode.conflict.code) {
         throw AlreadyProcessedException();
       }
-      logger.e("report error statusCode: ${e.response?.statusCode}");
       rethrow;
     } catch (e) {
       rethrow;
@@ -112,7 +102,6 @@ class ReportDataSourceImpl implements ReportDataSource {
       } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw NoAdminAuthorityException();
       }
-      logger.e("report error statusCode: ${e.response?.statusCode}");
       rethrow;
     } catch (e) {
       rethrow;

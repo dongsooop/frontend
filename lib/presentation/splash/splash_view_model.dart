@@ -1,6 +1,5 @@
 import 'package:dongsoop/domain/report/model/report_sanction_status.dart';
 import 'package:dongsoop/domain/report/use_case/get_sanction_status_use_case.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/splash/splash_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
@@ -23,7 +22,6 @@ class SplashViewModel extends StateNotifier<SplashState> {
 
     try {
       final user = await _loadUserUseCase.execute();
-      logger.i('user: ${user?.nickname}');
       if (user == null) {
         state = state.copyWith(isLoading: false, isSuccessed: true);
       } else {
@@ -44,7 +42,6 @@ class SplashViewModel extends StateNotifier<SplashState> {
 
     try {
       final sanction = await _getSanctionStatusUseCase.execute();
-      logger.i('sanction: ${sanction}');
       if (sanction != null) {
         _ref.invalidate(userSessionProvider);
         _ref.invalidate(myPageViewModelProvider);

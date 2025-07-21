@@ -1,5 +1,4 @@
 import 'package:dongsoop/domain/mypage/use_case/get_my_recruit_posts_use_case.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_recruit_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,8 +21,7 @@ class ActivityRecruitViewModel extends StateNotifier<ActivityRecruitState> {
         page: 0,
         hasNext: !isLast,
       );
-    } catch (e, st) {
-      logger.e('load posts error: ${e.runtimeType}', error: e, stackTrace: st);
+    } catch (e) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: '모집 목록을 불러오는 중\n오류가 발생했습니다.',

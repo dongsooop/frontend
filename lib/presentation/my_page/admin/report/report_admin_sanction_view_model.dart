@@ -3,7 +3,6 @@ import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart'
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../domain/report/use_case/report_admin_sanction_write_use_case.dart';
-import '../../../../main.dart';
 
 class ReportAdminSanctionViewModel extends StateNotifier<ReportAdminSanctionState> {
   final ReportAdminSanctionWriteUseCase _adminSanctionWriteUseCase;
@@ -22,7 +21,6 @@ class ReportAdminSanctionViewModel extends StateNotifier<ReportAdminSanctionStat
       state = state.copyWith(isLoading: false, isSuccessed: true);
       return true;
     } on SanctionException catch (e) {
-      logger.i("제재 오류: ${e.message}");
       state = state.copyWith(
         isLoading: false,
         isSuccessed: false,

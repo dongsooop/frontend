@@ -1,9 +1,7 @@
 import 'dart:async';
-
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
 import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
@@ -99,7 +97,6 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
       )
     );
     try {
-      logger.i('email: $email');
       final isDuplicate = await _checkDuplicateUseCase.execute(email+'@dongyang.ac.kr', 'email');
       state = state.copyWith(
         isEmailValid: true,
@@ -327,7 +324,6 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
         ),
       );
     } catch (e) {
-      logger.i('sign up error: $e');
       state = state.copyWith(
         errorMessage: "회원가입 중 오류가 발생했습니다.",
         nickname: state.nickname.copyWith(

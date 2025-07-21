@@ -8,7 +8,6 @@ import 'package:dongsoop/domain/board/market/use_cases/market_ai_filter_use_case
 import 'package:dongsoop/domain/board/market/use_cases/market_detail_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_update_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_write_use_case.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/market/state/market_write_state.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_ai_filter_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_detail_use_case_provider.dart';
@@ -71,8 +70,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
         images: imageFiles,
         initialImageUrls: detail.imageUrlList,
       );
-    } catch (e, st) {
-      logger.e('[MARKET] 수정 초기화 실패', error: e, stackTrace: st);
+    } catch (e) {
     }
   }
 
@@ -98,7 +96,6 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
         final file = File(image.path);
         if (await file.exists()) await file.delete();
       } catch (e) {
-        logger.w('[MARKET] 이미지 삭제 중 오류 발생: $e');
       }
     }
   }
@@ -144,13 +141,11 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
     if (compressedFile != null) {
       addImage(XFile(compressedFile.path));
     } else {
-      logger.w('[MARKET] 이미지 압축 실패');
     }
   }
 
   Future<bool> submitMarket(BuildContext context) async {
     if (state.isSubmitting || !state.isValid) {
-      logger.w('[MARKET] 중복 제출 혹은 유효하지 않은 상태로 제출 시도됨');
       return false;
     }
 
@@ -161,8 +156,6 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
     );
 
     try {
-      logger.i('AI 비속어 필터 검사 요청');
-
       // AI 필터링 전용: 파이프 제거
       final filteredTitle = state.title.replaceAll('|', '');
       final filteredContent = state.content.replaceAll('|', '');
@@ -173,10 +166,6 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
           content: filteredContent,
         ),
       );
-      logger.i('AI 필터 통과');
-
-      logger.i('게시글 ${state.isEditing ? "수정" : "작성"} 요청 전송');
-
       final currentImageFileNames =
           state.images.map((x) => path.basename(x.path));
       final deletedUrls = state.initialImageUrls
@@ -192,39 +181,23 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
         deleteImageUrls: deletedUrls,
       );
 
-      for (final img in state.images) {
-        logger.i('[MARKET] 최종 이미지: ${img.path}');
-      }
-
-      logger.i('[MARKET] 최종 이미지 개수: ${state.images.length}');
-      if (state.images.length > 3) {
-        logger.w('[MARKET] 🚨 이미지 개수 초과: ${state.images.length}개');
-      }
-
       if (state.marketId != null) {
-        logger.i('수정 요청 시작 - marketId: ${state.marketId}');
         await _updateUseCase.execute(
           marketId: state.marketId!,
           entity: entity,
         );
-        logger.i('수정 요청 성공');
       } else {
-        logger.i('작성 요청 시작');
         await _writeUseCase.execute(entity: entity);
-        logger.i('작성 요청 성공');
       }
 
       return true;
     } on ProfanityDetectedException catch (e) {
-      logger.w('비속어 감지');
       _setProfanityMessage(e);
       return false;
-    } catch (e, st) {
-      logger.e('게시글 작성 실패', error: e, stackTrace: st);
+    } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
       return false;
     } finally {
-      logger.i('submitMarket 종료');
       state = state.copyWith(isSubmitting: false);
     }
   }

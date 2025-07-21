@@ -1,7 +1,6 @@
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_delete_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_detail_use_case.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_delete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_detail_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/states/recruit_detail_state.dart';
@@ -53,8 +52,7 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
         recruitDetail: recruitDetail,
         isLoading: false,
       );
-    } catch (e, stack) {
-      logger.e('ViewModel build 실패', error: e, stackTrace: stack);
+    } catch (e) {
       return RecruitDetailState(
         isLoading: false,
         error: e.toString(),
@@ -70,9 +68,7 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
   Future<void> deleteRecruit(int id, RecruitType type) async {
     try {
       await _deleteUseCase.execute(id: id, type: type);
-      logger.i('[Recruit] 게시글 삭제 성공');
-    } catch (e, st) {
-      logger.e('[Recruit] 게시글 삭제 실패', error: e, stackTrace: st);
+    } catch (e) {
       rethrow;
     }
   }

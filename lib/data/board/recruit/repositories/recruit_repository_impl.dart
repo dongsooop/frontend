@@ -8,7 +8,6 @@ import 'package:dongsoop/domain/board/recruit/entities/recruit_text_filter_entit
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/repositories/recruit_repository.dart';
-import 'package:dongsoop/main.dart';
 
 class RecruitRepositoryImpl implements RecruitRepository {
   final RecruitDataSource _dataSource;
@@ -79,9 +78,7 @@ class RecruitRepositoryImpl implements RecruitRepository {
       return await action();
     } on ProfanityDetectedException {
       rethrow;
-    } catch (e, st) {
-      logger.e('예외 발생: $e');
-      logger.e('$st');
+    } catch (e) {
       throw exception;
     }
   }

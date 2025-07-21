@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
 
-import '../../main.dart';
-
 class HiveService {
   final chatMemberBoxManager = BoxManager<ChatRoomMember>('chat_members');
   final chatMessageBoxManager = BoxManager<ChatMessage>('chat_messages');
@@ -141,8 +139,7 @@ class BoxManager<T> {
       final name = box.name;
       await box.close();
       await Hive.deleteBoxFromDisk(name);
-      logger.i('$name is deleted');
-      _boxes.remove(name); // 삭제한 박스는 Map에서 제거
+      _boxes.remove(name);
     }
   }
 

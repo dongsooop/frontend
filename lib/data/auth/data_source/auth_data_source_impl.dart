@@ -7,7 +7,6 @@ import 'package:dongsoop/domain/auth/model/sign_in_response.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
-import 'package:dongsoop/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'auth_data_source.dart';
 
@@ -33,7 +32,6 @@ class AuthDataSourceImpl implements AuthDataSource {
       final response = await _plainDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
         final data = response.data;
-        logger.i('Login Response data: $data');
 
         return SignInResponse.fromJson(data);
       }
@@ -44,7 +42,6 @@ class AuthDataSourceImpl implements AuthDataSource {
       } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw UserSanctionedException();
       }
-      logger.e("Login error statusCode: ${e.response?.statusCode}");
       rethrow;
     } catch (e) {
       rethrow;
@@ -60,7 +57,6 @@ class AuthDataSourceImpl implements AuthDataSource {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw SignUpException();
       }
-      logger.e("Sign up error statusCode: ${e.response?.statusCode}");
       rethrow;
     } catch (e) {
       rethrow;
@@ -87,7 +83,6 @@ class AuthDataSourceImpl implements AuthDataSource {
       if (e.response?.statusCode == HttpStatusCode.conflict.code) {
         return true;
       }
-      logger.e("Sign up error statusCode: ${e.response?.statusCode}");
       rethrow;
     } catch (e) {
       rethrow;
@@ -107,11 +102,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     final endpoint = dotenv.get('DELETE_USER_ENDPOINT');
     try {
       await _authDio.delete(endpoint);
-      logger.i('delete user');
       return true;
-    } on DioException catch (e) {
-      logger.e("delete user error statusCode: ${e.response?.statusCode}");
-      rethrow;
     } catch (e) {
       rethrow;
     }

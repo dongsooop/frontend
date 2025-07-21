@@ -1,6 +1,5 @@
-import 'package:dongsoop/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../domain/mypage/use_case/get_my_market_posts_use_case.dart';
+import 'package:dongsoop/domain/mypage/use_case/get_my_market_posts_use_case.dart';
 import 'activity_market_state.dart';
 
 class ActivityMarketViewModel extends StateNotifier<ActivityMarketState> {
@@ -23,7 +22,6 @@ class ActivityMarketViewModel extends StateNotifier<ActivityMarketState> {
         hasNext: !isLast,
       );
     } catch (e, st) {
-      logger.e('load posts error: ${e.runtimeType}', error: e, stackTrace: st);
       state = state.copyWith(
         isLoading: false,
         errorMessage: '장터 목록을 불러오는 중\n오류가 발생했습니다.',

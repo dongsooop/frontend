@@ -6,10 +6,8 @@ import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
-import 'package:dongsoop/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import '../../../core/exception/exception.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'chat_data_source.dart';
 
 class ChatDataSourceImpl implements ChatDataSource {
@@ -283,7 +281,6 @@ class ChatDataSourceImpl implements ChatDataSource {
     try {
       final response = await _authDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
-        logger.i('user id: $userId is kicked');
       } else
         ChatLeaveException();
     } catch (e) {

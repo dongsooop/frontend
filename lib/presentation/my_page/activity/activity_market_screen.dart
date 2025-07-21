@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../../core/presentation/components/common_market_list_item.dart';
-import '../../../core/presentation/components/custom_confirm_dialog.dart';
-import '../../../core/presentation/components/detail_header.dart';
-import '../../../domain/board/market/enum/market_type.dart';
-import '../../../main.dart';
-import '../../../providers/activity_providers.dart';
-import '../../../ui/color_styles.dart';
-import '../../board/market/price_formatter.dart';
-import '../../board/utils/date_time_formatter.dart';
+import 'package:dongsoop/core/presentation/components/common_market_list_item.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/domain/board/market/enum/market_type.dart';
+import 'package:dongsoop/providers/activity_providers.dart';
+import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/presentation/board/market/price_formatter.dart';
+import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 
 class ActivityMarketScreen extends HookConsumerWidget {
   final void Function(int id, MarketType type, String status) onTapMarketDetail;
@@ -97,7 +96,6 @@ class ActivityMarketScreen extends HookConsumerWidget {
                       itemBuilder: (context, index) {
                         final post = posts[index];
                         final isLast = index == posts.length - 1;
-                        logger.i('status: ${post.status}');
                         return CommonMarketListItem(
                           imagePath: post.imageUrl,
                           title: post.title,

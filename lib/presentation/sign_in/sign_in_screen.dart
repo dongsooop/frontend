@@ -1,4 +1,3 @@
-import 'package:dongsoop/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
@@ -8,7 +7,6 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
-
 import '../../core/presentation/components/detail_header.dart';
 
 class SignInScreen extends HookConsumerWidget {
@@ -132,7 +130,6 @@ class SignInScreen extends HookConsumerWidget {
                         final loginResult = ref.read(signInViewModelProvider);
                         loginResult.whenOrNull(
                           data: (_) => context.go(RoutePaths.mypage),
-                          error: (e, _) => logger.i("로그인 실패: $e"),
                         );
                       },
                     child: loginState is AsyncLoading

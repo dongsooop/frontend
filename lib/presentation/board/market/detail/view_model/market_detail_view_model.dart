@@ -3,7 +3,6 @@ import 'package:dongsoop/domain/board/market/use_cases/market_contact_use_case.d
 import 'package:dongsoop/domain/board/market/use_cases/market_delete_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_detail_use_case.dart';
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/presentation/board/market/state/market_detail_state.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_complete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_contact_use_case_provider.dart';
@@ -53,8 +52,7 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
         marketDetail: marketDetail,
         isLoading: false,
       );
-    } catch (e, stack) {
-      logger.e('ViewModel build 실패', error: e, stackTrace: stack);
+    } catch (e) {
       return MarketDetailState(
         isLoading: false,
         error: e.toString(),
@@ -65,9 +63,7 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
   Future<void> deleteMarket(int marketId) async {
     try {
       await _deleteUseCase.execute(marketId: marketId);
-      logger.i('[MARKET] 게시글 삭제 성공');
-    } catch (e, st) {
-      logger.e('[MARKET] 게시글 삭제 실패', error: e, stackTrace: st);
+    } catch (e) {
       rethrow;
     }
   }
@@ -84,8 +80,7 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
           ),
         );
       }
-    } catch (e, st) {
-      logger.e('거래 완료 실패', error: e, stackTrace: st);
+    } catch (e) {
       rethrow;
     }
   }
@@ -93,9 +88,7 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
   Future<void> contactMarket(int marketId) async {
     try {
       await _contactUseCase.execute(marketId: marketId);
-      logger.i('거래 연락 완료');
-    } catch (e, st) {
-      logger.e('거래 연락 실패', error: e, stackTrace: st);
+    } catch (e) {
       rethrow;
     }
   }
