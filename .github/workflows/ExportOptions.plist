@@ -13,7 +13,7 @@
 	<key>stripSwiftSymbols</key>
 	<true/>
 	<key>teamID</key>
-	<string>V5F2QTQ2CV</string>
+	<string>{{ secrets.APPLE_TEAM_ID }}</string>
 	<key>uploadSymbols</key>
 	<true/>
 </dict>
