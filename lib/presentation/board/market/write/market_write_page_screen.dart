@@ -7,6 +7,7 @@ import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
+import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/price_formatter.dart';
 import 'package:dongsoop/presentation/board/market/write/view_model/market_write_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -121,6 +122,12 @@ class MarketWritePageScreen extends HookConsumerWidget {
               if (!success) return;
               await viewModel.clearTemporaryImages();
               if (success && context.mounted) {
+                if (isEditing && marketId != null) {
+                  ref.invalidate(
+                    marketDetailViewModelProvider(
+                        MarketDetailArgs(id: marketId!)),
+                  );
+                }
                 context.pop(true);
               }
             } catch (e) {
