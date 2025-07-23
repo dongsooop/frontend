@@ -161,7 +161,6 @@
 				60AA9DA6C1BAC23DAAE905CC /* Pods-RunnerTests.release.xcconfig */,
 				82D49B686D24BA821EB3DCB1 /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -477,7 +476,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.dongsoop.dongsoop;
+				PRODUCT_BUNDLE_IDENTIFIER = "Dongyang-Mirae-University-convenience-app-service---com.dongsoop.site.dongsoop";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -659,7 +658,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.dongsoop.dongsoop;
+				PRODUCT_BUNDLE_IDENTIFIER = "Dongyang-Mirae-University-convenience-app-service---com.dongsoop.site.dongsoop";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -681,7 +680,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.dongsoop.dongsoop;
+				PRODUCT_BUNDLE_IDENTIFIER = "Dongyang-Mirae-University-convenience-app-service---com.dongsoop.site.dongsoop";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

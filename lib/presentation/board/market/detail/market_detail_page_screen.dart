@@ -81,24 +81,11 @@ class MarketDetailPageScreen extends ConsumerWidget {
             final isComplete = status == 'CLOSED'
                 ? true
                 : status == 'OPEN'
-                ? false
-                : data.isComplete;
+                    ? false
+                    : data.isComplete;
 
-            // 버튼 라벨 정의
-            String label;
-            if (viewType == 'OWNER') {
-              label = isComplete ? '거래 완료' : '거래 완료';
-            } else {
-              label = '거래하기';
-            }
-
-            // 버튼 활성 여부 정의
-            bool isEnabled;
-            if (viewType == 'OWNER') {
-              isEnabled = !isComplete;
-            } else {
-              isEnabled = true;
-            }
+            String label = viewType == 'OWNER' ? '거래 완료' : '거래하기';
+            bool isEnabled = viewType == 'OWNER' ? !isComplete : true;
 
             return BottomButton(
               label: label,
@@ -108,18 +95,12 @@ class MarketDetailPageScreen extends ConsumerWidget {
                       if (viewType == 'OWNER') {
                         _showCompleteDialog(context, ref);
                       } else if (viewType == 'GUEST') {
-                        showDialog(
-                          context: context,
-                          builder: (_) => const LoginRequiredDialog(),
-                        );
+                        await LoginRequiredDialog(context);
                       } else if (viewType == 'MEMBER') {
                         final userId = user?.id;
 
                         if (userId == null) {
-                          showDialog(
-                            context: context,
-                            builder: (_) => const LoginRequiredDialog(),
-                          );
+                          await LoginRequiredDialog(context);
                           return;
                         }
 
@@ -130,7 +111,8 @@ class MarketDetailPageScreen extends ConsumerWidget {
                                 .notifier,
                           );
                           await viewModel.contactMarket(id);
-                          final chatRoom = await viewModel.createChatRoom(market.title, market.authorId);
+                          final chatRoom = await viewModel.createChatRoom(
+                              market.title, market.authorId);
                           onTapChatDetail(chatRoom);
                         } catch (e) {
                           showDialog(
@@ -158,8 +140,8 @@ class MarketDetailPageScreen extends ConsumerWidget {
             final isComplete = status == 'CLOSED'
                 ? true
                 : status == 'OPEN'
-                ? false
-                : data.isComplete;
+                    ? false
+                    : data.isComplete;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),

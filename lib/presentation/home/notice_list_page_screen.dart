@@ -1,7 +1,6 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
-import 'package:dongsoop/core/presentation/components/search_bar.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
@@ -23,9 +22,6 @@ class NoticeListPageScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
-    final previousIndex = useState(0);
-    final showLoginDialog = useState(false);
-
     final user = ref.watch(userSessionProvider);
     final isLoggedIn = user != null;
 
@@ -66,119 +62,100 @@ class NoticeListPageScreen extends HookConsumerWidget {
       child: Scaffold(
         backgroundColor: ColorStyles.white,
         appBar: DetailHeader(title: '공지'),
-        body: Stack(
-          children: [
-            MediaQuery.removePadding(
-              context: context,
-              removeTop: true,
-              removeBottom: true,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Column(
-                  children: [
-                    const SearchBarComponent(),
-                    const SizedBox(height: 24),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(3, (index) {
-                          final labels = ['전체', '학교', '학과'];
-                          final isSelected = selectedIndex.value == index;
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            children: [
+              // const SearchBarComponent(),
+              // const SizedBox(height: 24),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(3, (index) {
+                    final labels = ['전체', '학교', '학과'];
+                    final isSelected = selectedIndex.value == index;
 
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 24),
-                            child: GestureDetector(
-                              onTap: () {
-                                if (index == 2 && !isLoggedIn) {
-                                  previousIndex.value = selectedIndex.value;
-                                  showLoginDialog.value = true;
-                                  return;
-                                }
-                                selectedIndex.value = index;
-                                scrollController.jumpTo(0);
-                              },
-                              child:
-                                  _buildUnderlineTab(labels[index], isSelected),
-                            ),
-                          );
-                        }),
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 24),
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (index == 2 && !isLoggedIn) {
+                            await LoginRequiredDialog(context);
+                            return;
+                          }
+                          selectedIndex.value = index;
+                          scrollController.jumpTo(0);
+                        },
+                        child: _buildUnderlineTab(labels[index], isSelected),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: noticeState.when(
-                        loading: () =>
-                            const Center(child: CircularProgressIndicator()),
-                        error: (e, _) => Center(child: Text('에러: $e')),
-                        data: (notices) => ListView.separated(
-                          controller: scrollController,
-                          itemCount: notices.length + (isLastPage ? 0 : 1),
-                          separatorBuilder: (_, __) => const Divider(
-                            height: 1,
-                            color: ColorStyles.gray2,
-                          ),
-                          itemBuilder: (context, index) {
-                            if (index == notices.length) {
-                              return const SizedBox.shrink();
-                            }
-
-                            final item = notices[index];
-                            final tags = item.isDepartment
-                                ? ['학과공지', '학부']
-                                : ['동양공지', '학교생활'];
-
-                            return GestureDetector(
-                              onTap: () {
-                                context.pushNamed(
-                                  'noticeWebView',
-                                  queryParameters: {'path': item.link},
-                                );
-                              },
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 24),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.title,
-                                      style: TextStyles.largeTextBold.copyWith(
-                                        color: ColorStyles.black,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Wrap(
-                                      children: tags
-                                          .asMap()
-                                          .entries
-                                          .map((entry) => CommonTag(
-                                                label: entry.value,
-                                                index: entry.key,
-                                              ))
-                                          .toList(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+                    );
+                  }),
                 ),
               ),
-            ),
-            if (showLoginDialog.value)
-              LoginRequiredDialog(
-                onCancel: () {
-                  showLoginDialog.value = false;
-                  selectedIndex.value = previousIndex.value;
-                },
+              const SizedBox(height: 16),
+              Expanded(
+                child: noticeState.when(
+                  loading: () => const Center(
+                      child: CircularProgressIndicator(
+                    color: ColorStyles.primaryColor,
+                  )),
+                  error: (e, _) => Center(child: Text('$e')),
+                  data: (notices) => ListView.separated(
+                    controller: scrollController,
+                    itemCount: notices.length + (isLastPage ? 0 : 1),
+                    separatorBuilder: (_, __) => const Divider(
+                      height: 1,
+                      color: ColorStyles.gray2,
+                    ),
+                    itemBuilder: (context, index) {
+                      if (index == notices.length) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final item = notices[index];
+                      final tags =
+                          item.isDepartment ? ['학과공지', '학부'] : ['동양공지', '학교생활'];
+
+                      return GestureDetector(
+                        onTap: () {
+                          context.pushNamed(
+                            'noticeWebView',
+                            queryParameters: {'path': item.link},
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.title,
+                                style: TextStyles.largeTextBold.copyWith(
+                                  color: ColorStyles.black,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Wrap(
+                                children: tags
+                                    .asMap()
+                                    .entries
+                                    .map((entry) => CommonTag(
+                                          label: entry.value,
+                                          index: entry.key,
+                                        ))
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );

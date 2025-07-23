@@ -88,7 +88,44 @@ class BoardPageScreen extends HookConsumerWidget {
       departmentCode,
     ]);
 
-    void onTapRecruitDetail(int id, RecruitType type) async {
+    Future<void> handleWriteAction() async {
+      final user = ref.watch(userSessionProvider);
+      if (user == null) {
+        await LoginRequiredDialog(context);
+        return;
+      }
+
+      final result = isRecruit
+          ? await context.push<bool>(RoutePaths.recruitWrite)
+          : await context.push<bool>(
+              RoutePaths.marketWrite,
+              extra: {
+                'isEditing': false,
+                'marketId': null,
+              },
+            );
+
+      if (result == true) {
+        if (isRecruit && recruitType != null) {
+          ref
+              .read(
+                recruitListViewModelProvider(
+                  type: recruitType,
+                  departmentCode: departmentCode,
+                ).notifier,
+              )
+              .refresh();
+        } else if (marketType != null) {
+          ref
+              .read(
+                marketListViewModelProvider(type: marketType).notifier,
+              )
+              .refresh();
+        }
+      }
+    }
+
+    Future<void> onTapRecruitDetail(int id, RecruitType type) async {
       final didApply = await context.push<bool>(
         RoutePaths.recruitDetail,
         extra: {'id': id, 'type': type},
@@ -106,7 +143,7 @@ class BoardPageScreen extends HookConsumerWidget {
       }
     }
 
-    void onTapMarketDetail(int id, MarketType type) async {
+    Future<void> onTapMarketDetail(int id, MarketType type) async {
       final didComplete = await context.push<bool>(
         RoutePaths.marketDetail,
         extra: {'id': id, 'type': type},
@@ -121,93 +158,49 @@ class BoardPageScreen extends HookConsumerWidget {
       }
     }
 
-    return Stack(
-      children: [
-        SafeArea(
-          child: Scaffold(
-            backgroundColor: ColorStyles.white,
-            floatingActionButton: WriteButton(
-              onPressed: () async {
-                if (user == null) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => LoginRequiredDialog(),
-                  );
-                  return;
-                }
-
-                final result = isRecruit
-                    ? await context.push<bool>(RoutePaths.recruitWrite)
-                    : await context.push<bool>(
-                        RoutePaths.marketWrite,
-                        extra: {
-                          'isEditing': false,
-                          'marketId': null,
-                        },
-                      );
-
-                if (result == true) {
-                  if (isRecruit) {
-                    if (recruitType == null) return;
-                    ref
-                        .read(
-                          recruitListViewModelProvider(
-                            type: recruitType,
-                            departmentCode: departmentCode,
-                          ).notifier,
-                        )
-                        .refresh();
-                  } else {
-                    if (marketType == null) return;
-                    ref
-                        .read(
-                          marketListViewModelProvider(type: marketType)
-                              .notifier,
-                        )
-                        .refresh();
-                  }
-                }
-              },
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: ColorStyles.white,
+        floatingActionButton: WriteButton(
+          onPressed: handleWriteAction,
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: BoardTabSection(
+                categoryTabs: categoryTabs,
+                selectedCategoryIndex: selectedIndex.value,
+                selectedSubTabIndex: safeIndex,
+                subTabs: currentSubTabs,
+                onCategorySelected: (newIndex) {
+                  selectedIndex.value = newIndex;
+                  selectedSubIndex.value = 0;
+                },
+                onSubTabSelected: (newSubIndex) {
+                  selectedSubIndex.value = newSubIndex;
+                },
+              ),
             ),
-            body: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: BoardTabSection(
-                    categoryTabs: categoryTabs,
-                    selectedCategoryIndex: selectedIndex.value,
-                    selectedSubTabIndex: safeIndex,
-                    subTabs: currentSubTabs,
-                    onCategorySelected: (newIndex) {
-                      selectedIndex.value = newIndex;
-                      selectedSubIndex.value = 0;
-                    },
-                    onSubTabSelected: (newSubIndex) {
-                      selectedSubIndex.value = newSubIndex;
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: isRecruit && recruitType != null
-                      ? RecruitItemListSection(
-                          recruitType: recruitType,
-                          departmentCode: departmentCode,
-                          onTapRecruitDetail: onTapRecruitDetail,
+            Expanded(
+              child: isRecruit && recruitType != null
+                  ? RecruitItemListSection(
+                      recruitType: recruitType,
+                      departmentCode: departmentCode,
+                      onTapRecruitDetail: onTapRecruitDetail,
+                      scrollController: scrollController,
+                    )
+                  : !isRecruit && marketType != null
+                      ? MarketItemListSection(
+                          marketType: marketType,
+                          onTapMarketDetail: onTapMarketDetail,
                           scrollController: scrollController,
                         )
-                      : !isRecruit && marketType != null
-                          ? MarketItemListSection(
-                              marketType: marketType,
-                              onTapMarketDetail: onTapMarketDetail,
-                              scrollController: scrollController,
-                            )
-                          : const SizedBox.shrink(),
-                ),
-              ],
+                      : const SizedBox.shrink(),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
