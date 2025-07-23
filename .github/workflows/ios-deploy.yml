@@ -1,4 +1,4 @@
-name: Flutter iOS CI/CD
+name: Apple Connect Deploy
 
 on:
   push:
