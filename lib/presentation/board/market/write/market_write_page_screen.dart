@@ -7,6 +7,7 @@ import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
+import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/price_formatter.dart';
 import 'package:dongsoop/presentation/board/market/write/view_model/market_write_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -48,7 +49,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
         titleController.text = state.title;
         contentController.text = state.content;
         priceController.text =
-            state.price > 0 ? PriceFormatter.format(state.price) : '';
+        state.price > 0 ? PriceFormatter.format(state.price) : '';
         isInitialized.value = true;
       });
       return null;
@@ -73,7 +74,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
 
     Future<void> _pickImage() async {
       final pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.gallery);
+      await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         await viewModel.compressAndAddImage(pickedFile);
       }
@@ -120,6 +121,12 @@ class MarketWritePageScreen extends HookConsumerWidget {
             if (!success) return;
             await viewModel.clearTemporaryImages();
             if (success && context.mounted) {
+              if (isEditing && marketId != null) {
+                ref.invalidate(
+                  marketDetailViewModelProvider(
+                      MarketDetailArgs(id: marketId!)),
+                );
+              }
               context.pop(true);
             }
           } catch (e) {
@@ -128,7 +135,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
               builder: (_) => CustomConfirmDialog(
                 title: '오류',
                 content:
-                    '${isEditing ? '수정' : '등록'} 중 문제가 발생했습니다.\n${e.toString()}',
+                '${isEditing ? '수정' : '등록'} 중 문제가 발생했습니다.\n${e.toString()}',
                 confirmText: '확인',
                 onConfirm: () {},
                 isSingleAction: true,

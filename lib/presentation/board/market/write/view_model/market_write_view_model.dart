@@ -70,8 +70,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
         images: imageFiles,
         initialImageUrls: detail.imageUrlList,
       );
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   void updateTitle(String value) => state = state.copyWith(title: value);
@@ -95,29 +94,29 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       try {
         final file = File(image.path);
         if (await file.exists()) await file.delete();
-      } catch (e) {
-      }
+      } catch (e) {}
     }
   }
 
   Future<void> compressAndAddImage(XFile pickedFile) async {
     if (state.images.length >= 3) return;
+
     final file = File(pickedFile.path);
     final currentCount = state.images.length + 1;
     final targetSizeMB = 3 / currentCount;
     const maxTry = 5;
 
     final dir = await getTemporaryDirectory();
-    final targetPath = path.join(
-      dir.path,
-      'compressed_${DateTime.now().millisecondsSinceEpoch}.jpg',
-    );
-
     File? compressedFile;
     int quality = 90;
     int attempt = 0;
 
     while (attempt < maxTry) {
+      final targetPath = path.join(
+        dir.path,
+        'compressed_${DateTime.now().millisecondsSinceEpoch}_$attempt.jpg',
+      );
+
       final tmpFile = await FlutterImageCompress.compressAndGetFile(
         file.absolute.path,
         targetPath,
@@ -140,7 +139,6 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
 
     if (compressedFile != null) {
       addImage(XFile(compressedFile.path));
-    } else {
     }
   }
 
@@ -156,7 +154,6 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
     );
 
     try {
-      // AI 필터링 전용: 파이프 제거
       final filteredTitle = state.title.replaceAll('|', '');
       final filteredContent = state.content.replaceAll('|', '');
 
@@ -166,18 +163,23 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
           content: filteredContent,
         ),
       );
-      final currentImageFileNames =
-          state.images.map((x) => path.basename(x.path));
-      final deletedUrls = state.initialImageUrls
-          .where((url) => !currentImageFileNames.contains(path.basename(url)))
-          .toList();
+
+      final newImages = state.images.where((xfile) {
+        final basename = path.basename(xfile.path);
+        return !state.initialImageUrls.any((url) => url.contains(basename));
+      }).toList();
+
+      final deletedUrls = state.initialImageUrls.where((url) {
+        final basename = path.basename(Uri.parse(url).path);
+        return !state.images.any((x) => basename == path.basename(x.path));
+      }).toList();
 
       final entity = MarketWriteEntity(
-        title: state.title, // 원본 텍스트 사용
-        content: state.content, // 원본 텍스트 사용
+        title: state.title,
+        content: state.content,
         price: state.price,
         type: state.type!,
-        images: state.images,
+        images: newImages,
         deleteImageUrls: deletedUrls,
       );
 
