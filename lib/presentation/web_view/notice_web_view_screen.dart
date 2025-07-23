@@ -45,9 +45,11 @@ class _NoticeWebViewScreenState extends State<NoticeWebViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: DetailHeader(),
-      body: _controller == null
+      body: SafeArea(
+        child: _controller == null
           ? const Center(child: Text('잘못된 URL입니다.'))
           : WebViewWidget(controller: _controller!),
+      )
     );
   }
 }

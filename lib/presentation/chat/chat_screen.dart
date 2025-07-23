@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -7,15 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
-import '../../core/presentation/components/custom_confirm_dialog.dart';
-import '../../core/presentation/components/login_required_dialog.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 
 class ChatScreen extends HookConsumerWidget {
   final void Function(UiChatRoom room) onTapChatDetail;
+  final VoidCallback onTapSignIn;
 
   const ChatScreen({
     super.key,
-    required this.onTapChatDetail
+    required this.onTapChatDetail,
+    required this.onTapSignIn,
   });
 
   @override
@@ -73,18 +76,33 @@ class ChatScreen extends HookConsumerWidget {
 
     return Stack(
       children: [
-        SafeArea(
-          child: Scaffold(
-            backgroundColor: ColorStyles.white,
-            body:
-            Padding(
+        Scaffold(
+          backgroundColor: ColorStyles.white,
+          body: SafeArea(
+            child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               child: _buildChatBody(context, filteredRooms, selectedTap, selectedCategory),
             ),
           ),
         ),
-        if (user == null)
-          LoginRequiredDialog()
+        if (user == null) ...[
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
+              child: Container(
+                color: Colors.black.withAlpha((255 * 0.3).round()),
+              ),
+            ),
+            Center(
+              child: CustomConfirmDialog(
+                title: '로그인이 필요해요',
+                content: '해당 서비스는 로그인이 필요해요.\n로그인 페이지로 이동할까요?',
+                isSingleAction: true,
+                confirmText: '확인',
+                dismissOnConfirm: false,
+                onConfirm: onTapSignIn,
+              ),
+            ),
+          ],
       ]
     );
   }
@@ -97,9 +115,11 @@ class ChatScreen extends HookConsumerWidget {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        width: 44,
-        height: 44,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: 44,
+          minHeight: 44,
+        ),
         child: Center(
           child: Text(
             label,
@@ -131,7 +151,7 @@ class ChatScreen extends HookConsumerWidget {
         ),
         child: Center(
           child: isSelected
-              ? IntrinsicWidth(
+            ? IntrinsicWidth(
             child: Container(
               decoration: const BoxDecoration(
                 border: Border(

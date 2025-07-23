@@ -42,29 +42,29 @@ class MyPageScreen extends HookConsumerWidget {
       return null;
     }, [user]);
 
-    return SafeArea(
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: ColorStyles.gray1,
+      appBar: DetailHeader(
+        title: '마이페이지',
         backgroundColor: ColorStyles.gray1,
-        appBar: DetailHeader(
-          title: '마이페이지',
-          backgroundColor: ColorStyles.gray1,
-          showBackButton: false,
-          trailing: user != null
-            ? IconButton(
-              onPressed: onTapSetting,
-              icon: SvgPicture.asset(
-                'assets/icons/setting.svg',
-                width: 24,
-                height: 24,
-                colorFilter: const ColorFilter.mode(
-                  ColorStyles.black,
-                  BlendMode.srcIn,
-                ),
+        showBackButton: false,
+        trailing: user != null
+          ? IconButton(
+            onPressed: onTapSetting,
+            icon: SvgPicture.asset(
+              'assets/icons/setting.svg',
+              width: 24,
+              height: 24,
+              colorFilter: const ColorFilter.mode(
+                ColorStyles.black,
+                BlendMode.srcIn,
               ),
-            )
-            : null,
-        ),
-        body: Column(
+            ),
+          )
+          : null,
+      ),
+      body: SafeArea(
+        child: Column(
           children: [
             Container(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
