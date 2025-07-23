@@ -59,9 +59,9 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath $PWD/build/Runner.xcarchive \
             -exportPath $PWD/build/export \
-            -exportOptionsPlist .github/workflows/ExportOptions.plist
+            -exportOptionsPlist ../.github/workflows/ExportOptions.plist
 
-      #TestFlight 업로드
+      # TestFlight 업로드
       - name: Upload app to TestFlight
         uses: apple-actions/upload-testflight-build@v3
         with:
