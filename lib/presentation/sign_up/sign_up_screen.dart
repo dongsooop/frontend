@@ -185,6 +185,7 @@ class SignUpScreen extends HookConsumerWidget {
               Expanded(
                 child: Container(
                   height: 44,
+                  alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
@@ -276,6 +277,7 @@ class SignUpScreen extends HookConsumerWidget {
           // 텍스트 필드 & 버튼
           Container(
             height: 44,
+            alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
@@ -294,6 +296,7 @@ class SignUpScreen extends HookConsumerWidget {
           ),
           Container(
             height: 44,
+            alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
@@ -367,6 +370,7 @@ class SignUpScreen extends HookConsumerWidget {
               Expanded(
                 child: Container(
                   height: 44,
+                  alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
@@ -596,10 +600,11 @@ class SignUpScreen extends HookConsumerWidget {
         color: ColorStyles.black,
       ),
       decoration: InputDecoration(
+        isDense: true,
         border: InputBorder.none,
         hintText: hintText,
         hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-        contentPadding: EdgeInsets.symmetric(vertical: 11),
+        contentPadding: EdgeInsets.symmetric(vertical: 0),
       ),
     );
   }

@@ -56,6 +56,7 @@ class SignInScreen extends HookConsumerWidget {
                   Container(
                     width: double.infinity,
                     height: 44,
+                    alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(horizontal: 16,),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
@@ -88,6 +89,7 @@ class SignInScreen extends HookConsumerWidget {
                   Container(
                     width: double.infinity,
                     height: 44,
+                    alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(horizontal: 16,),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
@@ -164,8 +166,10 @@ class SignInScreen extends HookConsumerWidget {
       keyboardType: TextInputType.text,
       cursorColor: ColorStyles.gray4,
       style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+      textAlignVertical: TextAlignVertical.center,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(vertical: 11,),
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(vertical: 0,),
         border: InputBorder.none,
         hintText: hintText,
         hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),

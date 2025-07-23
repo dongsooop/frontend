@@ -240,7 +240,8 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
                   ),
                 ),
                 selectedReportReason.value != null
-                    ? Container(
+                ? Container(
+                  alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
@@ -262,6 +263,8 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
                       color: ColorStyles.black,
                     ),
                     decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 0),
                       border: InputBorder.none,
                       hintText: '최대 500글자까지 입력 가능해요',
                       hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
