@@ -65,7 +65,7 @@ jobs:
       - name: Upload app to TestFlight
         uses: apple-actions/upload-testflight-build@v3
         with:
-          app-path: "build/export/Runner.ipa"
+          app-path: "ios/build/export/Runner.ipa"
           issuer-id: ${{ secrets.APPSTORE_OWNER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
@@ -74,17 +74,17 @@ jobs:
       - name: List build artifacts
         run: |
           echo "Build artifacts:"
-          ls -la build/Runner.xcarchive
+          ls -la ios/build/Runner.xcarchive
           echo "Build artifacts in export directory:"
-          ls -la build/export
-          du -sh build/export/Runner.ipa
+          ls -la ios/build/export
+          du -sh ios/build/export/Runner.ipa
 
       # iOS 빌드 결과물을 GitHub Artifacts에 업로드
       - name: Upload iOS App as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: dongsoop-ios-app-${{ github.run_number }}
-          path: build/export/Runner.ipa
+          path: ios/build/export/Runner.ipa
           retention-days: 30
 
       # 빌드 성공 알림
