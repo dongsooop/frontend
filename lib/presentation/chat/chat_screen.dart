@@ -86,25 +86,24 @@ class ChatScreen extends HookConsumerWidget {
             ),
           ),
         ),
-        if (user == null)
-          ...[
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
-              child: Container(
-                color: Colors.black.withAlpha((255 * 0.3).round()),
-              ),
+        if (user == null) ...[
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
+            child: Container(
+              color: Colors.black.withAlpha((255 * 0.3).round()),
             ),
-            Center(
-              child: CustomConfirmDialog(
-                title: '로그인이 필요해요',
-                content: '해당 서비스는 로그인이 필요해요.\n로그인 페이지로 이동할까요?',
-                isSingleAction: true,
-                confirmText: '확인',
-                dismissOnConfirm: false,
-                onConfirm: onTapSignIn,
-              ),
+          ),
+          Center(
+            child: CustomConfirmDialog(
+              title: '로그인이 필요해요',
+              content: '해당 서비스는 로그인이 필요해요.\n로그인 페이지로 이동할까요?',
+              isSingleAction: true,
+              confirmText: '확인',
+              dismissOnConfirm: false,
+              onConfirm: onTapSignIn,
             ),
-          ],
+          ),
+        ],
       ]
     );
   }
