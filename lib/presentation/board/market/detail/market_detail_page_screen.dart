@@ -45,33 +45,41 @@ class MarketDetailPageScreen extends ConsumerWidget {
         backgroundColor: ColorStyles.white,
         appBar: DetailHeader(
           title: type.label,
-          trailing: IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              final detailState = ref.read(
-                marketDetailViewModelProvider(MarketDetailArgs(id: id)),
-              );
+          trailing: state.maybeWhen(
+            data: (data) {
+              final viewType = data.marketDetail?.viewType;
+              if (viewType == 'GUEST' || viewType == null) return null;
 
-              detailState.whenData((data) {
-                final viewType = data.marketDetail?.viewType;
-                if (viewType == 'OWNER') {
-                  customActionSheet(context, onEdit: () {
-                    context.push(RoutePaths.marketWrite, extra: {
-                      'isEditing': true,
-                      'marketId': id,
-                    });
-                  }, onDelete: () {
-                    _showDeleteDialog(context, ref);
-                  });
-                } else {
-                  customActionSheet(
-                    context,
-                    deleteText: '신고',
-                    onDelete: () => onTapReport(type.reportType.name, id),
+              return IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  final detailState = ref.read(
+                    marketDetailViewModelProvider(MarketDetailArgs(id: id)),
                   );
-                }
-              });
+
+                  detailState.whenData((data) {
+                    final viewType = data.marketDetail?.viewType;
+                    if (viewType == 'OWNER') {
+                      customActionSheet(context, onEdit: () {
+                        context.push(RoutePaths.marketWrite, extra: {
+                          'isEditing': true,
+                          'marketId': id,
+                        });
+                      }, onDelete: () {
+                        _showDeleteDialog(context, ref);
+                      });
+                    } else {
+                      customActionSheet(
+                        context,
+                        deleteText: '신고',
+                        onDelete: () => onTapReport(type.reportType.name, id),
+                      );
+                    }
+                  });
+                },
+              );
             },
+            orElse: () => null,
           ),
         ),
         bottomNavigationBar: state.when(
