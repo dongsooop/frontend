@@ -44,8 +44,26 @@ jobs:
       - name: Clean build
         run: flutter clean
 
+      - name: Decode certificates/profiles
+        run: |
+          echo "${{ secrets.IOS_DISTRIBUTION_P12 }}" | base64 --decode > ios_distribution.p12
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE }}" | base64 --decode > profile.mobileprovision
+
+      - name: Import certificate to keychain
+        run: |
+          security create-keychain -p "password" build.keychain
+          security import ios_distribution.p12 -k build.keychain -P "${{ secrets.IOS_DISTRIBUTION_P12_PASSWORD }}" -T /usr/bin/codesign
+          security list-keychains -s build.keychain
+          security unlock-keychain -p "password" build.keychain
+          security set-keychain-settings -t 3600 -l ~/Library/Keychains/build.keychain
+
+      - name: Install provisioning profile
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+
       - name: create Generated.xcconfig
-        run: flutter build ios --release
+        run: flutter build ios --release --no-codesign
 
       # 빌드 및 IPA 내보내기
       - name: Build and export IPA
