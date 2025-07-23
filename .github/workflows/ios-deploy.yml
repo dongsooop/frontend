@@ -3,8 +3,6 @@ name: Flutter iOS CI/CD
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build-ios:
@@ -51,6 +49,7 @@ jobs:
 
       # 빌드 및 IPA 내보내기
       - name: Build and export IPA
+        working-directory: ios
         run: |
           xcodebuild -workspace Runner.xcworkspace \
             -scheme Runner \
@@ -60,7 +59,7 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath $PWD/build/Runner.xcarchive \
             -exportPath $PWD/build/export \
-            -exportOptionsPlist ExportOptions.plist
+            -exportOptionsPlist .github/workflows/ExportOptions.plist
 
       #TestFlight 업로드
       - name: Upload app to TestFlight
@@ -75,15 +74,17 @@ jobs:
       - name: List build artifacts
         run: |
           echo "Build artifacts:"
-          ls -la build/ios/iphoneos/
-          du -sh build/ios/iphoneos/Runner.app
+          ls -la build/Runner.xcarchive
+          echo "Build artifacts in export directory:"
+          ls -la build/export
+          du -sh build/export/Runner.ipa
 
       # iOS 빌드 결과물을 GitHub Artifacts에 업로드
       - name: Upload iOS App as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: dongsoop-ios-app-${{ github.run_number }}
-          path: build/ios/iphoneos/Runner.app
+          path: build/export/Runner.ipa
           retention-days: 30
 
       # 빌드 성공 알림
@@ -100,9 +101,9 @@ jobs:
       # 빌드 성공 디스코드 알림
       - name: Send Discord Notification
         env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.APPLE_BUILD_DISCORD_WEBHOOK }}
         run: |
           curl -H "Content-Type: application/json" \
             -X POST \
             -d "{\"content\": \"🚀 빌드가 성공적으로 완료되었습니다!\"}" \
-            ${{ secrets.APPLE_BUILD_DISCORD_WEBHOOK }}
+            $DISCORD_WEBHOOK
