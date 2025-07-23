@@ -123,53 +123,53 @@ class BoardPageScreen extends HookConsumerWidget {
 
     return Stack(
       children: [
-        SafeArea(
-          child: Scaffold(
-            backgroundColor: ColorStyles.white,
-            floatingActionButton: WriteButton(
-              onPressed: () async {
-                if (user == null) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => LoginRequiredDialog(),
-                  );
-                  return;
+        Scaffold(
+          backgroundColor: ColorStyles.white,
+          floatingActionButton: WriteButton(
+            onPressed: () async {
+              if (user == null) {
+                showDialog(
+                  context: context,
+                  builder: (_) => LoginRequiredDialog(),
+                );
+                return;
+              }
+        
+              final result = isRecruit
+                  ? await context.push<bool>(RoutePaths.recruitWrite)
+                  : await context.push<bool>(
+                      RoutePaths.marketWrite,
+                      extra: {
+                        'isEditing': false,
+                        'marketId': null,
+                      },
+                    );
+        
+              if (result == true) {
+                if (isRecruit) {
+                  if (recruitType == null) return;
+                  ref
+                      .read(
+                        recruitListViewModelProvider(
+                          type: recruitType,
+                          departmentCode: departmentCode,
+                        ).notifier,
+                      )
+                      .refresh();
+                } else {
+                  if (marketType == null) return;
+                  ref
+                      .read(
+                        marketListViewModelProvider(type: marketType)
+                            .notifier,
+                      )
+                      .refresh();
                 }
-
-                final result = isRecruit
-                    ? await context.push<bool>(RoutePaths.recruitWrite)
-                    : await context.push<bool>(
-                        RoutePaths.marketWrite,
-                        extra: {
-                          'isEditing': false,
-                          'marketId': null,
-                        },
-                      );
-
-                if (result == true) {
-                  if (isRecruit) {
-                    if (recruitType == null) return;
-                    ref
-                        .read(
-                          recruitListViewModelProvider(
-                            type: recruitType,
-                            departmentCode: departmentCode,
-                          ).notifier,
-                        )
-                        .refresh();
-                  } else {
-                    if (marketType == null) return;
-                    ref
-                        .read(
-                          marketListViewModelProvider(type: marketType)
-                              .notifier,
-                        )
-                        .refresh();
-                  }
-                }
-              },
-            ),
-            body: Column(
+              }
+            },
+          ),
+          body: SafeArea(
+            child: Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),

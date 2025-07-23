@@ -2,12 +2,12 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../../core/presentation/components/common_recruit_list_item.dart';
-import '../../../core/presentation/components/custom_confirm_dialog.dart';
-import '../../../core/presentation/components/detail_header.dart';
-import '../../../providers/activity_providers.dart';
-import '../../../ui/color_styles.dart';
-import '../../board/utils/date_time_formatter.dart';
+import 'package:dongsoop/core/presentation/components/common_recruit_list_item.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/providers/activity_providers.dart';
+import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 
 class ActivityRecruitScreen extends HookConsumerWidget {
   final bool isApply;
@@ -69,52 +69,52 @@ class ActivityRecruitScreen extends HookConsumerWidget {
 
     // 로딩 상태 표시
     if (activityRecruitState.isLoading) {
-      return SafeArea(
-        child: Scaffold(
-          backgroundColor: ColorStyles.white,
-          body: Center(
+      return Scaffold(
+        backgroundColor: ColorStyles.white,
+        body: SafeArea(
+          child: Center(
             child: CircularProgressIndicator(color: ColorStyles.primaryColor,),
           ),
         ),
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: isApply ? '지원한 모집글' : '개설한 모집글',
-        ),
-        body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: posts.length,
-                    itemBuilder: (context, index) {
-                      final post = posts[index];
-                      final isLast = index == posts.length - 1;
-                      final volunteerText = '${post.volunteer}명이 지원했어요';
-                      final periodText = formatRecruitPeriod(post.startAt, post.endAt);
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: isApply ? '지원한 모집글' : '개설한 모집글',
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    final post = posts[index];
+                    final isLast = index == posts.length - 1;
+                    final volunteerText = '${post.volunteer}명이 지원했어요';
+                    final periodText = formatRecruitPeriod(post.startAt, post.endAt);
 
-                      return CommonRecruitListItem(
-                        statusText: post.status,
-                        volunteerText: volunteerText,
-                        periodText: periodText,
-                        title: post.title,
-                        content: post.content,
-                        tags: post.tags,
-                        onTap: () => onTapRecruitDetail(post.id, post.boardType, post.status),
-                        isLastItem: isLast,
-                      );
-                    },
-                  ),
+                    return CommonRecruitListItem(
+                      statusText: post.status,
+                      volunteerText: volunteerText,
+                      periodText: periodText,
+                      title: post.title,
+                      content: post.content,
+                      tags: post.tags,
+                      onTap: () => onTapRecruitDetail(post.id, post.boardType, post.status),
+                      isLastItem: isLast,
+                    );
+                  },
                 ),
-              ],
-            )
+              ),
+            ],
+          ),
         ),
       ),
     );

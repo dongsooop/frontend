@@ -83,13 +83,13 @@ class SignUpScreen extends HookConsumerWidget {
       return null;
     }, [signUpState.errorMessage]);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '동숲 회원가입',
-        ),
-        body: GestureDetector(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: '동숲 회원가입',
+      ),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: SingleChildScrollView(
@@ -108,27 +108,27 @@ class SignUpScreen extends HookConsumerWidget {
             ),
           ),
         ),
-        bottomNavigationBar: PrimaryBottomButton(
-          onPressed: () async {
-            if (!signUpState.isEmailValid ||
-                !signUpState.isNicknameValid ||
-                !signUpState.isPasswordValid ||
-                !signUpState.isDeptValid ||
-                !agreement.value.values.every((v) => v)) {
-              return;
-            }
-            // 회원가입
-            final isSuccessed = await viewModel.signUp();
-            if (isSuccessed) context.pop();
-          },
-          label: '가입하기',
-          isLoading: signUpState.isLoading,
-          isEnabled: signUpState.isEmailValid &&
-              signUpState.isNicknameValid &&
-              signUpState.isPasswordValid &&
-              signUpState.isDeptValid &&
-              agreement.value.values.every((v) => v),
-        ),
+      ),
+      bottomNavigationBar: PrimaryBottomButton(
+        onPressed: () async {
+          if (!signUpState.isEmailValid ||
+              !signUpState.isNicknameValid ||
+              !signUpState.isPasswordValid ||
+              !signUpState.isDeptValid ||
+              !agreement.value.values.every((v) => v)) {
+            return;
+          }
+          // 회원가입
+          final isSuccessed = await viewModel.signUp();
+          if (isSuccessed) context.pop();
+        },
+        label: '가입하기',
+        isLoading: signUpState.isLoading,
+        isEnabled: signUpState.isEmailValid &&
+            signUpState.isNicknameValid &&
+            signUpState.isPasswordValid &&
+            signUpState.isDeptValid &&
+            agreement.value.values.every((v) => v),
       ),
     );
   }
@@ -185,6 +185,7 @@ class SignUpScreen extends HookConsumerWidget {
               Expanded(
                 child: Container(
                   height: 44,
+                  alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
@@ -276,6 +277,7 @@ class SignUpScreen extends HookConsumerWidget {
           // 텍스트 필드 & 버튼
           Container(
             height: 44,
+            alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
@@ -294,6 +296,7 @@ class SignUpScreen extends HookConsumerWidget {
           ),
           Container(
             height: 44,
+            alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
@@ -367,6 +370,7 @@ class SignUpScreen extends HookConsumerWidget {
               Expanded(
                 child: Container(
                   height: 44,
+                  alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
@@ -596,10 +600,11 @@ class SignUpScreen extends HookConsumerWidget {
         color: ColorStyles.black,
       ),
       decoration: InputDecoration(
+        isDense: true,
         border: InputBorder.none,
         hintText: hintText,
         hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-        contentPadding: EdgeInsets.symmetric(vertical: 11),
+        contentPadding: EdgeInsets.symmetric(vertical: 0),
       ),
     );
   }

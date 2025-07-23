@@ -49,128 +49,128 @@ class RecruitDetailPageScreen extends ConsumerWidget {
       ),
     );
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: DetailHeader(
-            title: type.label,
-            trailing: user == null
-                ? null
-                : detailState.maybeWhen(
-                    data: (data) {
-                      final viewType = data.recruitDetail?.viewType;
-                      final isOwner = viewType == 'OWNER';
-
-                      return IconButton(
-                        icon: const Icon(Icons.more_vert),
-                        onPressed: () {
-                          customActionSheet(
-                            context,
-                            deleteText: isOwner ? '삭제' : '신고',
-                            onDelete: () {
-                              if (isOwner) {
-                                _showDeleteDialog(context, ref);
-                              } else {
-                                onTapReport(type.reportType.name, id);
-                              }
-                            },
-                          );
-                        },
-                      );
-                    },
-                    orElse: () => null,
-                  ),
-          ),
-        ),
-        bottomNavigationBar: detailState.maybeWhen(
-          data: (data) {
-            final detail = data.recruitDetail;
-            if (detail == null) return const SizedBox.shrink();
-
-            final viewType = detail.viewType;
-            final isAuthor = viewType == 'OWNER';
-            final isGuest = viewType == 'GUEST';
-
-            String buttonLabel;
-            bool isEnabled = true;
-
-            if (isAuthor) {
-              buttonLabel = '지원자 확인';
-            } else if (viewType == 'MEMBER' && detail.isAlreadyApplied) {
-              buttonLabel = '지원 완료';
-              isEnabled = false;
-            } else {
-              buttonLabel = '지원하기';
-            }
-
-            return RecruitBottomButton(
-              label: buttonLabel,
-              isEnabled: isEnabled,
-              onPressed: () async {
-                if (isAuthor) {
-                  onTapApplicantList();
-                } else if (isGuest) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => LoginRequiredDialog(),
-                  );
-                } else {
-                  final didApply = await onTapRecruitApply();
-                  if (didApply == true) {
-                    ref.invalidate(
-                      recruitDetailViewModelProvider(
-                        RecruitDetailArgs(id: id, type: type),
-                      ),
-                    );
-                  }
-                }
-              },
-              onIconPressed: () async {
-                if (isAuthor) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => CustomConfirmDialog(
-                      title: '모집 문의',
-                      content: '자기 자신과 채팅은 불가능해요.',
-                      isSingleAction: true,
-                      confirmText: '확인',
-                      onConfirm: () async {
-                      },
-                    ),
-                  );
-                } else if (isGuest) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => LoginRequiredDialog(),
-                  );
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (_) => CustomConfirmDialog(
-                      title: '모집 문의',
-                      content: '작성자에게 모집글과 관련한 문의를 할 수 있어요',
-                      confirmText: '문의하기',
-                      onConfirm: () async {
-                        final viewModel = ref.read(
-                          recruitDetailViewModelProvider(
-                            RecruitDetailArgs(id: id, type: type),
-                          ).notifier,
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(44),
+        child: DetailHeader(
+          title: type.label,
+          trailing: user == null
+              ? null
+              : detailState.maybeWhen(
+                  data: (data) {
+                    final viewType = data.recruitDetail?.viewType;
+                    final isOwner = viewType == 'OWNER';
+    
+                    return IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () {
+                        customActionSheet(
+                          context,
+                          deleteText: isOwner ? '삭제' : '신고',
+                          onDelete: () {
+                            if (isOwner) {
+                              _showDeleteDialog(context, ref);
+                            } else {
+                              onTapReport(type.reportType.name, id);
+                            }
+                          },
                         );
-
-                        final chatRoom = await viewModel.createChatRoom(detail.title, detail.authorId);
-                        onTapChatDetail(chatRoom);
-                      }
+                      },
+                    );
+                  },
+                  orElse: () => null,
+                ),
+        ),
+      ),
+      bottomNavigationBar: detailState.maybeWhen(
+        data: (data) {
+          final detail = data.recruitDetail;
+          if (detail == null) return const SizedBox.shrink();
+    
+          final viewType = detail.viewType;
+          final isAuthor = viewType == 'OWNER';
+          final isGuest = viewType == 'GUEST';
+    
+          String buttonLabel;
+          bool isEnabled = true;
+    
+          if (isAuthor) {
+            buttonLabel = '지원자 확인';
+          } else if (viewType == 'MEMBER' && detail.isAlreadyApplied) {
+            buttonLabel = '지원 완료';
+            isEnabled = false;
+          } else {
+            buttonLabel = '지원하기';
+          }
+    
+          return RecruitBottomButton(
+            label: buttonLabel,
+            isEnabled: isEnabled,
+            onPressed: () async {
+              if (isAuthor) {
+                onTapApplicantList();
+              } else if (isGuest) {
+                showDialog(
+                  context: context,
+                  builder: (_) => LoginRequiredDialog(),
+                );
+              } else {
+                final didApply = await onTapRecruitApply();
+                if (didApply == true) {
+                  ref.invalidate(
+                    recruitDetailViewModelProvider(
+                      RecruitDetailArgs(id: id, type: type),
                     ),
                   );
                 }
-              },
-            );
-          },
-          orElse: () => const SizedBox.shrink(),
-        ),
-        body: detailState.when(
+              }
+            },
+            onIconPressed: () async {
+              if (isAuthor) {
+                showDialog(
+                  context: context,
+                  builder: (_) => CustomConfirmDialog(
+                    title: '모집 문의',
+                    content: '자기 자신과 채팅은 불가능해요.',
+                    isSingleAction: true,
+                    confirmText: '확인',
+                    onConfirm: () async {
+                    },
+                  ),
+                );
+              } else if (isGuest) {
+                showDialog(
+                  context: context,
+                  builder: (_) => LoginRequiredDialog(),
+                );
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (_) => CustomConfirmDialog(
+                    title: '모집 문의',
+                    content: '작성자에게 모집글과 관련한 문의를 할 수 있어요',
+                    confirmText: '문의하기',
+                    onConfirm: () async {
+                      final viewModel = ref.read(
+                        recruitDetailViewModelProvider(
+                          RecruitDetailArgs(id: id, type: type),
+                        ).notifier,
+                      );
+    
+                      final chatRoom = await viewModel.createChatRoom(detail.title, detail.authorId);
+                      onTapChatDetail(chatRoom);
+                    }
+                  ),
+                );
+              }
+            },
+          );
+        },
+        orElse: () => const SizedBox.shrink(),
+      ),
+      body: SafeArea(
+        child: detailState.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('$e')),
           data: (data) {
@@ -178,12 +178,12 @@ class RecruitDetailPageScreen extends ConsumerWidget {
             if (detail == null) {
               return const Center(child: Text('상세정보가 없습니다.'));
             }
-
+            
             final allDepartments = DepartmentType.values
                 .where((e) => e != DepartmentType.Unknown)
                 .map((e) => e.code)
                 .toSet();
-
+            
             return Padding(
               padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(

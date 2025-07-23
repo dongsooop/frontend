@@ -38,18 +38,18 @@ class SettingScreen extends HookConsumerWidget {
       );
     }
 
-    return SafeArea(
-        child: Scaffold(
+    return Scaffold(
       backgroundColor: ColorStyles.gray1,
       appBar: DetailHeader(
         title: '설정',
         backgroundColor: ColorStyles.gray1,
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 24, left: 16.0, right: 16),
-        child: ListView(
-          children: [
-            buildSettingsSection(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 24, left: 16.0, right: 16),
+          child: ListView(
+            children: [
+              buildSettingsSection(
               title: '이용 안내',
               children: [
                 buildSettingsItem(
@@ -59,15 +59,13 @@ class SettingScreen extends HookConsumerWidget {
                 buildSettingsItem(
                   label: '서비스 이용약관',
                   onTap: () {
-                    context.push(
-                        '/mypageWebView?url=$termsOfService&title=서비스 이용약관');
+                    context.push('/mypageWebView?url=$termsOfService&title=서비스 이용약관');
                   },
                 ),
                 buildSettingsItem(
                   label: '개인정보 처리방침',
                   onTap: () {
-                    context.push(
-                        '/mypageWebView?url=$privacyPolicy&title=개인정보처리방침');
+                    context.push('/mypageWebView?url=$privacyPolicy&title=개인정보처리방침');
                   },
                 ),
               ],
@@ -75,78 +73,79 @@ class SettingScreen extends HookConsumerWidget {
             SizedBox(
               height: 40,
             ),
-            buildSettingsSection(
-              title: '기타',
-              children: [
-                // buildSettingsItem(
-                //   label: '알림 설정',
-                //   onTap: () {
-                //     // 알림 설정
-                //   },
-                // ),
-                buildSettingsItem(
-                  label: '채팅 캐시 삭제',
-                  onTap: () async {
-                    // 채팅 캐시 삭제 다이얼로그
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (_) => CustomConfirmDialog(
-                        title: '채팅 캐시 삭제',
-                        content: '채팅 내역을 삭제하시겠어요?',
-                        onConfirm: () async {
-                          await viewModel.localDataDelete();
-                          Navigator.of(context).pop(); // 다이얼로그 닫기
-                        },
-                      ),
-                    );
-                  },
-                ),
-                buildSettingsItem(
-                  label: '로그아웃',
-                  onTap: () {
-                    // 로그아웃 다이얼로그
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (_) => CustomConfirmDialog(
-                        title: '로그아웃',
-                        content: '로그아웃 하시겠어요?',
-                        onConfirm: () async {
-                          // 로그아웃
-                          await viewModel.logout();
-                          Navigator.of(context).pop(); // 다이얼로그 닫기
-                        },
-                      ),
-                    );
-                  },
-                ),
-                buildSettingsItem(
-                  label: '탈퇴',
-                  onTap: () {
-                    // 탈퇴 다이얼로그
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (_) => CustomConfirmDialog(
-                        title: '동숲 회원 탈퇴',
-                        content: '탈퇴한 이메일로는 재가입 할 수 없어요.\n정말로 탈퇴하시겠어요?',
-                        confirmText: '탈퇴',
-                        onConfirm: () async {
-                          // 회원탈퇴
-                          await viewModel.deleteUser();
-                          Navigator.of(context).pop(); // 다이얼로그 닫기
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
+              buildSettingsSection(
+                title: '기타',
+                children: [
+                  // buildSettingsItem(
+                  //   label: '알림 설정',
+                  //   onTap: () {
+                  //     // 알림 설정
+                  //   },
+                  // ),
+                  buildSettingsItem(
+                    label: '채팅 캐시 삭제',
+                    onTap: () async {
+                      // 채팅 캐시 삭제 다이얼로그
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (_) => CustomConfirmDialog(
+                          title: '채팅 캐시 삭제',
+                          content: '채팅 내역을 삭제하시겠어요?',
+                          onConfirm: () async {
+                            await viewModel.localDataDelete();
+                            Navigator.of(context).pop(); // 다이얼로그 닫기
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  buildSettingsItem(
+                    label: '로그아웃',
+                    onTap: () {
+                      // 로그아웃 다이얼로그
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (_) => CustomConfirmDialog(
+                          title: '로그아웃',
+                          content: '로그아웃 하시겠어요?',
+                          onConfirm: () async {
+                            // 로그아웃
+                            await viewModel.logout();
+                            Navigator.of(context).pop(); // 다이얼로그 닫기
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  buildSettingsItem(
+                    label: '탈퇴',
+                    onTap: () {
+                      // 탈퇴 다이얼로그
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (_) => CustomConfirmDialog(
+                          title: '동숲 회원 탈퇴',
+                          content: '탈퇴한 이메일로는 재가입 할 수 없어요.\n정말로 탈퇴하시겠어요?',
+                          confirmText: '탈퇴',
+                          onConfirm: () async {
+                            // 회원탈퇴
+                            await viewModel.deleteUser();
+                            Navigator.of(context).pop(); // 다이얼로그 닫기
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   Widget buildSettingsSection({
