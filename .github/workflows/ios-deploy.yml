@@ -91,7 +91,7 @@ jobs:
       - name: Build Success Summary
         run: |
           echo "🎉 Flutter iOS build completed successfully!"
-          echo "📱 iOS app built without code signing"
+          echo "📱 iOS app built and signed"
           echo "📦 Artifacts uploaded to GitHub Actions"
           echo "⬇️ Download from: Actions tab > Artifacts"
           echo "🔗 Build #${{ github.run_number }}"
