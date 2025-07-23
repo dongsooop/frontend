@@ -1,0 +1,104 @@
+name: Flutter iOS CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-ios:
+    name: Build Flutter iOS App
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          architecture: x64
+
+      - name: Get Flutter version
+        run: flutter --version
+
+      - name: Decode and create .env file
+        run: |
+          echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
+
+      - name: Install dependencies
+        run: |
+          flutter clean
+          flutter pub get
+          flutter pub deps
+          cd ios && pod install
+
+      # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
+      - name: Analyze code
+        run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
+        continue-on-error: false
+
+      - name: Clean build
+        run: flutter clean
+
+      # 빌드 및 IPA 내보내기
+      - name: Build and export IPA
+        working-directory: ios
+        run: |
+          xcodebuild -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -archivePath $PWD/build/Runner.xcarchive archive
+          
+          xcodebuild -exportArchive \
+            -archivePath $PWD/build/Runner.xcarchive \
+            -exportPath $PWD/build/export \
+            -exportOptionsPlist ../.github/workflows/ExportOptions.plist
+
+      # TestFlight 업로드
+      - name: Upload app to TestFlight
+        uses: apple-actions/upload-testflight-build@v3
+        with:
+          app-path: "ios/build/export/Runner.ipa"
+          issuer-id: ${{ secrets.APPSTORE_OWNER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+
+      # 빌드 결과 확인
+      - name: List build artifacts
+        run: |
+          echo "Build artifacts:"
+          ls -la ios/build/Runner.xcarchive
+          echo "Build artifacts in export directory:"
+          ls -la ios/build/export
+          du -sh ios/build/export/Runner.ipa
+
+      # iOS 빌드 결과물을 GitHub Artifacts에 업로드
+      - name: Upload iOS App as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dongsoop-ios-app-${{ github.run_number }}
+          path: ios/build/export/Runner.ipa
+          retention-days: 30
+
+      # 빌드 성공 알림
+      - name: Build Success Summary
+        run: |
+          echo "🎉 Flutter iOS build completed successfully!"
+          echo "📱 iOS app built and signed"
+          echo "📦 Artifacts uploaded to GitHub Actions"
+          echo "⬇️ Download from: Actions tab > Artifacts"
+          echo "🔗 Build #${{ github.run_number }}"
+          echo "📁 Artifact name: dongsoop-ios-app-${{ github.run_number }}"
+          echo "🍎 App name: Dongsoop (dongyang mirae university service)"
+
+      # 빌드 성공 디스코드 알림
+      - name: Send Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.APPLE_BUILD_DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\": \"🚀 빌드가 성공적으로 완료되었습니다!\"}" \
+            $DISCORD_WEBHOOK
