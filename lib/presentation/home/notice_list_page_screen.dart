@@ -118,6 +118,7 @@ class NoticeListPageScreen extends HookConsumerWidget {
                           item.isDepartment ? ['학과공지', '학부'] : ['동양공지', '학교생활'];
 
                       return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           context.pushNamed(
                             'noticeWebView',
