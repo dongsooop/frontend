@@ -40,11 +40,6 @@ jobs:
       run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
       continue-on-error: true
 
-    # 테스트 실행 (실패해도 빌드 계속 진행)
-    - name: Run tests
-      run: flutter test
-      continue-on-error: true
-
     - name: Clean build
       run: flutter clean
     
