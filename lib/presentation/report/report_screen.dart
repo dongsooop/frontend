@@ -67,13 +67,13 @@ class ReportScreen extends HookConsumerWidget {
       return null;
     }, [reportState.errorMessage, reportState.isSuccessed]);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-          appBar: DetailHeader(
-            title: '신고',
-          ),
-        body: GestureDetector(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+        appBar: DetailHeader(
+          title: '신고',
+        ),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: SingleChildScrollView(
@@ -229,15 +229,15 @@ class ReportScreen extends HookConsumerWidget {
             ),
           ),
         ),
-        bottomNavigationBar: PrimaryBottomButton(
-          onPressed: () async {
-            await viewModel.reportWrite(ReportWriteRequest(reportType: reportType, targetId: targetId, reason: selectedReportReason.value!.name, description: textController.text));
-          },
-          label: '신고하기',
-          isLoading: reportState.isLoading,
-          isEnabled: selectedReportReason.value != null ? true : false,
-        )
       ),
+      bottomNavigationBar: PrimaryBottomButton(
+        onPressed: () async {
+          await viewModel.reportWrite(ReportWriteRequest(reportType: reportType, targetId: targetId, reason: selectedReportReason.value!.name, description: textController.text));
+        },
+        label: '신고하기',
+        isLoading: reportState.isLoading,
+        isEnabled: selectedReportReason.value != null ? true : false,
+      )
     );
   }
 }

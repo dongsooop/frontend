@@ -185,25 +185,25 @@ class RecruitWritePageScreen extends HookConsumerWidget {
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: const DetailHeader(title: '모집 개설'),
-        bottomNavigationBar: PrimaryBottomButton(
-          label: '모집 시작하기',
-          isEnabled: viewModel.isFormValid,
-          onPressed: () => showDialog(
-            context: context,
-            builder: (_) => CustomConfirmDialog(
-              title: '모집 개설',
-              content: '작성한 글은 수정할 수 없어요\n모집 시작할까요?',
-              cancelText: '취소',
-              confirmText: '제출',
-              onConfirm: onSubmit,
-            ),
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: const DetailHeader(title: '모집 개설'),
+      bottomNavigationBar: PrimaryBottomButton(
+        label: '모집 시작하기',
+        isEnabled: viewModel.isFormValid,
+        onPressed: () => showDialog(
+          context: context,
+          builder: (_) => CustomConfirmDialog(
+            title: '모집 개설',
+            content: '작성한 글은 수정할 수 없어요\n모집 시작할까요?',
+            cancelText: '취소',
+            confirmText: '제출',
+            onConfirm: onSubmit,
           ),
         ),
-        body: Padding(
+      ),
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
           child: SingleChildScrollView(
             child: Column(

@@ -143,13 +143,13 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
       return null;
     }, [reportSanctionState.errorMessage, reportSanctionState.isSuccessed]);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '제재 처리',
-        ),
-        body: GestureDetector(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: '제재 처리',
+      ),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: SingleChildScrollView(
@@ -320,19 +320,19 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
             ),
           ),
         ),
-        bottomNavigationBar: PrimaryBottomButton(
-          onPressed: () async {
-            await viewModel.sanctionWrite(ReportAdminSanctionRequest(
-              reportId: reportId,
-              targetMemberId: targetMemberId,
-              sanctionType: selectedReportReason.value!,
-              sanctionReason: sanctionTextController.text,
-              sanctionEndAt: selectedDate.value));
-          },
-          label: '제재',
-          isLoading: reportSanctionState.isLoading,
-          isEnabled: sanctionTextController.text.isNotEmpty,
-        ),
+      ),
+      bottomNavigationBar: PrimaryBottomButton(
+        onPressed: () async {
+          await viewModel.sanctionWrite(ReportAdminSanctionRequest(
+            reportId: reportId,
+            targetMemberId: targetMemberId,
+            sanctionType: selectedReportReason.value!,
+            sanctionReason: sanctionTextController.text,
+            sanctionEndAt: selectedDate.value));
+        },
+        label: '제재',
+        isLoading: reportSanctionState.isLoading,
+        isEnabled: sanctionTextController.text.isNotEmpty,
       ),
     );
   }

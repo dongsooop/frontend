@@ -315,11 +315,11 @@ class CalendarPageScreen extends HookConsumerWidget {
 
     final weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: const DetailHeader(title: '일정 관리'),
-        body: calendarAsync.when(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: const DetailHeader(title: '일정 관리'),
+      body: SafeArea(
+        child: calendarAsync.when(
           data: (events) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

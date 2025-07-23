@@ -1,19 +1,18 @@
 import 'package:dongsoop/domain/report/enum/report_reason.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/providers/report_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../../../core/presentation/components/custom_action_sheet.dart';
-import '../../../../core/presentation/components/custom_confirm_dialog.dart';
-import '../../../../core/presentation/components/detail_header.dart';
-import '../../../../domain/board/market/enum/market_type.dart';
-import '../../../../domain/board/recruit/enum/recruit_type.dart';
-import '../../../../domain/report/enum/sanction_type.dart';
+import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/domain/board/market/enum/market_type.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
+import 'package:dongsoop/domain/report/enum/sanction_type.dart';
 
 class ReportAdminScreen extends HookConsumerWidget {
   final void Function(int reportId, int targetMemberId) onTapReportSanction;
@@ -84,10 +83,10 @@ class ReportAdminScreen extends HookConsumerWidget {
 
     // 로딩 상태 표시
     if (reportAdminState.isLoading) {
-      return SafeArea(
-        child: Scaffold(
-          backgroundColor: ColorStyles.white,
-          body: Center(
+      return Scaffold(
+        backgroundColor: ColorStyles.white,
+        body: SafeArea(
+          child: Center(
             child: CircularProgressIndicator(color: ColorStyles.primaryColor,)
           ),
         ),

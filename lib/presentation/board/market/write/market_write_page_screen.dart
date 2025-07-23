@@ -107,38 +107,38 @@ class MarketWritePageScreen extends HookConsumerWidget {
       return null;
     }, [state.profanityMessage]);
 
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(title: isEditing ? '장터 수정' : '장터 등록'),
-        bottomNavigationBar: PrimaryBottomButton(
-          label: isEditing ? '수정하기' : '등록하기',
-          isEnabled: state.isValid && !state.isSubmitting,
-          onPressed: () async {
-            try {
-              final success = await viewModel.submitMarket(context);
-              if (!success) return;
-              await viewModel.clearTemporaryImages();
-              if (success && context.mounted) {
-                context.pop(true);
-              }
-            } catch (e) {
-              await showDialog(
-                context: context,
-                builder: (_) => CustomConfirmDialog(
-                  title: '오류',
-                  content:
-                      '${isEditing ? '수정' : '등록'} 중 문제가 발생했습니다.\n${e.toString()}',
-                  confirmText: '확인',
-                  onConfirm: () {},
-                  isSingleAction: true,
-                ),
-              );
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(title: isEditing ? '장터 수정' : '장터 등록'),
+      bottomNavigationBar: PrimaryBottomButton(
+        label: isEditing ? '수정하기' : '등록하기',
+        isEnabled: state.isValid && !state.isSubmitting,
+        onPressed: () async {
+          try {
+            final success = await viewModel.submitMarket(context);
+            if (!success) return;
+            await viewModel.clearTemporaryImages();
+            if (success && context.mounted) {
+              context.pop(true);
             }
-          },
-        ),
-        body: GestureDetector(
+          } catch (e) {
+            await showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '오류',
+                content:
+                    '${isEditing ? '수정' : '등록'} 중 문제가 발생했습니다.\n${e.toString()}',
+                confirmText: '확인',
+                onConfirm: () {},
+                isSingleAction: true,
+              ),
+            );
+          }
+        },
+      ),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -184,7 +184,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   }),
                 ),
                 const SizedBox(height: 40),
-
+            
                 // 제목
                 RequiredLabel('제목'),
                 const SizedBox(height: 16),
@@ -194,7 +194,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   maxLength: 20,
                 ),
                 const SizedBox(height: 40),
-
+            
                 // 내용
                 RequiredLabel('내용'),
                 const SizedBox(height: 16),
@@ -205,7 +205,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   maxLines: 6,
                 ),
                 const SizedBox(height: 40),
-
+            
                 // 가격
                 RequiredLabel('가격'),
                 const SizedBox(height: 16),
@@ -216,7 +216,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   inputFormatters: [PriceInputFormatter()],
                 ),
                 const SizedBox(height: 40),
-
+            
                 // 사진
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,

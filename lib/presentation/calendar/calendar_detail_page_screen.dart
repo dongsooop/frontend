@@ -176,110 +176,110 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.gray1,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: AppBar(
-            backgroundColor: ColorStyles.gray1,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            title: Text(
-              isOfficial
-                  ? '학사 일정'
-                  : isEditMode
-                      ? '일정 편집'
-                      : '일정 추가',
-              style:
-                  TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-            ),
-            centerTitle: true,
-            leading: TextButton(
-              onPressed: () => context.pop(),
-              style: TextButton.styleFrom(
-                foregroundColor: ColorStyles.primary100,
-                overlayColor: Colors.transparent,
-              ),
-              child: Text(
-                '취소',
-                style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.primary100,
-                ),
-              ),
-            ),
-            actions: [
-              isOfficial
-                  ? const SizedBox(width: 64)
-                  : TextButton(
-                      onPressed: () async {
-                        if (!formKey.currentState!.validate()) return;
-
-                        final hasChanged = ref
-                            .read(calendarWriteViewModelProvider.notifier)
-                            .isChanged(
-                              original: event == null
-                                  ? null
-                                  : CalendarEntity(
-                                      id: event!.id,
-                                      title: event!.title,
-                                      location: event!.location,
-                                      startAt: event!.startAt,
-                                      endAt: event!.endAt,
-                                      isPersonal:
-                                          event!.type != CalendarType.official,
-                                    ),
-                              title: titleController.text,
-                              location: locationController.text,
-                              startAt: startDate.value,
-                              endAt: endDate.value,
-                            );
-
-                        if (!hasChanged) {
-                          if (context.mounted) context.pop(false);
-                          return;
-                        }
-
-                        final entity = CalendarEntity(
-                          id: event?.id,
-                          title: titleController.text,
-                          location: locationController.text,
-                          startAt: startDate.value,
-                          endAt: endDate.value,
-                          isPersonal: !isOfficial,
-                        );
-
-                        try {
-                          await ref
-                              .read(calendarWriteViewModelProvider.notifier)
-                              .submit(entity);
-                          ref.invalidate(calendarViewModelProvider(
-                              user!.id, selectedDate));
-                          if (context.mounted) context.pop(true);
-                        } catch (e) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('$e')),
-                            );
-                          }
-                        }
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: ColorStyles.primary100,
-                        overlayColor: Colors.transparent,
-                      ),
-                      child: Text('저장',
-                          style: TextStyles.normalTextBold
-                              .copyWith(color: ColorStyles.primary100)),
-                    ),
-            ],
+    return Scaffold(
+      backgroundColor: ColorStyles.gray1,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(44),
+        child: AppBar(
+          backgroundColor: ColorStyles.gray1,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Text(
+            isOfficial
+                ? '학사 일정'
+                : isEditMode
+                    ? '일정 편집'
+                    : '일정 추가',
+            style:
+                TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
           ),
+          centerTitle: true,
+          leading: TextButton(
+            onPressed: () => context.pop(),
+            style: TextButton.styleFrom(
+              foregroundColor: ColorStyles.primary100,
+              overlayColor: Colors.transparent,
+            ),
+            child: Text(
+              '취소',
+              style: TextStyles.normalTextRegular.copyWith(
+                color: ColorStyles.primary100,
+              ),
+            ),
+          ),
+          actions: [
+            isOfficial
+                ? const SizedBox(width: 64)
+                : TextButton(
+                    onPressed: () async {
+                      if (!formKey.currentState!.validate()) return;
+    
+                      final hasChanged = ref
+                          .read(calendarWriteViewModelProvider.notifier)
+                          .isChanged(
+                            original: event == null
+                                ? null
+                                : CalendarEntity(
+                                    id: event!.id,
+                                    title: event!.title,
+                                    location: event!.location,
+                                    startAt: event!.startAt,
+                                    endAt: event!.endAt,
+                                    isPersonal:
+                                        event!.type != CalendarType.official,
+                                  ),
+                            title: titleController.text,
+                            location: locationController.text,
+                            startAt: startDate.value,
+                            endAt: endDate.value,
+                          );
+    
+                      if (!hasChanged) {
+                        if (context.mounted) context.pop(false);
+                        return;
+                      }
+    
+                      final entity = CalendarEntity(
+                        id: event?.id,
+                        title: titleController.text,
+                        location: locationController.text,
+                        startAt: startDate.value,
+                        endAt: endDate.value,
+                        isPersonal: !isOfficial,
+                      );
+    
+                      try {
+                        await ref
+                            .read(calendarWriteViewModelProvider.notifier)
+                            .submit(entity);
+                        ref.invalidate(calendarViewModelProvider(
+                            user!.id, selectedDate));
+                        if (context.mounted) context.pop(true);
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('$e')),
+                          );
+                        }
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: ColorStyles.primary100,
+                      overlayColor: Colors.transparent,
+                    ),
+                    child: Text('저장',
+                        style: TextStyles.normalTextBold
+                            .copyWith(color: ColorStyles.primary100)),
+                  ),
+          ],
         ),
-        bottomNavigationBar: isEditMode && !isOfficial
-            ? PrimaryBottomButton(
-                label: '일정 삭제', onPressed: showDeleteActionSheet)
-            : null,
-        body: Padding(
+      ),
+      bottomNavigationBar: isEditMode && !isOfficial
+          ? PrimaryBottomButton(
+              label: '일정 삭제', onPressed: showDeleteActionSheet)
+          : null,
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: Form(

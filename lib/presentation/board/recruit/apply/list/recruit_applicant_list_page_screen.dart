@@ -24,25 +24,25 @@ class RecruitApplicantListPage extends ConsumerWidget {
       recruitApplicantListViewModelProvider(boardId: boardId, type: type),
     );
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: DetailHeader(title: "지원자 확인"),
-        ),
-        body: applicantListAsync.when(
+    return Scaffold(
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(44),
+        child: DetailHeader(title: "지원자 확인"),
+      ),
+      body: SafeArea(
+        child: applicantListAsync.when(
           data: (list) {
             if (list.isEmpty) {
               return const Center(child: Text('지원자가 없습니다.'));
             }
-
+            
             return ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 final applicant = list[index];
                 final statusInfo = _statusBadge(applicant.status);
-
+            
                 return GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () async {

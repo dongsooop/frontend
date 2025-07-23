@@ -83,13 +83,13 @@ class SignUpScreen extends HookConsumerWidget {
       return null;
     }, [signUpState.errorMessage]);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '동숲 회원가입',
-        ),
-        body: GestureDetector(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: '동숲 회원가입',
+      ),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: SingleChildScrollView(
@@ -108,27 +108,27 @@ class SignUpScreen extends HookConsumerWidget {
             ),
           ),
         ),
-        bottomNavigationBar: PrimaryBottomButton(
-          onPressed: () async {
-            if (!signUpState.isEmailValid ||
-                !signUpState.isNicknameValid ||
-                !signUpState.isPasswordValid ||
-                !signUpState.isDeptValid ||
-                !agreement.value.values.every((v) => v)) {
-              return;
-            }
-            // 회원가입
-            final isSuccessed = await viewModel.signUp();
-            if (isSuccessed) context.pop();
-          },
-          label: '가입하기',
-          isLoading: signUpState.isLoading,
-          isEnabled: signUpState.isEmailValid &&
-              signUpState.isNicknameValid &&
-              signUpState.isPasswordValid &&
-              signUpState.isDeptValid &&
-              agreement.value.values.every((v) => v),
-        ),
+      ),
+      bottomNavigationBar: PrimaryBottomButton(
+        onPressed: () async {
+          if (!signUpState.isEmailValid ||
+              !signUpState.isNicknameValid ||
+              !signUpState.isPasswordValid ||
+              !signUpState.isDeptValid ||
+              !agreement.value.values.every((v) => v)) {
+            return;
+          }
+          // 회원가입
+          final isSuccessed = await viewModel.signUp();
+          if (isSuccessed) context.pop();
+        },
+        label: '가입하기',
+        isLoading: signUpState.isLoading,
+        isEnabled: signUpState.isEmailValid &&
+            signUpState.isNicknameValid &&
+            signUpState.isPasswordValid &&
+            signUpState.isDeptValid &&
+            agreement.value.values.every((v) => v),
       ),
     );
   }

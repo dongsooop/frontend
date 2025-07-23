@@ -26,11 +26,11 @@ class SignInScreen extends HookConsumerWidget {
     final loginState = ref.watch(signInViewModelProvider);
     final viewModel = ref.watch(signInViewModelProvider.notifier);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(),
-        body: GestureDetector(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: SingleChildScrollView(

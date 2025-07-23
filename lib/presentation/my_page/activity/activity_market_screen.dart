@@ -68,48 +68,48 @@ class ActivityMarketScreen extends HookConsumerWidget {
 
     // 로딩 상태 표시
     if (activityMarketState.isLoading) {
-      return SafeArea(
-        child: Scaffold(
-          backgroundColor: ColorStyles.white,
-          body: Center(
+      return Scaffold(
+        backgroundColor: ColorStyles.white,
+        body: SafeArea(
+          child: Center(
             child: CircularProgressIndicator(color: ColorStyles.primaryColor,),
           ),
         ),
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '장터 내역',
-        ),
-        body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                      itemCount: posts.length,
-                      itemBuilder: (context, index) {
-                        final post = posts[index];
-                        final isLast = index == posts.length - 1;
-                        return CommonMarketListItem(
-                          imagePath: post.imageUrl,
-                          title: post.title,
-                          relativeTime: formatRelativeTime(post.createdAt),
-                          priceText: '${PriceFormatter.format(post.price)}원',
-                          contactCount: post.contactCount,
-                          onTap: () => onTapMarketDetail(post.id, post.type, post.status),
-                          isLastItem: isLast,
-                        );
-                      }
-                  ),
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: '장터 내역',
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ListView.builder(
+                    itemCount: posts.length,
+                    itemBuilder: (context, index) {
+                      final post = posts[index];
+                      final isLast = index == posts.length - 1;
+                      return CommonMarketListItem(
+                        imagePath: post.imageUrl,
+                        title: post.title,
+                        relativeTime: formatRelativeTime(post.createdAt),
+                        priceText: '${PriceFormatter.format(post.price)}원',
+                        contactCount: post.contactCount,
+                        onTap: () => onTapMarketDetail(post.id, post.type, post.status),
+                        isLastItem: isLast,
+                      );
+                    }
                 ),
-              ],
-            )
+              ),
+            ],
+          ),
         ),
       ),
     );
