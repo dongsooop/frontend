@@ -2,9 +2,9 @@ name: Flutter iOS CI/CD
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ develop ]
   pull_request:
-    branches: [ dev ]
+    branches: [ develop ]
 
 jobs:
   build-ios:
