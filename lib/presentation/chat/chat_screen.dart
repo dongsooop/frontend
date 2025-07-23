@@ -115,9 +115,11 @@ class ChatScreen extends HookConsumerWidget {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        width: 44,
-        height: 44,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: 44,
+          minHeight: 44,
+        ),
         child: Center(
           child: Text(
             label,
@@ -149,7 +151,7 @@ class ChatScreen extends HookConsumerWidget {
         ),
         child: Center(
           child: isSelected
-              ? IntrinsicWidth(
+            ? IntrinsicWidth(
             child: Container(
               decoration: const BoxDecoration(
                 border: Border(
