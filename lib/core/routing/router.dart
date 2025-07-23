@@ -412,6 +412,9 @@ final router = GoRouter(
               onTapChatDetail: (room) {
                 context.push(RoutePaths.chatDetail, extra: room);
               },
+              onTapSignIn: () {
+                context.push(RoutePaths.signIn);
+              },
             ),
           ),
         ]),
