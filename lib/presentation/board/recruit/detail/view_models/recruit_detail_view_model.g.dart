@@ -7,7 +7,7 @@ part of 'recruit_detail_view_model.dart';
 // **************************************************************************
 
 String _$recruitDetailViewModelHash() =>
-    r'dc378de4a9ede2b01cfad41c1144201dad07b61a';
+    r'ae88008198452f86fc2c6ed2a89258a5ff49c4aa';
 
 /// Copied from Dart SDK
 class _SystemHash {
