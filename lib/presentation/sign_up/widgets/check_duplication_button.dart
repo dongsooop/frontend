@@ -21,9 +21,12 @@ class CheckDuplicationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTab,
+      onTap: isEnabled ? onTab : null,
       child: Container(
         height: 44,
+        constraints: BoxConstraints(
+          minWidth: 44,
+        ),
         padding: EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: isEnabled
