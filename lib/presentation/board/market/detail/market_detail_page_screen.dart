@@ -44,33 +44,41 @@ class MarketDetailPageScreen extends ConsumerWidget {
       backgroundColor: ColorStyles.white,
       appBar: DetailHeader(
         title: type.label,
-        trailing: IconButton(
-          icon: const Icon(Icons.more_vert),
-          onPressed: () {
-            final detailState = ref.read(
-              marketDetailViewModelProvider(MarketDetailArgs(id: id)),
-            );
-    
-            detailState.whenData((data) {
-              final viewType = data.marketDetail?.viewType;
-              if (viewType == 'OWNER') {
-                customActionSheet(context, onEdit: () {
-                  context.push(RoutePaths.marketWrite, extra: {
-                    'isEditing': true,
-                    'marketId': id,
-                  });
-                }, onDelete: () {
-                  _showDeleteDialog(context, ref);
-                });
-              } else {
-                customActionSheet(
-                  context,
-                  deleteText: '신고',
-                  onDelete: () => onTapReport(type.reportType.name, id),
+        trailing: state.maybeWhen(
+          data: (data) {
+            final viewType = data.marketDetail?.viewType;
+            if (viewType == 'GUEST' || viewType == null) return null;
+
+            return IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {
+                final detailState = ref.read(
+                  marketDetailViewModelProvider(MarketDetailArgs(id: id)),
                 );
-              }
-            });
+
+                detailState.whenData((data) {
+                  final viewType = data.marketDetail?.viewType;
+                  if (viewType == 'OWNER') {
+                    customActionSheet(context, onEdit: () {
+                      context.push(RoutePaths.marketWrite, extra: {
+                        'isEditing': true,
+                        'marketId': id,
+                      });
+                    }, onDelete: () {
+                      _showDeleteDialog(context, ref);
+                    });
+                  } else {
+                    customActionSheet(
+                      context,
+                      deleteText: '신고',
+                      onDelete: () => onTapReport(type.reportType.name, id),
+                    );
+                  }
+                });
+              },
+            );
           },
+          orElse: () => null,
         ),
       ),
       bottomNavigationBar: state.when(
@@ -80,25 +88,12 @@ class MarketDetailPageScreen extends ConsumerWidget {
           final isComplete = status == 'CLOSED'
               ? true
               : status == 'OPEN'
-              ? false
-              : data.isComplete;
-    
-          // 버튼 라벨 정의
-          String label;
-          if (viewType == 'OWNER') {
-            label = isComplete ? '거래 완료' : '거래 완료';
-          } else {
-            label = '거래하기';
-          }
-    
-          // 버튼 활성 여부 정의
-          bool isEnabled;
-          if (viewType == 'OWNER') {
-            isEnabled = !isComplete;
-          } else {
-            isEnabled = true;
-          }
-    
+                  ? false
+                  : data.isComplete;
+
+          String label = viewType == 'OWNER' ? '거래 완료' : '거래하기';
+          bool isEnabled = viewType == 'OWNER' ? !isComplete : true;
+
           return BottomButton(
             label: label,
             price: market.price,
@@ -107,21 +102,15 @@ class MarketDetailPageScreen extends ConsumerWidget {
                     if (viewType == 'OWNER') {
                       _showCompleteDialog(context, ref);
                     } else if (viewType == 'GUEST') {
-                      showDialog(
-                        context: context,
-                        builder: (_) => const LoginRequiredDialog(),
-                      );
+                      await LoginRequiredDialog(context);
                     } else if (viewType == 'MEMBER') {
                       final userId = user?.id;
-    
+
                       if (userId == null) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => const LoginRequiredDialog(),
-                        );
+                        await LoginRequiredDialog(context);
                         return;
                       }
-    
+
                       try {
                         final viewModel = ref.read(
                           marketDetailViewModelProvider(
@@ -129,7 +118,8 @@ class MarketDetailPageScreen extends ConsumerWidget {
                               .notifier,
                         );
                         await viewModel.contactMarket(id);
-                        final chatRoom = await viewModel.createChatRoom(market.title, market.authorId);
+                        final chatRoom = await viewModel.createChatRoom(
+                            market.title, market.authorId);
                         onTapChatDetail(chatRoom);
                       } catch (e) {
                         showDialog(
@@ -158,9 +148,9 @@ class MarketDetailPageScreen extends ConsumerWidget {
             final isComplete = status == 'CLOSED'
                 ? true
                 : status == 'OPEN'
-                ? false
-                : data.isComplete;
-            
+                    ? false
+                    : data.isComplete;
+
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -242,7 +232,9 @@ class MarketDetailPageScreen extends ConsumerWidget {
               ),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(
+              child:
+                  CircularProgressIndicator(color: ColorStyles.primaryColor)),
           error: (err, stack) => Center(child: Text('$err')),
         ),
       ),
@@ -288,7 +280,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
       context: context,
       builder: (_) => CustomConfirmDialog(
         title: '거래 완료',
-        content: '거래가 완료된 글은 다시 거래할 수 없어요.\n거래를 완료할까요?',
+        content: '거래가 완료된 글은\n 다시 거래할 수 없어요.\n거래를 완료할까요?',
         confirmText: '확인',
         cancelText: '취소',
         dismissOnConfirm: false,
