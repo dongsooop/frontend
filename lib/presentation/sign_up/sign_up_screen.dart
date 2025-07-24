@@ -395,14 +395,14 @@ class SignUpScreen extends HookConsumerWidget {
               ),
               CheckDuplicationButton(
                 onTab: () {
-                  // 중복 확인 메서드
+                  if (nicknameState.isDuplicate == null) return;
                   if (nicknameController.text.isEmpty) return;
                   ref.read(signUpViewModelProvider.notifier).checkNicknameDuplication(nicknameController.text.trim());
                 },
-                isLoading: false,
-                isEnabled: false,
+                isEnabled: (nicknameState.isNumberFormatValid == true && nicknameState.isSpecialCharacterValid == true && nicknameState.isDuplicate != true),
                 enabledText: '중복 확인',
-                disabledText: '확인 완료',
+                disabledText: (nicknameState.isDuplicate == false) ? '확인 완료' : '중복 확인',
+                isLoading: nicknameState.isLoading,
               ),
             ],
           ),

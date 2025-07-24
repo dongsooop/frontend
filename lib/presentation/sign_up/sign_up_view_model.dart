@@ -258,7 +258,6 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
 
     state = state.copyWith(isNicknameValid: false);
 
-    // 1. 영문만 사용했는가?
     if (nickname.length < 2 || nickname.length > 8) {
       state = state.copyWith(
         nickname: state.nickname.copyWith(
@@ -271,7 +270,6 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
       return;
     }
 
-    // 2. 특수문자?
     final specialCharReg = RegExp(r'[^a-zA-Z0-9가-힣]');
     if (specialCharReg.hasMatch(nickname)) {
       state = state.copyWith(
@@ -314,7 +312,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
     try {
       final isDuplicate = await _checkDuplicateUseCase.execute(nickname, 'nickname');
       state = state.copyWith(
-        isNicknameValid: true,
+        isNicknameValid: !isDuplicate,
         nickname: state.nickname.copyWith(
           nickname: nickname,
           isDuplicate: isDuplicate,
