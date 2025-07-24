@@ -57,7 +57,7 @@ jobs:
         run: |
           flutter clean
           flutter pub get
-          cd ios && pod install
+          cd ios && pod install --repo-update
 
       # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
       - name: Analyze code
