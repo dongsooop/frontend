@@ -10,8 +10,8 @@ jobs:
   build-ios:
     timeout-minutes: 20
     name: Apple Connect Deploy
-    runs-on: macos-18
-
+#    runs-on: macos-18
+    runs-on: self-hosted
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
