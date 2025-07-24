@@ -28,7 +28,7 @@ class _LibraryBannerWebViewState extends State<LibraryBannerWebViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: DetailHeader(),
-      body: WebViewWidget(controller: controller),
+      body: SafeArea(child: WebViewWidget(controller: controller)),
     );
   }
 }

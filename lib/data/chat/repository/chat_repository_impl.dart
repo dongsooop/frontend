@@ -18,11 +18,6 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<void> createGroupChatRoom(String title, int userId) async {
-    await _chatDataSource.createGroupChatRoom(title, [userId]);
-  }
-
-  @override
   Future<List<UiChatRoom>?> getChatRooms() async {
     final rooms =  await _chatDataSource.getChatRooms();
     if (rooms == null || rooms.isEmpty) return [];

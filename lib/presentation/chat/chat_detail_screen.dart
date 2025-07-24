@@ -97,79 +97,79 @@ class ChatDetailScreen extends HookConsumerWidget {
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: true, // 가상 키보드가 나타날 때 Scattold가 자동으로 크기를 조정하여 가상 키보드와 겹치지 않도록 함
-        backgroundColor: ColorStyles.gray1,
-        appBar: PreferredSize(
-            preferredSize: Size.fromHeight(44),
-            child: AppBar(
-              backgroundColor: ColorStyles.gray1,
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: 8,
-                children: [
-                  Text(
-                    chatRoom.title, // 채팅방 이름
-                    style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-                  ),
-                  Text(
-                    chatRoom.participantCount,
-                    style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
-                  ),
-                ],
+    return Scaffold(
+      resizeToAvoidBottomInset: true, // 가상 키보드가 나타날 때 Scattold가 자동으로 크기를 조정하여 가상 키보드와 겹치지 않도록 함
+      backgroundColor: ColorStyles.gray1,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(44),
+        child: AppBar(
+          backgroundColor: ColorStyles.gray1,
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 8,
+            children: [
+              Text(
+                chatRoom.title, // 채팅방 이름
+                style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
               ),
-              leading: IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: Icon(
-                  Icons.chevron_left_outlined,
-                  size: 24,
-                  color: ColorStyles.black,
-                ),
+              Text(
+                chatRoom.participantCount,
+                style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
               ),
-              centerTitle: true,
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    // 채팅방 나가기
-                    customActionSheet(
-                      context,
-                      onDelete: () {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (_) => CustomConfirmDialog(
-                            title: '채팅방 나가기',
-                            content: '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
-                            confirmText: '나가기',
-                            cancelText: '취소',
-                            onConfirm: () async {
-                              await viewModel.leaveChatRoom(chatRoom.roomId);
-                              Navigator.of(context).pop(); // 다이얼로그 닫기
-                            },
-                          ),
-                        );
-                      },
-                      deleteText: '채팅방 나가기',
+            ],
+          ),
+          leading: IconButton(
+            onPressed: () {
+              context.pop();
+            },
+            icon: Icon(
+              Icons.chevron_left_outlined,
+              size: 24,
+              color: ColorStyles.black,
+            ),
+          ),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: () {
+                // 채팅방 나가기
+                customActionSheet(
+                  context,
+                  onDelete: () {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (_) => CustomConfirmDialog(
+                        title: '채팅방 나가기',
+                        content: '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
+                        confirmText: '나가기',
+                        cancelText: '취소',
+                        onConfirm: () async {
+                          await viewModel.leaveChatRoom(chatRoom.roomId);
+                          Navigator.of(context).pop(); // 다이얼로그 닫기
+                        },
+                      ),
                     );
                   },
-                  icon: SvgPicture.asset(
-                    'assets/icons/kebab_menu.svg',
-                    width: 24,
-                    height: 24,
-                    colorFilter: const ColorFilter.mode(
-                      ColorStyles.black,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                )
-              ],
+                  deleteText: '채팅방 나가기',
+                );
+              },
+              icon: SvgPicture.asset(
+                'assets/icons/kebab_menu.svg',
+                width: 24,
+                height: 24,
+                colorFilter: const ColorFilter.mode(
+                  ColorStyles.black,
+                  BlendMode.srcIn,
+                ),
+              ),
             )
+          ],
         ),
-        body: GestureDetector(
+      ),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: Container(

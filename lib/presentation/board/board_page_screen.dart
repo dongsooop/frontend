@@ -164,41 +164,43 @@ class BoardPageScreen extends HookConsumerWidget {
         floatingActionButton: WriteButton(
           onPressed: handleWriteAction,
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: BoardTabSection(
-                categoryTabs: categoryTabs,
-                selectedCategoryIndex: selectedIndex.value,
-                selectedSubTabIndex: safeIndex,
-                subTabs: currentSubTabs,
-                onCategorySelected: (newIndex) {
-                  selectedIndex.value = newIndex;
-                  selectedSubIndex.value = 0;
-                },
-                onSubTabSelected: (newSubIndex) {
-                  selectedSubIndex.value = newSubIndex;
-                },
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: BoardTabSection(
+                  categoryTabs: categoryTabs,
+                  selectedCategoryIndex: selectedIndex.value,
+                  selectedSubTabIndex: safeIndex,
+                  subTabs: currentSubTabs,
+                  onCategorySelected: (newIndex) {
+                    selectedIndex.value = newIndex;
+                    selectedSubIndex.value = 0;
+                  },
+                  onSubTabSelected: (newSubIndex) {
+                    selectedSubIndex.value = newSubIndex;
+                  },
+                ),
               ),
-            ),
-            Expanded(
-              child: isRecruit && recruitType != null
-                  ? RecruitItemListSection(
-                      recruitType: recruitType,
-                      departmentCode: departmentCode,
-                      onTapRecruitDetail: onTapRecruitDetail,
-                      scrollController: scrollController,
-                    )
-                  : !isRecruit && marketType != null
-                      ? MarketItemListSection(
-                          marketType: marketType,
-                          onTapMarketDetail: onTapMarketDetail,
-                          scrollController: scrollController,
-                        )
-                      : const SizedBox.shrink(),
-            ),
-          ],
+              Expanded(
+                child: isRecruit && recruitType != null
+                    ? RecruitItemListSection(
+                        recruitType: recruitType,
+                        departmentCode: departmentCode,
+                        onTapRecruitDetail: onTapRecruitDetail,
+                        scrollController: scrollController,
+                      )
+                    : !isRecruit && marketType != null
+                        ? MarketItemListSection(
+                            marketType: marketType,
+                            onTapMarketDetail: onTapMarketDetail,
+                            scrollController: scrollController,
+                          )
+                        : const SizedBox.shrink(),
+              ),
+            ],
+          ),
         ),
       ),
     );

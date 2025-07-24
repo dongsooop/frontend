@@ -143,13 +143,13 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
       return null;
     }, [reportSanctionState.errorMessage, reportSanctionState.isSuccessed]);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '제재 처리',
-        ),
-        body: GestureDetector(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: '제재 처리',
+      ),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: SingleChildScrollView(
@@ -240,7 +240,8 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
                   ),
                 ),
                 selectedReportReason.value != null
-                    ? Container(
+                ? Container(
+                  alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
@@ -262,6 +263,8 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
                       color: ColorStyles.black,
                     ),
                     decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 0),
                       border: InputBorder.none,
                       hintText: '최대 500글자까지 입력 가능해요',
                       hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
@@ -320,19 +323,19 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
             ),
           ),
         ),
-        bottomNavigationBar: PrimaryBottomButton(
-          onPressed: () async {
-            await viewModel.sanctionWrite(ReportAdminSanctionRequest(
-              reportId: reportId,
-              targetMemberId: targetMemberId,
-              sanctionType: selectedReportReason.value!,
-              sanctionReason: sanctionTextController.text,
-              sanctionEndAt: selectedDate.value));
-          },
-          label: '제재',
-          isLoading: reportSanctionState.isLoading,
-          isEnabled: sanctionTextController.text.isNotEmpty,
-        ),
+      ),
+      bottomNavigationBar: PrimaryBottomButton(
+        onPressed: () async {
+          await viewModel.sanctionWrite(ReportAdminSanctionRequest(
+            reportId: reportId,
+            targetMemberId: targetMemberId,
+            sanctionType: selectedReportReason.value!,
+            sanctionReason: sanctionTextController.text,
+            sanctionEndAt: selectedDate.value));
+        },
+        label: '제재',
+        isLoading: reportSanctionState.isLoading,
+        isEnabled: sanctionTextController.text.isNotEmpty,
       ),
     );
   }
