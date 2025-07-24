@@ -232,7 +232,9 @@ class MarketDetailPageScreen extends ConsumerWidget {
               ),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(
+              child:
+                  CircularProgressIndicator(color: ColorStyles.primaryColor)),
           error: (err, stack) => Center(child: Text('$err')),
         ),
       ),

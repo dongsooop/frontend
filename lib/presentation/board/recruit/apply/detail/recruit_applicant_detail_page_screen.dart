@@ -72,7 +72,9 @@ class RecruitApplicantDetailPage extends ConsumerWidget {
       ),
       loading: () => const SafeArea(
         child: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+          body: Center(
+              child:
+                  CircularProgressIndicator(color: ColorStyles.primaryColor)),
         ),
       ),
       error: (e, _) => SafeArea(

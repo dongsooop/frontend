@@ -123,7 +123,9 @@ class RecruitApplicantListPage extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(
+              child:
+                  CircularProgressIndicator(color: ColorStyles.primaryColor)),
           error: (e, _) => Center(child: Text('에러: $e')),
         ),
       ),

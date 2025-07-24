@@ -164,7 +164,9 @@ class RecruitDetailPageScreen extends ConsumerWidget {
           orElse: () => const SizedBox.shrink(),
         ),
         body: detailState.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(
+              child:
+                  CircularProgressIndicator(color: ColorStyles.primaryColor)),
           error: (e, _) => Center(child: Text('$e')),
           data: (data) {
             final detail = data.recruitDetail;
