@@ -8,7 +8,8 @@ on:
 
 jobs:
   build-ios:
-    name: Build Flutter iOS App
+    timeout-minutes: 20
+    name: Apple Connect Deploy
     runs-on: macos-18
 
     steps:
