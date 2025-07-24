@@ -280,7 +280,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
       context: context,
       builder: (_) => CustomConfirmDialog(
         title: '거래 완료',
-        content: '거래가 완료된 글은 다시 거래할 수 없어요.\n거래를 완료할까요?',
+        content: '거래가 완료된 글은\n 다시 거래할 수 없어요.\n거래를 완료할까요?',
         confirmText: '확인',
         cancelText: '취소',
         dismissOnConfirm: false,
