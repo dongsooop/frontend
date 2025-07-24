@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-ios:
-#    timeout-minutes: 20
+#    timeout-minutes: 30
     name: Apple Connect Deploy
 #    runs-on: macos-18
     runs-on: self-hosted
@@ -89,66 +89,53 @@ jobs:
       - name: create Generated.xcconfig
         run: flutter build ios --release --no-codesign
 
-      # 빌드 및 IPA 내보내기
-      - name: Archive IPA
-        working-directory: ios
-        run: |
-          xcodebuild -workspace Runner.xcworkspace \
-                      -scheme Runner \
-                      -configuration Release \
-                      -archivePath $PWD/build/Runner.xcarchive \
-                      DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} \
-                      CODE_SIGN_IDENTITY="Apple Distribution" \
-                      archive
+      - name: Build Flutter iOS
+        run: flutter build ipa --release --no-codesign
 
-      - name: Export IPA
-        working-directory: ios
-        env:
-          KEY_PATH: ${{ env.KEY_PATH }}
-        run: |
-          # API 키 파일 존재 확인
-          echo "Checking API key file:"
-          ls -la "$KEY_PATH"
-          
-          # 파일이 비어있지 않은지 확인
-          if [ ! -s "$KEY_PATH" ]; then
-            echo "Error: API key file is empty or doesn't exist"
-            exit 1
-          fi
-          
-          xcodebuild -exportArchive \
-            -archivePath $PWD/build/Runner.xcarchive \
-            -exportPath $PWD/build/export \
-            -exportOptionsPlist ../.github/workflows/ExportOptions.plist \
-            -authenticationKeyIssuerID "${{ secrets.APPSTORE_ISSUER_ID }}" \
-            -authenticationKeyID "${{ secrets.APPSTORE_API_KEY_ID }}" \
-            -authenticationKeyPath "$KEY_PATH"
+#      # 빌드 및 IPA 내보내기
+#      - name: Archive IPA
+#        working-directory: ios
+#        run: |
+#          xcodebuild -workspace Runner.xcworkspace \
+#                      -scheme Runner \
+#                      -configuration Release \
+#                      -archivePath $PWD/build/Runner.xcarchive \
+#                      DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} \
+#                      CODE_SIGN_IDENTITY="Apple Distribution" \
+#                      archive
+#
+#      - name: Export IPA
+#        working-directory: ios
+#        env:
+#          KEY_PATH: ${{ env.KEY_PATH }}
+#        run: |
+#          # API 키 파일 존재 확인
+#          echo "Checking API key file:"
+#          ls -la "$KEY_PATH"
+#
+#          # 파일이 비어있지 않은지 확인
+#          if [ ! -s "$KEY_PATH" ]; then
+#            echo "Error: API key file is empty or doesn't exist"
+#            exit 1
+#          fi
+#
+#          xcodebuild -exportArchive \
+#            -archivePath $PWD/build/Runner.xcarchive \
+#            -exportPath $PWD/build/export \
+#            -exportOptionsPlist ../.github/workflows/ExportOptions.plist \
+#            -authenticationKeyIssuerID "${{ secrets.APPSTORE_ISSUER_ID }}" \
+#            -authenticationKeyID "${{ secrets.APPSTORE_API_KEY_ID }}" \
+#            -authenticationKeyPath "$KEY_PATH"
 
       # TestFlight 업로드
       - name: Upload app to TestFlight
         uses: apple-actions/upload-testflight-build@v3
         with:
-          app-path: "ios/build/export/Runner.ipa"
+#          app-path: "ios/build/export/Runner.ipa"
+          app-path: "build/ios/ipa/Runner.ipa"
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_KEY_PRIVATE_KEY }}
-
-      # 빌드 결과 확인
-      - name: List build artifacts
-        run: |
-          echo "Build artifacts:"
-          ls -la ios/build/Runner.xcarchive
-          echo "Build artifacts in export directory:"
-          ls -la ios/build/export
-          du -sh ios/build/export/Runner.ipa
-
-      # iOS 빌드 결과물을 GitHub Artifacts에 업로드
-      - name: Upload iOS App as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dongsoop-ios-app-${{ github.run_number }}
-          path: ios/build/export/Runner.ipa
-          retention-days: 30
 
       # 빌드 성공 알림
       - name: Build Success Summary
