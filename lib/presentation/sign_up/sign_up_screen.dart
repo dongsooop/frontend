@@ -219,10 +219,15 @@ class SignUpScreen extends HookConsumerWidget {
               ),
               CheckDuplicationButton(
                 onTab: () {
-                  // 중복 확인 메서드
                   if (emailController.text.isEmpty) return;
+                  if (emailState.isFormatValid != true) return;
+                  if (emailState.isDuplicate == false) return;
                   ref.read(signUpViewModelProvider.notifier).checkEmailDuplication(emailController.text.trim());
                 },
+                isEnabled: (emailState.isFormatValid == true && emailState.isDuplicate != true),
+                enabledText: '중복 확인',
+                disabledText: (emailState.isDuplicate == false) ? '확인 완료' : '중복 확인',
+                isLoading: emailState.isLoading,
               ),
             ],
           ),
@@ -391,10 +396,13 @@ class SignUpScreen extends HookConsumerWidget {
               CheckDuplicationButton(
                 onTab: () {
                   // 중복 확인 메서드
-                  // 중복 확인 메서드
                   if (nicknameController.text.isEmpty) return;
                   ref.read(signUpViewModelProvider.notifier).checkNicknameDuplication(nicknameController.text.trim());
                 },
+                isLoading: false,
+                isEnabled: false,
+                enabledText: '중복 확인',
+                disabledText: '확인 완료',
               ),
             ],
           ),

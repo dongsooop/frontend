@@ -99,7 +99,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
     try {
       final isDuplicate = await _checkDuplicateUseCase.execute(email+'@dongyang.ac.kr', 'email');
       state = state.copyWith(
-        isEmailValid: true,
+        isEmailValid: !isDuplicate,
         email: state.email.copyWith(
           email: email,
           isDuplicate: isDuplicate,
