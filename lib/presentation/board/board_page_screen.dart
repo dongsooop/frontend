@@ -35,10 +35,25 @@ class BoardPageScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
     final selectedSubIndex = useState(0);
-    final scrollController = useScrollController();
+    final recruitTabIndex = useState(0);
+    final marketTabIndex = useState(0);
+
+    final scrollControllers =
+        useMemoized(() => List.generate(5, (_) => ScrollController()));
+    final pageController = usePageController();
 
     final isRecruit = selectedIndex.value == 0;
     final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
+
+    // 탭 인덱스 동기화
+    useEffect(() {
+      selectedSubIndex.value =
+          isRecruit ? recruitTabIndex.value : marketTabIndex.value;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        pageController.jumpToPage(selectedSubIndex.value);
+      });
+      return null;
+    }, [selectedIndex.value]);
 
     final user = ref.watch(userSessionProvider);
     final departmentCode = user != null
@@ -56,6 +71,7 @@ class BoardPageScreen extends HookConsumerWidget {
         : null;
 
     useEffect(() {
+      final controller = scrollControllers[safeIndex];
       if (isRecruit && recruitType != null) {
         final provider = recruitListViewModelProvider(
           type: recruitType,
@@ -64,7 +80,7 @@ class BoardPageScreen extends HookConsumerWidget {
         final notifier = ref.read(provider.notifier);
 
         return setupScrollListener(
-          scrollController: scrollController,
+          scrollController: controller,
           getState: () => ref.read(provider),
           canFetchMore: (state) => !state.isLoading && state.hasMore,
           fetchMore: () => notifier.loadNextPage(),
@@ -74,7 +90,7 @@ class BoardPageScreen extends HookConsumerWidget {
         final notifier = ref.read(provider.notifier);
 
         return setupScrollListener(
-          scrollController: scrollController,
+          scrollController: controller,
           getState: () => ref.read(provider),
           canFetchMore: (state) => !state.isLoading && state.hasMore,
           fetchMore: () => notifier.fetchNext(),
@@ -82,9 +98,8 @@ class BoardPageScreen extends HookConsumerWidget {
       }
       return null;
     }, [
-      scrollController,
+      safeIndex,
       selectedIndex.value,
-      selectedSubIndex.value,
       departmentCode,
     ]);
 
@@ -158,29 +173,65 @@ class BoardPageScreen extends HookConsumerWidget {
                 selectedSubTabIndex: safeIndex,
                 subTabs: currentSubTabs,
                 onCategorySelected: (newIndex) {
+                  // 이전 하위 탭 상태 저장
+                  if (selectedIndex.value == 0) {
+                    recruitTabIndex.value = selectedSubIndex.value;
+                  } else {
+                    marketTabIndex.value = selectedSubIndex.value;
+                  }
+
                   selectedIndex.value = newIndex;
-                  selectedSubIndex.value = 0;
                 },
                 onSubTabSelected: (newSubIndex) {
                   selectedSubIndex.value = newSubIndex;
+
+                  if (isRecruit) {
+                    recruitTabIndex.value = newSubIndex;
+                  } else {
+                    marketTabIndex.value = newSubIndex;
+                  }
+
+                  pageController.animateToPage(
+                    newSubIndex,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                  );
                 },
               ),
             ),
             Expanded(
-              child: isRecruit && recruitType != null
-                  ? RecruitItemListSection(
-                      recruitType: recruitType,
+              child: PageView.builder(
+                controller: pageController,
+                itemCount: currentSubTabs.length,
+                onPageChanged: (index) {
+                  selectedSubIndex.value = index;
+                  if (isRecruit) {
+                    recruitTabIndex.value = index;
+                  } else {
+                    marketTabIndex.value = index;
+                  }
+                },
+                itemBuilder: (context, index) {
+                  final scrollController = scrollControllers[index];
+
+                  if (isRecruit && index < RecruitType.values.length) {
+                    return RecruitItemListSection(
+                      recruitType: RecruitType.values[index],
                       departmentCode: departmentCode,
                       onTapRecruitDetail: handleRecruitDetail,
                       scrollController: scrollController,
-                    )
-                  : !isRecruit && marketType != null
-                      ? MarketItemListSection(
-                          marketType: marketType,
-                          onTapMarketDetail: handleMarketDetail,
-                          scrollController: scrollController,
-                        )
-                      : const SizedBox.shrink(),
+                    );
+                  } else if (!isRecruit && index < MarketType.values.length) {
+                    return MarketItemListSection(
+                      marketType: MarketType.values[index],
+                      onTapMarketDetail: handleMarketDetail,
+                      scrollController: scrollController,
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
             ),
           ],
         ),
