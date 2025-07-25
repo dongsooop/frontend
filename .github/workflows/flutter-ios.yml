@@ -22,7 +22,7 @@ jobs:
           flutter-version: '3.27.1'
           channel: 'stable'
           architecture: x64
-#          cache: true
+          cache: true
 
       - name: Decode and create .env file
         run: |
