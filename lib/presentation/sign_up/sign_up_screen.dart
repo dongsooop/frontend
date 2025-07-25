@@ -15,6 +15,8 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/auth/enum/agreement_type.dart';
 
+import '../../core/utils/time_formatter.dart';
+
 class SignUpScreen extends HookConsumerWidget {
 
   const SignUpScreen({
@@ -27,6 +29,7 @@ class SignUpScreen extends HookConsumerWidget {
     final signUpState = ref.watch(signUpViewModelProvider);
 
     final emailController = useTextEditingController();
+    final emailCodeController = useTextEditingController();
     final passwordController = useTextEditingController();
     final passwordCheckController = useTextEditingController();
     final nicknameController = useTextEditingController();
@@ -99,7 +102,7 @@ class SignUpScreen extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 48,
               children: [
-                _buildEmailSection(emailController, ref),
+                _buildEmailSection(emailController, emailCodeController, ref),
                 _buildPasswordSection(passwordController, passwordCheckController, ref),
                 _buildNicknameSection(nicknameController, ref),
                 _buildDeptSection(context, selectedDept, ref),
@@ -133,8 +136,9 @@ class SignUpScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildEmailSection(TextEditingController emailController, WidgetRef ref) {
+  Widget _buildEmailSection(TextEditingController emailController, TextEditingController emailCodeController, WidgetRef ref) {
     final emailState = ref.watch(signUpViewModelProvider).email;
+    final emailCodeState = ref.watch(signUpViewModelProvider).emailCode;
 
     return Container(
       width: double.infinity,
@@ -169,9 +173,11 @@ class SignUpScreen extends HookConsumerWidget {
               Text(
                 emailState.message ?? '동양미래대학교 Gmail을 입력해 주세요',
                 style: TextStyles.smallTextRegular.copyWith(
-                  color: (emailState.isError == true)
+                  color: (emailState.isDuplicate == false && emailState.message == '이메일 인증이 필요해요')
                     ? ColorStyles.warning100
-                    : ColorStyles.gray4,
+                    : (emailState.isError == true || emailCodeState.isError == true)
+                      ? ColorStyles.warning100
+                      : ColorStyles.gray4,
                 ),
               ),
             ],
@@ -219,10 +225,69 @@ class SignUpScreen extends HookConsumerWidget {
               ),
               CheckDuplicationButton(
                 onTab: () {
-                  // 중복 확인 메서드
                   if (emailController.text.isEmpty) return;
                   ref.read(signUpViewModelProvider.notifier).checkEmailDuplication(emailController.text.trim());
                 },
+                isEnabled: emailState.isFormatValid == true && emailState.isDuplicate == null,
+                enabledText: '중복 검사',
+                disabledText: (emailState.isDuplicate == false) ? '확인 완료' : '중복 검사',
+                isLoading: emailState.isLoading,
+              ),
+            ],
+          ),
+          // 이메일 인증
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
+              Expanded(
+                child: Container(
+                  height: 44,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  decoration: ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        width: 1,
+                        color: emailCodeState.isError == true
+                            ? ColorStyles.warning100
+                            : emailCodeState.isError == false
+                            ? ColorStyles.primaryColor
+                            : ColorStyles.gray2,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(child: _customTextFormField(emailCodeController, '인증 코드 입력')),
+                    ],
+                  ),
+                ),
+              ),
+              CheckDuplicationButton(
+                onTab: () {
+                  ref.read(signUpViewModelProvider.notifier).sendEmailVerificationCode();
+                },
+                isEnabled: emailState.isDuplicate == false &&
+                  emailCodeState.isTimerRunning != true &&
+                  emailCodeState.isChecked != true,
+                enabledText: '인증 요청',
+                disabledText: (emailCodeState.isTimerRunning == true) ? formatDuration(emailCodeState.remainingSeconds!) : '인증 요청',
+                isLoading: emailCodeState.isCodeLoading,
+              ),
+              CheckDuplicationButton(
+                onTab: () {
+                  if (emailCodeController.text.isEmpty) return;
+                  ref.read(signUpViewModelProvider.notifier).checkEmailVerificationCode(emailCodeController.text.trim());
+                },
+                isEnabled: (emailCodeState.isChecked != true && emailCodeState.isTimerRunning == true), // 인증 요청이 비활성화(타이머 시작)될 때 활성화
+                enabledText: '확인',
+                disabledText: (emailCodeState.isChecked == true) ? '확인 완료' : '확인',
+                isLoading: emailCodeState.isCheckLoading,
               ),
             ],
           ),
@@ -390,11 +455,13 @@ class SignUpScreen extends HookConsumerWidget {
               ),
               CheckDuplicationButton(
                 onTab: () {
-                  // 중복 확인 메서드
-                  // 중복 확인 메서드
                   if (nicknameController.text.isEmpty) return;
                   ref.read(signUpViewModelProvider.notifier).checkNicknameDuplication(nicknameController.text.trim());
                 },
+                isEnabled: (nicknameState.isNumberFormatValid == true && nicknameState.isSpecialCharacterValid == true && nicknameState.isDuplicate != true),
+                enabledText: '중복 검사',
+                disabledText: (nicknameState.isDuplicate == false) ? '확인 완료' : '중복 검사',
+                isLoading: nicknameState.isLoading,
               ),
             ],
           ),

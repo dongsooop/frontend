@@ -72,13 +72,14 @@ class BoardTabSection extends StatelessWidget {
     final isSelected = selectedCategoryIndex == index;
     return Container(
       width: 44,
+      constraints: const BoxConstraints(minWidth: 44),
       alignment: Alignment.center,
       child: TextButton(
         onPressed: () => onCategorySelected(index),
         style: TextButton.styleFrom(
-          padding: EdgeInsets.zero,
-          overlayColor: Colors.transparent,
-        ),
+            padding: EdgeInsets.zero,
+            overlayColor: Colors.transparent,
+            minimumSize: Size(44, 44)),
         child: Text(
           label,
           style: isSelected
