@@ -84,16 +84,33 @@ jobs:
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Build Flutter iOS
-        run: flutter build ipa --release --export-options-plist=ios/ExportOptions_AppStore.plist
+        run: flutter build ipa --release --export-options-plist=ios/ExportOptions_AppStore.plist --verbose
+
+      # 빌드된 IPA 파일 확인
+      - name: Verify IPA file
+        run: |
+          IPA_PATH="build/ios/ipa/dongsoop.ipa"
+          if [ ! -f "$IPA_PATH" ]; then
+            echo "❌ IPA file not found at $IPA_PATH"
+            echo "📁 Listing build directory contents:"
+            find build/ios -name "*.ipa" -o -name "*.xcarchive" | head -20
+            exit 1
+          fi
+          
+          echo "✅ IPA file found: $IPA_PATH"
+          echo "📏 File size: $(du -h "$IPA_PATH" | cut -f1)"
+          
+          # IPA 내용 확인
+          unzip -l "$IPA_PATH" | head -10
 
       # TestFlight 업로드
       - name: Upload app to TestFlight
         uses: apple-actions/upload-testflight-build@v3
         with:
-          app-path: ${{ github.workspace }}build/ios/ipa/Runner.ipa
+          app-path: ${{ github.workspace }}/build/ios/ipa/dongsoop.ipa
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
-          api-private-key-path: ${{ env.KEY_PATH }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
 
       # 빌드 성공 알림
       - name: Build Success Summary
