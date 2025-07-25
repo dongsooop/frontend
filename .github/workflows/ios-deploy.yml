@@ -57,8 +57,13 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
+      - name: Auto-increment build number
+        run: |
+          BUILD_NO=$(date +%s)  # 타임스탬프를 빌드 번호로 사용
+          echo "BUILD_NO=$BUILD_NO" >> $GITHUB_ENV
+
       - name: Build Flutter iOS
-        run: flutter build ipa --release --export-options-plist=ios/ExportOptions_AppStore.plist --verbose
+        run: flutter build ipa --release --build-number=$BUILD_NO --export-options-plist=ios/ExportOptions_AppStore.plist
 
       # TestFlight 업로드
       - name: Upload app to TestFlight
