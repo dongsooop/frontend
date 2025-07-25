@@ -42,7 +42,7 @@ class RecruitApplicantDetailPage extends ConsumerWidget {
             preferredSize: const Size.fromHeight(44),
             child: DetailHeader(title: "${detail.title} 지원자"),
           ),
-          body: _ApplicantDetailBody(detail: detail),
+          body: SafeArea(child: _ApplicantDetailBody(detail: detail)),
           bottomNavigationBar: _DecisionButtons(
             status: detail.status,
             onPass: () async {
@@ -72,13 +72,15 @@ class RecruitApplicantDetailPage extends ConsumerWidget {
       ),
       loading: () => const SafeArea(
         child: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+          body: SafeArea(
+            child: Center(
+                child:
+                    CircularProgressIndicator(color: ColorStyles.primaryColor)),
+          ),
         ),
       ),
-      error: (e, _) => SafeArea(
-        child: Scaffold(
-          body: Center(child: Text('$e')),
-        ),
+      error: (e, _) => Scaffold(
+        body: SafeArea(child: Center(child: Text('$e'))),
       ),
     );
   }

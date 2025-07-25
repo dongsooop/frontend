@@ -11,8 +11,6 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'domain/chat/model/chat_message.dart';
 import 'domain/chat/model/chat_room_member.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

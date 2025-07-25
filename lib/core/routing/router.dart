@@ -17,6 +17,8 @@ import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_screen.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_recruit_screen.dart';
+import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_screen.dart';
+import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
@@ -28,8 +30,6 @@ import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.da
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
-import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_screen.dart';
-import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(
@@ -107,7 +107,6 @@ final router = GoRouter(
             },
           );
         },
-
         onTapRecruit: (targetId, type) {
           context.push(
             RoutePaths.recruitDetail,
@@ -144,39 +143,37 @@ final router = GoRouter(
       ),
     ),
     GoRoute(
-      path: RoutePaths.mypageRecruit,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final isApply = extra?['isApply'] as bool? ?? false;
+        path: RoutePaths.mypageRecruit,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final isApply = extra?['isApply'] as bool? ?? false;
 
-        return ActivityRecruitScreen(
-          isApply: isApply,
-          onTapRecruitDetail: (targetId, type, status) {
-            context.push(
-              RoutePaths.recruitDetail,
-              extra: {
-                'id': targetId,
-                'type': type,
-                'status': status,
-              },
-            );
-          },
-        );
-      }
-    ),
+          return ActivityRecruitScreen(
+            isApply: isApply,
+            onTapRecruitDetail: (targetId, type, status) {
+              context.push(
+                RoutePaths.recruitDetail,
+                extra: {
+                  'id': targetId,
+                  'type': type,
+                  'status': status,
+                },
+              );
+            },
+          );
+        }),
     GoRoute(
-      path: RoutePaths.adminReportSanction,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final reportId = extra?['reportId'] as int? ?? 0;
-        final targetMemberId = extra?['targetMemberId'] as int? ?? 0;
+        path: RoutePaths.adminReportSanction,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final reportId = extra?['reportId'] as int? ?? 0;
+          final targetMemberId = extra?['targetMemberId'] as int? ?? 0;
 
-        return ReportAdminSanctionScreen(
-          reportId: reportId,
-          targetMemberId: targetMemberId,
-        );
-      }
-    ),
+          return ReportAdminSanctionScreen(
+            reportId: reportId,
+            targetMemberId: targetMemberId,
+          );
+        }),
     GoRoute(
       path: RoutePaths.setting,
       builder: (context, state) => SettingScreen(),
@@ -208,13 +205,10 @@ final router = GoRouter(
             return result == true;
           },
           onTapReport: (reportType, targetId) {
-            context.push(
-              RoutePaths.report,
-              extra: {
-                'reportType': reportType,
-                'targetId': targetId,
-              }
-            );
+            context.push(RoutePaths.report, extra: {
+              'reportType': reportType,
+              'targetId': targetId,
+            });
           },
           onTapApplicantList: () async {
             context.push(
@@ -322,18 +316,17 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-      path: RoutePaths.report,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final reportType = extra?['reportType'] as String? ?? '';
-        final targetId = extra?['targetId'] as int? ?? 0;
+        path: RoutePaths.report,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final reportType = extra?['reportType'] as String? ?? '';
+          final targetId = extra?['targetId'] as int? ?? 0;
 
-        return ReportScreen(
-          reportType: reportType,
-          targetId: targetId,
-        );
-      }
-    ),
+          return ReportScreen(
+            reportType: reportType,
+            targetId: targetId,
+          );
+        }),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainScreen(
@@ -380,37 +373,53 @@ final router = GoRouter(
                 ),
               ]),
         ]),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: RoutePaths.board,
-            builder: (context, state) => BoardPageScreen(
-              onTapRecruitDetail: (id, type) {
-                context.push(
-                  RoutePaths.recruitDetail,
-                  extra: {
-                    'id': id,
-                    'type': type,
-                  },
-                );
-              },
-              onTapMarketDetail: (id, type) {
-                context.push(
-                  RoutePaths.marketDetail,
-                  extra: {
-                    'id': id,
-                    'type': type,
-                  },
-                );
-              },
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RoutePaths.board,
+              builder: (context, state) => BoardPageScreen(
+                onTapRecruitDetail: (id, type) async {
+                  final didApply = await context.push<bool>(
+                    RoutePaths.recruitDetail,
+                    extra: {'id': id, 'type': type},
+                  );
+                  return didApply ?? false;
+                },
+                onTapMarketDetail: (id, type) async {
+                  final didComplete = await context.push<bool>(
+                    RoutePaths.marketDetail,
+                    extra: {'id': id, 'type': type},
+                  );
+                  return didComplete ?? false;
+                },
+                onTapWrite: (isRecruit) async {
+                  if (isRecruit) {
+                    return await context.push<bool>(RoutePaths.recruitWrite) ??
+                        false;
+                  } else {
+                    return await context.push<bool>(
+                          RoutePaths.marketWrite,
+                          extra: {
+                            'isEditing': false,
+                            'marketId': null,
+                          },
+                        ) ??
+                        false;
+                  }
+                },
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.chat,
             builder: (context, state) => ChatScreen(
               onTapChatDetail: (room) {
                 context.push(RoutePaths.chatDetail, extra: room);
+              },
+              onTapSignIn: () {
+                context.push(RoutePaths.signIn);
               },
             ),
           ),
@@ -429,12 +438,9 @@ final router = GoRouter(
                 context.push(RoutePaths.mypageMarket);
               },
               onTapRecruit: (isApply) {
-                context.push(
-                  RoutePaths.mypageRecruit,
-                  extra: {
-                    'isApply': isApply,
-                  }
-                );
+                context.push(RoutePaths.mypageRecruit, extra: {
+                  'isApply': isApply,
+                });
               },
               onTapAdminReport: () {
                 context.push(RoutePaths.adminReport);

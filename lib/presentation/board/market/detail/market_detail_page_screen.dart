@@ -40,126 +40,116 @@ class MarketDetailPageScreen extends ConsumerWidget {
     );
     final user = ref.watch(userSessionProvider);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: type.label,
-          trailing: IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              final detailState = ref.read(
-                marketDetailViewModelProvider(MarketDetailArgs(id: id)),
-              );
-
-              detailState.whenData((data) {
-                final viewType = data.marketDetail?.viewType;
-                if (viewType == 'OWNER') {
-                  customActionSheet(context, onEdit: () {
-                    context.push(RoutePaths.marketWrite, extra: {
-                      'isEditing': true,
-                      'marketId': id,
-                    });
-                  }, onDelete: () {
-                    _showDeleteDialog(context, ref);
-                  });
-                } else {
-                  customActionSheet(
-                    context,
-                    deleteText: '신고',
-                    onDelete: () => onTapReport(type.reportType.name, id),
-                  );
-                }
-              });
-            },
-          ),
-        ),
-        bottomNavigationBar: state.when(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: type.label,
+        trailing: state.maybeWhen(
           data: (data) {
             final viewType = data.marketDetail?.viewType;
-            final market = data.marketDetail!;
-            final isComplete = status == 'CLOSED'
-                ? true
-                : status == 'OPEN'
-                ? false
-                : data.isComplete;
+            if (viewType == 'GUEST' || viewType == null) return null;
 
-            // 버튼 라벨 정의
-            String label;
-            if (viewType == 'OWNER') {
-              label = isComplete ? '거래 완료' : '거래 완료';
-            } else {
-              label = '거래하기';
-            }
+            return IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {
+                final detailState = ref.read(
+                  marketDetailViewModelProvider(MarketDetailArgs(id: id)),
+                );
 
-            // 버튼 활성 여부 정의
-            bool isEnabled;
-            if (viewType == 'OWNER') {
-              isEnabled = !isComplete;
-            } else {
-              isEnabled = true;
-            }
-
-            return BottomButton(
-              label: label,
-              price: market.price,
-              onPressed: isEnabled
-                  ? () async {
-                      if (viewType == 'OWNER') {
-                        _showCompleteDialog(context, ref);
-                      } else if (viewType == 'GUEST') {
-                        showDialog(
-                          context: context,
-                          builder: (_) => const LoginRequiredDialog(),
-                        );
-                      } else if (viewType == 'MEMBER') {
-                        final userId = user?.id;
-
-                        if (userId == null) {
-                          showDialog(
-                            context: context,
-                            builder: (_) => const LoginRequiredDialog(),
-                          );
-                          return;
-                        }
-
-                        try {
-                          final viewModel = ref.read(
-                            marketDetailViewModelProvider(
-                                    MarketDetailArgs(id: id))
-                                .notifier,
-                          );
-                          await viewModel.contactMarket(id);
-                          final chatRoom = await viewModel.createChatRoom(market.title, market.authorId);
-                          onTapChatDetail(chatRoom);
-                        } catch (e) {
-                          showDialog(
-                            context: context,
-                            builder: (_) => CustomConfirmDialog(
-                              title: '요청 실패',
-                              content: '$e',
-                              confirmText: '확인',
-                              isSingleAction: true,
-                              onConfirm: () => context.pop(),
-                            ),
-                          );
-                        }
-                      }
-                    }
-                  : null,
+                detailState.whenData((data) {
+                  final viewType = data.marketDetail?.viewType;
+                  if (viewType == 'OWNER') {
+                    customActionSheet(context, onEdit: () {
+                      context.push(RoutePaths.marketWrite, extra: {
+                        'isEditing': true,
+                        'marketId': id,
+                      });
+                    }, onDelete: () {
+                      _showDeleteDialog(context, ref);
+                    });
+                  } else {
+                    customActionSheet(
+                      context,
+                      deleteText: '신고',
+                      onDelete: () => onTapReport(type.reportType.name, id),
+                    );
+                  }
+                });
+              },
             );
           },
-          loading: () => const SizedBox.shrink(),
-          error: (error, stack) => const SizedBox.shrink(),
+          orElse: () => null,
         ),
-        body: state.when(
+      ),
+      bottomNavigationBar: state.when(
+        data: (data) {
+          final viewType = data.marketDetail?.viewType;
+          final market = data.marketDetail!;
+          final isComplete = status == 'CLOSED'
+              ? true
+              : status == 'OPEN'
+                  ? false
+                  : data.isComplete;
+
+          String label = viewType == 'OWNER' ? '거래 완료' : '거래하기';
+          bool isEnabled = viewType == 'OWNER' ? !isComplete : true;
+
+          return BottomButton(
+            label: label,
+            price: market.price,
+            onPressed: isEnabled
+                ? () async {
+                    if (viewType == 'OWNER') {
+                      _showCompleteDialog(context, ref);
+                    } else if (viewType == 'GUEST') {
+                      await LoginRequiredDialog(context);
+                    } else if (viewType == 'MEMBER') {
+                      final userId = user?.id;
+
+                      if (userId == null) {
+                        await LoginRequiredDialog(context);
+                        return;
+                      }
+
+                      try {
+                        final viewModel = ref.read(
+                          marketDetailViewModelProvider(
+                                  MarketDetailArgs(id: id))
+                              .notifier,
+                        );
+                        await viewModel.contactMarket(id);
+                        final chatRoom = await viewModel.createChatRoom(
+                            market.title, market.authorId);
+                        onTapChatDetail(chatRoom);
+                      } catch (e) {
+                        showDialog(
+                          context: context,
+                          builder: (_) => CustomConfirmDialog(
+                            title: '요청 실패',
+                            content: '$e',
+                            confirmText: '확인',
+                            isSingleAction: true,
+                            onConfirm: () => context.pop(),
+                          ),
+                        );
+                      }
+                    }
+                  }
+                : null,
+          );
+        },
+        loading: () => const SizedBox.shrink(),
+        error: (error, stack) => const SizedBox.shrink(),
+      ),
+      body: SafeArea(
+        child: state.when(
           data: (data) {
             final market = data.marketDetail!;
             final isComplete = status == 'CLOSED'
                 ? true
                 : status == 'OPEN'
-                ? false
-                : data.isComplete;
+                    ? false
+                    : data.isComplete;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
@@ -242,7 +232,9 @@ class MarketDetailPageScreen extends ConsumerWidget {
               ),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(
+              child:
+                  CircularProgressIndicator(color: ColorStyles.primaryColor)),
           error: (err, stack) => Center(child: Text('$err')),
         ),
       ),
@@ -288,7 +280,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
       context: context,
       builder: (_) => CustomConfirmDialog(
         title: '거래 완료',
-        content: '거래가 완료된 글은 다시 거래할 수 없어요.\n거래를 완료할까요?',
+        content: '거래가 완료된 글은\n 다시 거래할 수 없어요.\n거래를 완료할까요?',
         confirmText: '확인',
         cancelText: '취소',
         dismissOnConfirm: false,

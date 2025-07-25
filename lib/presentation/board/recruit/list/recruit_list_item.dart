@@ -3,6 +3,7 @@ import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart'
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -30,11 +31,12 @@ class RecruitItemListSection extends ConsumerWidget {
     final state = ref.watch(viewModelProvider);
 
     if (state.error != null) {
-      return Center(child: Text('에러: ${state.error}'));
+      return Center(child: Text('${state.error}'));
     }
 
     if (state.isLoading && state.posts.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+          child: CircularProgressIndicator(color: ColorStyles.primaryColor));
     }
 
     if (state.posts.isEmpty) {
@@ -42,10 +44,12 @@ class RecruitItemListSection extends ConsumerWidget {
     }
 
     return RefreshIndicator(
+      color: ColorStyles.primaryColor,
       onRefresh: () async {
         await ref.read(viewModelProvider.notifier).refresh();
       },
       child: ListView.builder(
+        key: PageStorageKey(recruitType.name),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: state.posts.length + (state.hasMore ? 1 : 0),
@@ -53,7 +57,9 @@ class RecruitItemListSection extends ConsumerWidget {
           if (index == state.posts.length && state.hasMore) {
             return const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(
+                  child: CircularProgressIndicator(
+                      color: ColorStyles.primaryColor)),
             );
           }
 

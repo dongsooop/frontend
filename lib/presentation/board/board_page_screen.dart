@@ -1,12 +1,12 @@
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
-import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
+import 'package:dongsoop/presentation/board/providers/board_taps_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_item.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/scroll_listener.dart';
@@ -14,17 +14,18 @@ import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class BoardPageScreen extends HookConsumerWidget {
-  final void Function(int id, RecruitType type) onTapRecruitDetail;
-  final void Function(int id, MarketType type) onTapMarketDetail;
+  final Future<bool> Function(int id, RecruitType type) onTapRecruitDetail;
+  final Future<bool> Function(int id, MarketType type) onTapMarketDetail;
+  final Future<bool?> Function(bool isRecruit) onTapWrite;
 
   const BoardPageScreen({
     super.key,
     required this.onTapRecruitDetail,
     required this.onTapMarketDetail,
+    required this.onTapWrite,
   });
 
   static const categoryTabs = ['모집', '장터'];
@@ -33,20 +34,31 @@ class BoardPageScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = useState(0);
-    final selectedSubIndex = useState(0);
-    final scrollController = useScrollController();
+    final tabState = ref.watch(boardTabProvider);
+    final tabNotifier = ref.read(boardTabProvider.notifier);
 
-    final isRecruit = selectedIndex.value == 0;
+    final scrollControllers =
+        useMemoized(() => List.generate(5, (_) => ScrollController()));
+    final pageController = usePageController();
+
+    final isRecruit = tabState.categoryIndex == 0;
     final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
+    final selectedSubIndex =
+        isRecruit ? tabState.recruitTabIndex : tabState.marketTabIndex;
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        pageController.jumpToPage(selectedSubIndex);
+      });
+      return null;
+    }, [tabState.categoryIndex]);
 
     final user = ref.watch(userSessionProvider);
     final departmentCode = user != null
         ? DepartmentTypeExtension.fromDisplayName(user.departmentType).code
         : '';
 
-    final safeIndex =
-        selectedSubIndex.value.clamp(0, currentSubTabs.length - 1);
+    final safeIndex = selectedSubIndex.clamp(0, currentSubTabs.length - 1);
 
     final recruitType = isRecruit && safeIndex < RecruitType.values.length
         ? RecruitType.values[safeIndex]
@@ -56,6 +68,7 @@ class BoardPageScreen extends HookConsumerWidget {
         : null;
 
     useEffect(() {
+      final controller = scrollControllers[safeIndex];
       if (isRecruit && recruitType != null) {
         final provider = recruitListViewModelProvider(
           type: recruitType,
@@ -64,7 +77,7 @@ class BoardPageScreen extends HookConsumerWidget {
         final notifier = ref.read(provider.notifier);
 
         return setupScrollListener(
-          scrollController: scrollController,
+          scrollController: controller,
           getState: () => ref.read(provider),
           canFetchMore: (state) => !state.isLoading && state.hasMore,
           fetchMore: () => notifier.loadNextPage(),
@@ -74,31 +87,51 @@ class BoardPageScreen extends HookConsumerWidget {
         final notifier = ref.read(provider.notifier);
 
         return setupScrollListener(
-          scrollController: scrollController,
+          scrollController: controller,
           getState: () => ref.read(provider),
           canFetchMore: (state) => !state.isLoading && state.hasMore,
           fetchMore: () => notifier.fetchNext(),
         );
       }
       return null;
-    }, [
-      scrollController,
-      selectedIndex.value,
-      selectedSubIndex.value,
-      departmentCode,
-    ]);
+    }, [safeIndex, tabState.categoryIndex, departmentCode]);
 
-    void onTapRecruitDetail(int id, RecruitType type) async {
-      final didApply = await context.push<bool>(
-        RoutePaths.recruitDetail,
-        extra: {'id': id, 'type': type},
-      );
+    Future<void> handleWriteAction() async {
+      final user = ref.watch(userSessionProvider);
+      if (user == null) {
+        await LoginRequiredDialog(context);
+        return;
+      }
 
-      if (didApply == true) {
+      final result = await onTapWrite(isRecruit);
+
+      if (result == true) {
+        if (isRecruit && recruitType != null) {
+          ref
+              .read(
+                recruitListViewModelProvider(
+                  type: recruitType,
+                  departmentCode: departmentCode,
+                ).notifier,
+              )
+              .refresh();
+        } else if (marketType != null) {
+          ref
+              .read(
+                marketListViewModelProvider(type: marketType).notifier,
+              )
+              .refresh();
+        }
+      }
+    }
+
+    Future<void> handleRecruitDetail(int id, RecruitType type) async {
+      final didApply = await onTapRecruitDetail(id, type);
+      if (didApply && recruitType != null) {
         ref
             .read(
               recruitListViewModelProvider(
-                type: type,
+                type: recruitType,
                 departmentCode: departmentCode,
               ).notifier,
             )
@@ -106,108 +139,86 @@ class BoardPageScreen extends HookConsumerWidget {
       }
     }
 
-    void onTapMarketDetail(int id, MarketType type) async {
-      final didComplete = await context.push<bool>(
-        RoutePaths.marketDetail,
-        extra: {'id': id, 'type': type},
-      );
-
-      if (didComplete == true) {
+    Future<void> handleMarketDetail(int id, MarketType type) async {
+      final didComplete = await onTapMarketDetail(id, type);
+      if (didComplete && marketType != null) {
         ref
             .read(
-              marketListViewModelProvider(type: type).notifier,
+              marketListViewModelProvider(type: marketType).notifier,
             )
             .refresh();
       }
     }
 
-    return Stack(
-      children: [
-        SafeArea(
-          child: Scaffold(
-            backgroundColor: ColorStyles.white,
-            floatingActionButton: WriteButton(
-              onPressed: () async {
-                if (user == null) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => LoginRequiredDialog(),
-                  );
-                  return;
-                }
-
-                final result = isRecruit
-                    ? await context.push<bool>(RoutePaths.recruitWrite)
-                    : await context.push<bool>(
-                        RoutePaths.marketWrite,
-                        extra: {
-                          'isEditing': false,
-                          'marketId': null,
-                        },
-                      );
-
-                if (result == true) {
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      floatingActionButton: WriteButton(
+        onPressed: handleWriteAction,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: BoardTabSection(
+                categoryTabs: categoryTabs,
+                selectedCategoryIndex: tabState.categoryIndex,
+                selectedSubTabIndex: safeIndex,
+                subTabs: currentSubTabs,
+                onCategorySelected: (newIndex) {
+                  tabNotifier.setCategoryIndex(newIndex);
+                },
+                onSubTabSelected: (newSubIndex) {
                   if (isRecruit) {
-                    if (recruitType == null) return;
-                    ref
-                        .read(
-                          recruitListViewModelProvider(
-                            type: recruitType,
-                            departmentCode: departmentCode,
-                          ).notifier,
-                        )
-                        .refresh();
+                    tabNotifier.setRecruitTabIndex(newSubIndex);
                   } else {
-                    if (marketType == null) return;
-                    ref
-                        .read(
-                          marketListViewModelProvider(type: marketType)
-                              .notifier,
-                        )
-                        .refresh();
+                    tabNotifier.setMarketTabIndex(newSubIndex);
                   }
-                }
-              },
+
+                  pageController.animateToPage(
+                    newSubIndex,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                  );
+                },
+              ),
             ),
-            body: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: BoardTabSection(
-                    categoryTabs: categoryTabs,
-                    selectedCategoryIndex: selectedIndex.value,
-                    selectedSubTabIndex: safeIndex,
-                    subTabs: currentSubTabs,
-                    onCategorySelected: (newIndex) {
-                      selectedIndex.value = newIndex;
-                      selectedSubIndex.value = 0;
-                    },
-                    onSubTabSelected: (newSubIndex) {
-                      selectedSubIndex.value = newSubIndex;
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: isRecruit && recruitType != null
-                      ? RecruitItemListSection(
-                          recruitType: recruitType,
-                          departmentCode: departmentCode,
-                          onTapRecruitDetail: onTapRecruitDetail,
-                          scrollController: scrollController,
-                        )
-                      : !isRecruit && marketType != null
-                          ? MarketItemListSection(
-                              marketType: marketType,
-                              onTapMarketDetail: onTapMarketDetail,
-                              scrollController: scrollController,
-                            )
-                          : const SizedBox.shrink(),
-                ),
-              ],
+            Expanded(
+              child: PageView.builder(
+                controller: pageController,
+                itemCount: currentSubTabs.length,
+                onPageChanged: (index) {
+                  if (isRecruit) {
+                    tabNotifier.setRecruitTabIndex(index);
+                  } else {
+                    tabNotifier.setMarketTabIndex(index);
+                  }
+                },
+                itemBuilder: (context, index) {
+                  final scrollController = scrollControllers[index];
+
+                  if (isRecruit && index < RecruitType.values.length) {
+                    return RecruitItemListSection(
+                      recruitType: RecruitType.values[index],
+                      departmentCode: departmentCode,
+                      onTapRecruitDetail: handleRecruitDetail,
+                      scrollController: scrollController,
+                    );
+                  } else if (!isRecruit && index < MarketType.values.length) {
+                    return MarketItemListSection(
+                      marketType: MarketType.values[index],
+                      onTapMarketDetail: handleMarketDetail,
+                      scrollController: scrollController,
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

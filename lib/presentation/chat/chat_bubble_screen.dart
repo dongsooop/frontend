@@ -2,8 +2,6 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
-import '../../main.dart';
-
 class ChatBubbleScreen extends StatelessWidget {
   final String nickname;
   final int senderId;

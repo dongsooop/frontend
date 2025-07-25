@@ -41,18 +41,6 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<void> createGroupChatRoom(String title, List<int> userId) async {
-    final endpoint = dotenv.get('GROUP_CHAT');
-    final requestBody = {'title': title, 'participants': userId};
-
-    try {
-      await _authDio.post(endpoint, data: requestBody);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
   Future<List<ChatRoom>?> getChatRooms() async {
     final endpoint = dotenv.get('CHATROOMS_ENDPOINT');
 

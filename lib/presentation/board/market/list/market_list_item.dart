@@ -3,6 +3,7 @@ import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
 import 'package:dongsoop/presentation/board/market/price_formatter.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -31,8 +32,10 @@ class MarketItemListSection extends ConsumerWidget {
     }
 
     return RefreshIndicator(
+      color: ColorStyles.primaryColor,
       onRefresh: viewModel.refresh,
       child: ListView.builder(
+        key: PageStorageKey(marketType.name),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: state.items.length,

@@ -7,9 +7,8 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/providers/splash_providers.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
-
-import '../../core/presentation/components/custom_confirm_dialog.dart';
-import '../../providers/auth_providers.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 
 class SplashScreen extends HookConsumerWidget {
 
@@ -68,10 +67,10 @@ class SplashScreen extends HookConsumerWidget {
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        body: Center(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      body: SafeArea(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
