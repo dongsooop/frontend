@@ -7,7 +7,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class RecruitItemListSection extends ConsumerStatefulWidget {
+class RecruitItemListSection extends ConsumerWidget {
   final RecruitType recruitType;
   final String departmentCode;
   final void Function(int id, RecruitType type) onTapRecruitDetail;
@@ -22,22 +22,10 @@ class RecruitItemListSection extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<RecruitItemListSection> createState() =>
-      _RecruitItemListSectionState();
-}
-
-class _RecruitItemListSectionState extends ConsumerState<RecruitItemListSection>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
+  Widget build(BuildContext context, WidgetRef ref) {
     final viewModelProvider = recruitListViewModelProvider(
-      type: widget.recruitType,
-      departmentCode: widget.departmentCode,
+      type: recruitType,
+      departmentCode: departmentCode,
     );
 
     final state = ref.watch(viewModelProvider);
@@ -61,8 +49,8 @@ class _RecruitItemListSectionState extends ConsumerState<RecruitItemListSection>
         await ref.read(viewModelProvider.notifier).refresh();
       },
       child: ListView.builder(
-        key: PageStorageKey(widget.recruitType.name),
-        controller: widget.scrollController,
+        key: PageStorageKey(recruitType.name),
+        controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: state.posts.length + (state.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
@@ -81,10 +69,7 @@ class _RecruitItemListSectionState extends ConsumerState<RecruitItemListSection>
           return RecruitListItem(
             recruit: recruit,
             isLastItem: isLast,
-            onTap: () => widget.onTapRecruitDetail(
-              recruit.id,
-              widget.recruitType,
-            ),
+            onTap: () => onTapRecruitDetail(recruit.id, recruitType),
           );
         },
       ),

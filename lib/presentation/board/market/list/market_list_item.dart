@@ -7,7 +7,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MarketItemListSection extends ConsumerStatefulWidget {
+class MarketItemListSection extends ConsumerWidget {
   final MarketType marketType;
   final void Function(int id, MarketType type) onTapMarketDetail;
   final ScrollController scrollController;
@@ -20,28 +20,14 @@ class MarketItemListSection extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<MarketItemListSection> createState() =>
-      _MarketItemListSectionState();
-}
-
-class _MarketItemListSectionState extends ConsumerState<MarketItemListSection>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
-    final state =
-        ref.watch(marketListViewModelProvider(type: widget.marketType));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(marketListViewModelProvider(type: marketType));
     final viewModel =
-        ref.read(marketListViewModelProvider(type: widget.marketType).notifier);
+        ref.read(marketListViewModelProvider(type: marketType).notifier);
 
     if (state.items.isEmpty) {
-      final emptyText = widget.marketType == MarketType.SELL
-          ? '판매 중인 게시글이 없어요!'
-          : '구매 중인 게시글이 없어요!';
+      final emptyText =
+          marketType == MarketType.SELL ? '판매 중인 게시글이 없어요!' : '구매 중인 게시글이 없어요!';
       return Center(child: Text(emptyText));
     }
 
@@ -49,8 +35,8 @@ class _MarketItemListSectionState extends ConsumerState<MarketItemListSection>
       color: ColorStyles.primaryColor,
       onRefresh: viewModel.refresh,
       child: ListView.builder(
-        key: PageStorageKey(widget.marketType.name),
-        controller: widget.scrollController,
+        key: PageStorageKey(marketType.name),
+        controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: state.items.length,
         itemBuilder: (context, index) {
@@ -63,7 +49,7 @@ class _MarketItemListSectionState extends ConsumerState<MarketItemListSection>
             relativeTime: formatRelativeTime(market.createdAt),
             priceText: '${PriceFormatter.format(market.price)}원',
             contactCount: market.contactCount,
-            onTap: () => widget.onTapMarketDetail(market.id, widget.marketType),
+            onTap: () => onTapMarketDetail(market.id, marketType),
             isLastItem: isLast,
           );
         },

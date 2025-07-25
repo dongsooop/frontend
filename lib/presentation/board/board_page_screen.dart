@@ -6,6 +6,7 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
+import 'package:dongsoop/presentation/board/providers/board_taps_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_item.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/scroll_listener.dart';
@@ -33,35 +34,31 @@ class BoardPageScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = useState(0);
-    final selectedSubIndex = useState(0);
-    final recruitTabIndex = useState(0);
-    final marketTabIndex = useState(0);
+    final tabState = ref.watch(boardTabProvider);
+    final tabNotifier = ref.read(boardTabProvider.notifier);
 
     final scrollControllers =
         useMemoized(() => List.generate(5, (_) => ScrollController()));
     final pageController = usePageController();
 
-    final isRecruit = selectedIndex.value == 0;
+    final isRecruit = tabState.categoryIndex == 0;
     final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
+    final selectedSubIndex =
+        isRecruit ? tabState.recruitTabIndex : tabState.marketTabIndex;
 
-    // 탭 인덱스 동기화
     useEffect(() {
-      selectedSubIndex.value =
-          isRecruit ? recruitTabIndex.value : marketTabIndex.value;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        pageController.jumpToPage(selectedSubIndex.value);
+        pageController.jumpToPage(selectedSubIndex);
       });
       return null;
-    }, [selectedIndex.value]);
+    }, [tabState.categoryIndex]);
 
     final user = ref.watch(userSessionProvider);
     final departmentCode = user != null
         ? DepartmentTypeExtension.fromDisplayName(user.departmentType).code
         : '';
 
-    final safeIndex =
-        selectedSubIndex.value.clamp(0, currentSubTabs.length - 1);
+    final safeIndex = selectedSubIndex.clamp(0, currentSubTabs.length - 1);
 
     final recruitType = isRecruit && safeIndex < RecruitType.values.length
         ? RecruitType.values[safeIndex]
@@ -97,11 +94,7 @@ class BoardPageScreen extends HookConsumerWidget {
         );
       }
       return null;
-    }, [
-      safeIndex,
-      selectedIndex.value,
-      departmentCode,
-    ]);
+    }, [safeIndex, tabState.categoryIndex, departmentCode]);
 
     Future<void> handleWriteAction() async {
       final user = ref.watch(userSessionProvider);
@@ -169,26 +162,17 @@ class BoardPageScreen extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: BoardTabSection(
                 categoryTabs: categoryTabs,
-                selectedCategoryIndex: selectedIndex.value,
+                selectedCategoryIndex: tabState.categoryIndex,
                 selectedSubTabIndex: safeIndex,
                 subTabs: currentSubTabs,
                 onCategorySelected: (newIndex) {
-                  // 이전 하위 탭 상태 저장
-                  if (selectedIndex.value == 0) {
-                    recruitTabIndex.value = selectedSubIndex.value;
-                  } else {
-                    marketTabIndex.value = selectedSubIndex.value;
-                  }
-
-                  selectedIndex.value = newIndex;
+                  tabNotifier.setCategoryIndex(newIndex);
                 },
                 onSubTabSelected: (newSubIndex) {
-                  selectedSubIndex.value = newSubIndex;
-
                   if (isRecruit) {
-                    recruitTabIndex.value = newSubIndex;
+                    tabNotifier.setRecruitTabIndex(newSubIndex);
                   } else {
-                    marketTabIndex.value = newSubIndex;
+                    tabNotifier.setMarketTabIndex(newSubIndex);
                   }
 
                   pageController.animateToPage(
@@ -204,11 +188,10 @@ class BoardPageScreen extends HookConsumerWidget {
                 controller: pageController,
                 itemCount: currentSubTabs.length,
                 onPageChanged: (index) {
-                  selectedSubIndex.value = index;
                   if (isRecruit) {
-                    recruitTabIndex.value = index;
+                    tabNotifier.setRecruitTabIndex(index);
                   } else {
-                    marketTabIndex.value = index;
+                    tabNotifier.setMarketTabIndex(index);
                   }
                 },
                 itemBuilder: (context, index) {
