@@ -4,6 +4,7 @@ import 'package:dongsoop/presentation/board/recruit/write/widget/recruit_bottom_
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MajorTagSection extends StatelessWidget {
   final List<String> selectedMajors;
@@ -161,6 +162,9 @@ class MajorTagSection extends StatelessWidget {
                   onSubmitted: (_) => handleTagAdd(context),
                   maxLength: 8,
                   style: TextStyles.normalTextRegular,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(RegExp(r'\s')), // 공백 입력 차단
+                  ],
                   decoration: InputDecoration(
                     isDense: true,
                     counterText: '',

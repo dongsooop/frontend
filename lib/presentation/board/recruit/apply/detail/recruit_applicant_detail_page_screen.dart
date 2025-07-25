@@ -36,40 +36,48 @@ class RecruitApplicantDetailPage extends ConsumerWidget {
     );
 
     return state.when(
-      data: (detail) => Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: DetailHeader(title: "${detail.title} 지원자"),
-        ),
-        body: SafeArea(child: _ApplicantDetailBody(detail: detail)),
-        bottomNavigationBar: _DecisionButtons(
-          status: detail.status,
-          onPass: () async {
-            final decisionNotifier =
-                ref.read(recruitDecisionViewModelProvider.notifier);
-            await decisionNotifier.decide(
-              type: type,
-              boardId: boardId,
-              applierId: memberId,
-              status: 'PASS',
-            );
-            if (context.mounted) context.pop('PASS');
-          },
-          onFail: () async {
-            final decisionNotifier =
-                ref.read(recruitDecisionViewModelProvider.notifier);
-            await decisionNotifier.decide(
-              type: type,
-              boardId: boardId,
-              applierId: memberId,
-              status: 'FAIL',
-            );
-            if (context.mounted) context.pop('FAIL');
-          },
+      data: (detail) => SafeArea(
+        child: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(44),
+            child: DetailHeader(title: "${detail.title} 지원자"),
+          ),
+          body: SafeArea(child: _ApplicantDetailBody(detail: detail)),
+          bottomNavigationBar: _DecisionButtons(
+            status: detail.status,
+            onPass: () async {
+              final decisionNotifier =
+                  ref.read(recruitDecisionViewModelProvider.notifier);
+              await decisionNotifier.decide(
+                type: type,
+                boardId: boardId,
+                applierId: memberId,
+                status: 'PASS',
+              );
+              if (context.mounted) context.pop('PASS');
+            },
+            onFail: () async {
+              final decisionNotifier =
+                  ref.read(recruitDecisionViewModelProvider.notifier);
+              await decisionNotifier.decide(
+                type: type,
+                boardId: boardId,
+                applierId: memberId,
+                status: 'FAIL',
+              );
+              if (context.mounted) context.pop('FAIL');
+            },
+          ),
         ),
       ),
-      loading: () => Scaffold(
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+      loading: () => const SafeArea(
+        child: Scaffold(
+          body: SafeArea(
+            child: Center(
+                child:
+                    CircularProgressIndicator(color: ColorStyles.primaryColor)),
+          ),
+        ),
       ),
       error: (e, _) => Scaffold(
         body: SafeArea(child: Center(child: Text('$e'))),

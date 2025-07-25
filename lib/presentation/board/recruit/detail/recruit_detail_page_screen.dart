@@ -6,6 +6,7 @@ import 'package:dongsoop/core/presentation/components/login_required_dialog.dart
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
+import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/widget/botton_button.dart';
@@ -17,7 +18,6 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 
 class RecruitDetailPageScreen extends ConsumerWidget {
   final int id;
@@ -61,7 +61,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                   data: (data) {
                     final viewType = data.recruitDetail?.viewType;
                     final isOwner = viewType == 'OWNER';
-    
+
                     return IconButton(
                       icon: const Icon(Icons.more_vert),
                       onPressed: () {
@@ -87,14 +87,14 @@ class RecruitDetailPageScreen extends ConsumerWidget {
         data: (data) {
           final detail = data.recruitDetail;
           if (detail == null) return const SizedBox.shrink();
-    
+
           final viewType = detail.viewType;
           final isAuthor = viewType == 'OWNER';
           final isGuest = viewType == 'GUEST';
-    
+
           String buttonLabel;
           bool isEnabled = true;
-    
+
           if (isAuthor) {
             buttonLabel = '지원자 확인';
           } else if (viewType == 'MEMBER' && detail.isAlreadyApplied) {
@@ -103,7 +103,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
           } else {
             buttonLabel = '지원하기';
           }
-    
+
           return RecruitBottomButton(
             label: buttonLabel,
             isEnabled: isEnabled,
@@ -111,10 +111,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
               if (isAuthor) {
                 onTapApplicantList();
               } else if (isGuest) {
-                showDialog(
-                  context: context,
-                  builder: (_) => LoginRequiredDialog(),
-                );
+                await LoginRequiredDialog(context);
               } else {
                 final didApply = await onTapRecruitApply();
                 if (didApply == true) {
@@ -135,33 +132,29 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                     content: '자기 자신과 채팅은 불가능해요.',
                     isSingleAction: true,
                     confirmText: '확인',
-                    onConfirm: () async {
-                    },
+                    onConfirm: () async {},
                   ),
                 );
               } else if (isGuest) {
-                showDialog(
-                  context: context,
-                  builder: (_) => LoginRequiredDialog(),
-                );
+                await LoginRequiredDialog(context);
               } else {
                 showDialog(
                   context: context,
                   builder: (_) => CustomConfirmDialog(
-                    title: '모집 문의',
-                    content: '작성자에게 모집글과 관련한 문의를 할 수 있어요',
-                    confirmText: '문의하기',
-                    onConfirm: () async {
-                      final viewModel = ref.read(
-                        recruitDetailViewModelProvider(
-                          RecruitDetailArgs(id: id, type: type),
-                        ).notifier,
-                      );
-    
-                      final chatRoom = await viewModel.createChatRoom(detail.title, detail.authorId);
-                      onTapChatDetail(chatRoom);
-                    }
-                  ),
+                      title: '모집 문의',
+                      content: '작성자에게 모집글과 관련한 문의를 할 수 있어요',
+                      confirmText: '문의하기',
+                      onConfirm: () async {
+                        final viewModel = ref.read(
+                          recruitDetailViewModelProvider(
+                            RecruitDetailArgs(id: id, type: type),
+                          ).notifier,
+                        );
+
+                        final chatRoom = await viewModel.createChatRoom(
+                            detail.title, detail.authorId);
+                        onTapChatDetail(chatRoom);
+                      }),
                 );
               }
             },
@@ -171,19 +164,21 @@ class RecruitDetailPageScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: detailState.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(
+              child:
+                  CircularProgressIndicator(color: ColorStyles.primaryColor)),
           error: (e, _) => Center(child: Text('$e')),
           data: (data) {
             final detail = data.recruitDetail;
             if (detail == null) {
               return const Center(child: Text('상세정보가 없습니다.'));
             }
-            
+
             final allDepartments = DepartmentType.values
                 .where((e) => e != DepartmentType.Unknown)
                 .map((e) => e.code)
                 .toSet();
-            
+
             return Padding(
               padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(
@@ -199,16 +194,16 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: (status ?? '모집 중') == '모집 중'
-                              ? ColorStyles.primary5
-                              : ColorStyles.gray1,
+                                ? ColorStyles.primary5
+                                : ColorStyles.gray1,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             status ?? '모집 중',
                             style: TextStyles.smallTextBold.copyWith(
-                              color:  (status ?? '모집 중') == '모집 중'
-                                ? ColorStyles.primaryColor
-                                : ColorStyles.gray3,
+                              color: (status ?? '모집 중') == '모집 중'
+                                  ? ColorStyles.primaryColor
+                                  : ColorStyles.gray3,
                             ),
                           ),
                         ),

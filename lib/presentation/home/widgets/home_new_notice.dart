@@ -84,8 +84,11 @@ class HomeNewNotice extends HookConsumerWidget {
             ),
             padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
             child: noticeState.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, _) => Center(child: Text('$err')),
+              loading: () => const Center(
+                  child: CircularProgressIndicator(
+                color: ColorStyles.primaryColor,
+              )),
+              error: (e, _) => Center(child: Text('$e')),
               data: (notices) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,6 +101,7 @@ class HomeNewNotice extends HookConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () {
                             context.pushNamed(
                               'noticeWebView',
