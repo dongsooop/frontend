@@ -46,7 +46,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          flutter clean
           flutter pub get
           cd ios && pod install --repo-update
 
@@ -58,7 +57,7 @@ jobs:
       # 무료 버전 - Apple Developer 계정 없이 빌드만
       - name: Build iOS (no codesign)
         run: |
-          flutter build ios --release --no-codesign
+          flutter build ios --simulator --no-codesign
           echo "iOS build completed successfully!"
 
       # 빌드 결과 확인
