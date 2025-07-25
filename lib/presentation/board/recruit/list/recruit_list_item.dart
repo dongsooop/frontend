@@ -7,7 +7,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class RecruitItemListSection extends ConsumerWidget {
+class RecruitItemListSection extends ConsumerStatefulWidget {
   final RecruitType recruitType;
   final String departmentCode;
   final void Function(int id, RecruitType type) onTapRecruitDetail;
@@ -22,10 +22,22 @@ class RecruitItemListSection extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RecruitItemListSection> createState() =>
+      _RecruitItemListSectionState();
+}
+
+class _RecruitItemListSectionState extends ConsumerState<RecruitItemListSection>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
     final viewModelProvider = recruitListViewModelProvider(
-      type: recruitType,
-      departmentCode: departmentCode,
+      type: widget.recruitType,
+      departmentCode: widget.departmentCode,
     );
 
     final state = ref.watch(viewModelProvider);
@@ -49,7 +61,8 @@ class RecruitItemListSection extends ConsumerWidget {
         await ref.read(viewModelProvider.notifier).refresh();
       },
       child: ListView.builder(
-        controller: scrollController,
+        key: PageStorageKey(widget.recruitType.name),
+        controller: widget.scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: state.posts.length + (state.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
@@ -68,7 +81,10 @@ class RecruitItemListSection extends ConsumerWidget {
           return RecruitListItem(
             recruit: recruit,
             isLastItem: isLast,
-            onTap: () => onTapRecruitDetail(recruit.id, recruitType),
+            onTap: () => widget.onTapRecruitDetail(
+              recruit.id,
+              widget.recruitType,
+            ),
           );
         },
       ),
