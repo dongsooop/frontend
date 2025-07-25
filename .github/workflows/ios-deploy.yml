@@ -27,42 +27,17 @@ jobs:
         run: |
           echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
 
-      - name: Decode App Store Connect API Key
-        env:
-          APPSTORE_KEY_BASE64: ${{ secrets.APPSTORE_KEY_BASE64 }}
-        run: |
-          # API Key ID를 포함한 올바른 파일명으로 생성
-          KEY_PATH="$RUNNER_TEMP/AuthKey_${{ secrets.APPSTORE_API_KEY_ID }}.p8"
-          echo "$APPSTORE_KEY_BASE64" | base64 --decode > "$KEY_PATH"
-          
-          # 파일이 제대로 생성되었는지 확인
-          if [ ! -f "$KEY_PATH" ] || [ ! -s "$KEY_PATH" ]; then
-            echo "Error: API key file was not created properly or is empty"
-            exit 1
-          fi
-          
-          echo "API key file created successfully:"
-          echo "File path: $KEY_PATH"
-          echo "File size: $(stat -f%z "$KEY_PATH") bytes"
-          echo "First few lines:"
-          head -n 3 "$KEY_PATH"
-          
-          # 환경 변수로 설정
-          echo "KEY_PATH=$KEY_PATH" >> $GITHUB_ENV
-
       - name: Install dependencies
         run: |
           flutter clean
-          flutter pub get
           cd ios && pod install --repo-update
+          cd ..
+          flutter pub get
 
       # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
       - name: Analyze code
         run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
         continue-on-error: false
-
-      - name: Clean build
-        run: flutter clean
 
       - name: Decode certificates/profiles
         run: |
@@ -85,23 +60,6 @@ jobs:
 
       - name: Build Flutter iOS
         run: flutter build ipa --release --export-options-plist=ios/ExportOptions_AppStore.plist --verbose
-
-      # 빌드된 IPA 파일 확인
-      - name: Verify IPA file
-        run: |
-          IPA_PATH="build/ios/ipa/dongsoop.ipa"
-          if [ ! -f "$IPA_PATH" ]; then
-            echo "❌ IPA file not found at $IPA_PATH"
-            echo "📁 Listing build directory contents:"
-            find build/ios -name "*.ipa" -o -name "*.xcarchive" | head -20
-            exit 1
-          fi
-          
-          echo "✅ IPA file found: $IPA_PATH"
-          echo "📏 File size: $(du -h "$IPA_PATH" | cut -f1)"
-          
-          # IPA 내용 확인
-          unzip -l "$IPA_PATH" | head -10
 
       # TestFlight 업로드
       - name: Upload app to TestFlight
