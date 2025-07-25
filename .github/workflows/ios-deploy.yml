@@ -86,46 +86,8 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: create Generated.xcconfig
-        run: flutter build ios --release --no-codesign
-
       - name: Build Flutter iOS
-        run: flutter build ipa --release --no-codesign
-
-#      # 빌드 및 IPA 내보내기
-#      - name: Archive IPA
-#        working-directory: ios
-#        run: |
-#          xcodebuild -workspace Runner.xcworkspace \
-#                      -scheme Runner \
-#                      -configuration Release \
-#                      -archivePath $PWD/build/Runner.xcarchive \
-#                      DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} \
-#                      CODE_SIGN_IDENTITY="Apple Distribution" \
-#                      archive
-#
-#      - name: Export IPA
-#        working-directory: ios
-#        env:
-#          KEY_PATH: ${{ env.KEY_PATH }}
-#        run: |
-#          # API 키 파일 존재 확인
-#          echo "Checking API key file:"
-#          ls -la "$KEY_PATH"
-#
-#          # 파일이 비어있지 않은지 확인
-#          if [ ! -s "$KEY_PATH" ]; then
-#            echo "Error: API key file is empty or doesn't exist"
-#            exit 1
-#          fi
-#
-#          xcodebuild -exportArchive \
-#            -archivePath $PWD/build/Runner.xcarchive \
-#            -exportPath $PWD/build/export \
-#            -exportOptionsPlist ../.github/workflows/ExportOptions.plist \
-#            -authenticationKeyIssuerID "${{ secrets.APPSTORE_ISSUER_ID }}" \
-#            -authenticationKeyID "${{ secrets.APPSTORE_API_KEY_ID }}" \
-#            -authenticationKeyPath "$KEY_PATH"
+        run: flutter build ipa --release --export-options-plist=ios/ExportOptions_AppStore.plist
 
       # TestFlight 업로드
       - name: Upload app to TestFlight
