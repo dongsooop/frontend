@@ -22,6 +22,7 @@ jobs:
           flutter-version: '3.27.1'
           channel: 'stable'
           architecture: x64
+          cache: true
 
       - name: Decode and create .env file
         run: |
@@ -57,7 +58,7 @@ jobs:
         with:
           name: dongsoop-ios-app-${{ github.run_number }}
           path: build/ios/iphoneos/Runner.app
-          retention-days: 30
+          retention-days: 7
 
       # 빌드 성공 알림
       - name: Build Success Summary
