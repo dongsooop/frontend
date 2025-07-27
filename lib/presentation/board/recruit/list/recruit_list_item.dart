@@ -49,6 +49,7 @@ class RecruitItemListSection extends ConsumerWidget {
         await ref.read(viewModelProvider.notifier).refresh();
       },
       child: ListView.builder(
+        key: PageStorageKey(recruitType.name),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: state.posts.length + (state.hasMore ? 1 : 0),

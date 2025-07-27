@@ -35,6 +35,7 @@ class MarketItemListSection extends ConsumerWidget {
       color: ColorStyles.primaryColor,
       onRefresh: viewModel.refresh,
       child: ListView.builder(
+        key: PageStorageKey(marketType.name),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: state.items.length,
