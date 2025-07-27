@@ -186,27 +186,29 @@ class BoardPageScreen extends HookConsumerWidget {
                     curve: Curves.easeInOut,
                   );
                   if (isSameIndex) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      final currentPage = pageController.page?.round();
+                    final controller = scrollControllers[newSubIndex];
 
-                      if (currentPage == newSubIndex) {
-                        final controller = scrollControllers[newSubIndex];
-
-                        if (controller.hasClients) {
-                          controller.jumpTo(0);
-                        }
-
-                        if (isRecruit && newSubIndex < RecruitType.values.length) {
-                          final type = RecruitType.values[newSubIndex];
-                          ref.read(recruitListViewModelProvider(
-                            type: type,
-                            departmentCode: departmentCode,
-                          ).notifier).refresh();
-                        } else if (!isRecruit && newSubIndex < MarketType.values.length) {
-                          final type = MarketType.values[newSubIndex];
-                          ref.read(marketListViewModelProvider(type: type).notifier).refresh();
-                        }
+                    Future.microtask(() async {
+                      if (isRecruit && newSubIndex < RecruitType.values.length) {
+                        final type = RecruitType.values[newSubIndex];
+                        await ref.read(recruitListViewModelProvider(
+                          type: type,
+                          departmentCode: departmentCode,
+                        ).notifier).refresh();
+                      } else if (!isRecruit && newSubIndex < MarketType.values.length) {
+                        final type = MarketType.values[newSubIndex];
+                        await ref.read(marketListViewModelProvider(type: type).notifier).refresh();
                       }
+
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (controller.hasClients) {
+                          controller.animateTo(
+                            0,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      });
                     });
                   }
                 },
