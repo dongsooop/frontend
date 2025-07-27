@@ -10,6 +10,9 @@ VoidCallback setupScrollListener<T>({
   required VoidCallback fetchMore,
 }) {
   void listener() {
+    if (!scrollController.hasClients) {
+      return;
+    }
     final isBottom = scrollController.position.pixels >=
         scrollController.position.maxScrollExtent - 100;
     final state = getState();

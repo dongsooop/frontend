@@ -53,10 +53,7 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
         isLoading: false,
       );
     } catch (e) {
-      return MarketDetailState(
-        isLoading: false,
-        error: e.toString(),
-      );
+      rethrow;
     }
   }
 

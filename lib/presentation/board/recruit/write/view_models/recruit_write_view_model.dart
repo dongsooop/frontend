@@ -97,8 +97,7 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
       state = state.copyWith(errMessage: e.message);
       return false;
     } catch (e) {
-      state = state.copyWith(errMessage: '알 수 없는 오류가 발생했어요.');
-      return false;
+      rethrow;
     } finally {
       state = state.copyWith(
         isLoading: false,

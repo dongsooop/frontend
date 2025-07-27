@@ -263,7 +263,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
               context: context,
               builder: (_) => CustomConfirmDialog(
                 title: '삭제 실패',
-                content: '게시글 삭제 중 문제가 발생했습니다.\n${e.toString()}',
+                content: '$e',
                 confirmText: '확인',
                 onConfirm: () => context.pop(),
                 isSingleAction: true,

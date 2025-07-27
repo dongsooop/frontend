@@ -65,7 +65,7 @@ class ChatLeaveException implements Exception {
 class RecruitListException implements Exception {
   final String message;
   RecruitListException([
-    this.message = "모집 게시글 목록을 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "모집 게시글 리스트를 불러오는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -75,7 +75,7 @@ class RecruitListException implements Exception {
 class RecruitDetailException implements Exception {
   final String message;
   RecruitDetailException([
-    this.message = "모집 게시글 상세 정보를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "모집 게시글의 상세 정보를\n 불러오는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -85,7 +85,7 @@ class RecruitDetailException implements Exception {
 class RecruitDeleteException implements Exception {
   final String message;
   RecruitDeleteException([
-    this.message = "해당 모집 게시글 삭제 과정에서 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "해당 모집 게시글 삭제 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -96,7 +96,7 @@ class RecruitWriteException implements Exception {
   final String message;
 
   RecruitWriteException([
-    this.message = "모집 게시글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "모집 게시글을 작성하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -107,7 +107,7 @@ class CalendarException implements Exception {
   final String message;
 
   CalendarException([
-    this.message = "일정 데이터를 불러오는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.",
+    this.message = "일정 데이터를 불러오는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -118,7 +118,7 @@ class CalendarActionException implements Exception {
   final String message;
 
   CalendarActionException([
-    this.message = "일정을 처리하는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.",
+    this.message = "일정을 처리하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -127,7 +127,8 @@ class CalendarActionException implements Exception {
 
 class CafeteriaException implements Exception {
   final String message;
-  CafeteriaException([this.message = "학식 조회에 실패했습니다. 잠시 후 다시 시도해주세요"]);
+  CafeteriaException(
+      [this.message = "학식을 조회하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -135,7 +136,8 @@ class CafeteriaException implements Exception {
 
 class NoticeException implements Exception {
   final String message;
-  NoticeException([this.message = "공지 조회에 실패했습니다. 잠시 후 다시 시도해주세요"]);
+  NoticeException(
+      [this.message = "공지를 조회하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -144,7 +146,7 @@ class NoticeException implements Exception {
 class RecruitApplyException implements Exception {
   final String message;
   RecruitApplyException(
-      [this.message = "해당 모집에 지원하는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+      [this.message = "해당 모집에 지원하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -153,7 +155,7 @@ class RecruitApplyException implements Exception {
 class RecruitApplicantListException implements Exception {
   final String message;
   RecruitApplicantListException(
-      [this.message = "모집 지원 리스트 조회 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+      [this.message = "해당 모집 지원 리스트\n 조회 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -162,7 +164,7 @@ class RecruitApplicantListException implements Exception {
 class RecruitApplicantDetailException implements Exception {
   final String message;
   RecruitApplicantDetailException(
-      [this.message = "지원 내용 확인하는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+      [this.message = "해당 지원자의 지원 내용을 확인하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -171,7 +173,7 @@ class RecruitApplicantDetailException implements Exception {
 class RecruitApplicantException implements Exception {
   final String message;
   RecruitApplicantException(
-      [this.message = "결과를 처리하는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+      [this.message = "결과를 처리하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -198,7 +200,7 @@ class ApplyMotivationException implements Exception {
 class MarketListException implements Exception {
   final String message;
   MarketListException([
-    this.message = "장터 게시글 목록을 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "장터 게시글 리스트를 불러오는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -208,7 +210,7 @@ class MarketListException implements Exception {
 class MarketDetailException implements Exception {
   final String message;
   MarketDetailException([
-    this.message = "장터 게시글 상세 정보를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "장터 게시글의 상세 정보를\n 불러오는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -219,7 +221,7 @@ class MarketWriteException implements Exception {
   final String message;
 
   MarketWriteException([
-    this.message = "장터 게시글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "장터 게시글을 작성하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -230,7 +232,7 @@ class MarketUpdateException implements Exception {
   final String message;
 
   MarketUpdateException([
-    this.message = "장터 게시글 수정 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "장터 게시글 수정 중 문제가 발생했어요.\n 잠시 후 다시 시도해주세요",
   ]);
 
   @override
@@ -241,7 +243,7 @@ class MarketDeleteException implements Exception {
   final String message;
 
   MarketDeleteException([
-    this.message = "장터 게시글 삭제 과정에서 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "장터 게시글 삭제 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요",
   ]);
 
   @override
@@ -252,7 +254,7 @@ class MarketCloseException implements Exception {
   final String message;
 
   MarketCloseException([
-    this.message = "거래 완료 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "거래 완료 중 문제가 발생했어요.\n 잠시 후 다시 시도해주세요",
   ]);
 
   @override
@@ -263,7 +265,7 @@ class MarketContactException implements Exception {
   final String message;
 
   MarketContactException([
-    this.message = "거래 연결 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "거래 연결 중 문제가 발생했어요.\n 잠시 후 다시 시도해주세요",
   ]);
 
   @override

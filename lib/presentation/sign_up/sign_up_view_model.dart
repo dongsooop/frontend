@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
+import 'package:dongsoop/domain/auth/use_case/check_email_code_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/send_email_code_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,10 +14,14 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
   Timer? _timer;
   final SignUpUseCase _signUpUseCase;
   final CheckDuplicateUseCase _checkDuplicateUseCase;
+  final CheckEmailCodeUseCase _checkEmailCodeUseCase;
+  final SendEmailCodeUseCase _sendEmailCodeUseCase;
 
   SignUpViewModel(
     this._signUpUseCase,
     this._checkDuplicateUseCase,
+    this._checkEmailCodeUseCase,
+    this._sendEmailCodeUseCase,
   ) : super(
     SignUpState(
       isLoading: false,
@@ -60,8 +66,6 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
       isLoading: false,
     );
     final emailCodeState = EmailVerificationCodeState(
-      code: null,
-      isCodeSent: false,
       isTimerRunning: false,
       remainingSeconds: null,
       isChecked: null,
@@ -135,16 +139,17 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
   }
 
   // 이메일 인증 코드 요청
-  Future<void> sendEmailVerificationCode() async {
+  Future<void> sendEmailVerificationCode(String userEmail) async {
     if (state.email.isDuplicate != false) return;
 
     state = state.copyWith(
       emailCode: state.emailCode.copyWith(
         isCodeLoading: true,
+        failCount: 0,
       ),
     );
     try {
-      final isChecked = true; // await _checkEmailCodeUseCase.execute(code);
+      await _sendEmailCodeUseCase.execute(userEmail + '@dongyang.ac.kr');
       startTimer();
     } catch (e) {
       state = state.copyWith(
@@ -162,7 +167,6 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
     state = state.copyWith(
       emailCode: state.emailCode.copyWith(
         isCodeLoading: false,
-        isCodeSent: true,
         isTimerRunning: true,
         remainingSeconds: 300,
       ),
@@ -175,6 +179,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
           emailCode: state.emailCode.copyWith(
             isTimerRunning: false,
             remainingSeconds: 0,
+            failCount: 0,
           ),
         );
       } else {
@@ -189,7 +194,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
   }
 
   // 이메일 인증 코드 확인
-  Future<void> checkEmailVerificationCode(String code) async {
+  Future<void> checkEmailVerificationCode(String userEmail, String code) async {
     if (state.emailCode.isTimerRunning != true) return;
 
     state = state.copyWith(
@@ -199,19 +204,31 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
       ),
     );
     try {
-      final isChecked = code == '123456' ? true : false; // await _checkEmailCodeUseCase.execute(code);
-      if (isChecked) _timer?.cancel();
+      final isChecked = await _checkEmailCodeUseCase.execute(userEmail + '@dongyang.ac.kr', code);
+      int nextFailCount = isChecked ? 0 : (state.emailCode.failCount + 1);
+      bool shouldStopTimer = !isChecked && nextFailCount >= 3;
+
+      String? errorMsg;
+      if (shouldStopTimer) {
+        errorMsg = "인증 코드가 3회 틀렸어요. 다시 인증해 주세요.";
+      } else if (!isChecked) {
+        errorMsg = "인증 코드가 일치하지 않아요";
+      }
+
+      if (isChecked || shouldStopTimer) _timer?.cancel();
+
       state = state.copyWith(
         isEmailValid: isChecked,
         email: state.email.copyWith(
-          message: isChecked ? '' : '인증 코드가 일치하지 않아요',
+          message: errorMsg ?? '',
         ),
         emailCode: state.emailCode.copyWith(
           isError: !isChecked,
           isChecked: isChecked,
           isCheckLoading: false,
-          isTimerRunning: false,
-          remainingSeconds: 0,
+          isTimerRunning: (isChecked || shouldStopTimer) ? false : state.emailCode.isTimerRunning,
+          remainingSeconds: (isChecked || shouldStopTimer) ? 0 : state.emailCode.remainingSeconds,
+          failCount: nextFailCount,
         ),
       );
     } catch (e) {

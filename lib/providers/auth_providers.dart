@@ -19,6 +19,8 @@ import 'package:dongsoop/presentation/my_page/my_page_view_model.dart';
 import 'package:dongsoop/domain/auth/use_case/check_duplicate_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_view_model.dart';
+import 'package:dongsoop/domain/auth/use_case/check_email_code_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/send_email_code_use_case.dart';
 
 // Data Source
 final authDataSourceProvider = Provider<AuthDataSource>((ref) {
@@ -61,14 +63,22 @@ final deleteUserUseCaseProvider = Provider<DeleteUserUseCase>((ref) {
   return DeleteUserUseCase(authRepository, chatRepository);
 });
 
-final SignUpUseCaseProvider = Provider<SignUpUseCase>((ref) {
+final signUpUseCaseProvider = Provider<SignUpUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   return SignUpUseCase(repository);
 });
 
-final CheckDuplicateUseCaseProvider = Provider<CheckDuplicateUseCase>((ref) {
+final checkDuplicateUseCaseProvider = Provider<CheckDuplicateUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   return CheckDuplicateUseCase(repository);
+});
+final checkEmailCodeUseCaseProvider = Provider<CheckEmailCodeUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return CheckEmailCodeUseCase(repository);
+});
+final sendEmailCodeUseCaseProvider = Provider<SendEmailCodeUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return SendEmailCodeUseCase(repository);
 });
 
 // View Model
@@ -80,10 +90,12 @@ final signInViewModelProvider = StateNotifierProvider<SignInViewModel, AsyncValu
 });
 
 final signUpViewModelProvider = StateNotifierProvider.autoDispose<SignUpViewModel, SignUpState>((ref) {
-  final signUpUseCase = ref.watch(SignUpUseCaseProvider);
-  final checkDuplicateUseCase = ref.watch(CheckDuplicateUseCaseProvider);
+  final signUpUseCase = ref.watch(signUpUseCaseProvider);
+  final checkDuplicateUseCase = ref.watch(checkDuplicateUseCaseProvider);
+  final checkEmailCodeUseCase = ref.watch(checkEmailCodeUseCaseProvider);
+  final sendEmailCodeUseCase = ref.watch(sendEmailCodeUseCaseProvider);
 
-  return SignUpViewModel(signUpUseCase, checkDuplicateUseCase);
+  return SignUpViewModel(signUpUseCase, checkDuplicateUseCase, checkEmailCodeUseCase, sendEmailCodeUseCase);
 });
 
 final myPageViewModelProvider =

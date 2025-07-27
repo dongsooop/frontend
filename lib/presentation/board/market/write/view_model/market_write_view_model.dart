@@ -198,7 +198,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       return false;
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
-      return false;
+      rethrow;
     } finally {
       state = state.copyWith(isSubmitting: false);
     }
@@ -222,7 +222,10 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
 
     if (badSentences.isNotEmpty) {
       final message = badSentences.join('\n');
-      state = state.copyWith(profanityMessage: message);
+      state = state.copyWith(
+        profanityMessage: message,
+        profanityMessageTriggerKey: state.profanityMessageTriggerKey + 1,
+      );
     }
   }
 

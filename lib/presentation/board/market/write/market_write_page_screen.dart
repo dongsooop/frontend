@@ -43,19 +43,24 @@ class MarketWritePageScreen extends HookConsumerWidget {
     final priceController = useTextEditingController();
     final isInitialized = useState(false);
 
-    // 초기값을 프레임 이후에 설정
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        titleController.text = state.title;
-        contentController.text = state.content;
-        priceController.text =
-        state.price > 0 ? PriceFormatter.format(state.price) : '';
+        if (titleController.text != state.title) {
+          titleController.text = state.title;
+        }
+        if (contentController.text != state.content) {
+          contentController.text = state.content;
+        }
+        final formattedPrice = state.price > 0 ? PriceFormatter.format(state.price) : '';
+        if (priceController.text != formattedPrice) {
+          priceController.text = formattedPrice;
+        }
         isInitialized.value = true;
       });
       return null;
     }, [state.title, state.content, state.price]);
 
-    // 리스너는 초기화 이후 등록
+
     useEffect(() {
       if (!isInitialized.value) return null;
 
@@ -106,7 +111,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
         });
       }
       return null;
-    }, [state.profanityMessage]);
+    }, [state.profanityMessageTriggerKey]);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -133,9 +138,9 @@ class MarketWritePageScreen extends HookConsumerWidget {
             await showDialog(
               context: context,
               builder: (_) => CustomConfirmDialog(
-                title: '오류',
+                title: '장터 오류',
                 content:
-                '${isEditing ? '수정' : '등록'} 중 문제가 발생했습니다.\n${e.toString()}',
+                '${e.toString()}',
                 confirmText: '확인',
                 onConfirm: () {},
                 isSingleAction: true,
