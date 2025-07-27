@@ -43,7 +43,6 @@ class MarketWritePageScreen extends HookConsumerWidget {
     final priceController = useTextEditingController();
     final isInitialized = useState(false);
 
-    // 초기값을 프레임 이후에 설정
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         titleController.text = state.title;
@@ -55,7 +54,6 @@ class MarketWritePageScreen extends HookConsumerWidget {
       return null;
     }, [state.title, state.content, state.price]);
 
-    // 리스너는 초기화 이후 등록
     useEffect(() {
       if (!isInitialized.value) return null;
 
@@ -106,7 +104,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
         });
       }
       return null;
-    }, [state.profanityMessage]);
+    }, [state.profanityMessageTriggerKey]);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
