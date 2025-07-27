@@ -198,7 +198,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       return false;
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
-      return false;
+      rethrow;
     } finally {
       state = state.copyWith(isSubmitting: false);
     }

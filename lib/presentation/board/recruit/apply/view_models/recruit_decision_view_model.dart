@@ -33,6 +33,7 @@ class RecruitDecisionViewModel extends _$RecruitDecisionViewModel {
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);
+      rethrow;
     }
   }
 }

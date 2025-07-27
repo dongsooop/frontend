@@ -75,7 +75,7 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
         status: status,
       );
       return model;
-    }, RecruitApplicantDetailException());
+    }, RecruitApplicantException());
   }
 
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
