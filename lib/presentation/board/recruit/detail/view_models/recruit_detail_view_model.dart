@@ -53,10 +53,7 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
         isLoading: false,
       );
     } catch (e) {
-      return RecruitDetailState(
-        isLoading: false,
-        error: e.toString(),
-      );
+      rethrow;
     }
   }
 

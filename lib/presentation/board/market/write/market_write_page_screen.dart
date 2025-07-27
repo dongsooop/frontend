@@ -45,14 +45,21 @@ class MarketWritePageScreen extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        titleController.text = state.title;
-        contentController.text = state.content;
-        priceController.text =
-            state.price > 0 ? PriceFormatter.format(state.price) : '';
+        if (titleController.text != state.title) {
+          titleController.text = state.title;
+        }
+        if (contentController.text != state.content) {
+          contentController.text = state.content;
+        }
+        final formattedPrice = state.price > 0 ? PriceFormatter.format(state.price) : '';
+        if (priceController.text != formattedPrice) {
+          priceController.text = formattedPrice;
+        }
         isInitialized.value = true;
       });
       return null;
     }, [state.title, state.content, state.price]);
+
 
     useEffect(() {
       if (!isInitialized.value) return null;
@@ -72,7 +79,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
 
     Future<void> _pickImage() async {
       final pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.gallery);
+      await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         await viewModel.compressAndAddImage(pickedFile);
       }
@@ -131,9 +138,9 @@ class MarketWritePageScreen extends HookConsumerWidget {
             await showDialog(
               context: context,
               builder: (_) => CustomConfirmDialog(
-                title: '오류',
+                title: '장터 오류',
                 content:
-                    '${isEditing ? '수정' : '등록'} 중 문제가 발생했습니다.\n${e.toString()}',
+                '${e.toString()}',
                 confirmText: '확인',
                 onConfirm: () {},
                 isSingleAction: true,
@@ -189,7 +196,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   }),
                 ),
                 const SizedBox(height: 40),
-
+            
                 // 제목
                 RequiredLabel('제목'),
                 const SizedBox(height: 16),
@@ -199,7 +206,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   maxLength: 20,
                 ),
                 const SizedBox(height: 40),
-
+            
                 // 내용
                 RequiredLabel('내용'),
                 const SizedBox(height: 16),
@@ -210,7 +217,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   maxLines: 6,
                 ),
                 const SizedBox(height: 40),
-
+            
                 // 가격
                 RequiredLabel('가격'),
                 const SizedBox(height: 16),
@@ -221,7 +228,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   inputFormatters: [PriceInputFormatter()],
                 ),
                 const SizedBox(height: 40),
-
+            
                 // 사진
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,

@@ -4,6 +4,7 @@ import 'package:dongsoop/presentation/board/market/list/view_model/market_list_v
 import 'package:dongsoop/presentation/board/market/price_formatter.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,6 +25,19 @@ class MarketItemListSection extends ConsumerWidget {
     final state = ref.watch(marketListViewModelProvider(type: marketType));
     final viewModel =
         ref.read(marketListViewModelProvider(type: marketType).notifier);
+
+    if (state.error != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Center(
+          child: Text(
+            '${state.error}',
+            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
 
     if (state.items.isEmpty) {
       final emptyText =

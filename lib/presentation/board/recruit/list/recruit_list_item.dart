@@ -4,6 +4,7 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -31,7 +32,17 @@ class RecruitItemListSection extends ConsumerWidget {
     final state = ref.watch(viewModelProvider);
 
     if (state.error != null) {
-      return Center(child: Text('${state.error}'));
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Center(
+          child: Text(
+            '${state.error}',
+            style:
+                TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+            textAlign: TextAlign.center, // 중앙 정렬
+          ),
+        ),
+      );
     }
 
     if (state.isLoading && state.posts.isEmpty) {
