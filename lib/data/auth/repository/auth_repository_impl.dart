@@ -48,4 +48,14 @@ class AuthRepositoryImpl implements AuthRepository {
 
     await _authDataSource.saveUser(saveUser);
   }
+
+  @override
+  Future<bool> checkEmailCode(String userEmail, String code) async {
+    return await _authDataSource.checkEmailCode(userEmail, code);
+  }
+
+  @override
+  Future<bool> sendEmailCode(String userEmail) async {
+    return await _authDataSource.sendEmailCode(userEmail);
+  }
 }

@@ -11,4 +11,6 @@ abstract class AuthDataSource {
   Future<User?> getUser();
   Future<void> saveUser(StoredUser storedUser);
   Future<bool> validate(String data, String type);
+  Future<bool> checkEmailCode(String userEmail, String code);
+  Future<bool> sendEmailCode(String userEmail);
 }
