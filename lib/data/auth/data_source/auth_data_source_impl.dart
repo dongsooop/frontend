@@ -124,4 +124,39 @@ class AuthDataSourceImpl implements AuthDataSource {
     await _secureStorageService.write('accessToken', storedUser.accessToken);
     await _secureStorageService.write('refreshToken', storedUser.refreshToken);
   }
+
+  @override
+  Future<bool> checkEmailCode(String userEmail, String code) async {
+    final endpoint = dotenv.get('CHECK_CODE_ENDPOINT');
+    final requestBody = {"userEmail": userEmail, "code": code};
+    try {
+      final response = await _plainDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.noContent.code) {
+        return true;
+      }
+      return false;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        return false;
+      }
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> sendEmailCode(String userEmail) async {
+    final endpoint = dotenv.get('SEND_EMAIL_ENDPOINT');
+    final requestBody = {"userEmail": userEmail};
+    try {
+      final response = await _plainDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.noContent.code) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

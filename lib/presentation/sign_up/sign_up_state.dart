@@ -91,8 +91,6 @@ class EmailValidationState {
 }
 
 class EmailVerificationCodeState {
-  final String? code;
-  final bool? isCodeSent;
   final bool? isTimerRunning;
   final int? remainingSeconds;
   final bool? isChecked;
@@ -100,10 +98,9 @@ class EmailVerificationCodeState {
   final bool? isError;
   final bool isCodeLoading;
   final bool isCheckLoading;
+  final int failCount;
 
   EmailVerificationCodeState({
-    this.code,
-    this.isCodeSent,
     this.isTimerRunning,
     this.remainingSeconds,
     this.isChecked,
@@ -111,11 +108,10 @@ class EmailVerificationCodeState {
     this.isError,
     required this.isCodeLoading,
     required this.isCheckLoading,
+    this.failCount = 0,
   });
 
   EmailVerificationCodeState copyWith({
-    String? code,
-    bool? isCodeSent,
     bool? isTimerRunning,
     int? remainingSeconds,
     bool? isChecked,
@@ -123,17 +119,17 @@ class EmailVerificationCodeState {
     bool? isError,
     bool? isCodeLoading,
     bool? isCheckLoading,
+    int? failCount,
   }) {
     return EmailVerificationCodeState(
-      code: code,
-      isCodeSent: isCodeSent,
-      isTimerRunning: isTimerRunning,
-      remainingSeconds: remainingSeconds,
+      isTimerRunning: isTimerRunning ?? this.isTimerRunning,
+      remainingSeconds: remainingSeconds ?? this.remainingSeconds,
       isChecked: isChecked,
       message: message ?? this.message,
       isError: isError ?? this.isError,
       isCodeLoading: isCodeLoading ?? this.isCodeLoading,
       isCheckLoading: isCheckLoading ?? this.isCheckLoading,
+      failCount: failCount ?? this.failCount,
     );
   }
 }
