@@ -222,7 +222,10 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
 
     if (badSentences.isNotEmpty) {
       final message = badSentences.join('\n');
-      state = state.copyWith(profanityMessage: message);
+      state = state.copyWith(
+        profanityMessage: message,
+        profanityMessageTriggerKey: state.profanityMessageTriggerKey + 1,
+      );
     }
   }
 

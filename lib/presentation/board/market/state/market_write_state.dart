@@ -10,6 +10,7 @@ class MarketFormState {
   final bool isSubmitting;
   final String? errorMessage;
   final String? profanityMessage;
+  final int profanityMessageTriggerKey;
   final bool isEditing;
   final int? marketId;
   final List<String> initialImageUrls;
@@ -23,6 +24,7 @@ class MarketFormState {
     this.isSubmitting = false,
     this.errorMessage,
     this.profanityMessage,
+    this.profanityMessageTriggerKey = 0,
     this.isEditing = false,
     this.marketId,
     this.initialImageUrls = const [],
@@ -37,6 +39,7 @@ class MarketFormState {
       bool? isSubmitting,
       String? errorMessage,
       String? profanityMessage,
+      int? profanityMessageTriggerKey,
       bool? isEditing,
       int? marketId,
       List<String>? initialImageUrls}) {
@@ -49,6 +52,8 @@ class MarketFormState {
       isSubmitting: isSubmitting ?? this.isSubmitting,
       errorMessage: errorMessage ?? this.errorMessage,
       profanityMessage: profanityMessage ?? this.profanityMessage,
+      profanityMessageTriggerKey:
+          profanityMessageTriggerKey ?? this.profanityMessageTriggerKey,
       isEditing: isEditing ?? this.isEditing,
       marketId: marketId ?? this.marketId,
       initialImageUrls: initialImageUrls ?? this.initialImageUrls,
