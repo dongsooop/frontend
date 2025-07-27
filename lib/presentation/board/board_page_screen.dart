@@ -169,6 +169,11 @@ class BoardPageScreen extends HookConsumerWidget {
                   tabNotifier.setCategoryIndex(newIndex);
                 },
                 onSubTabSelected: (newSubIndex) {
+                  final currentIndex = isRecruit
+                      ? tabState.recruitTabIndex
+                      : tabState.marketTabIndex;
+                  final isSameIndex = newSubIndex == currentIndex;
+
                   if (isRecruit) {
                     tabNotifier.setRecruitTabIndex(newSubIndex);
                   } else {
@@ -180,6 +185,30 @@ class BoardPageScreen extends HookConsumerWidget {
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.easeInOut,
                   );
+                  if (isSameIndex) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      final currentPage = pageController.page?.round();
+
+                      if (currentPage == newSubIndex) {
+                        final controller = scrollControllers[newSubIndex];
+
+                        if (controller.hasClients) {
+                          controller.jumpTo(0);
+                        }
+
+                        if (isRecruit && newSubIndex < RecruitType.values.length) {
+                          final type = RecruitType.values[newSubIndex];
+                          ref.read(recruitListViewModelProvider(
+                            type: type,
+                            departmentCode: departmentCode,
+                          ).notifier).refresh();
+                        } else if (!isRecruit && newSubIndex < MarketType.values.length) {
+                          final type = MarketType.values[newSubIndex];
+                          ref.read(marketListViewModelProvider(type: type).notifier).refresh();
+                        }
+                      }
+                    });
+                  }
                 },
               ),
             ),
