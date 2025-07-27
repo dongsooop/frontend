@@ -45,14 +45,21 @@ class MarketWritePageScreen extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        titleController.text = state.title;
-        contentController.text = state.content;
-        priceController.text =
-        state.price > 0 ? PriceFormatter.format(state.price) : '';
+        if (titleController.text != state.title) {
+          titleController.text = state.title;
+        }
+        if (contentController.text != state.content) {
+          contentController.text = state.content;
+        }
+        final formattedPrice = state.price > 0 ? PriceFormatter.format(state.price) : '';
+        if (priceController.text != formattedPrice) {
+          priceController.text = formattedPrice;
+        }
         isInitialized.value = true;
       });
       return null;
     }, [state.title, state.content, state.price]);
+
 
     useEffect(() {
       if (!isInitialized.value) return null;
