@@ -167,7 +167,21 @@ class RecruitDetailPageScreen extends ConsumerWidget {
           loading: () => const Center(
               child:
                   CircularProgressIndicator(color: ColorStyles.primaryColor)),
-          error: (e, _) => Center(child: Text('$e')),
+          error: (e, _) => Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$e',
+                    style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
           data: (data) {
             final detail = data.recruitDetail;
             if (detail == null) {
@@ -331,7 +345,9 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                 content: '$e',
                 confirmText: '확인',
                 isSingleAction: true,
-                onConfirm: () => context.pop(),
+                onConfirm: () async {
+                  Navigator.of(context).pop();
+                },
               ),
             );
           }

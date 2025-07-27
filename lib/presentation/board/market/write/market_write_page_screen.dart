@@ -133,9 +133,9 @@ class MarketWritePageScreen extends HookConsumerWidget {
             await showDialog(
               context: context,
               builder: (_) => CustomConfirmDialog(
-                title: '오류',
+                title: '장터 오류',
                 content:
-                '${isEditing ? '수정' : '등록'} 중 문제가 발생했습니다.\n${e.toString()}',
+                '${e.toString()}',
                 confirmText: '확인',
                 onConfirm: () {},
                 isSingleAction: true,

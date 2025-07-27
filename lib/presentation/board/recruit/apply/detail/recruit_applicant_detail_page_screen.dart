@@ -35,52 +35,89 @@ class RecruitApplicantDetailPage extends ConsumerWidget {
       ),
     );
 
-    return state.when(
-      data: (detail) => SafeArea(
-        child: Scaffold(
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(44),
-            child: DetailHeader(title: "${detail.title} 지원자"),
+    return SafeArea(
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(44),
+          child: DetailHeader(title: "지원자 상세"),
+        ),
+        body: state.when(
+          data: (detail) => _ApplicantDetailBody(detail: detail),
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: ColorStyles.primaryColor),
           ),
-          body: SafeArea(child: _ApplicantDetailBody(detail: detail)),
-          bottomNavigationBar: _DecisionButtons(
+          error: (e, _) => SizedBox.expand(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: Text(
+                  '$e',
+                  style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
+        ),
+        bottomNavigationBar: state.when(
+          data: (detail) => _DecisionButtons(
             status: detail.status,
             onPass: () async {
               final decisionNotifier =
-                  ref.read(recruitDecisionViewModelProvider.notifier);
-              await decisionNotifier.decide(
-                type: type,
-                boardId: boardId,
-                applierId: memberId,
-                status: 'PASS',
-              );
-              if (context.mounted) context.pop('PASS');
+              ref.read(recruitDecisionViewModelProvider.notifier);
+              try {
+                await decisionNotifier.decide(
+                  type: type,
+                  boardId: boardId,
+                  applierId: memberId,
+                  status: 'PASS',
+                );
+                if (context.mounted) context.pop('PASS');
+              } catch (e) {
+                if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => CustomConfirmDialog(
+                      title: '결정 처리 실패',
+                      content: '$e',
+                      isSingleAction: true,
+                      confirmText: '확인',
+                      onConfirm: () => Navigator.of(context).pop(),
+                    ),
+                  );
+                }
+              }
             },
             onFail: () async {
               final decisionNotifier =
-                  ref.read(recruitDecisionViewModelProvider.notifier);
-              await decisionNotifier.decide(
-                type: type,
-                boardId: boardId,
-                applierId: memberId,
-                status: 'FAIL',
-              );
-              if (context.mounted) context.pop('FAIL');
+              ref.read(recruitDecisionViewModelProvider.notifier);
+              try {
+                await decisionNotifier.decide(
+                  type: type,
+                  boardId: boardId,
+                  applierId: memberId,
+                  status: 'FAIL',
+                );
+                if (context.mounted) context.pop('FAIL');
+              } catch (e) {
+                if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => CustomConfirmDialog(
+                      title: '결정 처리 오류',
+                      content: '$e',
+                      isSingleAction: true,
+                      confirmText: '확인',
+                      onConfirm: () => Navigator.of(context).pop(),
+                    ),
+                  );
+                }
+              }
             },
           ),
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
         ),
-      ),
-      loading: () => const SafeArea(
-        child: Scaffold(
-          body: SafeArea(
-            child: Center(
-                child:
-                    CircularProgressIndicator(color: ColorStyles.primaryColor)),
-          ),
-        ),
-      ),
-      error: (e, _) => Scaffold(
-        body: SafeArea(child: Center(child: Text('$e'))),
       ),
     );
   }
