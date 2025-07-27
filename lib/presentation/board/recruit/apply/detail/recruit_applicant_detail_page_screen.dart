@@ -35,13 +35,17 @@ class RecruitApplicantDetailPage extends ConsumerWidget {
       ),
     );
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
-          child: DetailHeader(title: "지원자 상세"),
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(44),
+        child: state.when(
+          data: (detail) => DetailHeader(title: detail.title),
+          loading: () => const DetailHeader(title: '지원자 상세'),
+          error: (_, __) => const DetailHeader(title: '지원자 상세'),
         ),
-        body: state.when(
+      ),
+      body: SafeArea(
+        child: state.when(
           data: (detail) => _ApplicantDetailBody(detail: detail),
           loading: () => const Center(
             child: CircularProgressIndicator(color: ColorStyles.primaryColor),
@@ -59,65 +63,65 @@ class RecruitApplicantDetailPage extends ConsumerWidget {
             ),
           ),
         ),
-        bottomNavigationBar: state.when(
-          data: (detail) => _DecisionButtons(
-            status: detail.status,
-            onPass: () async {
-              final decisionNotifier =
-              ref.read(recruitDecisionViewModelProvider.notifier);
-              try {
-                await decisionNotifier.decide(
-                  type: type,
-                  boardId: boardId,
-                  applierId: memberId,
-                  status: 'PASS',
+      ),
+      bottomNavigationBar: state.when(
+        data: (detail) => _DecisionButtons(
+          status: detail.status,
+          onPass: () async {
+            final decisionNotifier =
+            ref.read(recruitDecisionViewModelProvider.notifier);
+            try {
+              await decisionNotifier.decide(
+                type: type,
+                boardId: boardId,
+                applierId: memberId,
+                status: 'PASS',
+              );
+              if (context.mounted) context.pop('PASS');
+            } catch (e) {
+              if (context.mounted) {
+                showDialog(
+                  context: context,
+                  builder: (_) => CustomConfirmDialog(
+                    title: '결정 처리 실패',
+                    content: '$e',
+                    isSingleAction: true,
+                    confirmText: '확인',
+                    onConfirm: () => Navigator.of(context).pop(),
+                  ),
                 );
-                if (context.mounted) context.pop('PASS');
-              } catch (e) {
-                if (context.mounted) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => CustomConfirmDialog(
-                      title: '결정 처리 실패',
-                      content: '$e',
-                      isSingleAction: true,
-                      confirmText: '확인',
-                      onConfirm: () => Navigator.of(context).pop(),
-                    ),
-                  );
-                }
               }
-            },
-            onFail: () async {
-              final decisionNotifier =
-              ref.read(recruitDecisionViewModelProvider.notifier);
-              try {
-                await decisionNotifier.decide(
-                  type: type,
-                  boardId: boardId,
-                  applierId: memberId,
-                  status: 'FAIL',
+            }
+          },
+          onFail: () async {
+            final decisionNotifier =
+            ref.read(recruitDecisionViewModelProvider.notifier);
+            try {
+              await decisionNotifier.decide(
+                type: type,
+                boardId: boardId,
+                applierId: memberId,
+                status: 'FAIL',
+              );
+              if (context.mounted) context.pop('FAIL');
+            } catch (e) {
+              if (context.mounted) {
+                showDialog(
+                  context: context,
+                  builder: (_) => CustomConfirmDialog(
+                    title: '결정 처리 오류',
+                    content: '$e',
+                    isSingleAction: true,
+                    confirmText: '확인',
+                    onConfirm: () => Navigator.of(context).pop(),
+                  ),
                 );
-                if (context.mounted) context.pop('FAIL');
-              } catch (e) {
-                if (context.mounted) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => CustomConfirmDialog(
-                      title: '결정 처리 오류',
-                      content: '$e',
-                      isSingleAction: true,
-                      confirmText: '확인',
-                      onConfirm: () => Navigator.of(context).pop(),
-                    ),
-                  );
-                }
               }
-            },
-          ),
-          loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
+            }
+          },
         ),
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const SizedBox.shrink(),
       ),
     );
   }
