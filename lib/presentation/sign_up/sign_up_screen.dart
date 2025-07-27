@@ -269,8 +269,8 @@ class SignUpScreen extends HookConsumerWidget {
                 ),
               ),
               CheckDuplicationButton(
-                onTab: () {
-                  ref.read(signUpViewModelProvider.notifier).sendEmailVerificationCode();
+                onTab: () async {
+                  await ref.read(signUpViewModelProvider.notifier).sendEmailVerificationCode(emailController.text.trim());
                 },
                 isEnabled: emailState.isDuplicate == false &&
                   emailCodeState.isTimerRunning != true &&
@@ -280,11 +280,13 @@ class SignUpScreen extends HookConsumerWidget {
                 isLoading: emailCodeState.isCodeLoading,
               ),
               CheckDuplicationButton(
-                onTab: () {
+                onTab: () async {
                   if (emailCodeController.text.isEmpty) return;
-                  ref.read(signUpViewModelProvider.notifier).checkEmailVerificationCode(emailCodeController.text.trim());
+                  await ref.read(signUpViewModelProvider.notifier).checkEmailVerificationCode(emailController.text.trim(), emailCodeController.text.trim());
                 },
-                isEnabled: (emailCodeState.isChecked != true && emailCodeState.isTimerRunning == true), // 인증 요청이 비활성화(타이머 시작)될 때 활성화
+                isEnabled: emailCodeState.isChecked != true &&
+                  emailCodeState.isTimerRunning == true &&
+                  emailCodeState.failCount < 3,
                 enabledText: '확인',
                 disabledText: (emailCodeState.isChecked == true) ? '확인 완료' : '확인',
                 isLoading: emailCodeState.isCheckLoading,
