@@ -11,6 +11,7 @@ class BoardTextFormField extends StatelessWidget {
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final String? errorText;
+  final FocusNode? focusNode;
 
   // 모집 작성화면 때문에 임시 추가 -> 모집 리팩토링시 삭제 예정
   final ValueChanged<String>? onChanged;
@@ -25,12 +26,14 @@ class BoardTextFormField extends StatelessWidget {
     this.inputFormatters,
     this.onChanged,
     this.errorText,
+    this.focusNode,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       maxLength: maxLength,
       maxLines: maxLines,
       keyboardType: keyboardType,
