@@ -127,12 +127,26 @@ class RecruitWritePageScreen extends HookConsumerWidget {
 
       final validator = ref.read(validateWriteUseCaseProvider);
 
+      if (!validator.isAfterToday(entity.startAt)) {
+        await showDialog(
+          context: context,
+          builder: (_) => CustomConfirmDialog(
+            title: '시작일 오류',
+            content: '모집 시작일은 오늘부터 가능해요.',
+            confirmText: '확인',
+            isSingleAction: true,
+            onConfirm: () => context.pop(),
+          ),
+        );
+        return;
+      }
+
       if (!validator.isWithinThreeMonths(entity.startAt)) {
         await showDialog(
           context: context,
           builder: (_) => CustomConfirmDialog(
             title: '시작일 오류',
-            content: '모집 시작일은 오늘로부터 3개월 이내여야 합니다.',
+            content: '모집 시작일은 오늘로부터 3개월 이내여야 해요',
             confirmText: '확인',
             isSingleAction: true,
             onConfirm: () => context.pop(),
@@ -146,7 +160,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
           context: context,
           builder: (_) => CustomConfirmDialog(
             title: '기간 오류',
-            content: '모집 기간은 최소 24시간 이상, 최대 28일 이내여야 합니다.',
+            content: '모집 기간은 최소 24시간 이상, 최대 28일 이내여야 해요.',
             confirmText: '확인',
             isSingleAction: true,
             onConfirm: () => context.pop(),
