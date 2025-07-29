@@ -42,6 +42,27 @@ class MarketWritePageScreen extends HookConsumerWidget {
     final contentController = useTextEditingController();
     final priceController = useTextEditingController();
     final isInitialized = useState(false);
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    final scrollController = useScrollController();
+    final contentFocusNode = useFocusNode();
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (contentFocusNode.hasFocus) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Future.delayed(const Duration(milliseconds: 200), () {
+              Scrollable.ensureVisible(
+                contentFocusNode.context!,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                alignment: 0.3,
+              );
+            });
+          });
+        }
+      });
+      return null;
+    }, [MediaQuery.of(context).viewInsets.bottom]);
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,7 +80,6 @@ class MarketWritePageScreen extends HookConsumerWidget {
       });
       return null;
     }, [state.title, state.content, state.price]);
-
 
     useEffect(() {
       if (!isInitialized.value) return null;
@@ -117,7 +137,9 @@ class MarketWritePageScreen extends HookConsumerWidget {
       resizeToAvoidBottomInset: true,
       backgroundColor: ColorStyles.white,
       appBar: DetailHeader(title: isEditing ? '장터 수정' : '장터 등록'),
-      bottomNavigationBar: PrimaryBottomButton(
+      bottomNavigationBar: isKeyboardVisible
+          ? null
+          : PrimaryBottomButton(
         label: isEditing ? '수정하기' : '등록하기',
         isEnabled: state.isValid && !state.isSubmitting,
         onPressed: () async {
@@ -151,9 +173,11 @@ class MarketWritePageScreen extends HookConsumerWidget {
       ),
       body: SafeArea(
         child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            controller: scrollController,
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,6 +236,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                 const SizedBox(height: 16),
                 BoardTextFormField(
                   controller: contentController,
+                  focusNode: contentFocusNode,
                   hintText: '세부 내용을 입력해 주세요',
                   maxLength: 500,
                   maxLines: 6,
