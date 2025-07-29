@@ -150,8 +150,8 @@ final router = GoRouter(
 
           return ActivityRecruitScreen(
             isApply: isApply,
-            onTapRecruitDetail: (targetId, type, status) {
-              context.push(
+            onTapRecruitDetail: (targetId, type, status) async {
+              final isDeleted = await context.push<bool>(
                 RoutePaths.recruitDetail,
                 extra: {
                   'id': targetId,
@@ -159,6 +159,7 @@ final router = GoRouter(
                   'status': status,
                 },
               );
+              return isDeleted ?? false;
             },
           );
         }),
