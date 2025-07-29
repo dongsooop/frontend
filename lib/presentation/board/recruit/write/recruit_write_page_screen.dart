@@ -5,6 +5,7 @@ import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
+import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
@@ -101,17 +102,17 @@ class RecruitWritePageScreen extends HookConsumerWidget {
       final deptList = typeIndex == 0
           ? [baseMajor]
           : state.majors.contains('전체 학과')
-              ? DepartmentType.values
-                  .where((e) => e != DepartmentType.Unknown)
-                  .map((e) => e.code)
-                  .toList()
-              : {
-                  baseMajor,
-                  ...filteredMajors
-                      .map((e) => DepartmentTypeExtension.fromDisplayName(e))
-                      .where((e) => e != DepartmentType.Unknown)
-                      .map((e) => e.code)
-                }.toSet().toList();
+          ? DepartmentType.values
+          .where((e) => e != DepartmentType.Unknown)
+          .map((e) => e.code)
+          .toList()
+          : {
+        baseMajor,
+        ...filteredMajors
+            .map((e) => DepartmentTypeExtension.fromDisplayName(e))
+            .where((e) => e != DepartmentType.Unknown)
+            .map((e) => e.code)
+      }.toSet().toList();
 
       final dateState = ref.read(dateTimeViewModelProvider);
 
@@ -123,6 +124,36 @@ class RecruitWritePageScreen extends HookConsumerWidget {
         endAt: dateState.endDateTime,
         departmentTypeList: deptList,
       );
+
+      final validator = ref.read(validateWriteUseCaseProvider);
+
+      if (!validator.isWithinThreeMonths(entity.startAt)) {
+        await showDialog(
+          context: context,
+          builder: (_) => CustomConfirmDialog(
+            title: '시작일 오류',
+            content: '모집 시작일은 오늘로부터 3개월 이내여야 합니다.',
+            confirmText: '확인',
+            isSingleAction: true,
+            onConfirm: () => context.pop(),
+          ),
+        );
+        return;
+      }
+
+      if (!validator.isWithinRecruitPeriod(entity.startAt, entity.endAt)) {
+        await showDialog(
+          context: context,
+          builder: (_) => CustomConfirmDialog(
+            title: '기간 오류',
+            content: '모집 기간은 최소 24시간 이상, 최대 28일 이내여야 합니다.',
+            confirmText: '확인',
+            isSingleAction: true,
+            onConfirm: () => context.pop(),
+          ),
+        );
+        return;
+      }
 
       try {
         final success = await viewModel.submit(
