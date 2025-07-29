@@ -52,6 +52,7 @@ class MarketItemListSection extends ConsumerWidget {
         key: PageStorageKey(marketType.name),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: state.items.length,
         itemBuilder: (context, index) {
           final market = state.items[index];
