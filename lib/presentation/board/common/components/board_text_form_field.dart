@@ -10,6 +10,7 @@ class BoardTextFormField extends StatelessWidget {
   final int? maxLines;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final String? errorText;
 
   // 모집 작성화면 때문에 임시 추가 -> 모집 리팩토링시 삭제 예정
   final ValueChanged<String>? onChanged;
@@ -23,6 +24,7 @@ class BoardTextFormField extends StatelessWidget {
     this.keyboardType,
     this.inputFormatters,
     this.onChanged,
+    this.errorText,
   });
 
   @override
@@ -40,12 +42,21 @@ class BoardTextFormField extends StatelessWidget {
         hintStyle: TextStyles.normalTextRegular.copyWith(
           color: ColorStyles.gray3,
         ),
+        errorText: errorText,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: ColorStyles.gray2),
           borderRadius: BorderRadius.circular(8),
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: ColorStyles.primary100),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: ColorStyles.warning100),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: ColorStyles.warning100),
           borderRadius: BorderRadius.circular(8),
         ),
         border: OutlineInputBorder(

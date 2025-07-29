@@ -11,7 +11,7 @@ import 'package:dongsoop/presentation/board/market/price_formatter.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 
 class ActivityMarketScreen extends HookConsumerWidget {
-  final void Function(int id, MarketType type, String status) onTapMarketDetail;
+  final Future<bool> Function(int id, MarketType type, String status) onTapMarketDetail;
 
   const ActivityMarketScreen({
     super.key,
@@ -102,7 +102,12 @@ class ActivityMarketScreen extends HookConsumerWidget {
                         relativeTime: formatRelativeTime(post.createdAt),
                         priceText: '${PriceFormatter.format(post.price)}원',
                         contactCount: post.contactCount,
-                        onTap: () => onTapMarketDetail(post.id, post.type, post.status),
+                        onTap: () async {
+                          final isDeleted = await onTapMarketDetail(post.id, post.type, post.status);
+                          if (isDeleted) {
+                            await viewModel.loadPosts();
+                          }
+                        },
                         isLastItem: isLast,
                       );
                     }

@@ -226,6 +226,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   hintText: '희망 가격을 입력해 주세요',
                   keyboardType: TextInputType.number,
                   inputFormatters: [PriceInputFormatter()],
+                  errorText: state.priceErrorText,
                 ),
                 const SizedBox(height: 40),
             

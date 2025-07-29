@@ -11,7 +11,7 @@ import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 
 class ActivityRecruitScreen extends HookConsumerWidget {
   final bool isApply;
-  final void Function(int id, RecruitType type, String status) onTapRecruitDetail;
+  final Future<bool> Function(int id, RecruitType type, String status) onTapRecruitDetail;
 
   const ActivityRecruitScreen({
     super.key,
@@ -107,7 +107,12 @@ class ActivityRecruitScreen extends HookConsumerWidget {
                       title: post.title,
                       content: post.content,
                       tags: post.tags,
-                      onTap: () => onTapRecruitDetail(post.id, post.boardType, post.status),
+                      onTap: () async {
+                        final isDeleted = await onTapRecruitDetail(post.id, post.boardType, post.status);
+                        if (isDeleted) {
+                          await viewModel.loadPosts(isApply);
+                        }
+                      },
                       isLastItem: isLast,
                     );
                   },

@@ -279,73 +279,77 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
               label: '일정 삭제', onPressed: showDeleteActionSheet)
           : null,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: titleController,
-                    enabled: !isOfficial,
-                    maxLength: 60,
-                    style: TextStyles.normalTextRegular
-                        .copyWith(color: ColorStyles.black),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? '제목을 입력해주세요' : null,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: ColorStyles.white,
-                      contentPadding: const EdgeInsets.all(16),
-                      hintText: '일정 제목을 입력해주세요.',
-                      hintStyle: TextStyles.normalTextRegular
-                          .copyWith(color: ColorStyles.gray3),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: ColorStyles.gray2),
-                          borderRadius: BorderRadius.circular(8)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: ColorStyles.gray2),
-                          borderRadius: BorderRadius.circular(8)),
-                      disabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: ColorStyles.gray2),
-                          borderRadius: BorderRadius.circular(8)),
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: titleController,
+                      enabled: !isOfficial,
+                      maxLength: 60,
+                      style: TextStyles.normalTextRegular
+                          .copyWith(color: ColorStyles.black),
+                      validator: (value) =>
+                      value == null || value.isEmpty ? '제목을 입력해주세요' : null,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: ColorStyles.white,
+                        contentPadding: const EdgeInsets.all(16),
+                        hintText: '일정 제목을 입력해주세요.',
+                        hintStyle: TextStyles.normalTextRegular
+                            .copyWith(color: ColorStyles.gray3),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: ColorStyles.gray2),
+                            borderRadius: BorderRadius.circular(8)),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: ColorStyles.gray2),
+                            borderRadius: BorderRadius.circular(8)),
+                        disabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: ColorStyles.gray2),
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  buildTimeRangeSection(),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: locationController,
-                    enabled: !isOfficial,
-                    maxLength: 20,
-                    style: TextStyles.normalTextRegular
-                        .copyWith(color: ColorStyles.black),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: ColorStyles.white,
-                      contentPadding: const EdgeInsets.all(16),
-                      hintText: '장소를 입력해주세요',
-                      hintStyle: TextStyles.normalTextRegular
-                          .copyWith(color: ColorStyles.gray3),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: ColorStyles.gray2),
-                          borderRadius: BorderRadius.circular(8)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: ColorStyles.gray2),
-                          borderRadius: BorderRadius.circular(8)),
-                      disabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: ColorStyles.gray2),
-                          borderRadius: BorderRadius.circular(8)),
+                    const SizedBox(height: 24),
+                    buildTimeRangeSection(),
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: locationController,
+                      enabled: !isOfficial,
+                      maxLength: 20,
+                      style: TextStyles.normalTextRegular
+                          .copyWith(color: ColorStyles.black),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: ColorStyles.white,
+                        contentPadding: const EdgeInsets.all(16),
+                        hintText: '장소를 입력해주세요',
+                        hintStyle: TextStyles.normalTextRegular
+                            .copyWith(color: ColorStyles.gray3),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: ColorStyles.gray2),
+                            borderRadius: BorderRadius.circular(8)),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: ColorStyles.gray2),
+                            borderRadius: BorderRadius.circular(8)),
+                        disabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: ColorStyles.gray2),
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

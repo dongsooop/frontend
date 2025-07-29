@@ -130,8 +130,8 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.mypageMarket,
       builder: (context, state) => ActivityMarketScreen(
-        onTapMarketDetail: (targetId, type, status) {
-          context.push(
+        onTapMarketDetail: (targetId, type, status) async {
+          final isDeleted = await context.push<bool>(
             RoutePaths.marketDetail,
             extra: {
               'id': targetId,
@@ -139,6 +139,7 @@ final router = GoRouter(
               'status': status,
             },
           );
+          return isDeleted ?? false;
         },
       ),
     ),
@@ -150,8 +151,8 @@ final router = GoRouter(
 
           return ActivityRecruitScreen(
             isApply: isApply,
-            onTapRecruitDetail: (targetId, type, status) {
-              context.push(
+            onTapRecruitDetail: (targetId, type, status) async {
+              final isDeleted = await context.push<bool>(
                 RoutePaths.recruitDetail,
                 extra: {
                   'id': targetId,
@@ -159,6 +160,7 @@ final router = GoRouter(
                   'status': status,
                 },
               );
+              return isDeleted ?? false;
             },
           );
         }),

@@ -116,91 +116,95 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
         },
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
-          child: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('학과',
-                      style: TextStyles.largeTextBold
-                          .copyWith(color: ColorStyles.black)),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    enabled: false,
-                    initialValue: writerMajor,
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
-                      hintText: writerMajor,
-                      hintStyle: TextStyles.normalTextRegular
-                          .copyWith(color: ColorStyles.gray3),
-                      disabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorStyles.gray2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  Text('자기소개',
-                      style: TextStyles.largeTextBold
-                          .copyWith(color: ColorStyles.black)),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: introduceController,
-                    maxLines: 5,
-                    maxLength: 500,
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.all(16),
-                      hintText: '자기소개를 적어주세요',
-                      hintStyle: TextStyles.normalTextRegular
-                          .copyWith(color: ColorStyles.gray3),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorStyles.gray2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorStyles.gray2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('학과',
+                        style: TextStyles.largeTextBold
+                            .copyWith(color: ColorStyles.black)),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      enabled: false,
+                      initialValue: writerMajor,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 16),
+                        hintText: writerMajor,
+                        hintStyle: TextStyles.normalTextRegular
+                            .copyWith(color: ColorStyles.gray3),
+                        disabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: ColorStyles.gray2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 40),
-                  Text('지원 동기',
-                      style: TextStyles.largeTextBold
-                          .copyWith(color: ColorStyles.black)),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: supportController,
-                    maxLines: 5,
-                    maxLength: 500,
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.all(16),
-                      hintText: '지원 동기를 적어주세요',
-                      hintStyle: TextStyles.normalTextRegular
-                          .copyWith(color: ColorStyles.gray3),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorStyles.gray2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorStyles.gray2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    const SizedBox(height: 40),
+                    Text('자기소개',
+                        style: TextStyles.largeTextBold
+                            .copyWith(color: ColorStyles.black)),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: introduceController,
+                      maxLines: 5,
+                      maxLength: 500,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.all(16),
+                        hintText: '자기소개를 적어주세요',
+                        hintStyle: TextStyles.normalTextRegular
+                            .copyWith(color: ColorStyles.gray3),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: ColorStyles.gray2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: ColorStyles.gray2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 40),
+                    Text('지원 동기',
+                        style: TextStyles.largeTextBold
+                            .copyWith(color: ColorStyles.black)),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: supportController,
+                      maxLines: 5,
+                      maxLength: 500,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.all(16),
+                        hintText: '지원 동기를 적어주세요',
+                        hintStyle: TextStyles.normalTextRegular
+                            .copyWith(color: ColorStyles.gray3),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: ColorStyles.gray2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: ColorStyles.gray2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
