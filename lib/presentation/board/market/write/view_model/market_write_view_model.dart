@@ -75,7 +75,19 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
 
   void updateTitle(String value) => state = state.copyWith(title: value);
   void updateContent(String value) => state = state.copyWith(content: value);
-  void updatePrice(int value) => state = state.copyWith(price: value);
+
+  void updatePrice(int value) {
+    String? error;
+    if (value > MarketFormState.maxPrice) {
+      error = '9,999,999원 이하 금액만 입력 가능해요!';
+    }
+
+    state = state.copyWith(
+      price: value,
+      priceErrorText: error,
+    );
+  }
+
   void updateType(MarketType value) => state = state.copyWith(type: value);
   void updateImages(List<XFile> value) => state = state.copyWith(images: value);
 
@@ -94,7 +106,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       try {
         final file = File(image.path);
         if (await file.exists()) await file.delete();
-      } catch (e) {}
+      } catch (_) {}
     }
   }
 
@@ -102,11 +114,10 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
     if (state.images.length >= 3) return;
 
     final file = File(pickedFile.path);
+    final dir = await getTemporaryDirectory();
     final currentCount = state.images.length + 1;
     final targetSizeMB = 3 / currentCount;
     const maxTry = 5;
-
-    final dir = await getTemporaryDirectory();
     File? compressedFile;
     int quality = 90;
     int attempt = 0;
@@ -143,9 +154,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
   }
 
   Future<bool> submitMarket(BuildContext context) async {
-    if (state.isSubmitting || !state.isValid) {
-      return false;
-    }
+    if (state.isSubmitting || !state.isValid) return false;
 
     state = state.copyWith(
       isSubmitting: true,
@@ -158,10 +167,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       final filteredContent = state.content.replaceAll('|', '');
 
       await _aiFilterUseCase.execute(
-        entity: MarketAIFilterEntity(
-          title: filteredTitle,
-          content: filteredContent,
-        ),
+        entity: MarketAIFilterEntity(title: filteredTitle, content: filteredContent),
       );
 
       final newImages = state.images.where((xfile) {
@@ -184,10 +190,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       );
 
       if (state.marketId != null) {
-        await _updateUseCase.execute(
-          marketId: state.marketId!,
-          entity: entity,
-        );
+        await _updateUseCase.execute(marketId: state.marketId!, entity: entity);
       } else {
         await _writeUseCase.execute(entity: entity);
       }

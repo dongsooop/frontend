@@ -32,7 +32,7 @@ class PriceInputFormatter extends TextInputFormatter {
     }
 
     final number = int.tryParse(digitsOnly);
-    if (number == null || number > PriceFormatter.maxPrice) {
+    if (number == null) {
       return oldValue;
     }
 

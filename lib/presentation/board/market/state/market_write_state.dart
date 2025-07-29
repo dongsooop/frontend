@@ -14,6 +14,9 @@ class MarketFormState {
   final bool isEditing;
   final int? marketId;
   final List<String> initialImageUrls;
+  final String? priceErrorText;
+
+  static const int maxPrice = 9999999;
 
   const MarketFormState({
     this.title = '',
@@ -28,21 +31,24 @@ class MarketFormState {
     this.isEditing = false,
     this.marketId,
     this.initialImageUrls = const [],
+    this.priceErrorText,
   });
 
-  MarketFormState copyWith(
-      {String? title,
-      String? content,
-      int? price,
-      List<XFile>? images,
-      MarketType? type,
-      bool? isSubmitting,
-      String? errorMessage,
-      String? profanityMessage,
-      int? profanityMessageTriggerKey,
-      bool? isEditing,
-      int? marketId,
-      List<String>? initialImageUrls}) {
+  MarketFormState copyWith({
+    String? title,
+    String? content,
+    int? price,
+    List<XFile>? images,
+    MarketType? type,
+    bool? isSubmitting,
+    String? errorMessage,
+    String? profanityMessage,
+    int? profanityMessageTriggerKey,
+    bool? isEditing,
+    int? marketId,
+    List<String>? initialImageUrls,
+    String? priceErrorText,
+  }) {
     return MarketFormState(
       title: title ?? this.title,
       content: content ?? this.content,
@@ -57,6 +63,7 @@ class MarketFormState {
       isEditing: isEditing ?? this.isEditing,
       marketId: marketId ?? this.marketId,
       initialImageUrls: initialImageUrls ?? this.initialImageUrls,
+      priceErrorText: priceErrorText,
     );
   }
 
@@ -64,5 +71,6 @@ class MarketFormState {
       title.trim().isNotEmpty &&
       content.trim().isNotEmpty &&
       price > 0 &&
+      price <= maxPrice &&
       type != null;
 }
