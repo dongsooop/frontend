@@ -203,134 +203,138 @@ class RecruitWritePageScreen extends HookConsumerWidget {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    text: '모집이 시작되면 지원자가 작성한\n',
-                    style: TextStyles.largeTextRegular.copyWith(
-                      color: ColorStyles.gray4,
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      text: '모집이 시작되면 지원자가 작성한\n',
+                      style: TextStyles.largeTextRegular.copyWith(
+                        color: ColorStyles.gray4,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: '자기소개',
+                          style: TextStyles.largeTextBold.copyWith(
+                            color: ColorStyles.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' 및 ',
+                          style: TextStyles.largeTextRegular.copyWith(
+                            color: ColorStyles.gray4,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '지원 동기',
+                          style: TextStyles.largeTextBold.copyWith(
+                            color: ColorStyles.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '를 확인할 수 있어요',
+                          style: TextStyles.largeTextRegular.copyWith(
+                            color: ColorStyles.gray4,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                  const SizedBox(height: 40),
+                  RequiredLabel('모집 유형'),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 16,
+                    children: List.generate(3, (index) {
+                      final types = ['튜터링', '스터디', '프로젝트'];
+                      final isSelected = state.selectedTypeIndex == index;
+                      return GestureDetector(
+                        onTap: () {
+                          updateField((s) => s.copyWith(
+                            selectedTypeIndex: index,
+                            majors: index == 0 ? [] : s.majors,
+                            tags: index == 0 ? [] : s.tags,
+                          ));
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: isSelected
+                                  ? ColorStyles.primary100
+                                  : ColorStyles.gray2,
+                            ),
+                          ),
+                          child: Text(
+                            types[index],
+                            style: TextStyles.normalTextRegular.copyWith(
+                              color: isSelected
+                                  ? ColorStyles.primary100
+                                  : ColorStyles.gray4,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 40),
+                  Row(
                     children: [
-                      TextSpan(
-                        text: '자기소개',
-                        style: TextStyles.largeTextBold.copyWith(
-                          color: ColorStyles.black,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' 및 ',
-                        style: TextStyles.largeTextRegular.copyWith(
-                          color: ColorStyles.gray4,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '지원 동기',
-                        style: TextStyles.largeTextBold.copyWith(
-                          color: ColorStyles.black,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '를 확인할 수 있어요',
-                        style: TextStyles.largeTextRegular.copyWith(
-                          color: ColorStyles.gray4,
-                        ),
-                      ),
+                      RequiredLabel('모집 기간'),
+                      const SizedBox(width: 8),
+                      const Text('모집 기간은 최대 4주(28일)까지 가능해요',
+                          style: TextStyle(color: Colors.grey)),
                     ],
                   ),
-                ),
-                const SizedBox(height: 40),
-                RequiredLabel('모집 유형'),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  children: List.generate(3, (index) {
-                    final types = ['튜터링', '스터디', '프로젝트'];
-                    final isSelected = state.selectedTypeIndex == index;
-                    return GestureDetector(
-                      onTap: () {
-                        updateField((s) => s.copyWith(
-                              selectedTypeIndex: index,
-                              majors: index == 0 ? [] : s.majors,
-                              tags: index == 0 ? [] : s.tags,
-                            ));
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(
-                            color: isSelected
-                                ? ColorStyles.primary100
-                                : ColorStyles.gray2,
-                          ),
-                        ),
-                        child: Text(
-                          types[index],
-                          style: TextStyles.normalTextRegular.copyWith(
-                            color: isSelected
-                                ? ColorStyles.primary100
-                                : ColorStyles.gray4,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 40),
-                Row(
-                  children: [
-                    RequiredLabel('모집 기간'),
-                    const SizedBox(width: 8),
-                    const Text('모집 기간은 최대 4주(28일)까지 가능해요',
-                        style: TextStyle(color: Colors.grey)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                buildDateTimeBox('모집 시작일',
-                    ref.watch(dateTimeViewModelProvider).startDateTime, true),
-                const SizedBox(height: 8),
-                buildDateTimeBox('모집 마감일',
-                    ref.watch(dateTimeViewModelProvider).endDateTime, false),
-                const SizedBox(height: 40),
-                RequiredLabel('제목'),
-                const SizedBox(height: 16),
-                BoardTextFormField(
-                  controller: titleController,
-                  maxLength: 20,
-                  hintText: '모집 글 제목을 입력해 주세요',
-                  onChanged: (value) =>
-                      updateField((s) => s.copyWith(title: value)),
-                ),
-                const SizedBox(height: 40),
-                RequiredLabel('내용'),
-                const SizedBox(height: 16),
-                BoardTextFormField(
-                  controller: contentController,
-                  maxLength: 500,
-                  maxLines: 5,
-                  hintText: '모집 세부 내용을 입력해 주세요',
-                  onChanged: (value) =>
-                      updateField((s) => s.copyWith(content: value)),
-                ),
-                const SizedBox(height: 40),
-                MajorTagSection(
-                  selectedMajors: state.majors,
-                  manualTags: state.tags,
-                  onMajorChanged: handleMajorSelection,
-                  onTagAdded: addTag,
-                  onTagRemoved: removeTag,
-                  tagController: tagController,
-                  isTutorType: state.selectedTypeIndex == 0,
-                  writerMajor: writerMajor,
-                ),
-                const SizedBox(height: 80),
-              ],
+                  const SizedBox(height: 16),
+                  buildDateTimeBox('모집 시작일',
+                      ref.watch(dateTimeViewModelProvider).startDateTime, true),
+                  const SizedBox(height: 8),
+                  buildDateTimeBox('모집 마감일',
+                      ref.watch(dateTimeViewModelProvider).endDateTime, false),
+                  const SizedBox(height: 40),
+                  RequiredLabel('제목'),
+                  const SizedBox(height: 16),
+                  BoardTextFormField(
+                    controller: titleController,
+                    maxLength: 20,
+                    hintText: '모집 글 제목을 입력해 주세요',
+                    onChanged: (value) =>
+                        updateField((s) => s.copyWith(title: value)),
+                  ),
+                  const SizedBox(height: 40),
+                  RequiredLabel('내용'),
+                  const SizedBox(height: 16),
+                  BoardTextFormField(
+                    controller: contentController,
+                    maxLength: 500,
+                    maxLines: 5,
+                    hintText: '모집 세부 내용을 입력해 주세요',
+                    onChanged: (value) =>
+                        updateField((s) => s.copyWith(content: value)),
+                  ),
+                  const SizedBox(height: 40),
+                  MajorTagSection(
+                    selectedMajors: state.majors,
+                    manualTags: state.tags,
+                    onMajorChanged: handleMajorSelection,
+                    onTagAdded: addTag,
+                    onTagRemoved: removeTag,
+                    tagController: tagController,
+                    isTutorType: state.selectedTypeIndex == 0,
+                    writerMajor: writerMajor,
+                  ),
+                  const SizedBox(height: 80),
+                ],
+              ),
             ),
           ),
         ),
