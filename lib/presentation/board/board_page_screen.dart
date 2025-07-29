@@ -212,6 +212,20 @@ class BoardPageScreen extends HookConsumerWidget {
                     });
                   }
                 },
+                showHelpIcon: isRecruit,
+                onHelpPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('현재 모집 중인 게시글만 보여져요.'),
+                      duration: const Duration(seconds: 3),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      backgroundColor: ColorStyles.black,
+                    ),
+                  );
+                },
               ),
             ),
             Expanded(

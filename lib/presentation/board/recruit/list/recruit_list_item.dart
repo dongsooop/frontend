@@ -63,6 +63,7 @@ class RecruitItemListSection extends ConsumerWidget {
         key: PageStorageKey(recruitType.name),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: state.posts.length + (state.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == state.posts.length && state.hasMore) {

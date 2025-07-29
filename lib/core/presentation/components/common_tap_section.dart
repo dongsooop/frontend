@@ -9,6 +9,8 @@ class BoardTabSection extends StatelessWidget {
   final List<String> subTabs;
   final void Function(int) onCategorySelected;
   final void Function(int) onSubTabSelected;
+  final bool showHelpIcon;
+  final VoidCallback? onHelpPressed;
 
   const BoardTabSection({
     super.key,
@@ -18,6 +20,8 @@ class BoardTabSection extends StatelessWidget {
     required this.subTabs,
     required this.onCategorySelected,
     required this.onSubTabSelected,
+    this.showHelpIcon = false,
+    this.onHelpPressed,
   });
 
   @override
@@ -47,20 +51,42 @@ class BoardTabSection extends StatelessWidget {
         // ),
 
         Row(
-          children: List.generate(subTabs.length, (index) {
-            return Row(
-              children: [
-                GestureDetector(
-                  onTap: () => onSubTabSelected(index),
-                  child: _buildUnderlineTab(
-                    subTabs[index],
-                    selectedSubTabIndex == index,
-                  ),
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Row(
+                children: List.generate(subTabs.length, (index) {
+                  return Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => onSubTabSelected(index),
+                        child: _buildUnderlineTab(
+                          subTabs[index],
+                          selectedSubTabIndex == index,
+                        ),
+                      ),
+                      if (index != subTabs.length - 1)
+                        const SizedBox(width: 24),
+                    ],
+                  );
+                }),
+              ),
+            ),
+            if (showHelpIcon && onHelpPressed != null)
+              SizedBox(
+                height: 44,
+                child: IconButton(
+                  icon: const Icon(Icons.help_outline, size: 24),
+                  onPressed: onHelpPressed,
+                  padding: EdgeInsets.zero,
+                  color: ColorStyles.primaryColor,
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
                 ),
-                if (index != subTabs.length - 1) const SizedBox(width: 24),
-              ],
-            );
-          }),
+              ),
+          ],
         ),
       ],
     );

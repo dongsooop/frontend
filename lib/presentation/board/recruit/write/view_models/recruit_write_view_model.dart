@@ -65,6 +65,23 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
   }) async {
     if (state.isLoading) return false;
 
+    final start = entity.startAt;
+    final end = entity.endAt;
+
+    if (!_validator.isValidStartTime(start)) {
+      state = state.copyWith(errMessage: '모집 시작일은 오늘부터 가능해요.');
+      return false;
+    }
+
+    if (!_validator.isWithinThreeMonths(start)) {
+      state = state.copyWith(errMessage: '모집 시작일은 오늘로부터 3개월 이내여야 해요.');
+      return false;
+    }
+    if (!_validator.isWithinRecruitPeriod(start, end)) {
+      state = state.copyWith(errMessage: '모집 기간은 최소 24시간 이상, 최대 28일 이내여야 해요.');
+      return false;
+    }
+
     String? prevProfanityMessage;
 
     state = state.copyWith(
