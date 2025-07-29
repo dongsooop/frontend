@@ -130,8 +130,8 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.mypageMarket,
       builder: (context, state) => ActivityMarketScreen(
-        onTapMarketDetail: (targetId, type, status) {
-          context.push(
+        onTapMarketDetail: (targetId, type, status) async {
+          final isDeleted = await context.push<bool>(
             RoutePaths.marketDetail,
             extra: {
               'id': targetId,
@@ -139,6 +139,7 @@ final router = GoRouter(
               'status': status,
             },
           );
+          return isDeleted ?? false;
         },
       ),
     ),
