@@ -69,9 +69,13 @@ class ChatDetailScreen extends HookConsumerWidget {
             builder: (_) => CustomConfirmDialog(
               title: '채팅 오류',
               content: chatDetailState.errorMessage!,
-              onConfirm: () async {
-                Navigator.of(context).pop();
+              onConfirm: () {
+                context.pop();
+                context.pop();
               },
+              confirmText: '확인',
+              dismissOnConfirm: false,
+              isSingleAction: true,
             ),
           );
         });

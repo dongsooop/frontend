@@ -16,6 +16,8 @@ import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/domain/chat/use_case/get_user_nicknames_use_case.dart';
 
+import '../../core/exception/exception.dart';
+
 class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   final ConnectChatRoomUseCase _chatRoomConnectUseCase;
   final DisconnectChatRoomUseCase _chatRoomDisconnectUseCase;
@@ -58,9 +60,14 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
         await _saveChatMessageUseCase.execute(msg);
       }
       state = state.copyWith(isLoading: false);
+    } on ChatForbiddenException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
     } catch (e) {
       state = state.copyWith(
-        errorMessage: '채팅 중 오류가 발생했습니다.',
+        errorMessage: '채팅 중 오류가 발생했습니다.1',
         isLoading: false,
       );
     }
@@ -90,9 +97,19 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
         _ref.read(chatMessagesProvider.notifier).addMessage(msg);
         _latestMessage = msg;
       });
+    } on LoginRequiredException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
+    } on ChatForbiddenException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
     } catch (e) {
       state = state.copyWith(
-        errorMessage: '채팅 중 오류가 발생했습니다.',
+        errorMessage: '채팅 중 오류가 발생했습니다.2',
         isLoading: false,
       );
     }
@@ -129,10 +146,15 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       _subscription = null;
       _ref.read(chatMessagesProvider.notifier).clear();
       state = state.copyWith(isLoading: false);
+    } on ChatForbiddenException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅 중 오류가 발생했습니다.',
+        errorMessage: '채팅 중 오류가 발생했습니다.3 \n${e}',
       );
     }
   }
@@ -142,10 +164,15 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     try {
       final nicknameMap = await _getUserNicknamesUseCase.execute(roomId);
       state = state.copyWith(isLoading: false, nicknameMap: nicknameMap);
+    } on ChatForbiddenException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅 중 오류가 발생했습니다.',
+        errorMessage: '채팅 중 오류가 발생했습니다.4',
       );
     }
   }
@@ -184,6 +211,11 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       _subscription = null;
       _ref.read(chatMessagesProvider.notifier).clear();
       state = state.copyWith(isLoading: false);
+    } on ChatLeaveException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -201,6 +233,11 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     try {
       await _kickUserUseCase.execute(roomId, userId);
       state = state.copyWith(isLoading: false);
+    } on ChatLeaveException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

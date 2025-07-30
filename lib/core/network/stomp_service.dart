@@ -4,7 +4,8 @@ import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
-import '../storage/secure_storage_service.dart';
+import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/core/storage/secure_storage_service.dart';
 
 class StompService {
   late StompClient _client;
@@ -14,25 +15,39 @@ class StompService {
   StompService(this._secureStorageService);
 
   Future<void> connect(String roomId) async {
-    final baseUrl = dotenv.get('BASE_URL');
-    final endpoint = dotenv.get('WEBSOCKET_ENDPOINT');
-    final url = '$baseUrl$endpoint';
-    final accessToken = await _secureStorageService.read('accessToken');
+    try {
+      final baseUrl = dotenv.get('BASE_URL');
+      final endpoint = dotenv.get('WEBSOCKET_ENDPOINT');
+      final url = '$baseUrl$endpoint';
+      final accessToken = await _secureStorageService.read('accessToken');
 
-    _client = StompClient(
-      config: StompConfig.sockJS(
-        url: url,
-        onConnect: (frame) => _onConnect(frame, roomId),
-        stompConnectHeaders: {
-          'Authorization': 'Bearer $accessToken',
-        },
-        webSocketConnectHeaders: {
-          'Authorization': 'Bearer $accessToken',
-        },
-      ),
-    );
+      _client = StompClient(
+        config: StompConfig.sockJS(
+          url: url,
+          onConnect: (frame) => _onConnect(frame, roomId),
+          stompConnectHeaders: {
+            'Authorization': 'Bearer $accessToken',
+          },
+          webSocketConnectHeaders: {
+            'Authorization': 'Bearer $accessToken',
+          },
+          onWebSocketError: (error) {
+            print('WebSocket error: $error');
+            if (error.toString().contains('403')) {
+              throw ChatForbiddenException();
+            } else if (error.toString().contains('401')) {
+              throw LoginRequiredException();
+            } else {
+              throw Exception('WebSocket Error: $error');
+            }
+          },
+        ),
+      );
 
-    _client.activate();
+      _client.activate();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   void _onConnect(StompFrame frame, String roomId) {
