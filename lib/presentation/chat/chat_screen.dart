@@ -182,72 +182,78 @@ class ChatScreen extends HookConsumerWidget {
   }
 
   Widget _buildChatBody(BuildContext context, List<UiChatRoom> rooms, selectedTab, selectedCategory, ChatViewModel viewModel,) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: double.infinity,
-          height: 44,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 16,
-            children: [
-              _buildTopTab(
-                label: '채팅', isSelected: selectedTab.value == '채팅', onTap: () => selectedCategory.value = '채팅'
-              ),
-              // _buildTopTab(
-              //   label: '과팅',
-              //   },
-              // ),
-            ],
+    return RefreshIndicator(
+      color: ColorStyles.primaryColor,
+      onRefresh: () async {
+        await viewModel.loadChatRooms();
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 16,
+              children: [
+                _buildTopTab(
+                  label: '채팅', isSelected: selectedTab.value == '채팅', onTap: () => selectedCategory.value = '채팅'
+                ),
+                // _buildTopTab(
+                //   label: '과팅',
+                //   },
+                // ),
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: 16),
+          SizedBox(height: 16),
 
-        // chatting category
-        SizedBox(
-          width: double.infinity,
-          height: 44,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 16,
-            children: [
-              _buildCategoryTab(label: '전체', isSelected: selectedCategory.value == '전체', onTap: () => selectedCategory.value = '전체'),
-              _buildCategoryTab(label: '1:1 채팅', isSelected: selectedCategory.value == '1:1 채팅', onTap: () => selectedCategory.value = '1:1 채팅'),
-              _buildCategoryTab(label: '그룹 채팅', isSelected: selectedCategory.value == '그룹 채팅', onTap: () => selectedCategory.value = '그룹 채팅'),
-            ],
+          // chatting category
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 16,
+              children: [
+                _buildCategoryTab(label: '전체', isSelected: selectedCategory.value == '전체', onTap: () => selectedCategory.value = '전체'),
+                _buildCategoryTab(label: '1:1 채팅', isSelected: selectedCategory.value == '1:1 채팅', onTap: () => selectedCategory.value = '1:1 채팅'),
+                _buildCategoryTab(label: '그룹 채팅', isSelected: selectedCategory.value == '그룹 채팅', onTap: () => selectedCategory.value = '그룹 채팅'),
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: 16),
-        // 채팅방
-        Expanded(
-          child: rooms.isEmpty
-            ? const SizedBox()
-            : ListView.builder(
-                itemCount: rooms.length,
-                itemBuilder: (context, index) {
-                  final room = rooms[index];
-                  return InkWell(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    onTap: () async {
-                      final isLeaved = await onTapChatDetail(room);
-                      if (isLeaved) {
-                        await viewModel.loadChatRooms();
-                      }
-                    },
-                    child: ChatCard(chatRoom: room),
-                  );
-                }
-              ),
-        ),
-      ],
+          SizedBox(height: 16),
+          // 채팅방
+          Expanded(
+            child: rooms.isEmpty
+              ? const SizedBox()
+              : ListView.builder(
+                  itemCount: rooms.length,
+                  itemBuilder: (context, index) {
+                    final room = rooms[index];
+                    return InkWell(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      onTap: () async {
+                        final isLeaved = await onTapChatDetail(room);
+                        if (isLeaved) {
+                          await viewModel.loadChatRooms();
+                        }
+                      },
+                      child: ChatCard(chatRoom: room),
+                    );
+                  }
+                ),
+          ),
+        ],
+      ),
     );
   }
 }

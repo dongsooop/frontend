@@ -32,6 +32,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
 
   StreamSubscription<ChatMessage>? _subscription;
   ChatMessage? _latestMessage; // 소켓 연결 중 최신 메시지
+  bool _hasLeaved = false;
 
   ChatDetailViewModel(
     this._chatRoomConnectUseCase,
@@ -110,7 +111,15 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     _sendMessageUseCase.execute(request);
   }
 
-  void closeChatRoom(String roomId) async {
+  Future<void> closeChatRoom(String roomId) async {
+    if (_hasLeaved) {
+      _chatRoomDisconnectUseCase.execute();
+      _subscription?.cancel();
+      _subscription = null;
+      _ref.read(chatMessagesProvider.notifier).clear();
+      _hasLeaved = false;
+      return;
+    }
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
@@ -168,7 +177,12 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   Future<void> leaveChatRoom(String roomId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
+      _hasLeaved = true;
       await _leaveChatRoomUseCase.execute(roomId);
+      _chatRoomDisconnectUseCase.execute();
+      _subscription?.cancel();
+      _subscription = null;
+      _ref.read(chatMessagesProvider.notifier).clear();
       state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
@@ -176,6 +190,10 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
         errorMessage: '채팅방을 나가는 중\n오류가 발생했습니다.',
       );
     }
+  }
+
+  void resetLeaveFlag() {
+    _hasLeaved = false;
   }
 
   Future<void> kickUser(String roomId, int userId) async {

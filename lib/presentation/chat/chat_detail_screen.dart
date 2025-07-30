@@ -42,6 +42,7 @@ class ChatDetailScreen extends HookConsumerWidget {
 
     useEffect(() {
       Future.microtask(() async {
+        viewModel.resetLeaveFlag();
         // 채팅방 참여자 정보
         await viewModel.fetchNicknames(chatRoom.roomId);
         // 서버 메시지 저장
@@ -88,7 +89,7 @@ class ChatDetailScreen extends HookConsumerWidget {
       return Scaffold(
         backgroundColor: ColorStyles.gray1,
         appBar: DetailHeader(
-          title: '제재 처리',
+          title: '',
           backgroundColor: ColorStyles.gray1,
         ),
         body: Center(
