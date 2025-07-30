@@ -11,7 +11,7 @@ class ValidateWriteUseCase {
   }) {
     final diff = end.difference(start);
     return diff >= const Duration(hours: 24) &&
-        diff <= Duration(days: 27, hours: 23, minutes: 59);
+        diff <= Duration(days: 28);
   }
 
   bool isValidTitle(String title) {
