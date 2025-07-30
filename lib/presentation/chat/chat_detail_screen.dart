@@ -29,7 +29,7 @@ class ChatDetailScreen extends HookConsumerWidget {
     final messages = ref.watch(chatMessagesProvider);
     final user = ref.watch(userSessionProvider);
     final chatDetailState = ref.watch(chatDetailViewModelProvider);
-    final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
+    final viewModel = ref.read(chatDetailViewModelProvider.notifier);
 
     // 사용자
     final String? userNickname = user?.nickname;
@@ -42,6 +42,7 @@ class ChatDetailScreen extends HookConsumerWidget {
 
     useEffect(() {
       Future.microtask(() async {
+        viewModel.resetLeaveFlag();
         // 채팅방 참여자 정보
         await viewModel.fetchNicknames(chatRoom.roomId);
         // 서버 메시지 저장
@@ -68,9 +69,13 @@ class ChatDetailScreen extends HookConsumerWidget {
             builder: (_) => CustomConfirmDialog(
               title: '채팅 오류',
               content: chatDetailState.errorMessage!,
-              onConfirm: () async {
-                Navigator.of(context).pop();
+              onConfirm: () {
+                context.pop();
+                context.pop();
               },
+              confirmText: '확인',
+              dismissOnConfirm: false,
+              isSingleAction: true,
             ),
           );
         });
@@ -88,7 +93,7 @@ class ChatDetailScreen extends HookConsumerWidget {
       return Scaffold(
         backgroundColor: ColorStyles.gray1,
         appBar: DetailHeader(
-          title: '제재 처리',
+          title: '',
           backgroundColor: ColorStyles.gray1,
         ),
         body: Center(
@@ -147,7 +152,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                         cancelText: '취소',
                         onConfirm: () async {
                           await viewModel.leaveChatRoom(chatRoom.roomId);
-                          Navigator.of(context).pop(); // 다이얼로그 닫기
+                          context.pop(true);
                         },
                       ),
                     );
