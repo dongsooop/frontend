@@ -10,7 +10,8 @@ class ValidateWriteUseCase {
     required DateTime end,
   }) {
     final diff = end.difference(start);
-    return diff >= const Duration(hours: 24) && diff <= const Duration(days: 28);
+    return diff >= const Duration(hours: 24) &&
+        diff <= Duration(days: 28);
   }
 
   bool isValidTitle(String title) {
@@ -33,13 +34,20 @@ class ValidateWriteUseCase {
 
   bool isWithinThreeMonths(DateTime selected) {
     final now = DateTime.now();
-    final threeMonthsLater = DateTime(now.year, now.month + 3, now.day, 23, 59, 59);
-    return selected.isBefore(threeMonthsLater) || _isSameMoment(selected, threeMonthsLater);
+    final threeMonthsLater  = DateTime(now.year, now.month + 3, now.day)
+        .subtract(const Duration(days: 1));
+
+    final selectedDate = DateTime(selected.year, selected.month, selected.day);
+    final limitDate = DateTime(threeMonthsLater.year, threeMonthsLater.month, threeMonthsLater.day);
+
+    return selectedDate.isBefore(limitDate) ||
+        selectedDate.isAtSameMomentAs(limitDate);
   }
 
   bool isWithinRecruitPeriod(DateTime start, DateTime end) {
     final diff = end.difference(start);
-    return diff >= const Duration(hours: 24) && diff <= const Duration(days: 28);
+    return diff >= const Duration(hours: 24) &&
+        diff <= const Duration(days: 27);
   }
 
   bool isFormValid({
@@ -52,13 +60,9 @@ class ValidateWriteUseCase {
         isValidContent(content);
   }
 
-  bool _isSameMoment(DateTime a, DateTime b) {
-    return a.millisecondsSinceEpoch == b.millisecondsSinceEpoch;
-  }
-
   bool isAfterToday(DateTime selected) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    return selected.isAfter(today);
+    return !selected.isBefore(today);
   }
 }
