@@ -121,13 +121,14 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SingleChildScrollView(
               child: Form(
                 key: formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 40),
                     Text('학과',
                         style: TextStyles.largeTextBold
                             .copyWith(color: ColorStyles.black)),

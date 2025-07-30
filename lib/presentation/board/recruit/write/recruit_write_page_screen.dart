@@ -136,7 +136,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
             content: '모집 시작일은 오늘부터 가능해요.',
             confirmText: '확인',
             isSingleAction: true,
-            onConfirm: () => context.pop(),
+            onConfirm: () => {},
           ),
         );
         return;
@@ -150,7 +150,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
             content: '모집 시작일은 오늘로부터 3개월 이내여야 해요',
             confirmText: '확인',
             isSingleAction: true,
-            onConfirm: () => context.pop(),
+            onConfirm: () => {},
           ),
         );
         return;
@@ -161,10 +161,10 @@ class RecruitWritePageScreen extends HookConsumerWidget {
           context: context,
           builder: (_) => CustomConfirmDialog(
             title: '기간 오류',
-            content: '모집 기간은 최소 24시간 이상, 최대 28일 이내여야 해요.',
+            content: '모집 기간은 최소 24시간 이상, 최대 27일 이내여야 해요.',
             confirmText: '확인',
             isSingleAction: true,
-            onConfirm: () => context.pop(),
+            onConfirm: () => {},
           ),
         );
         return;
@@ -341,8 +341,8 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                     children: [
                       RequiredLabel('모집 기간'),
                       const SizedBox(width: 8),
-                      const Text('모집 기간은 최대 4주(28일)까지 가능해요',
-                          style: TextStyle(color: Colors.grey)),
+                      Text('최대 27일까지 가능해요',
+                          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4)),
                     ],
                   ),
                   const SizedBox(height: 16),
