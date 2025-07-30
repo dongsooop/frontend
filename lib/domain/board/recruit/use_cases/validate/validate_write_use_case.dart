@@ -33,8 +33,14 @@ class ValidateWriteUseCase {
 
   bool isWithinThreeMonths(DateTime selected) {
     final now = DateTime.now();
-    final threeMonthsLater = DateTime(now.year, now.month + 3, now.day, 23, 59, 59);
-    return selected.isBefore(threeMonthsLater) || _isSameMoment(selected, threeMonthsLater);
+    final threeMonthsLater  = DateTime(now.year, now.month + 3, now.day)
+        .subtract(const Duration(days: 1));
+
+    final selectedDate = DateTime(selected.year, selected.month, selected.day);
+    final limitDate = DateTime(threeMonthsLater.year, threeMonthsLater.month, threeMonthsLater.day);
+
+    return selectedDate.isBefore(limitDate) ||
+        selectedDate.isAtSameMomentAs(limitDate);
   }
 
   bool isWithinRecruitPeriod(DateTime start, DateTime end) {
@@ -50,10 +56,6 @@ class ValidateWriteUseCase {
     return isValidRecruitType(selectedIndex) &&
         isValidTitle(title) &&
         isValidContent(content);
-  }
-
-  bool _isSameMoment(DateTime a, DateTime b) {
-    return a.millisecondsSinceEpoch == b.millisecondsSinceEpoch;
   }
 
   bool isAfterToday(DateTime selected) {

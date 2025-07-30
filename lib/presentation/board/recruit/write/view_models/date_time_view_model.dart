@@ -163,7 +163,8 @@ class DateTimeViewModel extends _$DateTimeViewModel {
     final today = DateTime(now.year, now.month, now.day);
 
     if (isStart) {
-      final maxStart = DateTime(today.year, today.month + 3, today.day);
+      final maxStart = DateTime(today.year, today.month + 3, today.day)
+          .subtract(const Duration(days: 1));
       return !date.isBefore(today) && !date.isAfter(maxStart);
     } else {
       final minEnd = state.startDateTime.add(const Duration(hours: 24));
