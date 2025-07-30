@@ -117,6 +117,11 @@ class ChatDataSourceImpl implements ChatDataSource {
         };
       }
       throw Exception();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+        throw ChatForbiddenException();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -177,6 +182,11 @@ class ChatDataSourceImpl implements ChatDataSource {
         return messages;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+        throw ChatForbiddenException();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -198,6 +208,11 @@ class ChatDataSourceImpl implements ChatDataSource {
         return messages;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+        throw ChatForbiddenException();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -211,6 +226,10 @@ class ChatDataSourceImpl implements ChatDataSource {
 
     try {
       await _authDio.post(endpoint, data: {});
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
+        throw ChatForbiddenException();
+      }
     } catch (e) {
       rethrow;
     }
@@ -243,8 +262,7 @@ class ChatDataSourceImpl implements ChatDataSource {
       final response = await _authDio.post(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
         await _hiveService.deleteChatMessagesByRoomId(roomId);
-      } else
-        ChatLeaveException();
+      } else ChatLeaveException();
     } catch (e) {
       rethrow;
     }
@@ -260,8 +278,7 @@ class ChatDataSourceImpl implements ChatDataSource {
     try {
       final response = await _authDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
-      } else
-        ChatLeaveException();
+      } else ChatLeaveException();
     } catch (e) {
       rethrow;
     }

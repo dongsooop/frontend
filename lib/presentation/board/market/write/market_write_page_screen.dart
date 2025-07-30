@@ -43,26 +43,6 @@ class MarketWritePageScreen extends HookConsumerWidget {
     final priceController = useTextEditingController();
     final isInitialized = useState(false);
     final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-    final scrollController = useScrollController();
-    final contentFocusNode = useFocusNode();
-
-    useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (contentFocusNode.hasFocus) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Future.delayed(const Duration(milliseconds: 200), () {
-              Scrollable.ensureVisible(
-                contentFocusNode.context!,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                alignment: 0.3,
-              );
-            });
-          });
-        }
-      });
-      return null;
-    }, [MediaQuery.of(context).viewInsets.bottom]);
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -177,7 +157,6 @@ class MarketWritePageScreen extends HookConsumerWidget {
           onTap: () => FocusScope.of(context).unfocus(),
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            controller: scrollController,
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +215,6 @@ class MarketWritePageScreen extends HookConsumerWidget {
                 const SizedBox(height: 16),
                 BoardTextFormField(
                   controller: contentController,
-                  focusNode: contentFocusNode,
                   hintText: '세부 내용을 입력해 주세요',
                   maxLength: 500,
                   maxLines: 6,

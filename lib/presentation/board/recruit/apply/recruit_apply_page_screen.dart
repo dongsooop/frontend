@@ -27,8 +27,6 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final introduceController = useTextEditingController();
     final supportController = useTextEditingController();
-    final scrollController = useScrollController();
-    final supportFocusNode = useFocusNode();
 
     final user = ref.watch(userSessionProvider);
     final writerMajor = user?.departmentType;
@@ -55,24 +53,6 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
         supportController.removeListener(updateFormValidState);
       };
     }, []);
-
-    useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (supportFocusNode.hasFocus) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Future.delayed(const Duration(milliseconds: 200), () {
-              Scrollable.ensureVisible(
-                supportFocusNode.context!,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                alignment: 0.3,
-              );
-            });
-          });
-        }
-      });
-      return null;
-    }, [MediaQuery.of(context).viewInsets.bottom]);
 
     useEffect(() {
       if (state.profanityMessage != null) {
@@ -144,7 +124,6 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              controller: scrollController,
               child: Form(
                 key: formKey,
                 child: Column(
@@ -206,7 +185,6 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: supportController,
-                      focusNode: supportFocusNode,
                       maxLines: 5,
                       maxLength: 500,
                       decoration: InputDecoration(

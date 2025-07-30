@@ -32,29 +32,9 @@ class RecruitWritePageScreen extends HookConsumerWidget {
     final contentController = useTextEditingController(text: state.content);
     final tagController = useTextEditingController();
     final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-    final scrollController = useScrollController();
-    final contentFocusNode = useFocusNode();
 
     final user = ref.watch(userSessionProvider);
     final writerMajor = user?.departmentType ?? '';
-
-    useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (contentFocusNode.hasFocus) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Future.delayed(const Duration(milliseconds: 200), () {
-              Scrollable.ensureVisible(
-                contentFocusNode.context!,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                alignment: 0.3,
-              );
-            });
-          });
-        }
-      });
-      return null;
-    }, [MediaQuery.of(context).viewInsets.bottom]);
 
     useEffect(() {
       if (state.profanityMessage != null) {
@@ -279,7 +259,6 @@ class RecruitWritePageScreen extends HookConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              controller: scrollController,
               padding: EdgeInsets.only(bottom: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,7 +366,6 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                   const SizedBox(height: 16),
                   BoardTextFormField(
                     controller: contentController,
-                    focusNode: contentFocusNode,
                     maxLength: 500,
                     maxLines: 5,
                     hintText: '모집 세부 내용을 입력해 주세요',
