@@ -67,7 +67,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       );
     } catch (e) {
       state = state.copyWith(
-        errorMessage: '채팅 중 오류가 발생했습니다.1',
+        errorMessage: '채팅 중 오류가 발생했습니다.',
         isLoading: false,
       );
     }
@@ -109,7 +109,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       );
     } catch (e) {
       state = state.copyWith(
-        errorMessage: '채팅 중 오류가 발생했습니다.2',
+        errorMessage: '채팅 중 오류가 발생했습니다.',
         isLoading: false,
       );
     }
@@ -154,7 +154,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅 중 오류가 발생했습니다.3 \n${e}',
+        errorMessage: '채팅 중 오류가 발생했습니다.',
       );
     }
   }
@@ -172,7 +172,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅 중 오류가 발생했습니다.4',
+        errorMessage: '채팅 중 오류가 발생했습니다.',
       );
     }
   }
