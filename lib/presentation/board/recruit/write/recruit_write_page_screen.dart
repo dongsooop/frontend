@@ -31,6 +31,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
     final titleController = useTextEditingController(text: state.title);
     final contentController = useTextEditingController(text: state.content);
     final tagController = useTextEditingController();
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
     final user = ref.watch(userSessionProvider);
     final writerMajor = user?.departmentType ?? '';
@@ -231,9 +232,12 @@ class RecruitWritePageScreen extends HookConsumerWidget {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: ColorStyles.white,
       appBar: const DetailHeader(title: '모집 개설'),
-      bottomNavigationBar: PrimaryBottomButton(
+      bottomNavigationBar: isKeyboardVisible
+          ? null
+          : PrimaryBottomButton(
         label: '모집 시작하기',
         isEnabled: viewModel.isFormValid,
         onPressed: () => showDialog(
@@ -249,11 +253,13 @@ class RecruitWritePageScreen extends HookConsumerWidget {
       ),
       body: SafeArea(
         child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.only(bottom: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -42,6 +42,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
     final contentController = useTextEditingController();
     final priceController = useTextEditingController();
     final isInitialized = useState(false);
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,7 +60,6 @@ class MarketWritePageScreen extends HookConsumerWidget {
       });
       return null;
     }, [state.title, state.content, state.price]);
-
 
     useEffect(() {
       if (!isInitialized.value) return null;
@@ -117,7 +117,9 @@ class MarketWritePageScreen extends HookConsumerWidget {
       resizeToAvoidBottomInset: true,
       backgroundColor: ColorStyles.white,
       appBar: DetailHeader(title: isEditing ? '장터 수정' : '장터 등록'),
-      bottomNavigationBar: PrimaryBottomButton(
+      bottomNavigationBar: isKeyboardVisible
+          ? null
+          : PrimaryBottomButton(
         label: isEditing ? '수정하기' : '등록하기',
         isEnabled: state.isValid && !state.isSubmitting,
         onPressed: () async {
@@ -151,6 +153,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
       ),
       body: SafeArea(
         child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

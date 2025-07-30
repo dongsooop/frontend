@@ -76,6 +76,7 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
     }, [state.profanityMessageTriggerKey]);
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: ColorStyles.white,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(44),
@@ -117,6 +118,7 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
       ),
       body: SafeArea(
         child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
