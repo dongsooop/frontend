@@ -62,6 +62,14 @@ class ChatLeaveException implements Exception {
   String toString() => message;
 }
 
+class ChatForbiddenException implements Exception {
+  final String message;
+  ChatForbiddenException([this.message = "강퇴된 채팅방입니다"]);
+
+  @override
+  String toString() => message;
+}
+
 class RecruitListException implements Exception {
   final String message;
   RecruitListException([
