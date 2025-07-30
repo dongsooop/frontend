@@ -156,7 +156,6 @@ class MarketWritePageScreen extends HookConsumerWidget {
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
           child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
