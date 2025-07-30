@@ -155,137 +155,141 @@ class MarketWritePageScreen extends HookConsumerWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RequiredLabel('글 유형'),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  children: List.generate(2, (index) {
-                    final isSelected = state.type?.index == index;
-                    return GestureDetector(
-                      onTap: () {
-                        viewModel.updateType(
-                          index == 0 ? MarketType.SELL : MarketType.BUY,
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(
-                            color: isSelected
-                                ? ColorStyles.primary100
-                                : ColorStyles.gray2,
-                          ),
-                        ),
-                        child: Text(
-                          index == 0
-                              ? MarketType.SELL.label
-                              : MarketType.BUY.label,
-                          style: TextStyles.normalTextRegular.copyWith(
-                            color: isSelected
-                                ? ColorStyles.primary100
-                                : ColorStyles.gray4,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 40),
-            
-                // 제목
-                RequiredLabel('제목'),
-                const SizedBox(height: 16),
-                BoardTextFormField(
-                  controller: titleController,
-                  hintText: '글 제목을 입력해 주세요',
-                  maxLength: 20,
-                ),
-                const SizedBox(height: 40),
-            
-                // 내용
-                RequiredLabel('내용'),
-                const SizedBox(height: 16),
-                BoardTextFormField(
-                  controller: contentController,
-                  hintText: '세부 내용을 입력해 주세요',
-                  maxLength: 500,
-                  maxLines: 6,
-                ),
-                const SizedBox(height: 40),
-            
-                // 가격
-                RequiredLabel('가격'),
-                const SizedBox(height: 16),
-                BoardTextFormField(
-                  controller: priceController,
-                  hintText: '희망 가격을 입력해 주세요',
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [PriceInputFormatter()],
-                  errorText: state.priceErrorText,
-                ),
-                const SizedBox(height: 40),
-            
-                // 사진
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    RequiredLabel('사진'),
-                    const SizedBox(width: 8),
-                    Text(
-                      '최대 3개까지 첨부 가능해요',
-                      style: TextStyles.smallTextRegular
-                          .copyWith(color: ColorStyles.gray4),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  children: [
-                    ...List.generate(state.images.length, (index) {
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 40),
+                  RequiredLabel('글 유형'),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 16,
+                    children: List.generate(2, (index) {
+                      final isSelected = state.type?.index == index;
                       return GestureDetector(
-                        onTap: () => _showDeleteImageActionSheet(index),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            File(state.images[index].path),
-                            width: 56,
-                            height: 56,
-                            fit: BoxFit.cover,
+                        onTap: () {
+                          viewModel.updateType(
+                            index == 0 ? MarketType.SELL : MarketType.BUY,
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: isSelected
+                                  ? ColorStyles.primary100
+                                  : ColorStyles.gray2,
+                            ),
+                          ),
+                          child: Text(
+                            index == 0
+                                ? MarketType.SELL.label
+                                : MarketType.BUY.label,
+                            style: TextStyles.normalTextRegular.copyWith(
+                              color: isSelected
+                                  ? ColorStyles.primary100
+                                  : ColorStyles.gray4,
+                            ),
                           ),
                         ),
                       );
                     }),
-                    if (state.images.length < 3)
-                      GestureDetector(
-                        onTap: _pickImage,
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: ColorStyles.gray2),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // 제목
+                  RequiredLabel('제목'),
+                  const SizedBox(height: 16),
+                  BoardTextFormField(
+                    controller: titleController,
+                    hintText: '글 제목을 입력해 주세요',
+                    maxLength: 20,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // 내용
+                  RequiredLabel('내용'),
+                  const SizedBox(height: 16),
+                  BoardTextFormField(
+                    controller: contentController,
+                    hintText: '세부 내용을 입력해 주세요',
+                    maxLength: 500,
+                    maxLines: 6,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // 가격
+                  RequiredLabel('가격'),
+                  const SizedBox(height: 16),
+                  BoardTextFormField(
+                    controller: priceController,
+                    hintText: '희망 가격을 입력해 주세요',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [PriceInputFormatter()],
+                    errorText: state.priceErrorText,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // 사진
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      RequiredLabel('사진'),
+                      const SizedBox(width: 8),
+                      Text(
+                        '최대 3개까지 첨부 가능해요',
+                        style: TextStyles.smallTextRegular
+                            .copyWith(color: ColorStyles.gray4),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 16,
+                    children: [
+                      ...List.generate(state.images.length, (index) {
+                        return GestureDetector(
+                          onTap: () => _showDeleteImageActionSheet(index),
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              File(state.images[index].path),
+                              width: 56,
+                              height: 56,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: 24.0,
-                              color: ColorStyles.gray4,
+                        );
+                      }),
+                      if (state.images.length < 3)
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: ColorStyles.gray2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.camera_alt,
+                                size: 24.0,
+                                color: ColorStyles.gray4,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 40),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
           ),
         ),

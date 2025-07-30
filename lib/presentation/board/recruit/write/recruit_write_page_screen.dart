@@ -256,13 +256,13 @@ class RecruitWritePageScreen extends HookConsumerWidget {
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: EdgeInsets.only(bottom: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 40),
                   Text.rich(
                     TextSpan(
                       text: '모집이 시작되면 지원자가 작성한\n',
