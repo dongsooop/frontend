@@ -169,7 +169,7 @@ class DateTimeViewModel extends _$DateTimeViewModel {
     } else {
       final start = state.startDateTime;
       final minEnd = start.add(const Duration(hours: 24));
-      final maxEnd = start.add(const Duration(days: 26));
+      final maxEnd = start.add(const Duration(days: 27));
 
       return !date.isBefore(
           DateTime(minEnd.year, minEnd.month, minEnd.day)) &&

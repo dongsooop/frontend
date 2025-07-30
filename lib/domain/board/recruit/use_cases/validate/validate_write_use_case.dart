@@ -11,7 +11,7 @@ class ValidateWriteUseCase {
   }) {
     final diff = end.difference(start);
     return diff >= const Duration(hours: 24) &&
-        diff <= const Duration(days: 27, hours: 23, minutes: 59, seconds: 59);
+        diff <= Duration(days: 27, hours: 23, minutes: 59);
   }
 
   bool isValidTitle(String title) {
@@ -47,7 +47,7 @@ class ValidateWriteUseCase {
   bool isWithinRecruitPeriod(DateTime start, DateTime end) {
     final diff = end.difference(start);
     return diff >= const Duration(hours: 24) &&
-        diff <= const Duration(days: 27, hours: 23, minutes: 59, seconds: 59);
+        diff <= const Duration(days: 27);
   }
 
   bool isFormValid({
