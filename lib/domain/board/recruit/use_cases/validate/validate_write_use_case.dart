@@ -59,6 +59,6 @@ class ValidateWriteUseCase {
   bool isAfterToday(DateTime selected) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    return selected.isAfter(today);
+    return !selected.isBefore(today);
   }
 }
