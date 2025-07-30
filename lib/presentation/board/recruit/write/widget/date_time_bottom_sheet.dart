@@ -50,7 +50,7 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                       Text(
                         widget.isStart
                             ? '오늘 기준 3개월 이내의 날짜만 선택 가능해요'
-                            : '시작일 기준 최소 24시간, 최대 28일 이내로 선택 가능해요',
+                            : '시작일 기준 최소 24시간, 최대 27일 이내로 선택 가능해요',
                         style: TextStyles.smallTextRegular
                             .copyWith(color: ColorStyles.gray4),
                       ),
