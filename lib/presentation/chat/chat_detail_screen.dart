@@ -29,7 +29,7 @@ class ChatDetailScreen extends HookConsumerWidget {
     final messages = ref.watch(chatMessagesProvider);
     final user = ref.watch(userSessionProvider);
     final chatDetailState = ref.watch(chatDetailViewModelProvider);
-    final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
+    final viewModel = ref.read(chatDetailViewModelProvider.notifier);
 
     // 사용자
     final String? userNickname = user?.nickname;
@@ -147,7 +147,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                         cancelText: '취소',
                         onConfirm: () async {
                           await viewModel.leaveChatRoom(chatRoom.roomId);
-                          Navigator.of(context).pop(); // 다이얼로그 닫기
+                          context.pop(true);
                         },
                       ),
                     );

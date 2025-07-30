@@ -10,9 +10,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'chat_view_model.dart';
 
 class ChatScreen extends HookConsumerWidget {
-  final void Function(UiChatRoom room) onTapChatDetail;
+  final Future<bool> Function(UiChatRoom room) onTapChatDetail;
   final VoidCallback onTapSignIn;
 
   const ChatScreen({
@@ -24,7 +25,7 @@ class ChatScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userSessionProvider);
-    final viewModel = ref.watch(chatViewModelProvider.notifier);
+    final viewModel = ref.read(chatViewModelProvider.notifier);
     final chatState = ref.watch(chatViewModelProvider);
 
     final selectedTap = useState('채팅');
@@ -81,7 +82,7 @@ class ChatScreen extends HookConsumerWidget {
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              child: _buildChatBody(context, filteredRooms, selectedTap, selectedCategory),
+              child: _buildChatBody(context, filteredRooms, selectedTap, selectedCategory, viewModel),
             ),
           ),
         ),
@@ -180,7 +181,7 @@ class ChatScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildChatBody(BuildContext context, List<UiChatRoom> rooms, selectedTab, selectedCategory) {
+  Widget _buildChatBody(BuildContext context, List<UiChatRoom> rooms, selectedTab, selectedCategory, ChatViewModel viewModel,) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -235,7 +236,12 @@ class ChatScreen extends HookConsumerWidget {
                     highlightColor: Colors.transparent,
                     hoverColor: Colors.transparent,
                     focusColor: Colors.transparent,
-                    onTap: () => onTapChatDetail(room),
+                    onTap: () async {
+                      final isLeaved = await onTapChatDetail(room);
+                      if (isLeaved) {
+                        await viewModel.loadChatRooms();
+                      }
+                    },
                     child: ChatCard(chatRoom: room),
                   );
                 }

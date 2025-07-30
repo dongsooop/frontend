@@ -417,8 +417,12 @@ final router = GoRouter(
           GoRoute(
             path: RoutePaths.chat,
             builder: (context, state) => ChatScreen(
-              onTapChatDetail: (room) {
-                context.push(RoutePaths.chatDetail, extra: room);
+              onTapChatDetail: (room) async {
+                final isLeaved = await context.push<bool>(
+                  RoutePaths.chatDetail,
+                  extra: room,
+                );
+                return isLeaved ?? false;
               },
               onTapSignIn: () {
                 context.push(RoutePaths.signIn);
