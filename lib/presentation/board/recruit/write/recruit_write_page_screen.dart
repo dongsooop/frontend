@@ -258,7 +258,6 @@ class RecruitWritePageScreen extends HookConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             child: SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: EdgeInsets.only(bottom: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
