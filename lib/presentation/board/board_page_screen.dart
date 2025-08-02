@@ -229,7 +229,9 @@ class BoardPageScreen extends HookConsumerWidget {
                 },
                 showHelpIcon: isRecruit,
                 onHelpPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  final messenger = ScaffoldMessenger.of(context);
+                  messenger.removeCurrentSnackBar();
+                  messenger.showSnackBar(
                     SnackBar(
                       content: const Text('현재 모집 중인 게시글만 보여져요.'),
                       duration: const Duration(seconds: 3),
