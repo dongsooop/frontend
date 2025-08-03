@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
+import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/widget/botton_button.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
@@ -332,10 +333,13 @@ class RecruitDetailPageScreen extends ConsumerWidget {
           try {
             await viewModel.deleteRecruit(id, type);
             if (user == null) return;
-            ref.invalidate(RecruitListViewModelProvider(
+            ref.read(deletedRecruitIdsProvider.notifier).update(
+                  (prev) => {...prev, id},
+            );
+            ref.read(RecruitListViewModelProvider(
               type: type,
               departmentCode: user.departmentType,
-            ));
+            ).notifier).refresh();
             context.pop(true);
           } catch (e) {
             showDialog(
