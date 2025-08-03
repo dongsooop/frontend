@@ -87,6 +87,21 @@ class BoardPageScreen extends HookConsumerWidget {
         ? MarketType.values[safeIndex]
         : null;
 
+    final editedMarketIds = ref.watch(editedMarketIdsProvider);
+
+    useEffect(() {
+      if (editedMarketIds.isNotEmpty && !isRecruit && marketType != null) {
+        Future.microtask(() async {
+          await ref.read(
+            marketListViewModelProvider(type: marketType).notifier,
+          ).refresh();
+
+          ref.read(editedMarketIdsProvider.notifier).update((_) => {});
+        });
+      }
+      return null;
+    }, [editedMarketIds, isRecruit, marketType]);
+
     useEffect(() {
       final controller = scrollControllers[safeIndex];
       if (isRecruit && recruitType != null) {

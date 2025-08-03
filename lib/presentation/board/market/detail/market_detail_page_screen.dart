@@ -9,6 +9,7 @@ import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/detail/widget/botton_button.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
+import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -59,14 +60,25 @@ class MarketDetailPageScreen extends ConsumerWidget {
                 detailState.whenData((data) {
                   final viewType = data.marketDetail?.viewType;
                   if (viewType == 'OWNER') {
-                    customActionSheet(context, onEdit: () {
-                      context.push(RoutePaths.marketWrite, extra: {
-                        'isEditing': true,
-                        'marketId': id,
-                      });
-                    }, onDelete: () {
-                      _showDeleteDialog(context, ref);
-                    });
+                    customActionSheet(
+                      context,
+                      onEdit: () async {
+                        final didEdit = await context.push<bool>(
+                          RoutePaths.marketWrite,
+                          extra: {
+                            'isEditing': true,
+                            'marketId': id,
+                          },
+                        );
+                        if (didEdit == true && context.mounted) {
+                          ref.read(editedMarketIdsProvider.notifier).update((state) => {...state, id});
+                          context.pop(true);
+                        }
+                      },
+                      onDelete: () {
+                        _showDeleteDialog(context, ref);
+                      },
+                    );
                   } else {
                     customActionSheet(
                       context,
