@@ -11,7 +11,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class RecruitItemListSection extends ConsumerWidget {
   final RecruitType recruitType;
   final String departmentCode;
-  final void Function(int id, RecruitType type) onTapRecruitDetail;
+  final Future<void> Function(int id, RecruitType type) onTapRecruitDetail;
   final ScrollController scrollController;
 
   const RecruitItemListSection({
@@ -39,7 +39,7 @@ class RecruitItemListSection extends ConsumerWidget {
             '${state.error}',
             style:
                 TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-            textAlign: TextAlign.center, // 중앙 정렬
+            textAlign: TextAlign.center,
           ),
         ),
       );
@@ -81,7 +81,9 @@ class RecruitItemListSection extends ConsumerWidget {
           return RecruitListItem(
             recruit: recruit,
             isLastItem: isLast,
-            onTap: () => onTapRecruitDetail(recruit.id, recruitType),
+            onTap: () async {
+              await onTapRecruitDetail(recruit.id, recruitType);
+            },
           );
         },
       ),
@@ -91,7 +93,7 @@ class RecruitItemListSection extends ConsumerWidget {
 
 class RecruitListItem extends StatelessWidget {
   final RecruitListEntity recruit;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
   final bool isLastItem;
 
   const RecruitListItem({
@@ -118,7 +120,7 @@ class RecruitListItem extends StatelessWidget {
       title: recruit.title,
       content: recruit.content,
       tags: tags,
-      onTap: onTap,
+      onTapAsync: onTap,
       isLastItem: isLastItem,
     );
   }

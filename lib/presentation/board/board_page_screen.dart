@@ -9,6 +9,7 @@ import 'package:dongsoop/presentation/board/common/components/board_write_button
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
 import 'package:dongsoop/presentation/board/providers/board_taps_provider.dart';
+import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_item.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/scroll_listener.dart';
@@ -65,9 +66,43 @@ class BoardPageScreen extends HookConsumerWidget {
     final recruitType = isRecruit && safeIndex < RecruitType.values.length
         ? RecruitType.values[safeIndex]
         : null;
+
+    final deletedRecruitIds = ref.watch(deletedRecruitIdsProvider);
+
+    useEffect(() {
+      if (deletedRecruitIds.isNotEmpty && isRecruit && recruitType != null) {
+        Future.microtask(() async {
+          await ref.read(
+            recruitListViewModelProvider(
+              type: recruitType,
+              departmentCode: departmentCode,
+            ).notifier,
+          ).refresh();
+          ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
+        });
+      }
+      return null;
+    }, [deletedRecruitIds, isRecruit, recruitType]);
+
+
     final marketType = !isRecruit && safeIndex < MarketType.values.length
         ? MarketType.values[safeIndex]
         : null;
+
+    final editedMarketIds = ref.watch(editedMarketIdsProvider);
+
+    useEffect(() {
+      if (editedMarketIds.isNotEmpty && !isRecruit && marketType != null) {
+        Future.microtask(() async {
+          await ref.read(
+            marketListViewModelProvider(type: marketType).notifier,
+          ).refresh();
+
+          ref.read(editedMarketIdsProvider.notifier).update((_) => {});
+        });
+      }
+      return null;
+    }, [editedMarketIds, isRecruit, marketType]);
 
     useEffect(() {
       final controller = scrollControllers[safeIndex];
@@ -142,15 +177,23 @@ class BoardPageScreen extends HookConsumerWidget {
 
     Future<void> handleRecruitDetail(int id, RecruitType type) async {
       final didApply = await onTapRecruitDetail(id, type);
-      if (didApply && recruitType != null) {
-        ref
-            .read(
-              recruitListViewModelProvider(
-                type: recruitType,
-                departmentCode: departmentCode,
-              ).notifier,
-            )
-            .refresh();
+
+      final deletedIds = ref.read(deletedRecruitIdsProvider);
+      final isDeleted = deletedIds.contains(id);
+
+      if ((didApply || isDeleted) && recruitType != null) {
+        // 삭제된 항목 목록을 반영해서 refresh
+        await ref.read(
+          recruitListViewModelProvider(
+            type: recruitType,
+            departmentCode: departmentCode,
+          ).notifier,
+        ).refresh();
+      }
+
+      if (isDeleted) {
+        // 삭제 처리 후, 전역 상태 초기화
+        ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
       }
     }
 
@@ -206,10 +249,25 @@ class BoardPageScreen extends HookConsumerWidget {
                     Future.microtask(() async {
                       if (isRecruit && newSubIndex < RecruitType.values.length) {
                         final type = RecruitType.values[newSubIndex];
-                        await ref.read(recruitListViewModelProvider(
-                          type: type,
-                          departmentCode: departmentCode,
-                        ).notifier).refresh();
+                        final deletedIds = ref.read(deletedRecruitIdsProvider);
+
+                        // 삭제된 게시글 ID가 있는 경우 무조건 refresh
+                        if (deletedIds.isNotEmpty) {
+                          await ref.read(recruitListViewModelProvider(
+                            type: type,
+                            departmentCode: departmentCode,
+                          ).notifier).refresh();
+
+                          // 삭제 ID 초기화
+                          ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
+                        } else {
+                          await ref
+                              .read(recruitListViewModelProvider(
+                            type: type,
+                            departmentCode: departmentCode,
+                          ).notifier)
+                              .refresh();
+                        }
                       } else if (!isRecruit && newSubIndex < MarketType.values.length) {
                         final type = MarketType.values[newSubIndex];
                         await ref.read(marketListViewModelProvider(type: type).notifier).refresh();
