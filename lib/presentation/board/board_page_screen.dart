@@ -1,8 +1,10 @@
+import 'package:dongsoop/core/presentation/components/single_action_dialog.dart';
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
+import 'package:dongsoop/domain/board/timezone/providers/check_time_zone_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
@@ -135,6 +137,19 @@ class BoardPageScreen extends HookConsumerWidget {
       final user = ref.watch(userSessionProvider);
       if (user == null) {
         await LoginRequiredDialog(context);
+        return;
+      }
+
+      final isAllowed = await ref.read(checkTimeZoneUseCaseProvider).isUserTimezone();
+
+      if (!isAllowed) {
+        await SingleActionDialog(
+          context,
+          title: '현재 시간대가 달라요.',
+          content: '한국 시간대로 변경 후에\n사용해주세요.',
+          confirmText: '확인',
+          onConfirm: () {},
+        );
         return;
       }
 
@@ -272,7 +287,9 @@ class BoardPageScreen extends HookConsumerWidget {
                 },
                 showHelpIcon: isRecruit,
                 onHelpPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  final messenger = ScaffoldMessenger.of(context);
+                  messenger.removeCurrentSnackBar();
+                  messenger.showSnackBar(
                     SnackBar(
                       content: const Text('현재 모집 중인 게시글만 보여져요.'),
                       duration: const Duration(seconds: 3),
