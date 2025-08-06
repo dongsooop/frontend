@@ -37,11 +37,6 @@ jobs:
         run: |
           echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
 
-      - name: Decode GoogleService-Info.plist
-        run: |
-          mkdir -p ios/Runner
-          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 --decode > ios/Runner/GoogleService-Info.plist
-
       # iOS Pods 캐시 복원
       - name: Cache iOS Pods
         uses: actions/cache@v3
@@ -55,6 +50,11 @@ jobs:
           flutter clean
           flutter pub get
           cd ios && pod install --repo-update
+
+      - name: Decode GoogleService-Info.plist
+        run: |
+          mkdir -p ios/Runner
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 --decode > ios/Runner/GoogleService-Info.plist
 
       # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
       - name: Analyze code
