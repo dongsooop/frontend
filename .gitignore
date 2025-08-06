@@ -9,6 +9,9 @@ build/
 # dotenv file
 .env
 
+# Firebase iOS config
+ios/Runner/GoogleService-Info.plist
+
 # Local configuration file (sdk path, etc)
 local.properties
 
