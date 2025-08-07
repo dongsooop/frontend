@@ -22,4 +22,5 @@ abstract class ChatDataSource {
   void sendMessage(ChatMessageRequest message);
   void disconnect();
   Stream<ChatMessage> subscribeMessages();
+  Stream<String> subscribeBlock();
 }

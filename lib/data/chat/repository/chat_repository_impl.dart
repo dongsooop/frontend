@@ -104,4 +104,7 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<ChatMessage> subscribeMessages() => _chatDataSource.subscribeMessages();
+
+  @override
+  Stream<String> subscribeBlock() => _chatDataSource.subscribeBlock();
 }

@@ -58,4 +58,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> sendEmailCode(String userEmail) async {
     return await _authDataSource.sendEmailCode(userEmail);
   }
+
+  @override
+  Future<void> userBlock(int blockerId, int blockedMemberId) async {
+    await _authDataSource.userBlock(blockerId, blockedMemberId);
+  }
 }

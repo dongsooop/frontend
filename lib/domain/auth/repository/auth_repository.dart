@@ -13,4 +13,5 @@ abstract class AuthRepository {
   Future<bool> checkValidate(String data, String type);
   Future<bool> checkEmailCode(String userEmail, String code);
   Future<bool> sendEmailCode(String userEmail);
+  Future<void> userBlock(int blockerId, int blockedMemberId);
 }
