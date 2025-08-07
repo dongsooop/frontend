@@ -42,8 +42,7 @@ jobs:
           mkdir -p ios/Runner
           echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 --decode > ./ios/Runner/GoogleService-Info.plist
 
-      - name:
-          Debug: Check GoogleService-Info.plist
+      - name: "Debug: Check GoogleService-Info.plist"
         run: |
           echo "📄 File list in ios/Runner:"
           ls -al ios/Runner
