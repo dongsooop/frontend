@@ -36,6 +36,11 @@ jobs:
         run: |
           echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
 
+      - name: Decode GoogleService-Info.plist
+        run: |
+          mkdir -p ios/Runner
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 --decode > ./ios/Runner/GoogleService-Info.plist
+
       # iOS Pods 캐시 복원
       - name: Cache iOS Pods
         uses: actions/cache@v3
