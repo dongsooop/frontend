@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/ui/color_styles.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -13,6 +14,8 @@ import 'domain/chat/model/chat_room_member.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(); // Firebase 초기화
 
   await Hive.initFlutter(); // Hive(local DB) 초기화
   Hive.registerAdapter(ChatRoomMemberAdapter()); // 채팅방 참여자 목록
