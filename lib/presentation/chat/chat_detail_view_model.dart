@@ -315,7 +315,6 @@ class ChatBlockNotifier extends StateNotifier<String> {
 
   void blockStatus(String blockStatus) {
     state = blockStatus;
-    print('blockStatus - ChatBlockNotifier: ${blockStatus}');
   }
 }
 

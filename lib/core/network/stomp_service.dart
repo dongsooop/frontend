@@ -63,7 +63,6 @@ class StompService {
       destination: '$blockDestination/$roomId',
       callback: (frame) {
         if (frame.body != null) {
-          print('user block: ${frame.body}');
           final jsonData = json.decode(frame.body!);
           final blockStatus = jsonData['blockStatus'] as String;
           _blockController.add(blockStatus);
