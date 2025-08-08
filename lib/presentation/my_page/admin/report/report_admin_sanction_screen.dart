@@ -111,7 +111,6 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
-            barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
               title: '제재 완료',
               content: '제재가 정상적으로 적용됐어요',
@@ -127,7 +126,6 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
-            barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
               title: '제재 실패',
               content: reportSanctionState.errorMessage!,

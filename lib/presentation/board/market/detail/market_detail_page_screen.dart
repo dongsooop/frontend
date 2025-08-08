@@ -84,6 +84,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
                       context,
                       deleteText: '신고',
                       onDelete: () => onTapReport(type.reportType.name, id),
+                      onBlock: () => _showBlockDialog(context, ref, data.marketDetail!.authorId),
                     );
                   }
                 });
@@ -249,6 +250,43 @@ class MarketDetailPageScreen extends ConsumerWidget {
                   CircularProgressIndicator(color: ColorStyles.primaryColor)),
           error: (err, stack) => Center(child: Text('$err')),
         ),
+      ),
+    );
+  }
+
+  void _showBlockDialog(BuildContext context, WidgetRef ref, int authorId) {
+    final user = ref.watch(userSessionProvider);
+    if (user == null) return;
+
+    showDialog(
+      context: context,
+      builder: (_) => CustomConfirmDialog(
+        title: '차단',
+        content: '차단한 사용자와 1:1 채팅 및\n게시글 열람은 불가능해요.\n그래도 차단하시겠어요?',
+        confirmText: '확인',
+        cancelText: '취소',
+        onConfirm: () async {
+          final viewModel = ref.read(
+            marketDetailViewModelProvider(MarketDetailArgs(id: id)).notifier,
+          );
+          try {
+            await viewModel.userBlock(user.id, authorId);
+            context.pop(true);
+          } catch (e) {
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '차단 실패',
+                content: '$e',
+                confirmText: '확인',
+                isSingleAction: true,
+                onConfirm: () async {
+                  Navigator.of(context).pop();
+                },
+              ),
+            );
+          }
+        },
       ),
     );
   }

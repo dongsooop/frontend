@@ -20,5 +20,6 @@ abstract class ChatRepository {
   void sendMessage(ChatMessageRequest message);
   void disconnect();
   Stream<ChatMessage> subscribeMessages();
+  Stream<String> subscribeBlock();
 }
 

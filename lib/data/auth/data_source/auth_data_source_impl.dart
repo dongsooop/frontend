@@ -159,4 +159,15 @@ class AuthDataSourceImpl implements AuthDataSource {
       rethrow;
     }
   }
+
+  @override
+  Future<void> userBlock(int blockerId, int blockedMemberId) async {
+    final endpoint = dotenv.get('BLOCK_ENDPOINT');
+    final requestBody = {"blockerId": blockerId, "blockedMemberId": blockedMemberId};
+    try {
+      await _authDio.post(endpoint, data: requestBody);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

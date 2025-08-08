@@ -1,4 +1,5 @@
 import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
+import 'package:dongsoop/domain/mypage/model/blocked_user.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
 import 'package:dongsoop/domain/mypage/repository/mypage_repository.dart';
@@ -23,5 +24,18 @@ class MypageRepositoryImpl implements MypageRepository {
     if (posts == null || posts.isEmpty) return [];
 
     return posts;
+  }
+
+  @override
+  Future<List<BlockedUser>?> getBlockedUserList() async {
+    final list = await _mypageDataSource.getBlockedUserList();
+    if (list == null || list.isEmpty) return [];
+
+    return list;
+  }
+
+  @override
+  Future<void> unBlock(int blockerId, int blockedMemberId) async {
+    await _mypageDataSource.userUnBlock(blockerId, blockedMemberId);
   }
 }

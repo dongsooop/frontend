@@ -35,7 +35,6 @@ class ReportScreen extends HookConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
-            barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
               title: '신고 완료',
               content: '신고가 정상적으로 접수되었어요',

@@ -29,4 +29,5 @@ abstract class RoutePaths {
   static const String adminReportSanction = '/admin/sanction';
   static const String mypageMarket = '/mypage/market';
   static const String mypageRecruit = '/mypage/recruit';
+  static const String mypageBlock = '/mypage/block';
 }

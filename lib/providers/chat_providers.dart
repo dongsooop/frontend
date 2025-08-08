@@ -15,17 +15,19 @@ import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:dongsoop/presentation/chat/chat_view_model.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/network/stomp_service.dart';
-import '../core/storage/secure_storage_service.dart';
-import '../domain/chat/model/chat_message.dart';
-import '../domain/chat/use_case/connect_chat_room_use_case.dart';
-import '../domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
-import '../domain/chat/use_case/disconnect_chat_room_use_case.dart';
-import '../domain/chat/use_case/send_message_use_case.dart';
-import '../domain/chat/use_case/subscribe_messages_use_case.dart';
-import '../presentation/chat/chat_detail_view_model.dart';
-import '../presentation/chat/chat_state.dart';
+import 'package:dongsoop/core/network/stomp_service.dart';
+import 'package:dongsoop/core/storage/secure_storage_service.dart';
+import 'package:dongsoop/domain/chat/model/chat_message.dart';
+import 'package:dongsoop/domain/chat/use_case/connect_chat_room_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/disconnect_chat_room_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/send_message_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/subscribe_messages_use_case.dart';
+import 'package:dongsoop/presentation/chat/chat_detail_view_model.dart';
+import 'package:dongsoop/presentation/chat/chat_state.dart';
+import 'package:dongsoop/domain/chat/use_case/subscribe_block_use_case.dart';
 
 
 // 추후 기능, 책임 별로 providers 분리
@@ -84,6 +86,11 @@ final subscribeMessagesUseCaseProvider = Provider<SubscribeMessagesUseCase>((ref
   return SubscribeMessagesUseCase(repository);
 });
 
+final subscribeBlockUseCaseProvider = Provider<SubscribeBlockUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return SubscribeBlockUseCase(repository);
+});
+
 final getUserNicknamesUseCaseProvider = Provider<GetUserNicknamesUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return GetUserNicknamesUseCase(repository);
@@ -138,6 +145,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final disconnectUseCase = ref.watch(disconnectChatRoomUseCaseProvider);
   final sendMessageUseCase = ref.watch(sendMessageUseCaseProvider);
   final subscribeMessagesUseCase = ref.watch(subscribeMessagesUseCaseProvider);
+  final subscribeBlockUseCase = ref.watch(subscribeBlockUseCaseProvider);
   final getUserNicknamesUseCase = ref.watch(getUserNicknamesUseCaseProvider);
   final saveChatMessageUseCase = ref.watch(saveChatMessageUseCaseProvider);
   final getPagedMessagesUseCase = ref.watch(getPagedMessagesUseCaseProvider);
@@ -145,12 +153,14 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final updateReadStatusUseCase = ref.watch(updateReadStatusUseCaseProvider);
   final leaveChatRoomUseCase = ref.watch(leaveChatRoomUseCaseProvider);
   final kickUserUseCase = ref.watch(kickUserUseCaseProvider);
+  final userBlockUseCase = ref.watch(userBlockUseCaseProvider);
 
   return ChatDetailViewModel(
     connectUseCase,
     disconnectUseCase,
     sendMessageUseCase,
     subscribeMessagesUseCase,
+    subscribeBlockUseCase,
     getUserNicknamesUseCase,
     saveChatMessageUseCase,
     getPagedMessagesUseCase,
@@ -158,6 +168,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
     updateReadStatusUseCase,
     leaveChatRoomUseCase,
     kickUserUseCase,
+    userBlockUseCase,
     ref,
   );
 });
@@ -166,5 +177,10 @@ final chatMessagesProvider = StateNotifierProvider<ChatMessagesNotifier, List<Ch
       (ref) {
     final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
     return ChatMessagesNotifier(viewModel.getPagedMessages);
+  },
+);
+
+final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref) {
+    return ChatBlockNotifier();
   },
 );

@@ -21,6 +21,7 @@ import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_view_model.dart';
 import 'package:dongsoop/domain/auth/use_case/check_email_code_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/send_email_code_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
 
 // Data Source
 final authDataSourceProvider = Provider<AuthDataSource>((ref) {
@@ -79,6 +80,10 @@ final checkEmailCodeUseCaseProvider = Provider<CheckEmailCodeUseCase>((ref) {
 final sendEmailCodeUseCaseProvider = Provider<SendEmailCodeUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   return SendEmailCodeUseCase(repository);
+});
+final userBlockUseCaseProvider = Provider<UserBlockUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return UserBlockUseCase(repository);
 });
 
 // View Model

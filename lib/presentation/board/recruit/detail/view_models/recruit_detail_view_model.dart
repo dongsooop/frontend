@@ -8,6 +8,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
+import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 
 part 'recruit_detail_view_model.g.dart';
 
@@ -39,6 +41,7 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
       ref.watch(recruitDeleteUseCaseProvider);
   CreateOneToOneChatRoomUseCase get _createOneToOneChatRoomUseCase =>
       ref.watch(createOneToOneChatRoomUseCaseProvider);
+  UserBlockUseCase get _userBlockUseCase => ref.watch(userBlockUseCaseProvider);
 
   @override
   FutureOr<RecruitDetailState> build(RecruitDetailArgs args) async {
@@ -74,6 +77,14 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
     try {
       final chatRoom = await _createOneToOneChatRoomUseCase.execute(title, targetUserId);
       return chatRoom;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> userBlock(int blockerId, int blockedMemberId) async {
+    try {
+      await _userBlockUseCase.execute(blockerId, blockedMemberId);
     } catch (e) {
       rethrow;
     }

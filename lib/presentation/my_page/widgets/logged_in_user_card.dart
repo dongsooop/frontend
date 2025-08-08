@@ -10,6 +10,7 @@ class LoggedInUserCard extends HookConsumerWidget {
   final VoidCallback onTapMarket;
   final VoidCallback onTapCalendar;
   final void Function(bool isApply) onTapRecruit;
+  final VoidCallback onTapBlockedUser;
 
   const LoggedInUserCard({
     super.key,
@@ -18,6 +19,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.onTapMarket,
     required this.onTapCalendar,
     required this.onTapRecruit,
+    required this.onTapBlockedUser,
   });
 
   @override
@@ -132,6 +134,10 @@ class LoggedInUserCard extends HookConsumerWidget {
                   _myActivityItem(
                     label: '장터 내역',
                     onTap: onTapMarket,
+                  ),
+                  _myActivityItem(
+                    label: '차단 관리',
+                    onTap: onTapBlockedUser,
                   ),
                   // 관리자
                   if (user.role == 'ADMIN')
