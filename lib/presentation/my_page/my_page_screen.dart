@@ -16,6 +16,7 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapMarket;
   final void Function(bool isApply) onTapRecruit;
+  final VoidCallback onTapBlockedUser;
 
   const MyPageScreen({
     super.key,
@@ -25,6 +26,7 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapAdminReport,
     required this.onTapMarket,
     required this.onTapRecruit,
+    required this.onTapBlockedUser,
   });
 
   @override
@@ -79,6 +81,7 @@ class MyPageScreen extends HookConsumerWidget {
                       onTapMarket: onTapMarket,
                       onTapRecruit: onTapRecruit,
                       onTapCalendar: onTapCalendar,
+                      onTapBlockedUser: onTapBlockedUser,
                     );
                   }
                 },

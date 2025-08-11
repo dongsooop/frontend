@@ -27,6 +27,7 @@ class ChatDetailScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // provider
     final messages = ref.watch(chatMessagesProvider);
+    final blockStatus = ref.watch(chatBlockProvider);
     final user = ref.watch(userSessionProvider);
     final chatDetailState = ref.watch(chatDetailViewModelProvider);
     final viewModel = ref.read(chatDetailViewModelProvider.notifier);
@@ -35,9 +36,7 @@ class ChatDetailScreen extends HookConsumerWidget {
     final String? userNickname = user?.nickname;
     final int? userId = user?.id;
 
-    // text field controller
     final textController = useTextEditingController();
-    // scroll controller
     final scrollController = useScrollController();
 
     useEffect(() {
@@ -45,6 +44,7 @@ class ChatDetailScreen extends HookConsumerWidget {
         viewModel.resetLeaveFlag();
         // 채팅방 참여자 정보
         await viewModel.fetchNicknames(chatRoom.roomId);
+        if (!chatRoom.isGroupChat && userId != null) viewModel.getOtherUserId(userId);
         // 서버 메시지 저장
         await viewModel.fetchOfflineMessages(chatRoom.roomId);
         // 로컬 메시지 불러오기
@@ -61,6 +61,15 @@ class ChatDetailScreen extends HookConsumerWidget {
     }, []);
 
     useEffect(() {
+      if (blockStatus != 'NONE') {
+        Future.microtask(() async {
+          await viewModel.disconnectSocketOnly(chatRoom.roomId);
+        });
+      }
+      return null;
+    }, [blockStatus]);
+
+    useEffect(() {
       if (chatDetailState.errorMessage != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
@@ -71,7 +80,7 @@ class ChatDetailScreen extends HookConsumerWidget {
               content: chatDetailState.errorMessage!,
               onConfirm: () {
                 context.pop();
-                context.pop();
+                context.pop(true);
               },
               confirmText: '확인',
               dismissOnConfirm: false,
@@ -103,7 +112,7 @@ class ChatDetailScreen extends HookConsumerWidget {
     }
 
     return Scaffold(
-      resizeToAvoidBottomInset: true, // 가상 키보드가 나타날 때 Scattold가 자동으로 크기를 조정하여 가상 키보드와 겹치지 않도록 함
+      resizeToAvoidBottomInset: true,
       backgroundColor: ColorStyles.gray1,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(44),
@@ -126,7 +135,7 @@ class ChatDetailScreen extends HookConsumerWidget {
           ),
           leading: IconButton(
             onPressed: () {
-              context.pop();
+              context.pop(true);
             },
             icon: Icon(
               Icons.chevron_left_outlined,
@@ -138,13 +147,11 @@ class ChatDetailScreen extends HookConsumerWidget {
           actions: [
             IconButton(
               onPressed: () {
-                // 채팅방 나가기
                 customActionSheet(
                   context,
                   onDelete: () {
                     showDialog(
                       context: context,
-                      barrierDismissible: false,
                       builder: (_) => CustomConfirmDialog(
                         title: '채팅방 나가기',
                         content: '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
@@ -158,6 +165,22 @@ class ChatDetailScreen extends HookConsumerWidget {
                     );
                   },
                   deleteText: '채팅방 나가기',
+                  onBlock: chatDetailState.otherUserId != null && blockStatus != 'I_BLOCKED'
+                    ? () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => CustomConfirmDialog(
+                          title: '차단',
+                          content: '차단한 사용자와 1:1 채팅 및\n게시글 열람은 불가능해요.\n그래도 차단하시겠어요?',
+                          confirmText: '확인',
+                          cancelText: '취소',
+                          onConfirm: () async {
+                            await viewModel.userBlock(userId!, chatDetailState.otherUserId!);
+                          },
+                        ),
+                      );
+                    }
+                  : null,
                 );
               },
               icon: SvgPicture.asset(
@@ -173,12 +196,29 @@ class ChatDetailScreen extends HookConsumerWidget {
           ],
         ),
       ),
+      bottomNavigationBar: blockStatus == 'I_BLOCKED' && !chatRoom.isGroupChat
+        ? SafeArea(
+          child: Container(
+              height: 64,
+              width: double.infinity,
+              color: ColorStyles.white,
+              child: Center(
+                child: Text(
+                  '차단한 사용자와는 채팅을 할 수 없어요',
+                  style: TextStyles.normalTextBold.copyWith(
+                    color: ColorStyles.gray4,
+                  ),
+                ),
+              ),
+            ),
+        )
+        : null,
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: Container(
-            margin: EdgeInsets.symmetric(vertical: 24),
+            margin: EdgeInsets.only(top: 24),
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
@@ -208,7 +248,6 @@ class ChatDetailScreen extends HookConsumerWidget {
                               onDelete: () {
                                 showDialog(
                                   context: context,
-                                  barrierDismissible: false,
                                   builder: (_) => CustomConfirmDialog(
                                     title: '채팅 내보내기',
                                     content: '퇴장한 채팅방은 다시 참여할 수 없어요.\n정말로 내보내시겠어요?',
@@ -232,67 +271,70 @@ class ChatDetailScreen extends HookConsumerWidget {
                     ),
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  height: 52,
-                  margin: EdgeInsets.only(top: 16),
-                  padding: EdgeInsets.only(left: 16, right: 8),
-                  decoration: ShapeDecoration(
-                      color: ColorStyles.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          maxLines: null,
-                          cursorColor: ColorStyles.gray4,
-                          keyboardType: TextInputType.multiline,
-                          controller: textController,
-                          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                          decoration: InputDecoration(border: InputBorder.none,),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 44,
-                        width: 44,
-                        child: IconButton(
-                          onPressed: () {
-                            // 메시지 전송
-                            final content = textController.text.trim();
-                            if (content.isNotEmpty) {
-                              final roomId = chatRoom.roomId;
-                              final message = ChatMessageRequest(
-                                roomId: roomId,
-                                content: content,
-                                type: 'CHAT',
-                              );
-                              viewModel.send(message);
-                              textController.clear();
-                              // 스크롤 맨 아래로 이동
-                              scrollController.animateTo(
-                                0,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            }
-                          },
-                          icon: SvgPicture.asset(
-                            'assets/icons/send.svg',
-                            width: 24,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(
-                              ColorStyles.primaryColor,
-                              BlendMode.srcIn,
-                            ),
+                if (blockStatus != 'I_BLOCKED') ...[
+                  Container(
+                    width: double.infinity,
+                    height: 52,
+                    margin: EdgeInsets.only(top: 16, bottom: 24),
+                    padding: EdgeInsets.only(left: 16, right: 8),
+                    decoration: ShapeDecoration(
+                        color: ColorStyles.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            maxLines: null,
+                            cursorColor: ColorStyles.gray4,
+                            keyboardType: TextInputType.multiline,
+                            controller: textController,
+                            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+                            decoration: InputDecoration(border: InputBorder.none,),
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                )
+                        SizedBox(
+                          height: 44,
+                          width: 44,
+                          child: IconButton(
+                            onPressed: () {
+                              if (blockStatus == 'BLOCKED_BY_OTHER') return null;
+
+                              final content = textController.text.trim();
+                              if (content.isNotEmpty) {
+                                final roomId = chatRoom.roomId;
+                                final message = ChatMessageRequest(
+                                  roomId: roomId,
+                                  content: content,
+                                  type: 'CHAT',
+                                );
+                                viewModel.send(message);
+                                textController.clear();
+                                // 스크롤 맨 아래로 이동
+                                scrollController.animateTo(
+                                  0,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                            icon: SvgPicture.asset(
+                              'assets/icons/send.svg',
+                              width: 24,
+                              height: 24,
+                              colorFilter: const ColorFilter.mode(
+                                ColorStyles.primaryColor,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ]
               ],
             ),
           ),

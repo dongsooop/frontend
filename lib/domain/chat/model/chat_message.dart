@@ -13,6 +13,7 @@ class ChatMessage with _$ChatMessage{
   final String content;
   final DateTime timestamp;
   final String type;
+  final String blockStatus;
 
   ChatMessage({
     required this.messageId,
@@ -21,6 +22,7 @@ class ChatMessage with _$ChatMessage{
     required this.content,
     required this.timestamp,
     required this.type,
+    required this.blockStatus,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => _$ChatMessageFromJson(json);
@@ -36,6 +38,7 @@ class ChatMessage with _$ChatMessage{
       content: _formatDateText(date),
       timestamp: DateTime(date.year, date.month, date.day),
       type: 'DATE',
+      blockStatus: 'NONE',
     );
   }
 
@@ -59,6 +62,7 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
       content: reader.readString(),
       timestamp: DateTime.parse(reader.readString()),
       type: reader.readString(),
+      blockStatus: reader.readString(),
     );
   }
 
@@ -70,5 +74,6 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
     writer.writeString(obj.content);
     writer.writeString(obj.timestamp.toIso8601String());
     writer.writeString(obj.type);
+    writer.writeString(obj.blockStatus);
   }
 }

@@ -296,4 +296,7 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Stream<ChatMessage> subscribeMessages() => _stompService.messageStream;
+
+  @override
+  Stream<String> subscribeBlock() => _stompService.blockStream;
 }
