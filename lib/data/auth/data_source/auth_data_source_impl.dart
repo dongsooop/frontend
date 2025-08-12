@@ -24,10 +24,21 @@ class AuthDataSourceImpl implements AuthDataSource {
   );
 
   @override
-  Future<SignInResponse> signIn(String email, String password) async {
+  Future<SignInResponse> signIn(
+    String email,
+    String password,
+    String fcmToken,
+    String deviceType,
+  ) async {
     final endpoint = dotenv.get('LOGIN_ENDPOINT');
-    final requestBody = {"email": email, "password": password};
-
+    final requestBody = {
+      "email": email,
+      "password": password,
+      "fcmToken": fcmToken,
+      "deviceType": deviceType,
+    };
+    print('deviceType : $deviceType');
+    print('fcmToken : $fcmToken');
     try {
       final response = await _plainDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
@@ -91,8 +102,32 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<void> logout() async {
-    await _preferencesService.clearUser();
-    await _secureStorageService.delete();
+    final endpoint = dotenv.get('LOGOUT_ENDPOINT');
+    final fcmToken = await _secureStorageService.read('fcmToken');
+
+    final headers = <String, String>{
+      if (fcmToken?.isNotEmpty == true) 'Device-Token': fcmToken!,
+    };
+
+    try {
+      final response = await _authDio.post(
+        endpoint,
+        options: Options(
+          headers: headers,
+          followRedirects: false,
+          validateStatus: (_) => true,
+        ),
+      );
+      if (response.statusCode != HttpStatusCode.ok.code &&
+          response.statusCode != HttpStatusCode.redirect.code) {
+        throw LogoutException();
+      }
+    } on DioException {
+      throw LogoutException();
+    } finally {
+      await _preferencesService.clearUser();
+      await _secureStorageService.delete();
+    }
   }
 
   @override

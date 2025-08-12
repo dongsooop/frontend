@@ -28,6 +28,14 @@ class LoginException implements Exception {
   String toString() => message;
 }
 
+class LogoutException implements Exception {
+  final String message;
+  const LogoutException([this.message = "알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+
 class InvalidCredentialsException extends LoginException {
   const InvalidCredentialsException(
       [String message = "아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요"])

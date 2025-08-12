@@ -4,6 +4,7 @@ import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
+import 'package:dongsoop/providers/fcm_providers.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,8 +42,9 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 
 // Use Case
 final SignInUseCaseProvider = Provider<SignInUseCase>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return SignInUseCase(repository);
+  final authRepo = ref.watch(authRepositoryProvider);
+  final fcmRepo = ref.watch(fcmTokenRepositoryProvider);
+  return SignInUseCase(authRepo, fcmRepo);
 });
 
 final loadUserUseCaseProvider = Provider<LoadUserUseCase>((ref) {
