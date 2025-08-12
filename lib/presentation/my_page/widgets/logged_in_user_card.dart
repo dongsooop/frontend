@@ -9,6 +9,7 @@ class LoggedInUserCard extends HookConsumerWidget {
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapMarket;
   final VoidCallback onTapCalendar;
+  final VoidCallback onTapSchedule;
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
 
@@ -18,6 +19,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.onTapAdminReport,
     required this.onTapMarket,
     required this.onTapCalendar,
+    required this.onTapSchedule,
     required this.onTapRecruit,
     required this.onTapBlockedUser,
   });
@@ -94,12 +96,11 @@ class LoggedInUserCard extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 16,
             children: [
-              // _myPageMenuItem(
-              //   icon: Icons.browse_gallery_outlined,
-              //   label: '시간표 관리',
-              //   routePath: 'schedule',
-              //   context: context,
-              // ),
+              _myPageMenuItem(
+                icon: Icons.browse_gallery_outlined,
+                label: '시간표 관리',
+                onTap: onTapSchedule,
+              ),
               _myPageMenuItem(
                 icon: Icons.calendar_month_outlined,
                 label: '일정 관리',

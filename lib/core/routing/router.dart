@@ -459,6 +459,9 @@ final router = GoRouter(
               onTapCalendar: () {
                 context.push(RoutePaths.calendar);
               },
+              onTapSchedule: () {
+                context.push(RoutePaths.schedule);
+              },
               onTapBlockedUser: () {
                 context.push(RoutePaths.mypageBlock);
               }
