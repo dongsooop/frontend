@@ -6,6 +6,9 @@ import 'package:dongsoop/domain/auth/model/user.dart';
 abstract class AuthDataSource {
   Future<SignInResponse> signIn(String email, String password);
   Future<void> signUp(SignUpRequest request);
+  Future<bool> passwordReset(String email, String password);
+  Future<bool> passwordSendEmailCode(String userEmail);
+  Future<bool> passwordCheckEmailCode(String userEmail, String code);
   Future<void> logout();
   Future<void> deleteUser();
   Future<User?> getUser();

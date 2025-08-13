@@ -24,6 +24,7 @@ import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
+import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/splash/splash_screen.dart';
@@ -76,11 +77,16 @@ final router = GoRouter(
       path: RoutePaths.signIn,
       builder: (context, state) => SignInScreen(
         onTapSignUp: () => context.push(RoutePaths.signUp),
+        onTapPasswordReset: () => context.push(RoutePaths.passwordReset),
       ),
     ),
     GoRoute(
       path: RoutePaths.signUp,
       builder: (context, state) => SignUpScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.passwordReset,
+      builder: (context, state) => PasswordResetScreen(),
     ),
     GoRoute(
       path: RoutePaths.chatDetail,

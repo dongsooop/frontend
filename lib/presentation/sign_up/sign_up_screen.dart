@@ -14,8 +14,7 @@ import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/auth/enum/agreement_type.dart';
-
-import '../../core/utils/time_formatter.dart';
+import 'package:dongsoop/core/utils/time_formatter.dart';
 
 class SignUpScreen extends HookConsumerWidget {
 
