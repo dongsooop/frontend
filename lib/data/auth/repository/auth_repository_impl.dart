@@ -22,6 +22,21 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<bool> passwordReset(String email, String password) async {
+    return await _authDataSource.passwordReset(email, password);
+  }
+
+  @override
+  Future<bool> passwordSendEmailCode(String userEmail) async {
+    return await _authDataSource.passwordSendEmailCode(userEmail);
+  }
+
+  @override
+  Future<bool> passwordCheckEmailCode(String userEmail, String code) async {
+    return await _authDataSource.passwordCheckEmailCode(userEmail, code);
+  }
+
+  @override
   Future<bool> checkValidate(String data, String type) async {
     return await _authDataSource.validate(data, type);
   }
