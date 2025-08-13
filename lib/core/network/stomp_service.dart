@@ -9,7 +9,8 @@ import 'package:dongsoop/core/storage/secure_storage_service.dart';
 
 class StompService {
   late StompClient _client;
-  final _controller = StreamController<ChatMessage>.broadcast();
+  final _chatController = StreamController<ChatMessage>.broadcast();
+  final _blockController = StreamController<String>.broadcast();
   final SecureStorageService _secureStorageService;
 
   StompService(this._secureStorageService);
@@ -32,7 +33,6 @@ class StompService {
             'Authorization': 'Bearer $accessToken',
           },
           onWebSocketError: (error) {
-            print('WebSocket error: $error');
             if (error.toString().contains('403')) {
               throw ChatForbiddenException();
             } else if (error.toString().contains('401')) {
@@ -51,15 +51,32 @@ class StompService {
   }
 
   void _onConnect(StompFrame frame, String roomId) {
-    final destination = dotenv.get('DESTINATION');
+    final enterDestination = dotenv.get('ENTER_DESTINATION');
+    final chatDestination = dotenv.get('CHAT_DESTINATION');
+    final blockDestination = dotenv.get('BLOCK_DESTINATION');
+
+    _client.send(
+      destination: '$enterDestination/$roomId',
+    );
 
     _client.subscribe(
-      destination: '$destination/$roomId',
+      destination: '$blockDestination/$roomId',
+      callback: (frame) {
+        if (frame.body != null) {
+          final jsonData = json.decode(frame.body!);
+          final blockStatus = jsonData['blockStatus'] as String;
+          _blockController.add(blockStatus);
+        }
+      },
+    );
+
+    _client.subscribe(
+      destination: '$chatDestination/$roomId',
       callback: (frame) {
         if (frame.body != null) {
           final jsonData = json.decode(frame.body!);
           final message = ChatMessage.fromJson(jsonData);
-          _controller.add(message);
+          _chatController.add(message);
         }
       },
     );
@@ -84,5 +101,6 @@ class StompService {
     _client.deactivate();
   }
 
-  Stream<ChatMessage> get messageStream => _controller.stream;
+  Stream<ChatMessage> get messageStream => _chatController.stream;
+  Stream<String> get blockStream => _blockController.stream;
 }

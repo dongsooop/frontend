@@ -11,10 +11,12 @@ import '../../core/presentation/components/detail_header.dart';
 
 class SignInScreen extends HookConsumerWidget {
   final VoidCallback onTapSignUp;
+  final VoidCallback onTapPasswordReset;
 
   const SignInScreen({
     super.key,
     required this.onTapSignUp,
+    required this.onTapPasswordReset,
   });
 
   @override
@@ -41,7 +43,7 @@ class SignInScreen extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 16,
                 children: [
-                  SizedBox(height: 24,),
+                  SizedBox(height: 16,),
                   SvgPicture.asset(
                     'assets/icons/logo.svg',
                     width: 128,
@@ -104,8 +106,10 @@ class SignInScreen extends HookConsumerWidget {
                     ),
                   ),
                   // 에러 메시지 표시
-                  SizedBox(
-                    height: 32,
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: 24,
+                    ),
                     child: loginState.hasError
                       ? Text(
                         loginState.error.toString(),
@@ -147,6 +151,22 @@ class SignInScreen extends HookConsumerWidget {
                     ),
                     child: Text('회원가입', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.primaryColor)),
                   ),
+                  InkWell(
+                    onTap: onTapPasswordReset,
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    focusColor: Colors.transparent,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: 44,
+                      ),
+                      child: Text(
+                        '비밀번호 변경',
+                        style: TextStyles.smallTextBold.copyWith(color: ColorStyles.gray4)
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),

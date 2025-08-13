@@ -12,7 +12,8 @@ class CommonRecruitListItem extends StatelessWidget {
   final String content;
   final List<String> tags;
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final Future<void> Function()? onTapAsync;
   final bool isLastItem;
 
   const CommonRecruitListItem({
@@ -23,7 +24,8 @@ class CommonRecruitListItem extends StatelessWidget {
     required this.title,
     required this.content,
     required this.tags,
-    required this.onTap,
+    this.onTap,
+    this.onTapAsync,
     required this.isLastItem,
   });
 
@@ -32,7 +34,13 @@ class CommonRecruitListItem extends StatelessWidget {
     final hasRealTags = tags.any((tag) => tag.trim().isNotEmpty);
 
     return InkWell(
-      onTap: onTap,
+      onTap: () async {
+        if (onTapAsync != null) {
+          await onTapAsync!();
+        } else {
+          onTap?.call();
+        }
+      },
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       hoverColor: Colors.transparent,

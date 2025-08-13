@@ -1,6 +1,10 @@
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/domain/auth/use_case/delete_user_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/password_check_email_code_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/password_send_email_code_use_case.dart';
+import 'package:dongsoop/presentation/sign_in/password_reset_state.dart';
+import 'package:dongsoop/presentation/sign_in/password_reset_view_model.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
@@ -21,6 +25,8 @@ import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_view_model.dart';
 import 'package:dongsoop/domain/auth/use_case/check_email_code_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/send_email_code_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/update_password_use_case.dart';
 
 // Data Source
 final authDataSourceProvider = Provider<AuthDataSource>((ref) {
@@ -56,6 +62,12 @@ final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
   return LogoutUseCase(repository);
 });
 
+final updatePasswordUseCaseProvider = Provider<UpdatePasswordUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+
+  return UpdatePasswordUseCase(repository);
+});
+
 final deleteUserUseCaseProvider = Provider<DeleteUserUseCase>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   final chatRepository = ref.watch(chatRepositoryProvider);
@@ -80,6 +92,19 @@ final sendEmailCodeUseCaseProvider = Provider<SendEmailCodeUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   return SendEmailCodeUseCase(repository);
 });
+final userBlockUseCaseProvider = Provider<UserBlockUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return UserBlockUseCase(repository);
+});
+
+final passwordCheckEmailCodeUseCaseProvider = Provider<PasswordCheckEmailCodeUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return PasswordCheckEmailCodeUseCase(repository);
+});
+final passwordSendEmailCodeUseCaseProvider = Provider<PasswordSendEmailCodeUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return PasswordSendEmailCodeUseCase(repository);
+});
 
 // View Model
 final signInViewModelProvider = StateNotifierProvider<SignInViewModel, AsyncValue<void>>((ref) {
@@ -96,6 +121,15 @@ final signUpViewModelProvider = StateNotifierProvider.autoDispose<SignUpViewMode
   final sendEmailCodeUseCase = ref.watch(sendEmailCodeUseCaseProvider);
 
   return SignUpViewModel(signUpUseCase, checkDuplicateUseCase, checkEmailCodeUseCase, sendEmailCodeUseCase);
+});
+
+final passwordResetViewModelProvider = StateNotifierProvider.autoDispose<PasswordResetViewModel, PasswordResetState>((ref) {
+  final checkDuplicateUseCase = ref.watch(checkDuplicateUseCaseProvider);
+  final updatePasswordUseCase = ref.watch(updatePasswordUseCaseProvider);
+  final passwordSendEmailCodeUseCase = ref.watch(passwordSendEmailCodeUseCaseProvider);
+  final passwordCheckEmailCodeUseCase = ref.watch(passwordCheckEmailCodeUseCaseProvider);
+
+  return PasswordResetViewModel(checkDuplicateUseCase, passwordSendEmailCodeUseCase, passwordCheckEmailCodeUseCase, updatePasswordUseCase);
 });
 
 final myPageViewModelProvider =

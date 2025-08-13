@@ -18,6 +18,13 @@ class DateTimeBottomSheet extends ConsumerStatefulWidget {
 
 class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
   String? _errorMessage;
+  final scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +68,8 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                controller: scrollController,
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
                 child: Column(
                   children: [
                     BottomCustomCalendar(
@@ -81,40 +89,43 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                           viewModel.canMoveToNextMonth(month, widget.isStart),
                     ),
                     const SizedBox(height: 24),
-                    BottomCustomTimeSpinner(
-                      initialDateTime: selectedDateTime,
-                      isStart: widget.isStart,
-                      onDateTimeChanged: (picked) {
-                        setState(() => _errorMessage = null);
-                        viewModel.updateSelectedTime(
-                            picked.hour, picked.minute, widget.isStart);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    if (_errorMessage != null) ...[
-                      Row(
-                        children: [
-                          Icon(Icons.warning_amber,
-                              color: ColorStyles.warning100, size: 16),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              _errorMessage!,
-                              style: TextStyles.smallTextRegular.copyWith(
-                                color: ColorStyles.warning100,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        BottomCustomTimeSpinner(
+                          initialDateTime: selectedDateTime,
+                          isStart: widget.isStart,
+                          onDateTimeChanged: (picked) {
+                            setState(() => _errorMessage = null);
+                            viewModel.updateSelectedTime(
+                                picked.hour, picked.minute, widget.isStart);
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        if (_errorMessage != null)
+                          Row(
+                            children: [
+                              Icon(Icons.warning_amber,
+                                  color: ColorStyles.warning100, size: 16),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  _errorMessage!,
+                                  style: TextStyles.smallTextRegular.copyWith(
+                                    color: ColorStyles.warning100,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                    ],
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
               child: ElevatedButton(
                 onPressed: () {
                   final isValid = viewModel.confirmDateTime(widget.isStart);
@@ -122,6 +133,17 @@ class _DateTimeBottomSheetState extends ConsumerState<DateTimeBottomSheet> {
                     setState(() {
                       _errorMessage = '모집 기간은 최소 1일(24시간) 이상이어야 해요';
                     });
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (scrollController.hasClients) {
+                        scrollController.animateTo(
+                          scrollController.position.maxScrollExtent,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
+                        );
+                      }
+                    });
+
                     return;
                   }
 

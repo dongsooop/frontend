@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
+import 'package:dongsoop/domain/mypage/model/blocked_user.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -45,6 +46,35 @@ class MypageDataSourceImpl implements MypageDataSource {
         return posts;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<BlockedUser>?> getBlockedUserList() async {
+    final endpoint = dotenv.get('BLOCK_ENDPOINT');
+
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<dynamic> data = response.data;
+        final List<BlockedUser> list = data.map((e) => BlockedUser.fromJson(e as Map<String, dynamic>)).toList();
+        return list;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> userUnBlock(int blockerId, int blockedMemberId) async {
+    final endpoint = dotenv.get('BLOCK_ENDPOINT');
+    final requestBody = {"blockerId": blockerId, "blockedMemberId": blockedMemberId};
+
+    try {
+      await _authDio.delete(endpoint, data: requestBody);
     } catch (e) {
       rethrow;
     }
