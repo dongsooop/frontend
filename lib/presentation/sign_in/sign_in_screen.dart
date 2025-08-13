@@ -162,7 +162,7 @@ class SignInScreen extends HookConsumerWidget {
                         minHeight: 44,
                       ),
                       child: Text(
-                        '비밀번호 재설정',
+                        '비밀번호 변경',
                         style: TextStyles.smallTextBold.copyWith(color: ColorStyles.gray4)
                       ),
                     ),

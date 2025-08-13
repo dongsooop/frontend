@@ -389,7 +389,7 @@ class PasswordResetViewModel extends StateNotifier<PasswordResetState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '비밀번호 변경 중 오류가 발생했습니다.\n${e}',
+        errorMessage: '비밀번호 변경 중 오류가 발생했습니다.',
       );
       return false;
     }
