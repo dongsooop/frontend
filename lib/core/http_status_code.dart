@@ -2,6 +2,7 @@ enum HttpStatusCode {
   ok(200),
   created(201),
   noContent(204),
+  redirect(302),
   badRequest(400),
   unauthorized(401),
   forbidden(403),

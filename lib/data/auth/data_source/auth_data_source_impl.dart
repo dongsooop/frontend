@@ -24,10 +24,19 @@ class AuthDataSourceImpl implements AuthDataSource {
   );
 
   @override
-  Future<SignInResponse> signIn(String email, String password) async {
+  Future<SignInResponse> signIn(
+    String email,
+    String password,
+    String fcmToken,
+    String deviceType,
+  ) async {
     final endpoint = dotenv.get('LOGIN_ENDPOINT');
-    final requestBody = {"email": email, "password": password};
-
+    final requestBody = {
+      "email": email,
+      "password": password,
+      "fcmToken": fcmToken,
+      "deviceType": deviceType,
+    };
     try {
       final response = await _plainDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
@@ -149,8 +158,30 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<void> logout() async {
-    await _preferencesService.clearUser();
-    await _secureStorageService.delete();
+    final endpoint = dotenv.get('LOGOUT_ENDPOINT');
+    final fcmToken = await _secureStorageService.read('fcmToken');
+
+    final headers = <String, String>{
+      if (fcmToken?.isNotEmpty == true) 'Device-Token': fcmToken!,
+    };
+
+    try {
+      final response = await _authDio.post(
+        endpoint,
+        options: Options(
+          headers: headers,
+          followRedirects: false,
+        ),
+      );
+      if (response.statusCode != HttpStatusCode.redirect.code) {
+        throw LogoutException();
+      }
+    } on DioException {
+      throw LogoutException();
+    } finally {
+      await _preferencesService.clearUser();
+      await _secureStorageService.delete();
+    }
   }
 
   @override
@@ -158,6 +189,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     final endpoint = dotenv.get('DELETE_USER_ENDPOINT');
     try {
       await _authDio.delete(endpoint);
+      await _secureStorageService.deleteFcmToken(); // 회원 탈퇴시 fcm 토큰 삭제
       return true;
     } catch (e) {
       rethrow;

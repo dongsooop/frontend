@@ -12,8 +12,18 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._authDataSource);
 
   @override
-  Future<SignInResponse> signIn(String email, String password) {
-    return _authDataSource.signIn(email, password);
+  Future<SignInResponse> signIn(
+    String email,
+    String password,
+    String fcmToken,
+    String deviceType,
+  ) {
+    return _authDataSource.signIn(
+      email,
+      password,
+      fcmToken,
+      deviceType,
+    );
   }
 
   @override
