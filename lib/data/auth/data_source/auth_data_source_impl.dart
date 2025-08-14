@@ -189,6 +189,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     final endpoint = dotenv.get('DELETE_USER_ENDPOINT');
     try {
       await _authDio.delete(endpoint);
+      await _secureStorageService.deleteFcmToken(); // 회원 탈퇴시 fcm 토큰 삭제
       return true;
     } catch (e) {
       rethrow;
