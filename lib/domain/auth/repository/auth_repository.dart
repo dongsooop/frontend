@@ -6,6 +6,9 @@ import 'package:dongsoop/domain/auth/model/user.dart';
 abstract class AuthRepository {
   Future<SignInResponse> signIn(String email, String password, String fcmToken, String deviceType);
   Future<void> logout();
+  Future<bool> passwordReset(String email, String password);
+  Future<bool> passwordSendEmailCode(String userEmail);
+  Future<bool> passwordCheckEmailCode(String userEmail, String code);
   Future<void> deleteUser();
   Future<void> saveUser(StoredUser storedUser);
   Future<User?> getUser();
@@ -13,4 +16,5 @@ abstract class AuthRepository {
   Future<bool> checkValidate(String data, String type);
   Future<bool> checkEmailCode(String userEmail, String code);
   Future<bool> sendEmailCode(String userEmail);
+  Future<void> userBlock(int blockerId, int blockedMemberId);
 }

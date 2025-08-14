@@ -6,6 +6,7 @@ abstract class RoutePaths {
   static const String mypage = '/mypage';
   static const String signIn = '/signIn';
   static const String signUp = '/signUp';
+  static const String passwordReset = '/passwordReset';
 
   static const String noticeList = '/noticeList';
   static const String noticeWebView = '/noticeWebView';
@@ -29,4 +30,5 @@ abstract class RoutePaths {
   static const String adminReportSanction = '/admin/sanction';
   static const String mypageMarket = '/mypage/market';
   static const String mypageRecruit = '/mypage/recruit';
+  static const String mypageBlock = '/mypage/block';
 }

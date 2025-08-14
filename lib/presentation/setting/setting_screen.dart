@@ -88,7 +88,6 @@ class SettingScreen extends HookConsumerWidget {
                       // 채팅 캐시 삭제 다이얼로그
                       showDialog(
                         context: context,
-                        barrierDismissible: false,
                         builder: (_) => CustomConfirmDialog(
                           title: '채팅 캐시 삭제',
                           content: '채팅 내역을 삭제하시겠어요?',
@@ -106,7 +105,6 @@ class SettingScreen extends HookConsumerWidget {
                       // 로그아웃 다이얼로그
                       showDialog(
                         context: context,
-                        barrierDismissible: false,
                         builder: (_) => CustomConfirmDialog(
                           title: '로그아웃',
                           content: '로그아웃 하시겠어요?',
@@ -125,7 +123,6 @@ class SettingScreen extends HookConsumerWidget {
                       // 탈퇴 다이얼로그
                       showDialog(
                         context: context,
-                        barrierDismissible: false,
                         builder: (_) => CustomConfirmDialog(
                           title: '동숲 회원 탈퇴',
                           content: '탈퇴한 이메일로는 재가입 할 수 없어요.\n정말로 탈퇴하시겠어요?',

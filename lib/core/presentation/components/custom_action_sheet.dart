@@ -8,6 +8,7 @@ void customActionSheet(
   String? editText,
   required VoidCallback onDelete,
   String? deleteText,
+  VoidCallback? onBlock,
 }) {
   showCupertinoModalPopup(
     context: context,
@@ -24,6 +25,19 @@ void customActionSheet(
         ),
         child: CupertinoActionSheet(
           actions: [
+            if (onBlock != null)
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  onBlock();
+                },
+                child: Text(
+                  '차단',
+                  style: TextStyles.largeTextRegular.copyWith(
+                    color: ColorStyles.warning100,
+                  ),
+                ),
+              ),
             if (onEdit != null)
               CupertinoActionSheetAction(
                 onPressed: () {

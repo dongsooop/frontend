@@ -17,12 +17,14 @@ import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_screen.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_recruit_screen.dart';
+import 'package:dongsoop/presentation/my_page/activity/blocked_user_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
+import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/splash/splash_screen.dart';
@@ -75,11 +77,16 @@ final router = GoRouter(
       path: RoutePaths.signIn,
       builder: (context, state) => SignInScreen(
         onTapSignUp: () => context.push(RoutePaths.signUp),
+        onTapPasswordReset: () => context.push(RoutePaths.passwordReset),
       ),
     ),
     GoRoute(
       path: RoutePaths.signUp,
       builder: (context, state) => SignUpScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.passwordReset,
+      builder: (context, state) => PasswordResetScreen(),
     ),
     GoRoute(
       path: RoutePaths.chatDetail,
@@ -179,6 +186,10 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.setting,
       builder: (context, state) => SettingScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.mypageBlock,
+      builder: (context, state) => BlockedUserScreen(),
     ),
     GoRoute(
       path: RoutePaths.recruitWrite,
@@ -454,6 +465,9 @@ final router = GoRouter(
               onTapCalendar: () {
                 context.push(RoutePaths.calendar);
               },
+              onTapBlockedUser: () {
+                context.push(RoutePaths.mypageBlock);
+              }
             ),
           ),
         ]),

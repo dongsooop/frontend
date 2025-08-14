@@ -20,6 +20,18 @@ class SignUpException implements Exception {
   String toString() => message;
 }
 
+class PWResetException implements Exception {
+  final String message;
+
+  PWResetException([
+    this.message = "입력 정보를 다시 확인해 주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+
 class LoginException implements Exception {
   final String message;
   const LoginException([this.message = "알 수 없는 오류가 발생했습니다."]);

@@ -14,8 +14,7 @@ import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/auth/enum/agreement_type.dart';
-
-import '../../core/utils/time_formatter.dart';
+import 'package:dongsoop/core/utils/time_formatter.dart';
 
 class SignUpScreen extends HookConsumerWidget {
 
@@ -170,14 +169,19 @@ class SignUpScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              Text(
-                emailState.message ?? '동양미래대학교 Gmail을 입력해 주세요',
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: (emailState.isDuplicate == false && emailState.message == '이메일 인증이 필요해요')
-                    ? ColorStyles.warning100
-                    : (emailState.isError == true || emailCodeState.isError == true)
-                      ? ColorStyles.warning100
-                      : ColorStyles.gray4,
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Text(
+                    emailState.message ?? '동양미래대학교 Gmail을 입력해 주세요',
+                    style: TextStyles.smallTextRegular.copyWith(
+                      color: (emailState.isDuplicate == false && emailState.message == '이메일 인증이 필요해요')
+                        ? ColorStyles.warning100
+                        : (emailState.isError == true || emailCodeState.isError == true)
+                          ? ColorStyles.warning100
+                          : ColorStyles.gray4,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -331,12 +335,17 @@ class SignUpScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              Text(
-                passwordState.message ?? '영문, 숫자, 특수문자 포함 8자 이상 입력해 주세요',
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: (passwordState.isError == true)
-                    ? ColorStyles.warning100
-                    : ColorStyles.gray4,
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Text(
+                    passwordState.message ?? '영문, 숫자, 특수문자 포함 8자 이상 입력해 주세요',
+                    style: TextStyles.smallTextRegular.copyWith(
+                      color: (passwordState.isError == true)
+                        ? ColorStyles.warning100
+                        : ColorStyles.gray4,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -418,12 +427,17 @@ class SignUpScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              Text(
-                nicknameState.message ?? '2~8글자로 입력해 주세요',
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: (nicknameState.isError == true)
-                    ? ColorStyles.warning100
-                    : ColorStyles.gray4,
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Text(
+                    nicknameState.message ?? '2~8글자로 입력해 주세요',
+                    style: TextStyles.smallTextRegular.copyWith(
+                      color: (nicknameState.isError == true)
+                        ? ColorStyles.warning100
+                        : ColorStyles.gray4,
+                    ),
+                  ),
                 ),
               ),
             ],

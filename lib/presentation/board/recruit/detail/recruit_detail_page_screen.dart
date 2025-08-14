@@ -42,8 +42,6 @@ class RecruitDetailPageScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userSessionProvider);
-
     final detailState = ref.watch(
       recruitDetailViewModelProvider(
         RecruitDetailArgs(id: id, type: type),
@@ -52,36 +50,36 @@ class RecruitDetailPageScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(44),
-        child: DetailHeader(
-          title: type.label,
-          trailing: user == null
-              ? null
-              : detailState.maybeWhen(
-                  data: (data) {
-                    final viewType = data.recruitDetail?.viewType;
-                    final isOwner = viewType == 'OWNER';
+      appBar: DetailHeader(
+        title: type.label,
+        trailing: detailState.maybeWhen(
+          data: (data) {
+            final viewType = data.recruitDetail?.viewType;
+            if (viewType == 'GUEST' || viewType == null) return null;
 
-                    return IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {
-                        customActionSheet(
-                          context,
-                          deleteText: isOwner ? '삭제' : '신고',
-                          onDelete: () {
-                            if (isOwner) {
-                              _showDeleteDialog(context, ref);
-                            } else {
-                              onTapReport(type.reportType.name, id);
-                            }
-                          },
-                        );
-                      },
-                    );
-                  },
-                  orElse: () => null,
-                ),
+            final isOwner = viewType == 'OWNER';
+
+            return IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {
+                if (isOwner) {
+                  customActionSheet(
+                    context,
+                    deleteText: isOwner ? '삭제' : '신고',
+                    onDelete: () => _showDeleteDialog(context, ref),
+                  );
+                } else {
+                  customActionSheet(
+                    context,
+                    deleteText: '신고',
+                    onDelete: () => onTapReport(type.reportType.name, id),
+                    onBlock: () => _showBlockDialog(context, ref, data.recruitDetail!.authorId),
+                  );
+                }
+              },
+            );
+          },
+          orElse: () => null,
         ),
       ),
       bottomNavigationBar: detailState.maybeWhen(
@@ -310,6 +308,45 @@ class RecruitDetailPageScreen extends ConsumerWidget {
             );
           },
         ),
+      ),
+    );
+  }
+
+  void _showBlockDialog(BuildContext context, WidgetRef ref, int authorId) {
+    final user = ref.watch(userSessionProvider);
+    if (user == null) return;
+
+    showDialog(
+      context: context,
+      builder: (_) => CustomConfirmDialog(
+        title: '차단',
+        content: '차단한 사용자와 1:1 채팅 및\n게시글 열람은 불가능해요.\n그래도 차단하시겠어요?',
+        confirmText: '확인',
+        cancelText: '취소',
+        onConfirm: () async {
+          final viewModel = ref.read(
+            recruitDetailViewModelProvider(
+              RecruitDetailArgs(id: id, type: type),
+            ).notifier,
+          );
+          try {
+            await viewModel.userBlock(user.id, authorId);
+            context.pop(true);
+          } catch (e) {
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '차단 실패',
+                content: '$e',
+                confirmText: '확인',
+                isSingleAction: true,
+                onConfirm: () async {
+                  Navigator.of(context).pop();
+                },
+              ),
+            );
+          }
+        },
       ),
     );
   }
