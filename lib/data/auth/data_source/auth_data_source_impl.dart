@@ -37,8 +37,6 @@ class AuthDataSourceImpl implements AuthDataSource {
       "fcmToken": fcmToken,
       "deviceType": deviceType,
     };
-    print('deviceType : $deviceType');
-    print('fcmToken : $fcmToken');
     try {
       final response = await _plainDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
@@ -115,11 +113,9 @@ class AuthDataSourceImpl implements AuthDataSource {
         options: Options(
           headers: headers,
           followRedirects: false,
-          validateStatus: (_) => true,
         ),
       );
-      if (response.statusCode != HttpStatusCode.ok.code &&
-          response.statusCode != HttpStatusCode.redirect.code) {
+      if (response.statusCode != HttpStatusCode.redirect.code) {
         throw LogoutException();
       }
     } on DioException {
