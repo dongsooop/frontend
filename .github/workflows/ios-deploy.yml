@@ -9,7 +9,7 @@ jobs:
   build-ios:
     timeout-minutes: 30
     name: Apple Connect Deploy
-    runs-on: macos-latest
+    runs-on: macos-15
 #    runs-on: self-hosted
     steps:
       - name: Checkout repository
@@ -31,8 +31,10 @@ jobs:
           architecture: x64
           cache: true
 
-      - name: Select Xcode 16.4  # ← 추가
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+      - name: Select Xcode 16.4
+        uses: apple-actions/setup-xcode@v4
+        with:
+          xcode-version: '16.4'
 
       - name: Decode and create .env file
         run: |
