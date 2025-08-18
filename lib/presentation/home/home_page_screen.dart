@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomePageScreen extends ConsumerStatefulWidget {
-  const HomePageScreen({super.key});
+  const HomePageScreen({super.key, required this.onTapAlarm});
+  final VoidCallback onTapAlarm;
 
   @override
   ConsumerState<HomePageScreen> createState() => _HomePageScreenState();
@@ -18,39 +19,21 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
-      child: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).padding.top,
-            color: Colors.white,
+      child: Scaffold(
+        backgroundColor: ColorStyles.white,
+        appBar: MainHeader(onTapAlarm: widget.onTapAlarm),
+        body: SafeArea(
+          top: false,
+          bottom: true,
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: const [
+              HomeToday(),
+              HomeNewNotice(),
+              // HomePopularRecruits(),
+            ],
           ),
-          Expanded(
-            child: Scaffold(
-              backgroundColor: ColorStyles.white,
-              body: SafeArea(
-                top: false,
-                bottom: false,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const MainHeader(),
-                      const HomeToday(),
-                      const HomeNewNotice(),
-
-                      /// 추후 개발 기능
-                      // const HomePopularRecruits(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Container(
-            height: MediaQuery.of(context).padding.bottom,
-            color: ColorStyles.white,
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -8,6 +8,7 @@ abstract class RoutePaths {
   static const String signUp = '/signUp';
   static const String passwordReset = '/passwordReset';
 
+  static const String notificationList = '/home/notificationList';
   static const String noticeList = '/noticeList';
   static const String noticeWebView = '/noticeWebView';
   static const String libraryWebView = '/libraryWebView';

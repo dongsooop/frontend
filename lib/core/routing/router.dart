@@ -14,6 +14,7 @@ import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
+import 'package:dongsoop/presentation/home/notification_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_screen.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_recruit_screen.dart';
@@ -340,6 +341,10 @@ final router = GoRouter(
             targetId: targetId,
           );
         }),
+    GoRoute(
+      path: RoutePaths.notificationList,
+      builder: (context, state) => const NotificationPageScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainScreen(
@@ -357,7 +362,9 @@ final router = GoRouter(
         StatefulShellBranch(routes: [
           GoRoute(
               path: RoutePaths.home,
-              builder: (context, state) => const HomePageScreen(),
+              builder: (context, state) => HomePageScreen(
+                onTapAlarm: () => context.push(RoutePaths.notificationList),
+              ),
               routes: [
                 GoRoute(
                   path: RoutePaths.noticeList,
