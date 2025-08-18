@@ -166,16 +166,14 @@ class AuthDataSourceImpl implements AuthDataSource {
     };
 
     try {
-      final response = await _authDio.post(
+      await _authDio.post(
         endpoint,
         options: Options(
           headers: headers,
           followRedirects: false,
+          validateStatus: (s) => s == HttpStatusCode.redirect.code,
         ),
       );
-      if (response.statusCode != HttpStatusCode.redirect.code) {
-        throw LogoutException();
-      }
     } on DioException {
       throw LogoutException();
     } finally {
