@@ -44,7 +44,7 @@ class ChatDetailScreen extends HookConsumerWidget {
         viewModel.resetLeaveFlag();
         // 채팅방 참여자 정보
         await viewModel.fetchNicknames(chatRoom.roomId);
-        if (!chatRoom.isGroupChat && userId != null) viewModel.getOtherUserId(userId);
+        if (!chatRoom.isGroupChat && userId != null && chatRoom.participantCount != '1') viewModel.getOtherUserId(userId);
         // 서버 메시지 저장
         await viewModel.fetchOfflineMessages(chatRoom.roomId);
         // 로컬 메시지 불러오기
