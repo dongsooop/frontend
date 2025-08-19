@@ -159,7 +159,7 @@ class PasswordResetEmailSection extends ConsumerWidget {
                         child: CustomTextField(
                           controller: emailCodeController,
                           hintText: '인증 코드 입력',
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.text,
                           textInputAction: TextInputAction.done,
                         ),
                       ),
