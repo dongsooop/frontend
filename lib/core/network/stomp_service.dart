@@ -55,10 +55,6 @@ class StompService {
     final chatDestination = dotenv.get('CHAT_DESTINATION');
     final blockDestination = dotenv.get('BLOCK_DESTINATION');
 
-    _client.send(
-      destination: '$enterDestination/$roomId',
-    );
-
     _client.subscribe(
       destination: '$blockDestination/$roomId',
       callback: (frame) {
@@ -79,6 +75,10 @@ class StompService {
           _chatController.add(message);
         }
       },
+    );
+
+    _client.send(
+      destination: '$enterDestination/$roomId',
     );
   }
 
