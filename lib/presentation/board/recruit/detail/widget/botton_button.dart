@@ -40,6 +40,7 @@ class RecruitBottomButton extends StatelessWidget {
                 style: IconButton.styleFrom(
                   foregroundColor: ColorStyles.gray4,
                   disabledForegroundColor: ColorStyles.gray4,
+                  highlightColor: Colors.transparent,
                 ),
                 icon: const Icon(Icons.chat_bubble_outline,
                     size: 24, color: ColorStyles.gray4),
