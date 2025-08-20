@@ -13,7 +13,7 @@ ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) => ChatMessage(
       content: json['content'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       type: json['type'] as String,
-      blockStatus: json['blockStatus'] as String? ?? 'NONE',
+      blockStatus: json['blockStatus'] as String,
     );
 
 Map<String, dynamic> _$ChatMessageToJson(ChatMessage instance) =>

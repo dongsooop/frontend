@@ -7,23 +7,19 @@ part 'chat_room.g.dart';
 @JsonSerializable()
 class ChatRoom with _$ChatRoom {
   final String roomId;
-  final String? title;
-  final List<int> participants;
-  final int? managerId;
-  final DateTime createdAt;
+  final String title;
+  final int participantCount;
+  final String? lastMessage;
+  final int unreadCount;
   final DateTime lastActivityAt;
-  final List<int> kickedUsers;
-  final bool groupChat;
 
   ChatRoom({
     required this.roomId,
-    this.title,
-    required this.participants,
-    required this.managerId,
-    required this.createdAt,
+    required this.title,
+    required this.participantCount,
+    required this.lastMessage,
+    required this.unreadCount,
     required this.lastActivityAt,
-    required this.kickedUsers,
-    required this.groupChat,
   });
 
   factory ChatRoom.fromJson(Map<String, dynamic> json) => _$ChatRoomFromJson(json);

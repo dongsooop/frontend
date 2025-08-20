@@ -6,7 +6,6 @@ import 'package:dongsoop/core/presentation/components/login_required_dialog.dart
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
@@ -27,7 +26,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
   final void Function(String reportType, int targetId) onTapReport;
   final VoidCallback onTapApplicantList;
   final String? status;
-  final void Function(UiChatRoom chatRoom) onTapChatDetail;
+  final void Function(String roomId) onTapChatDetail;
 
   const RecruitDetailPageScreen({
     required this.id,

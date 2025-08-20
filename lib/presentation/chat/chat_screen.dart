@@ -1,6 +1,5 @@
 import 'dart:ui';
-
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
+import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -13,7 +12,7 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'chat_view_model.dart';
 
 class ChatScreen extends HookConsumerWidget {
-  final Future<bool> Function(UiChatRoom room) onTapChatDetail;
+  final Future<bool> Function(ChatRoom room) onTapChatDetail;
   final VoidCallback onTapSignIn;
 
   const ChatScreen({
@@ -69,11 +68,11 @@ class ChatScreen extends HookConsumerWidget {
 
     final allRooms = chatState.chatRooms ?? [];
 
-    final filteredRooms = selectedCategory.value == '1:1 채팅'
-      ? allRooms.where((room) => room.isGroupChat == false).toList()
-      : selectedCategory.value == '그룹 채팅'
-        ? allRooms.where((room) => room.isGroupChat == true).toList()
-        : allRooms;
+    // final filteredRooms = selectedCategory.value == '1:1 채팅'
+    //   ? allRooms.where((room) => room.isGroupChat == false).toList()
+    //   : selectedCategory.value == '그룹 채팅'
+    //     ? allRooms.where((room) => room.isGroupChat == true).toList()
+    //     : allRooms;
 
     return Stack(
       children: [
@@ -82,7 +81,7 @@ class ChatScreen extends HookConsumerWidget {
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              child: _buildChatBody(context, filteredRooms, selectedTap, selectedCategory, viewModel),
+              child: _buildChatBody(context, allRooms, selectedTap, selectedCategory, viewModel),
             ),
           ),
         ),
@@ -181,7 +180,7 @@ class ChatScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildChatBody(BuildContext context, List<UiChatRoom> rooms, selectedTab, selectedCategory, ChatViewModel viewModel,) {
+  Widget _buildChatBody(BuildContext context, List<ChatRoom> rooms, selectedTab, selectedCategory, ChatViewModel viewModel,) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,

@@ -5,7 +5,6 @@ import 'package:dongsoop/presentation/board/providers/recruit/recruit_delete_use
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_detail_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/states/recruit_detail_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
@@ -73,7 +72,7 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
     }
   }
 
-  Future<UiChatRoom> createChatRoom(String title, int targetUserId) async {
+  Future<String> createChatRoom(String title, int targetUserId) async {
     try {
       final chatRoom = await _createOneToOneChatRoomUseCase.execute(title, targetUserId);
       return chatRoom;

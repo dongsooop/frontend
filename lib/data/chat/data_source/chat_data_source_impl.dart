@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
 import 'chat_data_source.dart';
 
 class ChatDataSourceImpl implements ChatDataSource {
@@ -22,7 +23,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   );
 
   @override
-  Future<ChatRoom> createOneToOneChatRoom(String title, int targetUserId) async {
+  Future<String> createOneToOneChatRoom(String title, int targetUserId) async {
     final endpoint = dotenv.get('ONE_TO_ONE_CHAT');
     final requestBody = {'title': title, 'targetUserId': targetUserId};
 
@@ -30,9 +31,9 @@ class ChatDataSourceImpl implements ChatDataSource {
       final response = await _authDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
         final data = response.data;
+        final roomId = data['roomId'];
 
-        final ChatRoom room = ChatRoom.fromJson(data as Map<String, dynamic>);
-        return room;
+        return roomId;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
@@ -128,9 +129,27 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
+  Future<ChatRoomDetail> getRoomDetailByRoomId(String roomId) async {
+    try {
+      return await _hiveService.getChatDetail(roomId);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> saveChatMessage(ChatMessage message) async {
     try {
       await _hiveService.saveChatMessage(message.roomId, message);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> saveChatDetail(ChatRoomDetail room) async {
+    try {
+      await _hiveService.saveChatDetail(room);
     } catch (e) {
       rethrow;
     }
@@ -168,7 +187,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<List<ChatMessage>?> getChatInitialize(String roomId) async {
+  Future<(List<ChatMessage>?, ChatRoomDetail)> getChatInitialize(String roomId) async {
     final chat = dotenv.get('CHAT');
     final initialize = dotenv.get('CHAT_INITIALEZE_ENDPOINT');
     final endpoint = '$chat/$roomId$initialize';
@@ -179,7 +198,9 @@ class ChatDataSourceImpl implements ChatDataSource {
         final List<ChatMessage> messages = (response.data['messages'] as List)
             .map((e) => ChatMessage.fromJson(e))
             .toList();
-        return messages;
+        final room = ChatRoomDetail.fromJson(response.data['room']);
+
+        return (messages, room);
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
@@ -230,23 +251,6 @@ class ChatDataSourceImpl implements ChatDataSource {
       if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<int> getUnreadChatMessageCount(String roomId) async {
-    final chat = dotenv.get('CHAT');
-    final unread = dotenv.get('UNREAD_ENDPOINT');
-    final endpoint = '$chat/$roomId$unread';
-
-    try {
-      final response = await _authDio.get(endpoint);
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        return response.data['unreadCount'] as int;
-      }
-      throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
       rethrow;
     }

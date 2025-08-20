@@ -6,6 +6,7 @@ import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
+import 'package:dongsoop/domain/chat/use_case/get_room_detail_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_user_nicknames_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/kick_user_use_case.dart';
@@ -96,6 +97,11 @@ final getUserNicknamesUseCaseProvider = Provider<GetUserNicknamesUseCase>((ref) 
   return GetUserNicknamesUseCase(repository);
 });
 
+final getRoomDetailUseCaseProvider = Provider<GetRoomDetailUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return GetRoomDetailUseCase(repository);
+});
+
 final saveChatMessageUseCaseProvider = Provider<SaveChatMessageUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return SaveChatMessageUseCase(repository);
@@ -147,6 +153,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final subscribeMessagesUseCase = ref.watch(subscribeMessagesUseCaseProvider);
   final subscribeBlockUseCase = ref.watch(subscribeBlockUseCaseProvider);
   final getUserNicknamesUseCase = ref.watch(getUserNicknamesUseCaseProvider);
+  final getRoomDetailUseCase = ref.watch(getRoomDetailUseCaseProvider);
   final saveChatMessageUseCase = ref.watch(saveChatMessageUseCaseProvider);
   final getPagedMessagesUseCase = ref.watch(getPagedMessagesUseCaseProvider);
   final getOfflineMessagesUseCase = ref.watch(getOfflineMessagesUseCaseProvider);
@@ -162,6 +169,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
     subscribeMessagesUseCase,
     subscribeBlockUseCase,
     getUserNicknamesUseCase,
+    getRoomDetailUseCase,
     saveChatMessageUseCase,
     getPagedMessagesUseCase,
     getOfflineMessagesUseCase,

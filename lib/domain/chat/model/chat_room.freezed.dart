@@ -1,5 +1,6 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 // coverage:ignore-file
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -15,13 +16,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ChatRoom {
   String get roomId;
-  String? get title;
-  List<int> get participants;
-  int? get managerId;
-  DateTime get createdAt;
+  String get title;
+  int get participantCount;
+  String? get lastMessage;
+  int get unreadCount;
   DateTime get lastActivityAt;
-  List<int> get kickedUsers;
-  bool get groupChat;
 
   /// Create a copy of ChatRoom
   /// with the given fields replaced by the non-null parameter values.
@@ -37,36 +36,24 @@ mixin _$ChatRoom {
             other is ChatRoom &&
             (identical(other.roomId, roomId) || other.roomId == roomId) &&
             (identical(other.title, title) || other.title == title) &&
-            const DeepCollectionEquality()
-                .equals(other.participants, participants) &&
-            (identical(other.managerId, managerId) ||
-                other.managerId == managerId) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
+            (identical(other.participantCount, participantCount) ||
+                other.participantCount == participantCount) &&
+            (identical(other.lastMessage, lastMessage) ||
+                other.lastMessage == lastMessage) &&
+            (identical(other.unreadCount, unreadCount) ||
+                other.unreadCount == unreadCount) &&
             (identical(other.lastActivityAt, lastActivityAt) ||
-                other.lastActivityAt == lastActivityAt) &&
-            const DeepCollectionEquality()
-                .equals(other.kickedUsers, kickedUsers) &&
-            (identical(other.groupChat, groupChat) ||
-                other.groupChat == groupChat));
+                other.lastActivityAt == lastActivityAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      roomId,
-      title,
-      const DeepCollectionEquality().hash(participants),
-      managerId,
-      createdAt,
-      lastActivityAt,
-      const DeepCollectionEquality().hash(kickedUsers),
-      groupChat);
+  int get hashCode => Object.hash(runtimeType, roomId, title, participantCount,
+      lastMessage, unreadCount, lastActivityAt);
 
   @override
   String toString() {
-    return 'ChatRoom(roomId: $roomId, title: $title, participants: $participants, managerId: $managerId, createdAt: $createdAt, lastActivityAt: $lastActivityAt, kickedUsers: $kickedUsers, groupChat: $groupChat)';
+    return 'ChatRoom(roomId: $roomId, title: $title, participantCount: $participantCount, lastMessage: $lastMessage, unreadCount: $unreadCount, lastActivityAt: $lastActivityAt)';
   }
 }
 
@@ -77,13 +64,11 @@ abstract mixin class $ChatRoomCopyWith<$Res> {
   @useResult
   $Res call(
       {String roomId,
-      String? title,
-      List<int> participants,
-      int? managerId,
-      DateTime createdAt,
-      DateTime lastActivityAt,
-      List<int> kickedUsers,
-      bool groupChat});
+      String title,
+      int participantCount,
+      String? lastMessage,
+      int unreadCount,
+      DateTime lastActivityAt});
 }
 
 /// @nodoc
@@ -99,183 +84,38 @@ class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
   @override
   $Res call({
     Object? roomId = null,
-    Object? title = freezed,
-    Object? participants = null,
-    Object? managerId = freezed,
-    Object? createdAt = null,
+    Object? title = null,
+    Object? participantCount = null,
+    Object? lastMessage = freezed,
+    Object? unreadCount = null,
     Object? lastActivityAt = null,
-    Object? kickedUsers = null,
-    Object? groupChat = null,
   }) {
     return _then(ChatRoom(
       roomId: null == roomId
           ? _self.roomId
           : roomId // ignore: cast_nullable_to_non_nullable
               as String,
-      title: freezed == title
+      title: null == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      participantCount: null == participantCount
+          ? _self.participantCount
+          : participantCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastMessage: freezed == lastMessage
+          ? _self.lastMessage
+          : lastMessage // ignore: cast_nullable_to_non_nullable
               as String?,
-      participants: null == participants
-          ? _self.participants
-          : participants // ignore: cast_nullable_to_non_nullable
-              as List<int>,
-      managerId: freezed == managerId
-          ? _self.managerId
-          : managerId // ignore: cast_nullable_to_non_nullable
-              as int?,
-      createdAt: null == createdAt
-          ? _self.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+      unreadCount: null == unreadCount
+          ? _self.unreadCount
+          : unreadCount // ignore: cast_nullable_to_non_nullable
+              as int,
       lastActivityAt: null == lastActivityAt
           ? _self.lastActivityAt
           : lastActivityAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      kickedUsers: null == kickedUsers
-          ? _self.kickedUsers
-          : kickedUsers // ignore: cast_nullable_to_non_nullable
-              as List<int>,
-      groupChat: null == groupChat
-          ? _self.groupChat
-          : groupChat // ignore: cast_nullable_to_non_nullable
-              as bool,
     ));
-  }
-}
-
-/// Adds pattern-matching-related methods to [ChatRoom].
-extension ChatRoomPatterns on ChatRoom {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _:
-        return orElse();
-    }
-  }
-
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>() {
-    final _that = this;
-    switch (_that) {
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
-
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>() {
-    final _that = this;
-    switch (_that) {
-      case _:
-        return null;
-    }
-  }
-
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _:
-        return orElse();
-    }
-  }
-
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>() {
-    final _that = this;
-    switch (_that) {
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
-
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>() {
-    final _that = this;
-    switch (_that) {
-      case _:
-        return null;
-    }
   }
 }
 
