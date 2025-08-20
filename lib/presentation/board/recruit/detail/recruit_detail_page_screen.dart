@@ -90,22 +90,25 @@ class RecruitDetailPageScreen extends ConsumerWidget {
           final viewType = detail.viewType;
           final isAuthor = viewType == 'OWNER';
           final isGuest = viewType == 'GUEST';
+          final bool isRecruiting = (status ?? '모집 중') == '모집 중';
 
-          String buttonLabel;
-          bool isEnabled = true;
+          String buttonLabel = '지원하기';
+          bool isPrimaryButtonEnabled = isRecruiting;
 
           if (isAuthor) {
             buttonLabel = '지원자 확인';
+            isPrimaryButtonEnabled = true;
           } else if (viewType == 'MEMBER' && detail.isAlreadyApplied) {
             buttonLabel = '지원 완료';
-            isEnabled = false;
-          } else {
-            buttonLabel = '지원하기';
+            isPrimaryButtonEnabled = false;
           }
+
+          final bool canInquire = isRecruiting;
 
           return RecruitBottomButton(
             label: buttonLabel,
-            isEnabled: isEnabled,
+            isApplyEnabled: isPrimaryButtonEnabled,
+            isInquiryEnabled: canInquire,
             onPressed: () async {
               if (isAuthor) {
                 onTapApplicantList();
