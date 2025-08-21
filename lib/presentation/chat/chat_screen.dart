@@ -1,6 +1,5 @@
 import 'dart:ui';
-
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
+import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -13,7 +12,7 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'chat_view_model.dart';
 
 class ChatScreen extends HookConsumerWidget {
-  final Future<bool> Function(UiChatRoom room) onTapChatDetail;
+  final Future<bool> Function(String roomId) onTapChatDetail;
   final VoidCallback onTapSignIn;
 
   const ChatScreen({
@@ -70,9 +69,9 @@ class ChatScreen extends HookConsumerWidget {
     final allRooms = chatState.chatRooms ?? [];
 
     final filteredRooms = selectedCategory.value == '1:1 채팅'
-      ? allRooms.where((room) => room.isGroupChat == false).toList()
+      ? allRooms.where((room) => room.groupChat == false).toList()
       : selectedCategory.value == '그룹 채팅'
-        ? allRooms.where((room) => room.isGroupChat == true).toList()
+        ? allRooms.where((room) => room.groupChat == true).toList()
         : allRooms;
 
     return Stack(
@@ -181,7 +180,7 @@ class ChatScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildChatBody(BuildContext context, List<UiChatRoom> rooms, selectedTab, selectedCategory, ChatViewModel viewModel,) {
+  Widget _buildChatBody(BuildContext context, List<ChatRoom> rooms, selectedTab, selectedCategory, ChatViewModel viewModel,) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -242,7 +241,7 @@ class ChatScreen extends HookConsumerWidget {
                       hoverColor: Colors.transparent,
                       focusColor: Colors.transparent,
                       onTap: () async {
-                        final isLeaved = await onTapChatDetail(room);
+                        final isLeaved = await onTapChatDetail(room.roomId);
                         if (isLeaved) {
                           await viewModel.loadChatRooms();
                         }

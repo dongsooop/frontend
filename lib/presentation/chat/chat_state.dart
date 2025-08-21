@@ -1,9 +1,9 @@
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
+import 'package:dongsoop/domain/chat/model/chat_room.dart';
 
 class ChatState {
   final bool isLoading;
   final String? errorMessage;
-  final List<UiChatRoom>? chatRooms;
+  final List<ChatRoom>? chatRooms;
 
   ChatState({
     required this.isLoading,
@@ -14,7 +14,7 @@ class ChatState {
   ChatState copyWith({
     bool? isLoading,
     String? errorMessage,
-    List<UiChatRoom>? chatRooms,
+    List<ChatRoom>? chatRooms,
   }) {
     return ChatState(
       isLoading: isLoading ?? this.isLoading,

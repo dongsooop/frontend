@@ -3,9 +3,11 @@ import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
+import 'package:dongsoop/domain/chat/use_case/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
+import 'package:dongsoop/domain/chat/use_case/get_room_detail_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_user_nicknames_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/kick_user_use_case.dart';
@@ -60,6 +62,11 @@ final createOneToOneChatRoomUseCaseProvider = Provider<CreateOneToOneChatRoomUse
   return CreateOneToOneChatRoomUseCase(repository);
 });
 
+final createQNAChatRoomUseCaseProvider = Provider<CreateQnaChatRoomUseCase>((ref) {
+  final repository = ref.read(chatRepositoryProvider);
+  return CreateQnaChatRoomUseCase(repository);
+});
+
 final loadChatRoomsUseCaseProvider = Provider<GetChatRoomsUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
 
@@ -94,6 +101,11 @@ final subscribeBlockUseCaseProvider = Provider<SubscribeBlockUseCase>((ref) {
 final getUserNicknamesUseCaseProvider = Provider<GetUserNicknamesUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return GetUserNicknamesUseCase(repository);
+});
+
+final getRoomDetailUseCaseProvider = Provider<GetRoomDetailUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return GetRoomDetailUseCase(repository);
 });
 
 final saveChatMessageUseCaseProvider = Provider<SaveChatMessageUseCase>((ref) {
@@ -147,6 +159,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final subscribeMessagesUseCase = ref.watch(subscribeMessagesUseCaseProvider);
   final subscribeBlockUseCase = ref.watch(subscribeBlockUseCaseProvider);
   final getUserNicknamesUseCase = ref.watch(getUserNicknamesUseCaseProvider);
+  final getRoomDetailUseCase = ref.watch(getRoomDetailUseCaseProvider);
   final saveChatMessageUseCase = ref.watch(saveChatMessageUseCaseProvider);
   final getPagedMessagesUseCase = ref.watch(getPagedMessagesUseCaseProvider);
   final getOfflineMessagesUseCase = ref.watch(getOfflineMessagesUseCaseProvider);
@@ -162,6 +175,7 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
     subscribeMessagesUseCase,
     subscribeBlockUseCase,
     getUserNicknamesUseCase,
+    getRoomDetailUseCase,
     saveChatMessageUseCase,
     getPagedMessagesUseCase,
     getOfflineMessagesUseCase,

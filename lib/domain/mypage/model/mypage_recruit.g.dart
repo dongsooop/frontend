@@ -37,7 +37,7 @@ Map<String, dynamic> _$MypageRecruitToJson(MypageRecruit instance) =>
     };
 
 const _$RecruitTypeEnumMap = {
-  RecruitType.tutoring: 'tutoring',
-  RecruitType.study: 'study',
-  RecruitType.project: 'project',
+  RecruitType.TUTORING: 'TUTORING',
+  RecruitType.STUDY: 'STUDY',
+  RecruitType.PROJECT: 'PROJECT',
 };

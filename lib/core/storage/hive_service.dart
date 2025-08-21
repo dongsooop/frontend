@@ -2,9 +2,11 @@ import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
 
 class HiveService {
   final chatMemberBoxManager = BoxManager<ChatRoomMember>('chat_members');
+  final chatRoomBoxManager = BoxManager<ChatRoomDetail>('chat_room');
   final chatMessageBoxManager = BoxManager<ChatMessage>('chat_messages');
 
   Future<void> saveChatMember(String roomId, ChatRoomMember member) async {
@@ -47,6 +49,17 @@ class HiveService {
   Future<void> saveChatMessage(String roomId, ChatMessage message) async {
     final messageBox = await chatMessageBoxManager.getBox(roomId);
     await messageBox.put(message.messageId, message);
+  }
+
+  Future<void> saveChatDetail(ChatRoomDetail room) async {
+    final chatRoomBox = await chatRoomBoxManager.getBox(room.roomId);
+    await chatRoomBox.put('detail', room);
+  }
+
+  Future<ChatRoomDetail> getChatDetail(String roomId) async {
+    final chatRoomBox = await chatRoomBoxManager.getBox(roomId);
+    final detail = chatRoomBox.get('detail') as ChatRoomDetail;
+    return detail;
   }
 
   Future<List<ChatMessage>> getPagedMessages(String roomId, int offset, int limit) async {
