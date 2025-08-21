@@ -42,6 +42,25 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
+  Future<String> createQNAChatRoom(String title, int targetUserId) async {
+    final endpoint = dotenv.get('CHAT_QNA_ENDPOINT');
+    final requestBody = {'title': title, 'targetUserId': targetUserId};
+
+    try {
+      final response = await _authDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        final roomId = data['roomId'];
+
+        return roomId;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<List<ChatRoom>?> getChatRooms() async {
     final endpoint = dotenv.get('CHATROOMS_ENDPOINT');
 

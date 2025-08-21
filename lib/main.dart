@@ -14,6 +14,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'domain/chat/model/chat_message.dart';
+import 'domain/chat/model/chat_room_detail.dart';
 import 'domain/chat/model/chat_room_member.dart';
 
 
@@ -28,9 +29,10 @@ Future<void> main() async {
   final firebaseMessagingService = FirebaseMessagingService.instance();
   await firebaseMessagingService.init(localNotificationsService: localNotificationsService);
 
-  await Hive.initFlutter(); // Hive(local DB) 초기화
-  Hive.registerAdapter(ChatRoomMemberAdapter()); // 채팅방 참여자 목록
-  Hive.registerAdapter(ChatMessageAdapter()); // 채팅 내역
+  await Hive.initFlutter();
+  Hive.registerAdapter(ChatRoomMemberAdapter());
+  Hive.registerAdapter(ChatRoomDetailAdapter());
+  Hive.registerAdapter(ChatMessageAdapter());
 
   await dotenv.load(); // .env 파일 로드
 

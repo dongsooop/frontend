@@ -21,7 +21,6 @@ mixin _$ChatMessage {
   String get content;
   DateTime get timestamp;
   String get type;
-  String get blockStatus;
 
   /// Create a copy of ChatMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -43,19 +42,17 @@ mixin _$ChatMessage {
             (identical(other.content, content) || other.content == content) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp) &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.blockStatus, blockStatus) ||
-                other.blockStatus == blockStatus));
+            (identical(other.type, type) || other.type == type));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, messageId, roomId, senderId,
-      content, timestamp, type, blockStatus);
+  int get hashCode => Object.hash(
+      runtimeType, messageId, roomId, senderId, content, timestamp, type);
 
   @override
   String toString() {
-    return 'ChatMessage(messageId: $messageId, roomId: $roomId, senderId: $senderId, content: $content, timestamp: $timestamp, type: $type, blockStatus: $blockStatus)';
+    return 'ChatMessage(messageId: $messageId, roomId: $roomId, senderId: $senderId, content: $content, timestamp: $timestamp, type: $type)';
   }
 }
 
@@ -71,8 +68,7 @@ abstract mixin class $ChatMessageCopyWith<$Res> {
       int senderId,
       String content,
       DateTime timestamp,
-      String type,
-      String blockStatus});
+      String type});
 }
 
 /// @nodoc
@@ -93,7 +89,6 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
     Object? content = null,
     Object? timestamp = null,
     Object? type = null,
-    Object? blockStatus = null,
   }) {
     return _then(ChatMessage(
       messageId: null == messageId
@@ -119,10 +114,6 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
       type: null == type
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      blockStatus: null == blockStatus
-          ? _self.blockStatus
-          : blockStatus // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }

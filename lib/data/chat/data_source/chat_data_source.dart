@@ -18,6 +18,7 @@ abstract class ChatDataSource {
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
   Future<String> createOneToOneChatRoom(String title, int targetUserId);
+  Future<String> createQNAChatRoom(String title, int targetUserId);
 
   // stomp
   Future<void> connect(String roomId);

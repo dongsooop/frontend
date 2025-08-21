@@ -1,4 +1,3 @@
-import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/chat_bubble_screen.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -47,10 +46,13 @@ class ChatDetailScreen extends HookConsumerWidget {
         // 서버 메시지 저장
         await viewModel.fetchOfflineMessages(roomId);
         // 로컬 정보 불러오기
-        await ref.watch(chatMessagesProvider.notifier).loadChatInitial(roomId);
+        await ref.read(chatMessagesProvider.notifier).loadChatInitial(roomId);
         await viewModel.getRoomDetail(roomId);
         // 차단
-        if (chatDetailState.roomDetail!.groupChat && userId != null && chatDetailState.nicknameMap.length != '1') viewModel.getOtherUserId(userId);
+        final current = ref.read(chatDetailViewModelProvider);
+        final isGroup = current.roomDetail?.groupChat ?? false;
+        final participantsLength = current.roomDetail?.participants.length ?? 0;
+        if (!isGroup && userId != null && participantsLength > 1) viewModel.getOtherUserId(userId);
         // 채팅방 연결
         viewModel.enterRoom(roomId);
       });
@@ -302,7 +304,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                           width: 44,
                           child: IconButton(
                             onPressed: () {
-                              if (blockStatus == 'BLOCKED_BY_OTHER') return null;
+                              if (blockStatus == 'BLOCKED_BY_OTHER') return;
 
                               final content = textController.text.trim();
                               if (content.isNotEmpty) {

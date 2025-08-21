@@ -58,10 +58,7 @@ class HiveService {
 
   Future<ChatRoomDetail> getChatDetail(String roomId) async {
     final chatRoomBox = await chatRoomBoxManager.getBox(roomId);
-    final detail = chatRoomBox.get('detail');
-    if (detail == null) {
-      throw Exception("ChatRoomDetail not found for roomId: $roomId");
-    }
+    final detail = chatRoomBox.get('detail') as ChatRoomDetail;
     return detail;
   }
 

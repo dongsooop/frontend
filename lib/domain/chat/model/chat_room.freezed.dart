@@ -21,6 +21,7 @@ mixin _$ChatRoom {
   String? get lastMessage;
   int get unreadCount;
   DateTime get lastActivityAt;
+  bool get groupChat;
 
   /// Create a copy of ChatRoom
   /// with the given fields replaced by the non-null parameter values.
@@ -43,17 +44,19 @@ mixin _$ChatRoom {
             (identical(other.unreadCount, unreadCount) ||
                 other.unreadCount == unreadCount) &&
             (identical(other.lastActivityAt, lastActivityAt) ||
-                other.lastActivityAt == lastActivityAt));
+                other.lastActivityAt == lastActivityAt) &&
+            (identical(other.groupChat, groupChat) ||
+                other.groupChat == groupChat));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, roomId, title, participantCount,
-      lastMessage, unreadCount, lastActivityAt);
+      lastMessage, unreadCount, lastActivityAt, groupChat);
 
   @override
   String toString() {
-    return 'ChatRoom(roomId: $roomId, title: $title, participantCount: $participantCount, lastMessage: $lastMessage, unreadCount: $unreadCount, lastActivityAt: $lastActivityAt)';
+    return 'ChatRoom(roomId: $roomId, title: $title, participantCount: $participantCount, lastMessage: $lastMessage, unreadCount: $unreadCount, lastActivityAt: $lastActivityAt, groupChat: $groupChat)';
   }
 }
 
@@ -68,7 +71,8 @@ abstract mixin class $ChatRoomCopyWith<$Res> {
       int participantCount,
       String? lastMessage,
       int unreadCount,
-      DateTime lastActivityAt});
+      DateTime lastActivityAt,
+      bool groupChat});
 }
 
 /// @nodoc
@@ -89,6 +93,7 @@ class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
     Object? lastMessage = freezed,
     Object? unreadCount = null,
     Object? lastActivityAt = null,
+    Object? groupChat = null,
   }) {
     return _then(ChatRoom(
       roomId: null == roomId
@@ -115,6 +120,10 @@ class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
           ? _self.lastActivityAt
           : lastActivityAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      groupChat: null == groupChat
+          ? _self.groupChat
+          : groupChat // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }

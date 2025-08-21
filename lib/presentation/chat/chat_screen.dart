@@ -12,7 +12,7 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'chat_view_model.dart';
 
 class ChatScreen extends HookConsumerWidget {
-  final Future<bool> Function(ChatRoom room) onTapChatDetail;
+  final Future<bool> Function(String roomId) onTapChatDetail;
   final VoidCallback onTapSignIn;
 
   const ChatScreen({
@@ -68,11 +68,11 @@ class ChatScreen extends HookConsumerWidget {
 
     final allRooms = chatState.chatRooms ?? [];
 
-    // final filteredRooms = selectedCategory.value == '1:1 채팅'
-    //   ? allRooms.where((room) => room.isGroupChat == false).toList()
-    //   : selectedCategory.value == '그룹 채팅'
-    //     ? allRooms.where((room) => room.isGroupChat == true).toList()
-    //     : allRooms;
+    final filteredRooms = selectedCategory.value == '1:1 채팅'
+      ? allRooms.where((room) => room.groupChat == false).toList()
+      : selectedCategory.value == '그룹 채팅'
+        ? allRooms.where((room) => room.groupChat == true).toList()
+        : allRooms;
 
     return Stack(
       children: [
@@ -81,7 +81,7 @@ class ChatScreen extends HookConsumerWidget {
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              child: _buildChatBody(context, allRooms, selectedTap, selectedCategory, viewModel),
+              child: _buildChatBody(context, filteredRooms, selectedTap, selectedCategory, viewModel),
             ),
           ),
         ),
@@ -241,7 +241,7 @@ class ChatScreen extends HookConsumerWidget {
                       hoverColor: Colors.transparent,
                       focusColor: Colors.transparent,
                       onTap: () async {
-                        final isLeaved = await onTapChatDetail(room);
+                        final isLeaved = await onTapChatDetail(room.roomId);
                         if (isLeaved) {
                           await viewModel.loadChatRooms();
                         }

@@ -91,8 +91,7 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.chatDetail,
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final roomId = extra?['roomId'] as String? ?? '';
+        final roomId = (state.extra is String) ? state.extra as String : '';
 
         return ChatDetailScreen(
           roomId: roomId,

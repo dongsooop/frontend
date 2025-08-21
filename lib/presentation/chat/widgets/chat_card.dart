@@ -33,16 +33,14 @@ class ChatCard extends StatelessWidget {
           ),
           Expanded(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
               children: [
                 Expanded(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 16,
                     children: [
                       Flexible(
@@ -64,12 +62,12 @@ class ChatCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Text(
-                //   // 마지막으로 수신된 메시지(미리 보기)
-                //   style: TextStyles.smallTextRegular.copyWith(
-                //       color: ColorStyles.gray4
-                //   ),
-                // )
+                Text(
+                  chatRoom.lastMessage ?? '',
+                  style: TextStyles.smallTextRegular.copyWith(
+                      color: ColorStyles.gray4
+                  ),
+                )
               ],
             ),
           ),

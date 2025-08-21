@@ -12,6 +12,7 @@ class ChatRoom with _$ChatRoom {
   final String? lastMessage;
   final int unreadCount;
   final DateTime lastActivityAt;
+  final bool groupChat;
 
   ChatRoom({
     required this.roomId,
@@ -20,6 +21,7 @@ class ChatRoom with _$ChatRoom {
     required this.lastMessage,
     required this.unreadCount,
     required this.lastActivityAt,
+    required this.groupChat,
   });
 
   factory ChatRoom.fromJson(Map<String, dynamic> json) => _$ChatRoomFromJson(json);
