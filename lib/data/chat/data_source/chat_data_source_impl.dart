@@ -6,6 +6,7 @@ import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
@@ -42,12 +43,10 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<String> createQNAChatRoom(String title, int targetUserId) async {
+  Future<String> createQNAChatRoom(ChatRoomRequest request) async {
     final endpoint = dotenv.get('CHAT_QNA_ENDPOINT');
-    final requestBody = {'title': title, 'targetUserId': targetUserId};
-
     try {
-      final response = await _authDio.post(endpoint, data: requestBody);
+      final response = await _authDio.post(endpoint, data: request.toJson());
       if (response.statusCode == HttpStatusCode.ok.code) {
         final data = response.data;
         final roomId = data['roomId'];
@@ -55,6 +54,13 @@ class ChatDataSourceImpl implements ChatDataSource {
         return roomId;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw Exception('잘못된 요청이에요');
+      } else if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw Exception('사용자를 찾을 수 없어요');
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }

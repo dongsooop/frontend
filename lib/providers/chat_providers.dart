@@ -3,6 +3,7 @@ import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
+import 'package:dongsoop/domain/chat/use_case/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
@@ -59,6 +60,11 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 final createOneToOneChatRoomUseCaseProvider = Provider<CreateOneToOneChatRoomUseCase>((ref) {
   final repository = ref.read(chatRepositoryProvider);
   return CreateOneToOneChatRoomUseCase(repository);
+});
+
+final createQNAChatRoomUseCaseProvider = Provider<CreateQnaChatRoomUseCase>((ref) {
+  final repository = ref.read(chatRepositoryProvider);
+  return CreateQnaChatRoomUseCase(repository);
 });
 
 final loadChatRoomsUseCaseProvider = Provider<GetChatRoomsUseCase>((ref) {

@@ -9,7 +9,7 @@ part of 'chat_room_request.dart';
 ChatRoomRequest _$ChatRoomRequestFromJson(Map<String, dynamic> json) =>
     ChatRoomRequest(
       targetUserId: (json['targetUserId'] as num).toInt(),
-      recruitType: $enumDecode(_$RecruitTypeEnumMap, json['recruitType']),
+      boardType: $enumDecode(_$RecruitTypeEnumMap, json['boardType']),
       boardId: (json['boardId'] as num).toInt(),
       boardTitle: json['boardTitle'] as String,
     );
@@ -17,13 +17,13 @@ ChatRoomRequest _$ChatRoomRequestFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$ChatRoomRequestToJson(ChatRoomRequest instance) =>
     <String, dynamic>{
       'targetUserId': instance.targetUserId,
-      'recruitType': _$RecruitTypeEnumMap[instance.recruitType]!,
+      'boardType': _$RecruitTypeEnumMap[instance.boardType]!,
       'boardId': instance.boardId,
       'boardTitle': instance.boardTitle,
     };
 
 const _$RecruitTypeEnumMap = {
-  RecruitType.tutoring: 'tutoring',
-  RecruitType.study: 'study',
-  RecruitType.project: 'project',
+  RecruitType.TUTORING: 'TUTORING',
+  RecruitType.STUDY: 'STUDY',
+  RecruitType.PROJECT: 'PROJECT',
 };

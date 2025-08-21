@@ -8,13 +8,13 @@ part 'chat_room_request.g.dart';
 @JsonSerializable()
 class ChatRoomRequest with _$ChatRoomRequest {
   final int targetUserId;
-  final RecruitType recruitType;
+  final RecruitType boardType;
   final int boardId;
   final String boardTitle;
 
   ChatRoomRequest({
     required this.targetUserId,
-    required this.recruitType,
+    required this.boardType,
     required this.boardId,
     required this.boardTitle,
   });

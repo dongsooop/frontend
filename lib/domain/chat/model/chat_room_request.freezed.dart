@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ChatRoomRequest {
   int get targetUserId;
-  RecruitType get recruitType;
+  RecruitType get boardType;
   int get boardId;
   String get boardTitle;
 
@@ -35,8 +35,8 @@ mixin _$ChatRoomRequest {
             other is ChatRoomRequest &&
             (identical(other.targetUserId, targetUserId) ||
                 other.targetUserId == targetUserId) &&
-            (identical(other.recruitType, recruitType) ||
-                other.recruitType == recruitType) &&
+            (identical(other.boardType, boardType) ||
+                other.boardType == boardType) &&
             (identical(other.boardId, boardId) || other.boardId == boardId) &&
             (identical(other.boardTitle, boardTitle) ||
                 other.boardTitle == boardTitle));
@@ -44,11 +44,11 @@ mixin _$ChatRoomRequest {
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, targetUserId, recruitType, boardId, boardTitle);
+      Object.hash(runtimeType, targetUserId, boardType, boardId, boardTitle);
 
   @override
   String toString() {
-    return 'ChatRoomRequest(targetUserId: $targetUserId, recruitType: $recruitType, boardId: $boardId, boardTitle: $boardTitle)';
+    return 'ChatRoomRequest(targetUserId: $targetUserId, boardType: $boardType, boardId: $boardId, boardTitle: $boardTitle)';
   }
 }
 
@@ -60,7 +60,7 @@ abstract mixin class $ChatRoomRequestCopyWith<$Res> {
   @useResult
   $Res call(
       {int targetUserId,
-      RecruitType recruitType,
+      RecruitType boardType,
       int boardId,
       String boardTitle});
 }
@@ -79,7 +79,7 @@ class _$ChatRoomRequestCopyWithImpl<$Res>
   @override
   $Res call({
     Object? targetUserId = null,
-    Object? recruitType = null,
+    Object? boardType = null,
     Object? boardId = null,
     Object? boardTitle = null,
   }) {
@@ -88,9 +88,9 @@ class _$ChatRoomRequestCopyWithImpl<$Res>
           ? _self.targetUserId
           : targetUserId // ignore: cast_nullable_to_non_nullable
               as int,
-      recruitType: null == recruitType
-          ? _self.recruitType
-          : recruitType // ignore: cast_nullable_to_non_nullable
+      boardType: null == boardType
+          ? _self.boardType
+          : boardType // ignore: cast_nullable_to_non_nullable
               as RecruitType,
       boardId: null == boardId
           ? _self.boardId

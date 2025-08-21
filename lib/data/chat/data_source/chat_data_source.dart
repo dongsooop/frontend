@@ -2,6 +2,7 @@ import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 
 abstract class ChatDataSource {
   Future<List<ChatRoom>?> getChatRooms();
@@ -18,7 +19,7 @@ abstract class ChatDataSource {
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
   Future<String> createOneToOneChatRoom(String title, int targetUserId);
-  Future<String> createQNAChatRoom(String title, int targetUserId);
+  Future<String> createQNAChatRoom(ChatRoomRequest request);
 
   // stomp
   Future<void> connect(String roomId);
