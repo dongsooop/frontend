@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/utils/device_type_util.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
 import 'package:dongsoop/domain/fcm_token/repository/fcm_token_repository.dart';
@@ -16,13 +15,10 @@ class SignInUseCase {
     final fcmToken = await _fcmRepository.getFcmToken();
     final tokenToSend = fcmToken ?? '';
 
-    final type = deviceType();
-
     final response = await _authRepository.signIn(
       email,
       password,
       tokenToSend,
-      type,
     );
 
     final storedUser = StoredUser(
