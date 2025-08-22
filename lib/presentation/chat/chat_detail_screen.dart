@@ -7,7 +7,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
@@ -16,11 +15,11 @@ import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 
 class ChatDetailScreen extends HookConsumerWidget {
-  final UiChatRoom chatRoom;
+  final String roomId;
 
   const ChatDetailScreen({
     super.key,
-    required this.chatRoom,
+    required this.roomId,
   });
 
   @override
@@ -43,19 +42,24 @@ class ChatDetailScreen extends HookConsumerWidget {
       Future.microtask(() async {
         viewModel.resetLeaveFlag();
         // 채팅방 참여자 정보
-        await viewModel.fetchNicknames(chatRoom.roomId);
-        if (!chatRoom.isGroupChat && userId != null) viewModel.getOtherUserId(userId);
+        await viewModel.fetchNicknames(roomId);
         // 서버 메시지 저장
-        await viewModel.fetchOfflineMessages(chatRoom.roomId);
-        // 로컬 메시지 불러오기
-        await ref.watch(chatMessagesProvider.notifier).loadInitial(chatRoom.roomId);
+        await viewModel.fetchOfflineMessages(roomId);
+        // 로컬 정보 불러오기
+        await ref.read(chatMessagesProvider.notifier).loadChatInitial(roomId);
+        await viewModel.getRoomDetail(roomId);
+        // 차단
+        final current = ref.read(chatDetailViewModelProvider);
+        final isGroup = current.roomDetail?.groupChat ?? false;
+        final participantsLength = current.roomDetail?.participants.length ?? 0;
+        if (!isGroup && userId != null && participantsLength > 1) viewModel.getOtherUserId(userId);
         // 채팅방 연결
-        viewModel.enterRoom(chatRoom.roomId);
+        viewModel.enterRoom(roomId);
       });
 
       return () {
         Future.microtask(() {
-          viewModel.closeChatRoom(chatRoom.roomId);
+          viewModel.closeChatRoom(roomId);
         });
       };
     }, []);
@@ -63,7 +67,7 @@ class ChatDetailScreen extends HookConsumerWidget {
     useEffect(() {
       if (blockStatus != 'NONE') {
         Future.microtask(() async {
-          await viewModel.disconnectSocketOnly(chatRoom.roomId);
+          await viewModel.disconnectSocketOnly(roomId);
         });
       }
       return null;
@@ -124,11 +128,11 @@ class ChatDetailScreen extends HookConsumerWidget {
             spacing: 8,
             children: [
               Text(
-                chatRoom.title, // 채팅방 이름
+                chatDetailState.roomDetail?.title ?? '',
                 style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
               ),
               Text(
-                chatRoom.participantCount,
+                chatDetailState.nicknameMap.length.toString(),
                 style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
               ),
             ],
@@ -158,7 +162,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                         confirmText: '나가기',
                         cancelText: '취소',
                         onConfirm: () async {
-                          await viewModel.leaveChatRoom(chatRoom.roomId);
+                          await viewModel.leaveChatRoom(roomId);
                           context.pop(true);
                         },
                       ),
@@ -196,7 +200,7 @@ class ChatDetailScreen extends HookConsumerWidget {
           ],
         ),
       ),
-      bottomNavigationBar: blockStatus == 'I_BLOCKED' && !chatRoom.isGroupChat
+      bottomNavigationBar: blockStatus == 'I_BLOCKED' && !chatDetailState.roomDetail!.groupChat
         ? SafeArea(
           child: Container(
               height: 64,
@@ -241,7 +245,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                           nickname == userNickname,
                           msg.type,
                           () async {
-                            if (chatRoom.managerId != userId) return;
+                            if (chatDetailState.roomDetail!.managerId != userId) return;
                             // 채팅 내보내기(관리자 == 사옹자)
                             customActionSheet(
                               context,
@@ -300,11 +304,10 @@ class ChatDetailScreen extends HookConsumerWidget {
                           width: 44,
                           child: IconButton(
                             onPressed: () {
-                              if (blockStatus == 'BLOCKED_BY_OTHER') return null;
+                              if (blockStatus == 'BLOCKED_BY_OTHER') return;
 
                               final content = textController.text.trim();
                               if (content.isNotEmpty) {
-                                final roomId = chatRoom.roomId;
                                 final message = ChatMessageRequest(
                                   roomId: roomId,
                                   content: content,

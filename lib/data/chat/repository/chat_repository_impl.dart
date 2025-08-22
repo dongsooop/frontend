@@ -1,8 +1,10 @@
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
+import 'package:dongsoop/domain/chat/model/chat_room.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatDataSource _chatDataSource;
@@ -12,34 +14,32 @@ class ChatRepositoryImpl implements ChatRepository {
   );
 
   @override
-  Future<UiChatRoom> createOneToOneChatRoom(String title, int targetUserId) async {
-    final chatRoom = await _chatDataSource.createOneToOneChatRoom(title, targetUserId);
-    return UiChatRoom.fromEntityMinimal(chatRoom);
+  Future<String> createOneToOneChatRoom(String title, int targetUserId) async {
+    return await _chatDataSource.createOneToOneChatRoom(title, targetUserId);
   }
 
   @override
-  Future<List<UiChatRoom>?> getChatRooms() async {
+  Future<String> createQNAChatRoom(ChatRoomRequest request) async {
+    return await _chatDataSource.createQNAChatRoom(request);
+  }
+
+  @override
+  Future<List<ChatRoom>?> getChatRooms() async {
     final rooms =  await _chatDataSource.getChatRooms();
     if (rooms == null || rooms.isEmpty) return [];
 
-    final List<UiChatRoom> uiRooms = [];
-
-    await Future.wait(rooms.map((room) async {
-      try {
-        final unreadCount = await _chatDataSource.getUnreadChatMessageCount(room.roomId);
-        uiRooms.add(UiChatRoom.fromEntity(room, unreadCount));
-      } catch (e) {
-        uiRooms.add(UiChatRoom.fromEntity(room, 0));
-      }
-    }));
-
-    uiRooms.sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
-    return uiRooms;
+    rooms.sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
+    return rooms;
   }
 
   @override
   Future<Map<String, String>> getUserNicknamesByRoomId(String roomId) async {
     return await _chatDataSource.getUserNicknamesByRoomId(roomId);
+  }
+
+  @override
+  Future<ChatRoomDetail> getRoomDetailByRoomId(String roomId) async {
+    return await _chatDataSource.getRoomDetailByRoomId(roomId);
   }
 
   @override
@@ -59,7 +59,9 @@ class ChatRepositoryImpl implements ChatRepository {
     List<ChatMessage>? messages;
 
     if (messageId == null) {
-      messages = await _chatDataSource.getChatInitialize(roomId);
+      final (initMessages, room) = await _chatDataSource.getChatInitialize(roomId);
+      messages = initMessages;
+      await _chatDataSource.saveChatDetail(room);
     } else {
       messages = await _chatDataSource.getChatMessagesAfter(roomId, messageId);
     }

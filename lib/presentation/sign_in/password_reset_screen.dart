@@ -63,15 +63,15 @@ class PasswordResetScreen extends HookConsumerWidget {
       return null;
     }, [PWResetState.errorMessage]);
 
-    return Scaffold(
-      backgroundColor: ColorStyles.white,
-      appBar: DetailHeader(
-        title: '비밀번호 재설정',
-      ),
-      body: SafeArea(
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          behavior: HitTestBehavior.opaque,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: Scaffold(
+        backgroundColor: ColorStyles.white,
+        appBar: DetailHeader(
+          title: '비밀번호 재설정',
+        ),
+        body: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(vertical: 48),
             child: Column(
@@ -92,44 +92,44 @@ class PasswordResetScreen extends HookConsumerWidget {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: PWResetState.isEmailStep
-      ? PrimaryBottomButton(
-        onPressed: () {
-          if (!PWResetState.isEmailValid) return;
-          viewModel.next();
-        },
-        label: '다음',
-        isLoading: false,
-        isEnabled: PWResetState.isEmailValid,
-      )
-      : PrimaryBottomButton(
-        onPressed: () async {
-          if (!PWResetState.isEmailValid) return;
-          final isSuccessed = await viewModel.passwordReset();
-          if (!context.mounted) return;
-          
-          if (isSuccessed) {
-            await showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => CustomConfirmDialog(
-                title: '비밀번호 변경',
-                content: '비밀번호 변경에 성공했어요.\n로그인 페이지로 이동할까요?',
-                isSingleAction: true,
-                confirmText: '확인',
-                dismissOnConfirm: false,
-                onConfirm: () {
-                  Navigator.of(context).pop();
-                  context.pop();
-                },
-              ),
-            );
-          }
-        },
-        label: '비밀번호 변경하기',
-        isLoading: PWResetState.isLoading,
-        isEnabled: PWResetState.isPasswordValid,
+        bottomNavigationBar: PWResetState.isEmailStep
+        ? PrimaryBottomButton(
+          onPressed: () {
+            if (!PWResetState.isEmailValid) return;
+            viewModel.next();
+          },
+          label: '다음',
+          isLoading: false,
+          isEnabled: PWResetState.isEmailValid,
+        )
+        : PrimaryBottomButton(
+          onPressed: () async {
+            if (!PWResetState.isEmailValid) return;
+            final isSuccessed = await viewModel.passwordReset();
+            if (!context.mounted) return;
+
+            if (isSuccessed) {
+              await showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => CustomConfirmDialog(
+                  title: '비밀번호 변경',
+                  content: '비밀번호 변경에 성공했어요.\n로그인 페이지로 이동할까요?',
+                  isSingleAction: true,
+                  confirmText: '확인',
+                  dismissOnConfirm: false,
+                  onConfirm: () {
+                    Navigator.of(context).pop();
+                    context.pop();
+                  },
+                ),
+              );
+            }
+          },
+          label: '비밀번호 변경하기',
+          isLoading: PWResetState.isLoading,
+          isEnabled: PWResetState.isPasswordValid,
+        ),
       ),
     );
   }

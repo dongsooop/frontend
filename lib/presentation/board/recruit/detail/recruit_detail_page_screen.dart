@@ -6,7 +6,7 @@ import 'package:dongsoop/core/presentation/components/login_required_dialog.dart
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
@@ -27,7 +27,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
   final void Function(String reportType, int targetId) onTapReport;
   final VoidCallback onTapApplicantList;
   final String? status;
-  final void Function(UiChatRoom chatRoom) onTapChatDetail;
+  final void Function(String roomId) onTapChatDetail;
 
   const RecruitDetailPageScreen({
     required this.id,
@@ -90,22 +90,25 @@ class RecruitDetailPageScreen extends ConsumerWidget {
           final viewType = detail.viewType;
           final isAuthor = viewType == 'OWNER';
           final isGuest = viewType == 'GUEST';
+          final bool isRecruiting = (status ?? '모집 중') == '모집 중';
 
-          String buttonLabel;
-          bool isEnabled = true;
+          String buttonLabel = '지원하기';
+          bool isPrimaryButtonEnabled = isRecruiting;
 
           if (isAuthor) {
             buttonLabel = '지원자 확인';
+            isPrimaryButtonEnabled = true;
           } else if (viewType == 'MEMBER' && detail.isAlreadyApplied) {
             buttonLabel = '지원 완료';
-            isEnabled = false;
-          } else {
-            buttonLabel = '지원하기';
+            isPrimaryButtonEnabled = false;
           }
+
+          final bool canInquire = isRecruiting;
 
           return RecruitBottomButton(
             label: buttonLabel,
-            isEnabled: isEnabled,
+            isApplyEnabled: isPrimaryButtonEnabled,
+            isInquiryEnabled: canInquire,
             onPressed: () async {
               if (isAuthor) {
                 onTapApplicantList();
@@ -151,7 +154,13 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                         );
 
                         final chatRoom = await viewModel.createChatRoom(
-                            detail.title, detail.authorId);
+                          ChatRoomRequest(
+                            targetUserId: detail.authorId,
+                            boardType: type,
+                            boardId: id,
+                            boardTitle: detail.title,
+                          )
+                        );
                         onTapChatDetail(chatRoom);
                       }),
                 );

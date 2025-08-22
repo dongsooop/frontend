@@ -5,6 +5,7 @@ import 'package:dongsoop/domain/chat/use_case/connect_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/disconnect_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
+import 'package:dongsoop/domain/chat/use_case/get_room_detail_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/kick_user_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
@@ -26,6 +27,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   final SubscribeMessagesUseCase _subscribeMessagesUseCase;
   final SubscribeBlockUseCase _subscribeBlockUseCase;
   final GetUserNicknamesUseCase _getUserNicknamesUseCase;
+  final GetRoomDetailUseCase _getRoomDetailUseCase;
   final SaveChatMessageUseCase _saveChatMessageUseCase;
   final GetPagedMessagesUseCase _getPagedMessages;
   final GetOfflineMessagesUseCase _getOfflineMessagesUseCase;
@@ -47,6 +49,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     this._subscribeMessagesUseCase,
     this._subscribeBlockUseCase,
     this._getUserNicknamesUseCase,
+    this._getRoomDetailUseCase,
     this._saveChatMessageUseCase,
     this._getPagedMessages,
     this._getOfflineMessagesUseCase,
@@ -55,7 +58,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     this._kickUserUseCase,
     this._userBlockUseCase,
     this._ref,
-  ) : super(ChatDetailState(isLoading: false));
+  ) : super(ChatDetailState(isLoading: false, roomDetail: null));
 
   Future<void> fetchOfflineMessages(String roomId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -73,7 +76,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       );
     } catch (e) {
       state = state.copyWith(
-        errorMessage: '채팅 중 오류가 발생했습니다.1',
+        errorMessage: '채팅 메시지를 가져오는 중\n오류가 발생했습니다.',
         isLoading: false,
       );
     }
@@ -122,7 +125,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       );
     } catch (e) {
       state = state.copyWith(
-        errorMessage: '채팅 중 오류가 발생했습니다.2',
+        errorMessage: '채팅 중 오류가 발생했습니다.',
         isLoading: false,
       );
     }
@@ -174,7 +177,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅 중 오류가 발생했습니다.3',
+        errorMessage: '채팅방을 나가는 중\n오류가 발생했습니다.',
       );
     }
   }
@@ -195,6 +198,24 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     } catch (_) {}
   }
 
+  Future<void> getRoomDetail(String roomId) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final room = await _getRoomDetailUseCase.execute(roomId);
+      state = state.copyWith(isLoading: false, roomDetail: room);
+    } on ChatForbiddenException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '채팅방 정보를 불러오는 중\n오류가 발생했습니다.',
+      );
+    }
+  }
+
   Future<void> fetchNicknames(String roomId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -208,7 +229,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '채팅 중 오류가 발생했습니다.5',
+        errorMessage: '참여자를 불러오는 중\n오류가 발생했습니다.',
       );
     }
   }
@@ -328,7 +349,7 @@ class ChatMessagesNotifier extends StateNotifier<List<ChatMessage>> {
   bool _hasMore = true;
   bool _isLoading = false;
 
-  Future<void> loadInitial(String roomId) async {
+  Future<void> loadChatInitial(String roomId) async {
     _roomId = roomId;
     _hasMore = true;
     state = [];

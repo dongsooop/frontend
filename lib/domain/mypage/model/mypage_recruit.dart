@@ -56,11 +56,11 @@ List<String> _parseToList(dynamic value) {
 RecruitType _recruitTypeFromJson(String value) {
   switch (value) {
     case 'TUTORING':
-      return RecruitType.tutoring;
+      return RecruitType.TUTORING;
     case 'STUDY':
-      return RecruitType.study;
+      return RecruitType.STUDY;
     case 'PROJECT':
-      return RecruitType.project;
+      return RecruitType.PROJECT;
     default:
       throw ArgumentError('Unknown RecruitType: $value');
   }
