@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:dongsoop/presentation/main/view_model/main_view_model.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends ConsumerWidget {
   final Widget body;
   final int currentPageIndex;
   final void Function(int index) onChangeIndex;
@@ -14,9 +16,24 @@ class MainScreen extends StatelessWidget {
     required this.onChangeIndex,
   });
 
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(mainViewModelProvider);
+
+    ref.listen<AsyncValue<void>>(mainViewModelProvider, (prev, next) {
+      next.whenOrNull(error: (e, st) {
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.removeCurrentSnackBar();
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      });
+    });
+
     return Scaffold(
       body: body,
       bottomNavigationBar: Theme(

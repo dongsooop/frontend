@@ -1,3 +1,13 @@
+class DeviceTokenRegisterException implements Exception {
+  final String message;
+  const DeviceTokenRegisterException([
+    this.message = "알림 설정에 실패했어요. 잠시 후 다시 시도해주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
 class LoginRequiredException implements Exception {
   final String message;
 
