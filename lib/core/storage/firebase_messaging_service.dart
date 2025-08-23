@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -10,12 +11,14 @@ class FirebaseMessagingService {
   factory FirebaseMessagingService.instance() => _instance;
 
   LocalNotificationsService? _localNotificationsService;
+  bool _initialized = false;
 
   // FCM 초기화 메서드
   Future<void> init({required LocalNotificationsService localNotificationsService}) async {
-    _localNotificationsService = localNotificationsService;
+    if (_initialized) return;
+    _initialized = true;
 
-    _handlePushNotificationsToken();
+    _localNotificationsService = localNotificationsService;
 
     _requestPermission();
 
@@ -35,21 +38,9 @@ class FirebaseMessagingService {
     }
   }
 
-  // FCM 토큰 발급 및 토큰 변경 감지
-  Future<void> _handlePushNotificationsToken() async {
-    // Get the FCM token for the device
-    final token = await FirebaseMessaging.instance.getToken();
-    print('Push notifications token: $token');
-
-    // 토큰 변경 이벤트 리스너
-    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
-      print('FCM token refreshed: $fcmToken');
-      // TODO: 서버에 갱신된 토큰 전송 로직 추가
-    }).onError((error) {
-      // Handle errors during token refresh
-      print('Error refreshing FCM token: $error');
-    });
-  }
+  // 토큰 갱신 스트림 노출(레포에서 구독하여 서버 등록/저장 처리)
+  Stream<String> onTokenRefresh() =>
+      FirebaseMessaging.instance.onTokenRefresh.distinct();
 
   // ios 푸시 알림 권한 요청
   Future<void> _requestPermission() async {
