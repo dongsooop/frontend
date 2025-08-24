@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:dongsoop/data/device_token/data_source/fcm_token_data_source.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 
@@ -10,7 +9,7 @@ class FcmTokenDataSourceImpl implements FcmTokenDataSource {
   final SecureStorageService _storage;
   final FirebaseMessaging _fm = FirebaseMessaging.instance;
 
-  static const _kFcmToken = 'fcmToken';
+  static const _fcmToken = 'fcmToken';
 
   String? _cached;
   bool _initialized = false;
@@ -23,24 +22,17 @@ class FcmTokenDataSourceImpl implements FcmTokenDataSource {
 
     try {
       final token = await _fm.getToken();
-      debugPrint('[FCM] init.getToken = $token');
       if (token != null && token.isNotEmpty && token != _cached) {
         _cached = token;
-        await _storage.write(_kFcmToken, token);
-        debugPrint('[FCM] saved initial token');
+        await _storage.write(_fcmToken, token);
       }
-    } catch (e) {
-      debugPrint('[FCM] init.getToken error: $e');
-    }
+    } catch (_) {}
 
     _sub = _fm.onTokenRefresh.distinct().listen((token) async {
       if (token.isEmpty || token == _cached) return;
       _cached = token;
-      await _storage.write(_kFcmToken, token);
-      debugPrint('[FCM] onTokenRefresh -> $token (saved)');
-    }, onError: (e) {
-      debugPrint('[FCM] onTokenRefresh error: $e');
-    });
+      await _storage.write(_fcmToken, token);
+    }, onError: (_) {});
   }
 
   @override
@@ -73,7 +65,6 @@ class FcmTokenDataSourceImpl implements FcmTokenDataSource {
   @override
   Future<String?> currentToken() async {
     if (_cached != null && _cached!.isNotEmpty) {
-      debugPrint('[FCM] currentToken -> cached $_cached');
       return _cached;
     }
 
@@ -82,18 +73,14 @@ class FcmTokenDataSourceImpl implements FcmTokenDataSource {
       if (token != null && token.isNotEmpty) {
         if (token != _cached) {
           _cached = token;
-          await _storage.write(_kFcmToken, token);
-          debugPrint('[FCM] currentToken -> getToken $token (saved)');
+          await _storage.write(_fcmToken, token);
         }
         return token;
       }
-    } catch (e) {
-      debugPrint('[FCM] currentToken.getToken error: $e');
-    }
+    } catch (_) {}
 
-    final stored = await _storage.read(_kFcmToken);
+    final stored = await _storage.read(_fcmToken);
     _cached = stored;
-    debugPrint('[FCM] currentToken -> stored $stored');
     return stored;
   }
 
