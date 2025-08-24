@@ -22,7 +22,8 @@ final fcmTokenDataSourceProvider = Provider<FcmTokenDataSource>((ref) {
 
 final deviceTokenRemoteDataSourceProvider = Provider<DeviceTokenDataSource>((ref) {
   final dio = ref.read(plainDioProvider);
-  return DeviceTokenDataSourceImpl(dio);
+  final storage = ref.read(secureStorageProvider);
+  return DeviceTokenDataSourceImpl(dio, storage);
 });
 
 // Repository
