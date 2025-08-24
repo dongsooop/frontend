@@ -1,10 +1,10 @@
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
-import 'package:dongsoop/domain/fcm_token/repository/fcm_token_repository.dart';
+import 'package:dongsoop/domain/device_token/repositoy/device_token_repository.dart';
 
 class SignInUseCase {
   final AuthRepository _authRepository;
-  final FcmTokenRepository _fcmRepository;
+  final DeviceTokenRepository _fcmRepository;
 
   SignInUseCase(this._authRepository, this._fcmRepository);
 
