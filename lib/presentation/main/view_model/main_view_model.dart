@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'package:dongsoop/domain/device_token/enum/failure_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -37,7 +38,7 @@ class MainViewModel extends _$MainViewModel {
         await _registerOnce(req);
       }, onError: (e, s) {
         debugPrint('❌ FCM 토큰 스트림 에러: $e\n$s');
-        _emitTransientError(e, s);
+        _emitTransientErrorMessage('일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요', s);
       });
     });
 
@@ -55,16 +56,25 @@ class MainViewModel extends _$MainViewModel {
   }
 
   Future<void> _registerOnce(DeviceTokenRequest req) async {
-    try {
-      await ref.read(registerDeviceTokenUseCaseProvider).execute(req);
-    } catch (e, s) {
-      debugPrint('❌ FCM 토큰 등록 실패: $e\n$s');
-      _emitTransientError(e, s);
+    final failure =
+    await ref.read(registerDeviceTokenUseCaseProvider).execute(req);
+
+    if (failure == null) {
+      return;
     }
+
+    final msg = switch (failure) {
+      FailureType.permissionDenied =>
+      '앱 알림 권한이 꺼져 있어 알림을 받을 수 없어요',
+      FailureType.registerFailed =>
+      '알림 설정에 실패했어요. 잠시 후 다시 시도해주세요',
+    };
+
+    _emitTransientErrorMessage(msg, StackTrace.current);
   }
 
-  void _emitTransientError(Object e, StackTrace s) {
-    state = AsyncError(e, s);
+  void _emitTransientErrorMessage(String message, StackTrace s) {
+    state = AsyncError(message, s);
     Future.microtask(() => state = const AsyncData(null));
   }
 

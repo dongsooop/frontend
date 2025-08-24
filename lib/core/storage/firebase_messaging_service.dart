@@ -20,8 +20,6 @@ class FirebaseMessagingService {
 
     _localNotificationsService = localNotificationsService;
 
-    _requestPermission();
-
     // 백그라운드 상태에서 메시지 수신 핸들러
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -38,22 +36,10 @@ class FirebaseMessagingService {
     }
   }
 
-  // 토큰 갱신 스트림 노출(레포에서 구독하여 서버 등록/저장 처리)
   Stream<String> onTokenRefresh() =>
       FirebaseMessaging.instance.onTokenRefresh.distinct();
 
-  // ios 푸시 알림 권한 요청
-  Future<void> _requestPermission() async {
-    final result = await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    print('User granted permission: ${result.authorizationStatus}');
-  }
-
-  // 포그라운드 상태에서 메시지 수신 시 실행
+  // 포그라운드 상태에서 메시지 수신 시
   void _onForegroundMessage(RemoteMessage message) {
     print('Foreground message received: ${message.data.toString()}');
     final notificationData = message.notification;
@@ -65,7 +51,6 @@ class FirebaseMessagingService {
 
   // 백그라운드 or 종료 상태에서 알림 클릭으로 앱이 열렸을 떄
   void _onMessageOpenedApp(RemoteMessage message) {
-    print('Notification caused the app to open: ${message.data.toString()}');
     // TODO: 메시지 데이터 기반 라우팅
   }
 }

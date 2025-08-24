@@ -51,6 +51,26 @@ class FcmTokenDataSourceImpl implements FcmTokenDataSource {
   }
 
   @override
+  Future<bool> hasPermission() async {
+    final settings = await _fm.getNotificationSettings();
+    final authStatus = settings.authorizationStatus;
+    return authStatus == AuthorizationStatus.authorized;
+  }
+
+  @override
+  Future<bool> requestPermissionIfNeeded() async {
+    final settings = await _fm.getNotificationSettings();
+    var authStatus = settings.authorizationStatus;
+
+    if (authStatus == AuthorizationStatus.notDetermined) {
+      final result = await _fm.requestPermission(alert: true, badge: true, sound: true);
+      authStatus = result.authorizationStatus;
+    }
+
+    return authStatus == AuthorizationStatus.authorized;
+  }
+
+  @override
   Future<String?> currentToken() async {
     if (_cached != null && _cached!.isNotEmpty) {
       debugPrint('[FCM] currentToken -> cached $_cached');
