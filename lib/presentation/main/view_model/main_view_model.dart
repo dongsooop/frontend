@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:dongsoop/domain/device_token/enum/failure_type.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:dongsoop/providers/device_providers.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/data/device_token/model/device_token_request.dart';
 
 part 'main_view_model.g.dart';
@@ -31,14 +31,21 @@ class MainViewModel extends _$MainViewModel {
           .where((t) => t.isNotEmpty)
           .distinct()
           .listen((token) async {
+        final user = ref.read(userSessionProvider);
+        if (user != null) {
+          return;
+        }
+
         final req = DeviceTokenRequest(
           deviceToken: token,
           type: _deviceType(),
         );
         await _registerOnce(req);
       }, onError: (e, s) {
-        debugPrint('❌ FCM 토큰 스트림 에러: $e\n$s');
-        _emitTransientErrorMessage('일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요', s);
+        _emitTransientErrorMessage(
+          '일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요',
+          s,
+        );
       });
     });
 
@@ -59,9 +66,7 @@ class MainViewModel extends _$MainViewModel {
     final failure =
     await ref.read(registerDeviceTokenUseCaseProvider).execute(req);
 
-    if (failure == null) {
-      return;
-    }
+    if (failure == null) return;
 
     final msg = switch (failure) {
       FailureType.permissionDenied =>
