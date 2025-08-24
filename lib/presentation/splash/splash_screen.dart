@@ -1,3 +1,4 @@
+import 'package:dongsoop/presentation/main/view_model/main_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -17,9 +18,62 @@ class SplashScreen extends HookConsumerWidget {
     final splashState = ref.watch(splashViewModelProvider);
     final viewModel = ref.read(splashViewModelProvider.notifier);
 
+    final mainState = ref.watch(mainViewModelProvider);
+    final snackCtrl = useRef<ScaffoldFeatureController<SnackBar, SnackBarClosedReason>?>(null);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(mainViewModelProvider.future);
+      });
+      return null;
+    }, []);
+
+    useEffect(() {
+      if (mainState.hasError) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          final messages = ScaffoldMessenger.of(context);
+          messages.removeCurrentSnackBar();
+          final ctrl = messages.showSnackBar(
+            SnackBar(
+              content: Text(mainState.error.toString()),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          snackCtrl.value = ctrl;
+          ctrl.closed.then((_) {
+            if (snackCtrl.value == ctrl) snackCtrl.value = null;
+          });
+        });
+      }
+      return null;
+    }, [mainState]);
+
+    ref.listen<AsyncValue<void>>(mainViewModelProvider, (prev, next) {
+      next.whenOrNull(error: (e, st) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          final messages = ScaffoldMessenger.of(context);
+          messages.removeCurrentSnackBar();
+          final ctrl = messages.showSnackBar(
+            SnackBar(
+              content: Text(e.toString()),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          snackCtrl.value = ctrl;
+          ctrl.closed.then((_) {
+            if (snackCtrl.value == ctrl) snackCtrl.value = null;
+          });
+        });
+      });
+    });
+
     useEffect(() {
       Future(() async {
-        await Future.delayed(Duration(seconds: 2));
+        await Future.delayed(Duration(seconds: 3));
         // 자동 로그인
         await viewModel.autoLogin();
         // 제재 대상 확인
