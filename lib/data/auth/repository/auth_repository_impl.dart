@@ -16,13 +16,11 @@ class AuthRepositoryImpl implements AuthRepository {
     String email,
     String password,
     String fcmToken,
-    String deviceType,
   ) {
     return _authDataSource.signIn(
       email,
       password,
       fcmToken,
-      deviceType,
     );
   }
 
