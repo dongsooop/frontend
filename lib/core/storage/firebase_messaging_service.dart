@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -10,14 +11,14 @@ class FirebaseMessagingService {
   factory FirebaseMessagingService.instance() => _instance;
 
   LocalNotificationsService? _localNotificationsService;
+  bool _initialized = false;
 
   // FCM 초기화 메서드
   Future<void> init({required LocalNotificationsService localNotificationsService}) async {
+    if (_initialized) return;
+    _initialized = true;
+
     _localNotificationsService = localNotificationsService;
-
-    _handlePushNotificationsToken();
-
-    _requestPermission();
 
     // 백그라운드 상태에서 메시지 수신 핸들러
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -35,34 +36,10 @@ class FirebaseMessagingService {
     }
   }
 
-  // FCM 토큰 발급 및 토큰 변경 감지
-  Future<void> _handlePushNotificationsToken() async {
-    // Get the FCM token for the device
-    final token = await FirebaseMessaging.instance.getToken();
-    print('Push notifications token: $token');
+  Stream<String> onTokenRefresh() =>
+      FirebaseMessaging.instance.onTokenRefresh.distinct();
 
-    // 토큰 변경 이벤트 리스너
-    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
-      print('FCM token refreshed: $fcmToken');
-      // TODO: 서버에 갱신된 토큰 전송 로직 추가
-    }).onError((error) {
-      // Handle errors during token refresh
-      print('Error refreshing FCM token: $error');
-    });
-  }
-
-  // ios 푸시 알림 권한 요청
-  Future<void> _requestPermission() async {
-    final result = await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    print('User granted permission: ${result.authorizationStatus}');
-  }
-
-  // 포그라운드 상태에서 메시지 수신 시 실행
+  // 포그라운드 상태에서 메시지 수신 시
   void _onForegroundMessage(RemoteMessage message) {
     print('Foreground message received: ${message.data.toString()}');
     final notificationData = message.notification;
@@ -74,7 +51,6 @@ class FirebaseMessagingService {
 
   // 백그라운드 or 종료 상태에서 알림 클릭으로 앱이 열렸을 떄
   void _onMessageOpenedApp(RemoteMessage message) {
-    print('Notification caused the app to open: ${message.data.toString()}');
     // TODO: 메시지 데이터 기반 라우팅
   }
 }

@@ -28,14 +28,12 @@ class AuthDataSourceImpl implements AuthDataSource {
     String email,
     String password,
     String fcmToken,
-    String deviceType,
   ) async {
     final endpoint = dotenv.get('LOGIN_ENDPOINT');
     final requestBody = {
       "email": email,
       "password": password,
       "fcmToken": fcmToken,
-      "deviceType": deviceType,
     };
     try {
       final response = await _plainDio.post(endpoint, data: requestBody);
