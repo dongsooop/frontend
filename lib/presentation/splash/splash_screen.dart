@@ -1,4 +1,3 @@
-import 'package:dongsoop/presentation/main/view_model/main_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -12,70 +11,17 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/providers/auth_providers.dart';
 
 class SplashScreen extends HookConsumerWidget {
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final splashState = ref.watch(splashViewModelProvider);
     final viewModel = ref.read(splashViewModelProvider.notifier);
 
-    final mainState = ref.watch(mainViewModelProvider);
-    final snackCtrl = useRef<ScaffoldFeatureController<SnackBar, SnackBarClosedReason>?>(null);
-
-    useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(mainViewModelProvider.future);
-      });
-      return null;
-    }, []);
-
-    useEffect(() {
-      if (mainState.hasError) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!context.mounted) return;
-          final messages = ScaffoldMessenger.of(context);
-          messages.removeCurrentSnackBar();
-          final ctrl = messages.showSnackBar(
-            SnackBar(
-              content: Text(mainState.error.toString()),
-              behavior: SnackBarBehavior.floating,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          snackCtrl.value = ctrl;
-          ctrl.closed.then((_) {
-            if (snackCtrl.value == ctrl) snackCtrl.value = null;
-          });
-        });
-      }
-      return null;
-    }, [mainState]);
-
-    ref.listen<AsyncValue<void>>(mainViewModelProvider, (prev, next) {
-      next.whenOrNull(error: (e, st) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!context.mounted) return;
-          final messages = ScaffoldMessenger.of(context);
-          messages.removeCurrentSnackBar();
-          final ctrl = messages.showSnackBar(
-            SnackBar(
-              content: Text(e.toString()),
-              behavior: SnackBarBehavior.floating,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          snackCtrl.value = ctrl;
-          ctrl.closed.then((_) {
-            if (snackCtrl.value == ctrl) snackCtrl.value = null;
-          });
-        });
-      });
-    });
-
     useEffect(() {
       Future(() async {
-        await Future.delayed(Duration(seconds: 3));
+        await Future.delayed(Duration(seconds: 2));
         // 자동 로그인
         await viewModel.autoLogin();
+
         // 제재 대상 확인
         final user = ref.watch(userSessionProvider);
         if (user != null) {
@@ -101,16 +47,29 @@ class SplashScreen extends HookConsumerWidget {
             Future.microtask(() => context.go(RoutePaths.home));
           }
         }
+        if (user == null) {
+          final message = await viewModel.requestDeviceTokenPreAuthOnce(
+            tokenTimeout: const Duration(seconds: 2),
+          );
+          if (message != null && context.mounted) {
+            final m = ScaffoldMessenger.of(context);
+            m.removeCurrentSnackBar();
+            final ctrl = m.showSnackBar(
+              SnackBar(
+                content: Text(message),
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            await ctrl.closed;
+          }
+          if (!context.mounted) return;
+          context.go(RoutePaths.home);
+          return;
+        }
       });
       return null;
     }, []);
-
-    useEffect(() {
-      if (splashState.isSuccessed) {
-        Future.microtask(() => context.go(RoutePaths.home));
-      }
-      return null;
-    }, [splashState.isSuccessed]);
 
     if (splashState.errorMessage != null) {
       return Center(
