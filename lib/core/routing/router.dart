@@ -1,5 +1,4 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
@@ -89,11 +88,16 @@ final router = GoRouter(
       path: RoutePaths.passwordReset,
       builder: (context, state) => PasswordResetScreen(),
     ),
+
     GoRoute(
       path: RoutePaths.chatDetail,
-      builder: (context, state) => ChatDetailScreen(
-        chatRoom: state.extra as UiChatRoom,
-      ),
+      builder: (context, state) {
+        final roomId = (state.extra is String) ? state.extra as String : '';
+
+        return ChatDetailScreen(
+          roomId: roomId,
+        );
+      }
     ),
     GoRoute(
       path: RoutePaths.mypageWebView,
@@ -233,8 +237,8 @@ final router = GoRouter(
               },
             );
           },
-          onTapChatDetail: (room) {
-            context.push(RoutePaths.chatDetail, extra: room);
+          onTapChatDetail: (roomId) {
+            context.push(RoutePaths.chatDetail, extra: roomId);
           },
         );
       },
@@ -323,8 +327,8 @@ final router = GoRouter(
               },
             );
           },
-          onTapChatDetail: (room) {
-            context.push(RoutePaths.chatDetail, extra: room);
+          onTapChatDetail: (roomId) {
+            context.push(RoutePaths.chatDetail, extra: roomId);
           },
         );
       },
@@ -435,10 +439,10 @@ final router = GoRouter(
           GoRoute(
             path: RoutePaths.chat,
             builder: (context, state) => ChatScreen(
-              onTapChatDetail: (room) async {
+              onTapChatDetail: (roomId) async {
                 final isLeaved = await context.push<bool>(
                   RoutePaths.chatDetail,
-                  extra: room,
+                  extra: roomId,
                 );
                 return isLeaved ?? false;
               },

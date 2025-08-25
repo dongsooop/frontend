@@ -12,3 +12,5 @@ StateNotifierProvider<SplashViewModel, SplashState>((ref) {
 
   return SplashViewModel(loadUserUseCase, getSanctionStatusUseCase, ref);
 });
+
+final fcmSnackMessageProvider = StateProvider<String?>((_) => null);

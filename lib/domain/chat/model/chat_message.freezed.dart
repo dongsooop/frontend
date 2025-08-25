@@ -1,5 +1,6 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 // coverage:ignore-file
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -20,7 +21,6 @@ mixin _$ChatMessage {
   String get content;
   DateTime get timestamp;
   String get type;
-  String get blockStatus;
 
   /// Create a copy of ChatMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -42,19 +42,17 @@ mixin _$ChatMessage {
             (identical(other.content, content) || other.content == content) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp) &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.blockStatus, blockStatus) ||
-                other.blockStatus == blockStatus));
+            (identical(other.type, type) || other.type == type));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, messageId, roomId, senderId,
-      content, timestamp, type, blockStatus);
+  int get hashCode => Object.hash(
+      runtimeType, messageId, roomId, senderId, content, timestamp, type);
 
   @override
   String toString() {
-    return 'ChatMessage(messageId: $messageId, roomId: $roomId, senderId: $senderId, content: $content, timestamp: $timestamp, type: $type, blockStatus: $blockStatus)';
+    return 'ChatMessage(messageId: $messageId, roomId: $roomId, senderId: $senderId, content: $content, timestamp: $timestamp, type: $type)';
   }
 }
 
@@ -70,8 +68,7 @@ abstract mixin class $ChatMessageCopyWith<$Res> {
       int senderId,
       String content,
       DateTime timestamp,
-      String type,
-      String blockStatus});
+      String type});
 }
 
 /// @nodoc
@@ -92,7 +89,6 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
     Object? content = null,
     Object? timestamp = null,
     Object? type = null,
-    Object? blockStatus = null,
   }) {
     return _then(ChatMessage(
       messageId: null == messageId
@@ -119,146 +115,7 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
               as String,
-      blockStatus: null == blockStatus
-          ? _self.blockStatus
-          : blockStatus // ignore: cast_nullable_to_non_nullable
-              as String,
     ));
-  }
-}
-
-/// Adds pattern-matching-related methods to [ChatMessage].
-extension ChatMessagePatterns on ChatMessage {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _:
-        return orElse();
-    }
-  }
-
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>() {
-    final _that = this;
-    switch (_that) {
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
-
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>() {
-    final _that = this;
-    switch (_that) {
-      case _:
-        return null;
-    }
-  }
-
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _:
-        return orElse();
-    }
-  }
-
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>() {
-    final _that = this;
-    switch (_that) {
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
-
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>() {
-    final _that = this;
-    switch (_that) {
-      case _:
-        return null;
-    }
   }
 }
 

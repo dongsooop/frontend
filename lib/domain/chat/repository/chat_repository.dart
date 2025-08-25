@@ -1,10 +1,13 @@
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
+import 'package:dongsoop/domain/chat/model/chat_room.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 
 abstract class ChatRepository {
-  Future<List<UiChatRoom>?> getChatRooms();
+  Future<List<ChatRoom>?> getChatRooms();
   Future<Map<String, String>> getUserNicknamesByRoomId(String roomId);
+  Future<ChatRoomDetail> getRoomDetailByRoomId(String roomId);
   Future<void> saveChatMessage(ChatMessage message);
   Future<List<ChatMessage>?> getPagedMessages(String roomId, int offset, int limit);
   Future<void> deleteChatBox();
@@ -13,7 +16,8 @@ abstract class ChatRepository {
   Future<void> updateReadStatus(String roomId);
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
-  Future<UiChatRoom> createOneToOneChatRoom(String title, int targetUserId);
+  Future<String> createOneToOneChatRoom(String title, int targetUserId);
+  Future<String> createQNAChatRoom(ChatRoomRequest request);
 
   // stomp
   Future<void> connect(String roomId);

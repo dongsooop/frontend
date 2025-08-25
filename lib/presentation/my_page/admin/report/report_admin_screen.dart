@@ -365,11 +365,11 @@ class ReportAdminScreen extends HookConsumerWidget {
   RecruitType? toRecruitType(ReportType type) {
     switch (type) {
       case ReportType.PROJECT_BOARD:
-        return RecruitType.project;
+        return RecruitType.PROJECT;
       case ReportType.STUDY_BOARD:
-        return RecruitType.study;
+        return RecruitType.STUDY;
       case ReportType.TUTORING_BOARD:
-        return RecruitType.tutoring;
+        return RecruitType.TUTORING;
       default:
         return null;
     }

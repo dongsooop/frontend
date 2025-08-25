@@ -2,7 +2,6 @@ import 'package:dongsoop/domain/board/market/use_cases/market_complete_use_case.
 import 'package:dongsoop/domain/board/market/use_cases/market_contact_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_delete_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_detail_use_case.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
 import 'package:dongsoop/presentation/board/market/state/market_detail_state.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_complete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_contact_use_case_provider.dart';
@@ -93,10 +92,10 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
     }
   }
 
-  Future<UiChatRoom> createChatRoom(String title, int targetUserId) async {
+  Future<String> createChatRoom(String title, int targetUserId) async {
     try {
-      final chatRoom = await _createOneToOneChatRoomUseCase.execute(title, targetUserId);
-      return chatRoom;
+      final roomId = await _createOneToOneChatRoomUseCase.execute(title, targetUserId);
+      return roomId;
     } catch (e) {
       rethrow;
     }
