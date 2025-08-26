@@ -12,13 +12,36 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._authDataSource);
 
   @override
-  Future<SignInResponse> signIn(String email, String password) {
-    return _authDataSource.signIn(email, password);
+  Future<SignInResponse> signIn(
+    String email,
+    String password,
+    String fcmToken,
+  ) {
+    return _authDataSource.signIn(
+      email,
+      password,
+      fcmToken,
+    );
   }
 
   @override
   Future<void> signUp(SignUpRequest request) async {
     return await _authDataSource.signUp(request);
+  }
+
+  @override
+  Future<bool> passwordReset(String email, String password) async {
+    return await _authDataSource.passwordReset(email, password);
+  }
+
+  @override
+  Future<bool> passwordSendEmailCode(String userEmail) async {
+    return await _authDataSource.passwordSendEmailCode(userEmail);
+  }
+
+  @override
+  Future<bool> passwordCheckEmailCode(String userEmail, String code) async {
+    return await _authDataSource.passwordCheckEmailCode(userEmail, code);
   }
 
   @override

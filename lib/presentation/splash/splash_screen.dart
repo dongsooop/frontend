@@ -11,7 +11,6 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/providers/auth_providers.dart';
 
 class SplashScreen extends HookConsumerWidget {
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final splashState = ref.watch(splashViewModelProvider);
@@ -22,6 +21,7 @@ class SplashScreen extends HookConsumerWidget {
         await Future.delayed(Duration(seconds: 2));
         // 자동 로그인
         await viewModel.autoLogin();
+
         // 제재 대상 확인
         final user = ref.watch(userSessionProvider);
         if (user != null) {
@@ -47,16 +47,29 @@ class SplashScreen extends HookConsumerWidget {
             Future.microtask(() => context.go(RoutePaths.home));
           }
         }
+        if (user == null) {
+          final message = await viewModel.requestDeviceTokenPreAuthOnce(
+            tokenTimeout: const Duration(seconds: 2),
+          );
+          if (message != null && context.mounted) {
+            final m = ScaffoldMessenger.of(context);
+            m.removeCurrentSnackBar();
+            final ctrl = m.showSnackBar(
+              SnackBar(
+                content: Text(message),
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            await ctrl.closed;
+          }
+          if (!context.mounted) return;
+          context.go(RoutePaths.home);
+          return;
+        }
       });
       return null;
     }, []);
-
-    useEffect(() {
-      if (splashState.isSuccessed) {
-        Future.microtask(() => context.go(RoutePaths.home));
-      }
-      return null;
-    }, [splashState.isSuccessed]);
 
     if (splashState.errorMessage != null) {
       return Center(

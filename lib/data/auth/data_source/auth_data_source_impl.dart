@@ -24,10 +24,17 @@ class AuthDataSourceImpl implements AuthDataSource {
   );
 
   @override
-  Future<SignInResponse> signIn(String email, String password) async {
+  Future<SignInResponse> signIn(
+    String email,
+    String password,
+    String fcmToken,
+  ) async {
     final endpoint = dotenv.get('LOGIN_ENDPOINT');
-    final requestBody = {"email": email, "password": password};
-
+    final requestBody = {
+      "email": email,
+      "password": password,
+      "fcmToken": fcmToken,
+    };
     try {
       final response = await _plainDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
@@ -90,9 +97,87 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
+  Future<bool> passwordReset(String email, String password) async {
+    final endpoint = dotenv.get('PW_RESET_ENDPOINT');
+    final requestBody = {"email": email, "password": password};
+
+    try {
+      final response = await _plainDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.noContent.code) {
+        return true;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> passwordSendEmailCode(String userEmail) async {
+    final endpoint = dotenv.get('PW_SEND_EMAIL_ENDPOINT');
+    final requestBody = {"userEmail": userEmail};
+
+    try {
+      final response = await _plainDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.noContent.code) {
+        return true;
+      }
+      return false;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        return false;
+      }
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> passwordCheckEmailCode(String userEmail, String code) async {
+    final endpoint = dotenv.get('PW_CHECK_CODE_ENDPOINT');
+    final requestBody = {"userEmail": userEmail, "code": code};
+
+    try {
+      final response = await _plainDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.noContent.code) {
+        return true;
+      }
+      return false;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        return false;
+      }
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> logout() async {
-    await _preferencesService.clearUser();
-    await _secureStorageService.delete();
+    final endpoint = dotenv.get('LOGOUT_ENDPOINT');
+    final fcmToken = await _secureStorageService.read('fcmToken');
+
+    final headers = <String, String>{
+      if (fcmToken?.isNotEmpty == true) 'Device-Token': fcmToken!,
+    };
+
+    try {
+      await _authDio.post(
+        endpoint,
+        options: Options(
+          headers: headers,
+          followRedirects: false,
+          validateStatus: (s) => s == HttpStatusCode.redirect.code,
+        ),
+      );
+    } on DioException {
+      throw LogoutException();
+    } finally {
+      await _preferencesService.clearUser();
+      await _secureStorageService.delete();
+    }
   }
 
   @override
@@ -100,6 +185,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     final endpoint = dotenv.get('DELETE_USER_ENDPOINT');
     try {
       await _authDio.delete(endpoint);
+      await _secureStorageService.deleteFcmToken(); // 회원 탈퇴시 fcm 토큰 삭제
       return true;
     } catch (e) {
       rethrow;
@@ -164,6 +250,7 @@ class AuthDataSourceImpl implements AuthDataSource {
   Future<void> userBlock(int blockerId, int blockedMemberId) async {
     final endpoint = dotenv.get('BLOCK_ENDPOINT');
     final requestBody = {"blockerId": blockerId, "blockedMemberId": blockedMemberId};
+    
     try {
       await _authDio.post(endpoint, data: requestBody);
     } catch (e) {

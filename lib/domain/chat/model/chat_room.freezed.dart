@@ -16,12 +16,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ChatRoom {
   String get roomId;
-  String? get title;
-  List<int> get participants;
-  int? get managerId;
-  DateTime get createdAt;
+  String get title;
+  int get participantCount;
+  String? get lastMessage;
+  int get unreadCount;
   DateTime get lastActivityAt;
-  List<int> get kickedUsers;
   bool get groupChat;
 
   /// Create a copy of ChatRoom
@@ -38,36 +37,26 @@ mixin _$ChatRoom {
             other is ChatRoom &&
             (identical(other.roomId, roomId) || other.roomId == roomId) &&
             (identical(other.title, title) || other.title == title) &&
-            const DeepCollectionEquality()
-                .equals(other.participants, participants) &&
-            (identical(other.managerId, managerId) ||
-                other.managerId == managerId) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
+            (identical(other.participantCount, participantCount) ||
+                other.participantCount == participantCount) &&
+            (identical(other.lastMessage, lastMessage) ||
+                other.lastMessage == lastMessage) &&
+            (identical(other.unreadCount, unreadCount) ||
+                other.unreadCount == unreadCount) &&
             (identical(other.lastActivityAt, lastActivityAt) ||
                 other.lastActivityAt == lastActivityAt) &&
-            const DeepCollectionEquality()
-                .equals(other.kickedUsers, kickedUsers) &&
             (identical(other.groupChat, groupChat) ||
                 other.groupChat == groupChat));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      roomId,
-      title,
-      const DeepCollectionEquality().hash(participants),
-      managerId,
-      createdAt,
-      lastActivityAt,
-      const DeepCollectionEquality().hash(kickedUsers),
-      groupChat);
+  int get hashCode => Object.hash(runtimeType, roomId, title, participantCount,
+      lastMessage, unreadCount, lastActivityAt, groupChat);
 
   @override
   String toString() {
-    return 'ChatRoom(roomId: $roomId, title: $title, participants: $participants, managerId: $managerId, createdAt: $createdAt, lastActivityAt: $lastActivityAt, kickedUsers: $kickedUsers, groupChat: $groupChat)';
+    return 'ChatRoom(roomId: $roomId, title: $title, participantCount: $participantCount, lastMessage: $lastMessage, unreadCount: $unreadCount, lastActivityAt: $lastActivityAt, groupChat: $groupChat)';
   }
 }
 
@@ -78,12 +67,11 @@ abstract mixin class $ChatRoomCopyWith<$Res> {
   @useResult
   $Res call(
       {String roomId,
-      String? title,
-      List<int> participants,
-      int? managerId,
-      DateTime createdAt,
+      String title,
+      int participantCount,
+      String? lastMessage,
+      int unreadCount,
       DateTime lastActivityAt,
-      List<int> kickedUsers,
       bool groupChat});
 }
 
@@ -100,12 +88,11 @@ class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
   @override
   $Res call({
     Object? roomId = null,
-    Object? title = freezed,
-    Object? participants = null,
-    Object? managerId = freezed,
-    Object? createdAt = null,
+    Object? title = null,
+    Object? participantCount = null,
+    Object? lastMessage = freezed,
+    Object? unreadCount = null,
     Object? lastActivityAt = null,
-    Object? kickedUsers = null,
     Object? groupChat = null,
   }) {
     return _then(ChatRoom(
@@ -113,30 +100,26 @@ class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
           ? _self.roomId
           : roomId // ignore: cast_nullable_to_non_nullable
               as String,
-      title: freezed == title
+      title: null == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      participantCount: null == participantCount
+          ? _self.participantCount
+          : participantCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastMessage: freezed == lastMessage
+          ? _self.lastMessage
+          : lastMessage // ignore: cast_nullable_to_non_nullable
               as String?,
-      participants: null == participants
-          ? _self.participants
-          : participants // ignore: cast_nullable_to_non_nullable
-              as List<int>,
-      managerId: freezed == managerId
-          ? _self.managerId
-          : managerId // ignore: cast_nullable_to_non_nullable
-              as int?,
-      createdAt: null == createdAt
-          ? _self.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+      unreadCount: null == unreadCount
+          ? _self.unreadCount
+          : unreadCount // ignore: cast_nullable_to_non_nullable
+              as int,
       lastActivityAt: null == lastActivityAt
           ? _self.lastActivityAt
           : lastActivityAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      kickedUsers: null == kickedUsers
-          ? _self.kickedUsers
-          : kickedUsers // ignore: cast_nullable_to_non_nullable
-              as List<int>,
       groupChat: null == groupChat
           ? _self.groupChat
           : groupChat // ignore: cast_nullable_to_non_nullable

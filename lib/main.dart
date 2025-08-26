@@ -1,5 +1,9 @@
 import 'dart:io';
+
 import 'package:dongsoop/core/routing/router.dart';
+import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
+import 'package:dongsoop/core/storage/local_notifications_service.dart';
+import 'package:dongsoop/firebase_options.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -10,16 +14,25 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'domain/chat/model/chat_message.dart';
+import 'domain/chat/model/chat_room_detail.dart';
 import 'domain/chat/model/chat_room_member.dart';
 
-void main() async {
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(); // Firebase 초기화
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await Hive.initFlutter(); // Hive(local DB) 초기화
-  Hive.registerAdapter(ChatRoomMemberAdapter()); // 채팅방 참여자 목록
-  Hive.registerAdapter(ChatMessageAdapter()); // 채팅 내역
+  final localNotificationsService = LocalNotificationsService.instance();
+  await localNotificationsService.init();
+
+  final firebaseMessagingService = FirebaseMessagingService.instance();
+  await firebaseMessagingService.init(localNotificationsService: localNotificationsService);
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(ChatRoomMemberAdapter());
+  Hive.registerAdapter(ChatRoomDetailAdapter());
+  Hive.registerAdapter(ChatMessageAdapter());
 
   await dotenv.load(); // .env 파일 로드
 
