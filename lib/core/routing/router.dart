@@ -21,12 +21,12 @@ import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
-import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/splash/splash_screen.dart';
+import 'package:dongsoop/presentation/timetable/timetable_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
@@ -41,9 +41,9 @@ final router = GoRouter(
       builder: (context, state) => SplashScreen(),
     ),
     GoRoute(
-      path: RoutePaths.schedule,
-      name: 'schedule',
-      builder: (context, state) => const ScheduleScreen(),
+      path: RoutePaths.timetable,
+      name: 'timetable',
+      builder: (context, state) => const TimetableScreen(),
     ),
     GoRoute(
       path: RoutePaths.calendar,
@@ -469,8 +469,8 @@ final router = GoRouter(
               onTapCalendar: () {
                 context.push(RoutePaths.calendar);
               },
-              onTapSchedule: () {
-                context.push(RoutePaths.schedule);
+              onTapTimetable: () {
+                context.push(RoutePaths.timetable);
               },
               onTapBlockedUser: () {
                 context.push(RoutePaths.mypageBlock);

@@ -1,20 +1,20 @@
-import 'package:dongsoop/presentation/schedule/temp/schedule_data.dart';
-import 'package:dongsoop/presentation/schedule/temp/schedule_model.dart';
+import 'package:dongsoop/presentation/timetable/temp/schedule_data.dart';
+import 'package:dongsoop/presentation/timetable/temp/timetable_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 
-class AddScheduleScreen extends StatefulWidget {
-  const AddScheduleScreen({required this.scheduleData, super.key});
+class TimetableWriteScreen extends StatefulWidget {
+  const TimetableWriteScreen({required this.scheduleData, super.key});
 
   final List<Schedule> scheduleData;
 
   @override
-  State<AddScheduleScreen> createState() => _AddScheduleScreenState();
+  State<TimetableWriteScreen> createState() => _TimetableWriteScreenState();
 }
 
-class _AddScheduleScreenState extends State<AddScheduleScreen> {
+class _TimetableWriteScreenState extends State<TimetableWriteScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // 시간표

@@ -1,23 +1,23 @@
-import 'package:dongsoop/presentation/schedule/schedule_add_screen.dart';
-import 'package:dongsoop/presentation/schedule/schedule_detail_screen.dart';
-import 'package:dongsoop/presentation/schedule/schedule_list_screen.dart';
-import 'package:dongsoop/presentation/schedule/temp/schedule_data.dart';
-import 'package:dongsoop/presentation/schedule/temp/schedule_model.dart';
+import 'package:dongsoop/presentation/timetable/write/timetable_write_screen.dart';
+import 'package:dongsoop/presentation/timetable/detail/timetable_detail_screen.dart';
+import 'package:dongsoop/presentation/timetable/list/timetable_list_screen.dart';
+import 'package:dongsoop/presentation/timetable/temp/schedule_data.dart';
+import 'package:dongsoop/presentation/timetable/temp/timetable_model.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:go_router/go_router.dart';
 
-class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({this.yearSemester, super.key});
+class TimetableScreen extends StatefulWidget {
+  const TimetableScreen({this.yearSemester, super.key});
 
   final String? yearSemester;
 
   @override
-  State<ScheduleScreen> createState() => ScheduleScreenState();
+  State<TimetableScreen> createState() => TimetableScreenState();
 }
 
-class ScheduleScreenState extends State<ScheduleScreen> {
+class TimetableScreenState extends State<TimetableScreen> {
   // 현재 학기 계산
   String getCurrentSemesterLabel(DateTime now) {
     final year = now.year;
@@ -75,7 +75,7 @@ class ScheduleScreenState extends State<ScheduleScreen> {
                     final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => AddScheduleScreen(scheduleData: scheduleData),
+                        builder: (_) => TimetableWriteScreen(scheduleData: scheduleData),
                       ),
                     );
 
@@ -96,7 +96,7 @@ class ScheduleScreenState extends State<ScheduleScreen> {
                   // 메뉴 선택
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const ScheduleListScreen()),
+                    MaterialPageRoute(builder: (_) => const TimetableListScreen()),
                   );
                 },
                 icon: Icon(
@@ -119,7 +119,7 @@ class ScheduleScreenState extends State<ScheduleScreen> {
               children: [
                 // 이번 학기 데이터가 있다면 시간표를, 없다면 생성 버튼을 보여줌
                 hasTimetable
-                ? ScheduleDetailScreen(scheduleData: scheduleData,)
+                ? TimetableDetailScreen(scheduleData: scheduleData,)
                 : buildEmptyTimetableBox(selectedSemester, () {
                     setState(() {});
                   }),

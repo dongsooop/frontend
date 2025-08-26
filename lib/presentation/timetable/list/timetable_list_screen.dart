@@ -1,18 +1,18 @@
-import 'package:dongsoop/presentation/schedule/schedule_screen.dart';
-import 'package:dongsoop/presentation/schedule/temp/schedule_data.dart';
-import 'package:dongsoop/presentation/schedule/temp/schedule_model.dart';
+import 'package:dongsoop/presentation/timetable/timetable_screen.dart';
+import 'package:dongsoop/presentation/timetable/temp/schedule_data.dart';
+import 'package:dongsoop/presentation/timetable/temp/timetable_model.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 
-class ScheduleListScreen extends StatefulWidget {
-  const ScheduleListScreen({super.key});
+class TimetableListScreen extends StatefulWidget {
+  const TimetableListScreen({super.key});
 
   @override
-  State<ScheduleListScreen> createState() => _ScheduleListScreenState();
+  State<TimetableListScreen> createState() => _TimetableListScreenState();
 }
 
-class _ScheduleListScreenState extends State<ScheduleListScreen> {
+class _TimetableListScreenState extends State<TimetableListScreen> {
   Map<String, List<Map<String, dynamic>>> timetableData = Map.from(dummyTimetable);
 
   void _deleteTimetable(String semester) {
@@ -45,7 +45,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ScheduleScreen(yearSemester: semester),
+                    builder: (_) => TimetableScreen(yearSemester: semester),
                   ),
                 );
               },

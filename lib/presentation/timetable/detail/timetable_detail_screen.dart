@@ -1,19 +1,18 @@
-import 'package:dongsoop/main.dart';
-import 'package:dongsoop/presentation/schedule/temp/schedule_model.dart';
+import 'package:dongsoop/presentation/timetable/temp/timetable_model.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 
-class ScheduleDetailScreen extends StatefulWidget {
-  const ScheduleDetailScreen({required this.scheduleData, super.key});
+class TimetableDetailScreen extends StatefulWidget {
+  const TimetableDetailScreen({required this.scheduleData, super.key});
 
   final List<Schedule> scheduleData;
 
   @override
-  State<ScheduleDetailScreen> createState() => _ScheduleDetailScreenState();
+  State<TimetableDetailScreen> createState() => _TimetableDetailScreenState();
 }
 
-class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
+class _TimetableDetailScreenState extends State<TimetableDetailScreen> {
   // 시간표
   final List<String> week = ['월', '화', '수', '목', '금'];
   int kColumnLength = 28;
