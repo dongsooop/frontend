@@ -4,7 +4,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'timetable.dart';
+part of 'lecture.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,7 +14,7 @@ part of 'timetable.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$Timetable {
+mixin _$Lecture {
   int get id;
   String get name;
   String get professor;
@@ -23,18 +23,18 @@ mixin _$Timetable {
   String get startAt;
   String get endAt;
 
-  /// Create a copy of Timetable
+  /// Create a copy of Lecture
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $TimetableCopyWith<Timetable> get copyWith =>
-      _$TimetableCopyWithImpl<Timetable>(this as Timetable, _$identity);
+  $LectureCopyWith<Lecture> get copyWith =>
+      _$LectureCopyWithImpl<Lecture>(this as Lecture, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is Timetable &&
+            other is Lecture &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.professor, professor) ||
@@ -53,14 +53,14 @@ mixin _$Timetable {
 
   @override
   String toString() {
-    return 'Timetable(id: $id, name: $name, professor: $professor, location: $location, week: $week, startAt: $startAt, endAt: $endAt)';
+    return 'Lecture(id: $id, name: $name, professor: $professor, location: $location, week: $week, startAt: $startAt, endAt: $endAt)';
   }
 }
 
 /// @nodoc
-abstract mixin class $TimetableCopyWith<$Res> {
-  factory $TimetableCopyWith(Timetable value, $Res Function(Timetable) _then) =
-      _$TimetableCopyWithImpl;
+abstract mixin class $LectureCopyWith<$Res> {
+  factory $LectureCopyWith(Lecture value, $Res Function(Lecture) _then) =
+      _$LectureCopyWithImpl;
   @useResult
   $Res call(
       {int id,
@@ -73,13 +73,13 @@ abstract mixin class $TimetableCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$TimetableCopyWithImpl<$Res> implements $TimetableCopyWith<$Res> {
-  _$TimetableCopyWithImpl(this._self, this._then);
+class _$LectureCopyWithImpl<$Res> implements $LectureCopyWith<$Res> {
+  _$LectureCopyWithImpl(this._self, this._then);
 
-  final Timetable _self;
-  final $Res Function(Timetable) _then;
+  final Lecture _self;
+  final $Res Function(Lecture) _then;
 
-  /// Create a copy of Timetable
+  /// Create a copy of Lecture
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -92,7 +92,7 @@ class _$TimetableCopyWithImpl<$Res> implements $TimetableCopyWith<$Res> {
     Object? startAt = null,
     Object? endAt = null,
   }) {
-    return _then(Timetable(
+    return _then(Lecture(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable

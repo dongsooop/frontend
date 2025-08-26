@@ -4,7 +4,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'timetable_request.dart';
+part of 'lecture_request.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,7 +14,7 @@ part of 'timetable_request.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$TimetableRequest {
+mixin _$LectureRequest {
   String get name;
   String get professor;
   String get location;
@@ -24,19 +24,19 @@ mixin _$TimetableRequest {
   int get year;
   String get semester;
 
-  /// Create a copy of TimetableRequest
+  /// Create a copy of LectureRequest
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $TimetableRequestCopyWith<TimetableRequest> get copyWith =>
-      _$TimetableRequestCopyWithImpl<TimetableRequest>(
-          this as TimetableRequest, _$identity);
+  $LectureRequestCopyWith<LectureRequest> get copyWith =>
+      _$LectureRequestCopyWithImpl<LectureRequest>(
+          this as LectureRequest, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is TimetableRequest &&
+            other is LectureRequest &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.professor, professor) ||
                 other.professor == professor) &&
@@ -56,15 +56,15 @@ mixin _$TimetableRequest {
 
   @override
   String toString() {
-    return 'TimetableRequest(name: $name, professor: $professor, location: $location, week: $week, startAt: $startAt, endAt: $endAt, year: $year, semester: $semester)';
+    return 'LectureRequest(name: $name, professor: $professor, location: $location, week: $week, startAt: $startAt, endAt: $endAt, year: $year, semester: $semester)';
   }
 }
 
 /// @nodoc
-abstract mixin class $TimetableRequestCopyWith<$Res> {
-  factory $TimetableRequestCopyWith(
-          TimetableRequest value, $Res Function(TimetableRequest) _then) =
-      _$TimetableRequestCopyWithImpl;
+abstract mixin class $LectureRequestCopyWith<$Res> {
+  factory $LectureRequestCopyWith(
+          LectureRequest value, $Res Function(LectureRequest) _then) =
+      _$LectureRequestCopyWithImpl;
   @useResult
   $Res call(
       {String name,
@@ -78,14 +78,14 @@ abstract mixin class $TimetableRequestCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$TimetableRequestCopyWithImpl<$Res>
-    implements $TimetableRequestCopyWith<$Res> {
-  _$TimetableRequestCopyWithImpl(this._self, this._then);
+class _$LectureRequestCopyWithImpl<$Res>
+    implements $LectureRequestCopyWith<$Res> {
+  _$LectureRequestCopyWithImpl(this._self, this._then);
 
-  final TimetableRequest _self;
-  final $Res Function(TimetableRequest) _then;
+  final LectureRequest _self;
+  final $Res Function(LectureRequest) _then;
 
-  /// Create a copy of TimetableRequest
+  /// Create a copy of LectureRequest
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -99,7 +99,7 @@ class _$TimetableRequestCopyWithImpl<$Res>
     Object? year = null,
     Object? semester = null,
   }) {
-    return _then(TimetableRequest(
+    return _then(LectureRequest(
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable

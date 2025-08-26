@@ -1,5 +1,5 @@
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
-import 'package:dongsoop/domain/timetable/model/timetable.dart';
+import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/domain/timetable/repository/timetable_repository.dart';
 
 class GetTimetableUseCase {
@@ -7,7 +7,7 @@ class GetTimetableUseCase {
 
   GetTimetableUseCase(this._timetableRepository,);
 
-  Future<List<Timetable>?> execute(int year, int month) async {
+  Future<List<Lecture>?> execute(int year, int month) async {
     Semester semester;
     if (month >= 2 && month <= 6) {
       semester = Semester.FIRST;
@@ -21,6 +21,6 @@ class GetTimetableUseCase {
       throw Exception('알 수 없는 오류가 발생했습니다.');
     }
 
-    return await _timetableRepository.getTimetable(year, semester);
+    return await _timetableRepository.getLecture(year, semester);
   }
 }

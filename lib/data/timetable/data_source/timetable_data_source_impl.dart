@@ -2,9 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
-import 'package:dongsoop/domain/timetable/model/timetable.dart';
-import 'package:dongsoop/domain/timetable/model/timetable_AI.dart';
-import 'package:dongsoop/domain/timetable/model/timetable_request.dart';
+import 'package:dongsoop/domain/timetable/model/lecture.dart';
+import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
+import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class TimetableDataSourceImpl implements TimetableDataSource {
@@ -15,7 +15,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   );
 
   @override
-  Future<List<Timetable>> getTimetable(int year, Semester semester) async {
+  Future<List<Lecture>> getLecture(int year, Semester semester) async {
     final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
 
     try {
@@ -24,8 +24,8 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
 
-        final List<Timetable> timetable = data
-            .map((e) => Timetable.fromJson(e as Map<String, dynamic>))
+        final List<Lecture> timetable = data
+            .map((e) => Lecture.fromJson(e as Map<String, dynamic>))
             .toList();
 
         return timetable;
@@ -37,7 +37,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   }
 
   @override
-  Future<bool> createTimetable(TimetableRequest request) async {
+  Future<bool> createLecture(LectureRequest request) async {
     final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
 
     try {
@@ -52,7 +52,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   }
 
   @override
-  Future<bool> updateTimetable(Timetable timetable) async {
+  Future<bool> updateLecture(Lecture timetable) async {
     final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
 
     try {
@@ -68,7 +68,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   }
 
   @override
-  Future<bool> deleteTimetable(int id) async {
+  Future<bool> deleteLecture(int id) async {
     final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
 
     try {
@@ -84,7 +84,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   }
 
   @override
-  Future<TimetableAi> timetableAnalysis() async {
+  Future<LectureAi> timetableAnalysis() async {
     throw UnimplementedError();
   }
 }

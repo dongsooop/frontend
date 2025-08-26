@@ -1,8 +1,8 @@
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
-import 'package:dongsoop/domain/timetable/model/timetable.dart';
-import 'package:dongsoop/domain/timetable/model/timetable_AI.dart';
-import 'package:dongsoop/domain/timetable/model/timetable_request.dart';
+import 'package:dongsoop/domain/timetable/model/lecture.dart';
+import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
+import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 import 'package:dongsoop/domain/timetable/repository/timetable_repository.dart';
 
 class TimetableRepositoryImpl implements TimetableRepository {
@@ -13,27 +13,27 @@ class TimetableRepositoryImpl implements TimetableRepository {
   );
 
   @override
-  Future<bool> createTimetable(TimetableRequest request) {
-    return _timetableDataSource.createTimetable(request);
+  Future<bool> createLecture(LectureRequest request) {
+    return _timetableDataSource.createLecture(request);
   }
 
   @override
-  Future<bool> deleteTimetable(int id) {
-    return _timetableDataSource.deleteTimetable(id);
+  Future<bool> deleteLecture(int id) {
+    return _timetableDataSource.deleteLecture(id);
   }
 
   @override
-  Future<List<Timetable>> getTimetable(int year, Semester semester) {
-    return _timetableDataSource.getTimetable(year, semester);
+  Future<List<Lecture>> getLecture(int year, Semester semester) {
+    return _timetableDataSource.getLecture(year, semester);
   }
 
   @override
-  Future<TimetableAi> timetableAnalysis() {
+  Future<LectureAi> timetableAnalysis() {
     return _timetableDataSource.timetableAnalysis();
   }
 
   @override
-  Future<bool> updateTimetable(Timetable timetable) {
-    return _timetableDataSource.updateTimetable(timetable);
+  Future<bool> updateLecture(Lecture timetable) {
+    return _timetableDataSource.updateLecture(timetable);
   }
 }

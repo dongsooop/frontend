@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'timetable.dart';
+part of 'lecture.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Timetable _$TimetableFromJson(Map<String, dynamic> json) => Timetable(
+Lecture _$LectureFromJson(Map<String, dynamic> json) => Lecture(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       professor: json['professor'] as String,
@@ -16,7 +16,7 @@ Timetable _$TimetableFromJson(Map<String, dynamic> json) => Timetable(
       endAt: json['endAt'] as String,
     );
 
-Map<String, dynamic> _$TimetableToJson(Timetable instance) => <String, dynamic>{
+Map<String, dynamic> _$LectureToJson(Lecture instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'professor': instance.professor,

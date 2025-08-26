@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'timetable_request.dart';
+part of 'lecture_request.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-TimetableRequest _$TimetableRequestFromJson(Map<String, dynamic> json) =>
-    TimetableRequest(
+LectureRequest _$LectureRequestFromJson(Map<String, dynamic> json) =>
+    LectureRequest(
       name: json['name'] as String,
       professor: json['professor'] as String,
       location: json['location'] as String,
@@ -18,7 +18,7 @@ TimetableRequest _$TimetableRequestFromJson(Map<String, dynamic> json) =>
       semester: json['semester'] as String,
     );
 
-Map<String, dynamic> _$TimetableRequestToJson(TimetableRequest instance) =>
+Map<String, dynamic> _$LectureRequestToJson(LectureRequest instance) =>
     <String, dynamic>{
       'name': instance.name,
       'professor': instance.professor,

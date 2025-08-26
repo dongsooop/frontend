@@ -42,12 +42,12 @@ class _TimetableListScreenState extends State<TimetableListScreen> {
             final semester = timetableData.keys.elementAt(index);
             return ListTile(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TimetableScreen(yearSemester: semester),
-                  ),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (_) => TimetableScreen(yearSemester: semester),
+                //   ),
+                // );
               },
               title: Text(
                 semester,

@@ -27,6 +27,7 @@ import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/splash/splash_screen.dart';
 import 'package:dongsoop/presentation/timetable/timetable_screen.dart';
+import 'package:dongsoop/presentation/timetable/write/timetable_write_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
@@ -43,7 +44,23 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.timetable,
       name: 'timetable',
-      builder: (context, state) => const TimetableScreen(),
+      builder: (context, state) => TimetableScreen(
+        onTapTimetableList: () => context.push(RoutePaths.timetableList),
+        onTapTimetableWrite: () => context.push(RoutePaths.timetableWrite),
+        onTapLectureWrite: () => context.push(RoutePaths.timetableLectureWrite),
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.timetableList,
+      builder: (context, state) => SignUpScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.timetableLectureWrite,
+      builder: (context, state) => SignUpScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.timetableWrite,
+      builder: (context, state) => TimetableWriteScreen(),
     ),
     GoRoute(
       path: RoutePaths.calendar,

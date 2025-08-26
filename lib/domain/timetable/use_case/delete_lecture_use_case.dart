@@ -6,6 +6,6 @@ class DeleteTimetableUseCase {
   DeleteTimetableUseCase(this._timetableRepository,);
 
   Future<bool> execute(int id) async {
-    return await _timetableRepository.deleteTimetable(id);
+    return await _timetableRepository.deleteLecture(id);
   }
 }

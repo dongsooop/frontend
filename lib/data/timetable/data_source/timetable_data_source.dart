@@ -1,13 +1,13 @@
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
-import 'package:dongsoop/domain/timetable/model/timetable.dart';
-import 'package:dongsoop/domain/timetable/model/timetable_AI.dart';
-import 'package:dongsoop/domain/timetable/model/timetable_request.dart';
+import 'package:dongsoop/domain/timetable/model/lecture.dart';
+import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
+import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 
 abstract class TimetableDataSource {
-  Future<List<Timetable>> getTimetable(int year, Semester semester);
-  Future<bool> createTimetable(TimetableRequest request);
-  Future<bool> updateTimetable(Timetable timetable);
-  Future<bool> deleteTimetable(int id);
+  Future<List<Lecture>> getLecture(int year, Semester semester);
+  Future<bool> createLecture(LectureRequest request);
+  Future<bool> updateLecture(Lecture timetable);
+  Future<bool> deleteLecture(int id);
   // AI
-  Future<TimetableAi> timetableAnalysis();
+  Future<LectureAi> timetableAnalysis();
 }
