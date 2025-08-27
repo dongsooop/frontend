@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/widgets.dart';
+import 'package:dongsoop/core/routing/push_router.dart';
 
 class FirebaseMessagingService {
   FirebaseMessagingService._internal();
@@ -20,6 +23,24 @@ class FirebaseMessagingService {
 
     _localNotificationsService = localNotificationsService;
 
+    // 로컬 알림 탭 시 라우팅 처리
+    _localNotificationsService?.onTap = (payloadJson) {
+      print('[LocalTap] raw payload=$payloadJson');
+      try {
+        final map = jsonDecode(payloadJson) as Map<String, dynamic>;
+        print('[LocalTap] parsed map=$map');
+        final t = map['type']?.toString();
+        final v = map['value']?.toString();
+        if (t != null && v != null) {
+          PushRouter.routeFromTypeValue(type: t, value: v);
+        } else {
+          print('[LocalTap] missing type/value in payload');
+        }
+      } catch (e, st) {
+        print('[LocalTap] payload parse error: $e\n$st');
+      }
+    };
+
     // 백그라운드 상태에서 메시지 수신 핸들러
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -32,7 +53,11 @@ class FirebaseMessagingService {
     // 앱이 완전히 종료된 상태에서 알림 클릭하여 실행된 경우 처리
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
-      _onMessageOpenedApp(initialMessage);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _onMessageOpenedApp(initialMessage);
+      });
+    } else {
+      print('[getInitialMessage] null (no launch via notification)');
     }
   }
 
@@ -44,14 +69,26 @@ class FirebaseMessagingService {
     print('Foreground message received: ${message.data.toString()}');
     final notificationData = message.notification;
     if (notificationData != null) {
+      final payload = jsonEncode(message.data);
+      print('[onMessage] enqueue local notification payload=$payload');
       _localNotificationsService?.showNotification(
-          notificationData.title, notificationData.body, message.data.toString());
+        notificationData.title,
+        notificationData.body,
+        payload,
+      );
+    } else {
+      print('[onMessage] notification=null (data-only?)');
     }
   }
-
   // 백그라운드 or 종료 상태에서 알림 클릭으로 앱이 열렸을 떄
   void _onMessageOpenedApp(RemoteMessage message) {
-    // TODO: 메시지 데이터 기반 라우팅
+    final type = message.data['type']?.toString();
+    final value = message.data['value']?.toString();
+    if (type != null && value != null) {
+      PushRouter.routeFromTypeValue(type: type, value: value);
+    } else {
+      print('[onMessageOpenedApp] missing type/value in data=${message.data}');
+    }
   }
 }
 

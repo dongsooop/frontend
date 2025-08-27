@@ -11,6 +11,8 @@ class LocalNotificationsService {
 
   late FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
 
+  void Function(String payloadJson)? onTap;
+
   // ios 알림 초기화 설정
   final _iosInitializationSettings = const DarwinInitializationSettings(
     requestAlertPermission: true,
@@ -36,11 +38,19 @@ class LocalNotificationsService {
     );
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) {
-          print('Foreground notification has been tapped: ${response.payload}');
-        });
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        final payload = response.payload;
+        print('[LocalNotifications] onDidReceiveNotificationResponse fired');
+        print('[LocalNotifications] response.id=${response.id}, actionId=${response.actionId}, payload=$payload');
+        if (payload != null) {
+          onTap?.call(payload);
+        }
+      },
+      onDidReceiveBackgroundNotificationResponse: _notificationTapBackground,
+    );
 
     _isFlutterLocalNotificationInitialized = true;
+    print('[LocalNotifications] initialized');
   }
 
   // 로컬 알림 표시 메서드
@@ -56,6 +66,9 @@ class LocalNotificationsService {
       iOS: iosDetails,
     );
 
+    print('[LocalNotifications] showNotification: '
+        'id=$_notificationIdCounter, title=$title, body=$body, payload=$payload');
+
     await _flutterLocalNotificationsPlugin.show(
       _notificationIdCounter++, // 고유 알림 id,
       title,
@@ -63,5 +76,19 @@ class LocalNotificationsService {
       notificationDetails,
       payload: payload,
     );
+  }
+}
+
+@pragma('vm:entry-point')
+void _notificationTapBackground(NotificationResponse response) {
+  try {
+    final payload = response.payload;
+    print('[LocalNotifications] _notificationTapBackground fired');
+    print('[LocalNotifications] response.id=${response.id}, actionId=${response.actionId}, payload=$payload');
+    if (payload != null) {
+      LocalNotificationsService.instance().onTap?.call(payload);
+    }
+  } catch (e, st) {
+    print('[LocalNotifications] _notificationTapBackground error: $e\n$st');
   }
 }
