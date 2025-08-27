@@ -1,33 +1,31 @@
-import 'package:dongsoop/presentation/timetable/temp/schedule_data.dart';
-import 'package:dongsoop/presentation/timetable/temp/timetable_model.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
+import 'package:dongsoop/domain/timetable/enum/week_day.dart';
+import 'package:dongsoop/domain/timetable/model/lecture.dart';
+import 'package:dongsoop/presentation/timetable/widgets/day_picker_bottom_sheet.dart';
+import 'package:dongsoop/presentation/timetable/widgets/lecture_time_picker_bottom_sheet.dart';
+import 'package:dongsoop/presentation/timetable/widgets/positioned_lecture_block.dart';
+import 'package:dongsoop/presentation/timetable/widgets/timetable_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class LectureWriteScreen extends StatefulWidget {
-  const LectureWriteScreen({
-    required this.scheduleData,
+class LectureWriteScreen extends HookConsumerWidget {
+  final List<Lecture>? lectureList;
+
+  LectureWriteScreen({
+    required this.lectureList,
     super.key
   });
 
-  final List<Schedule> scheduleData;
+  static const int kColumnLength = 28;
+  static const double kFirstColumnHeight = 24;
+  static const double kBoxSize = 48; // 30분 단위 높이
 
-  @override
-  State<LectureWriteScreen> createState() => _LectureWriteScreenState();
-}
-
-class _LectureWriteScreenState extends State<LectureWriteScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  // 시간표
-  final List<String> week = ['월', '화', '수', '목', '금'];
-  int kColumnLength = 28;
-  double kFirstColumnHeight = 24;
-  double kBoxSize = 48;
-  late List<Schedule> selectedLectures;
-
-  final List<Color> scheduleColors = [
+  // 시간표 색상
+  final List<Color> lectureColors = [
     const Color(0xFFDCE1F0),
     const Color(0xFFF1D2D2),
     const Color(0xFFD2F3D4),
@@ -36,59 +34,34 @@ class _LectureWriteScreenState extends State<LectureWriteScreen> {
     const Color(0xFFF8DEEF),
     const Color(0xFFF9F2DE),
   ];
-  int colorIndex = 0;
 
-  int selectedDayIndex = 0;
+  WeekDay selectedDay = WeekDay.MONDAY;
   int startHour = 9;
   int startMinute = 0;
   int endHour = 10;
   int endMinute = 0;
-  final List<String> days = ['월요일', '화요일', '수요일', '목요일', '금요일'];
-
-  late TextEditingController nameController;
-  late TextEditingController professorController;
-  late TextEditingController classroomController;
-  @override
-  void initState() {
-    super.initState();
-    nameController = TextEditingController();
-    professorController = TextEditingController();
-    classroomController = TextEditingController();
-  }
-  @override
-  void dispose() {
-    nameController.dispose();
-    professorController.dispose();
-    classroomController.dispose();
-    super.dispose();
-  }
 
   @override
-  Widget build(BuildContext context) {
-    selectedLectures = widget.scheduleData;
+  Widget build(BuildContext context, WidgetRef ref) {
+    // final lectureWriteState = ref.watch(timetableViewModelProvider);
+    // final viewModel = ref.read(timetableViewModelProvider.notifier);
+
+    final nameController = useTextEditingController();
+    final professorController = useTextEditingController();
+    final locationController = useTextEditingController();
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(44),
-        child: AppBar(
-          title: Text(
-            '강의 추가',
-            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-          ),
-          backgroundColor: ColorStyles.white,
-          leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(
-              Icons.close,
-              size: 24,
-              color: ColorStyles.black,
-            ),
-          ),
-          centerTitle: true,
-        ),
+      appBar: DetailHeader(
+        title: '강의 시간표 추가',
+      ),
+      bottomNavigationBar: PrimaryBottomButton(
+        onPressed: () async {
+          // 유효성 만족 시 강의 추가 API 요청
+        },
+        label: '완료',
+        isLoading: false, // 로딩상태
+        isEnabled: false, // 유효성
       ),
       body: SafeArea(
         child: Stack(
@@ -109,176 +82,155 @@ class _LectureWriteScreenState extends State<LectureWriteScreen> {
                       ),
                       height: ((10 / 2) * kBoxSize) + kFirstColumnHeight + 2,
                       child: SingleChildScrollView(
-                        child: Row(
-                          children: [
-                            buildTimeColumn(),
-                            ...buildDayColumn(0),
-                            ...buildDayColumn(1),
-                            ...buildDayColumn(2),
-                            ...buildDayColumn(3),
-                            ...buildDayColumn(4),
-                          ],
+                        child: TimetableGrid(
+                          columnLength: kColumnLength,
+                          firstRowHeight: kFirstColumnHeight,
+                          slotHeight: kBoxSize,
+                          dayChildrenBuilder: (day, dayWidth) {
+                            final widgets = <Widget>[];
+
+                            if (lectureList != null) {
+                              for (final lecture in lectureList!) {
+                                if (lecture.week != day) continue;
+                                final color = lectureColors[lectureList!.indexOf(lecture) % lectureColors.length];
+                                widgets.add(
+                                  PositionedLectureBlock(
+                                    lecture: lecture,
+                                    firstRowHeight: kFirstColumnHeight,
+                                    slotHeight: kBoxSize,
+                                    dayWidth: dayWidth,
+                                    color: color,
+                                  ),
+                                );
+                              }
+                            }
+
+                            if (day == selectedDay) {
+                              final startTotal = (startHour * 60 + startMinute) - 540; // 9*60
+                              final endTotal   = (endHour * 60 + endMinute) - 540;
+
+                              final double top = kFirstColumnHeight + (startTotal / 60.0) * kBoxSize;
+                              final double height = ((endTotal - startTotal) / 60.0) * kBoxSize;
+
+                              widgets.add(
+                                Positioned(
+                                  top: top,
+                                  left: 0,
+                                  child: Container(
+                                    width: dayWidth,
+                                    height: height,
+                                    decoration: BoxDecoration(
+                                      color: ColorStyles.gray2,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                            return widgets;
+                          },
                         ),
                       ),
                     ),
                     Container(
                       margin: EdgeInsets.symmetric(vertical: 32),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          spacing: 16,
-                          children: [
-                            SizedBox(
-                              height: 44,
-                              child: TextFormField(
-                                controller: nameController,
-                                style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                                decoration: InputDecoration(
-                                  hintText: '강의명을 입력해 주세요',
-                                  hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: ColorStyles.gray2, width: 1),
+                      child: Column(
+                        spacing: 16,
+                        children: [
+                          _buildTextField(
+                            controller: nameController,
+                            hintText: '강의명을 입력해 주세요',
+                          ),
+                          _buildTextField(
+                            controller: professorController,
+                            hintText: '교수님 성함을 입력해 주세요',
+                          ),
+                          _buildTextField(
+                            controller: locationController,
+                            hintText: '강의실을 입력해 주세요',
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 8,
+                            children: [
+                              OutlinedButton(
+                                onPressed: () async {
+                                  final picked = await showWeekDayPicker(context, initial: WeekDay.MONDAY);
+                                  if (picked != null) {
+                                    selectedDay = picked;
+                                  }
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  side: const BorderSide(color: ColorStyles.gray2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: ColorStyles.gray2),
-                                  ),
+                                  minimumSize: const Size(0, 44),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  spacing: 16,
+                                  children: [
+                                    Text(
+                                      '${selectedDay.korean}요일',
+                                      style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+                                    ),
+                                    const Icon(
+                                      Icons.keyboard_arrow_down_outlined,
+                                      size: 24,
+                                      color: ColorStyles.black,
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 44,
-                              child: TextFormField(
-                                controller: professorController,
-                                style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                                decoration: InputDecoration(
-                                  hintText: '교수님 성함을 입력해 주세요',
-                                  hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: ColorStyles.gray2, width: 1),
-                                  ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: ColorStyles.gray2),
-                                  ),
+                              OutlinedButton(
+                                onPressed: () async {
+                                  final picked = await showTimeRangePicker(
+                                    context,
+                                    initial: TimeRange(
+                                      startHour: startHour,
+                                      startMinute: startMinute,
+                                      endHour: endHour,
+                                      endMinute: endMinute,
+                                    ),
+                                  );
+                                  if (picked != null) {
+                                    startHour = picked.startHour;
+                                    startMinute = picked.startMinute;
+                                    endHour = picked.endHour;
+                                    endMinute = picked.endMinute;
+                                  }
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  side: const BorderSide(color: ColorStyles.gray2),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  minimumSize: const Size(0, 44),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  spacing: 16,
+                                  children: [
+                                    Text(
+                                      '${startHour.toString().padLeft(2, '0')}:${startMinute.toString().padLeft(2, '0')} ~ '
+                                          '${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}',
+                                      style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+                                    ),
+                                    const Icon(Icons.keyboard_arrow_down_outlined, size: 24, color: ColorStyles.black),
+                                  ],
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 44,
-                              child: TextFormField(
-                                controller: classroomController,
-                                style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                                decoration: InputDecoration(
-                                  hintText: '강의실을 입력해 주세요',
-                                  hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: ColorStyles.gray2, width: 1),
-                                  ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: ColorStyles.gray2),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 8,
-                              children: [
-                                OutlinedButton(
-                                  onPressed: () => _showDayPicker(context),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: EdgeInsets.symmetric(horizontal: 16),
-                                    side: const BorderSide(color: ColorStyles.gray2),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    spacing: 16,
-                                    children: [
-                                      Text(
-                                        '${week[selectedDayIndex]}요일',
-                                        style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                                      ),
-                                      const Icon(
-                                        Icons.keyboard_arrow_down_outlined,
-                                        size: 24,
-                                        color: ColorStyles.black,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 44,
-                                  child: OutlinedButton(
-                                    onPressed: () {
-                                      _showTimePicker(context);
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      padding: EdgeInsets.symmetric(horizontal: 16),
-                                      side: const BorderSide(color: ColorStyles.gray2),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      spacing: 16,
-                                      children: [
-                                        Text(
-                                          '${startHour.toString().padLeft(2, '0')}:${startMinute.toString().padLeft(2, '0')} ~ '
-                                              '${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}',
-                                          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                                        ),
-                                        const Icon(
-                                          Icons.keyboard_arrow_down_outlined,
-                                          size: 24,
-                                          color: ColorStyles.black,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
+                            ],
+                          )
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-            // 하단 완료 버튼
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: GestureDetector(
-                  onTap: isFormValid()
-                  ? () {
-                      // 완료 동작 실행(리스트 add)
-                      _onSubmit();
-                    }
-                  : null, // 비활성 상태에서는 아무 동작 없음
-                  child: Container(
-                    width: double.infinity,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: isFormValid() ? ColorStyles.primaryColor : ColorStyles.gray1,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '완료',
-                      style: TextStyles.largeTextBold.copyWith(
-                        color: isFormValid() ? ColorStyles.white : ColorStyles.gray3,
-                      ),
-                    ),
-                  ),
-                ),
             ),
           ]
         ),
@@ -286,432 +238,27 @@ class _LectureWriteScreenState extends State<LectureWriteScreen> {
     );
   }
 
-  SizedBox buildTimeColumn() {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    double height = 44,
+  }) {
     return SizedBox(
-      width: 28,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          SizedBox(height: kFirstColumnHeight),
-          ...List.generate(
-            kColumnLength,
-                (index) {
-              if (index % 2 == 0) {
-                return const Divider(color: ColorStyles.gray2, height: 0);
-              }
-              return SizedBox(
-                height: kBoxSize,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: Text(
-                      '${index ~/ 2 + 9}',
-                      style: TextStyles.smallTextRegular.copyWith(
-                          color: ColorStyles.gray4
-                      )
-                  ),
-                ),
-              );
-            },
+      height: height,
+      child: TextFormField(
+        controller: controller,
+        style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray2, width: 1),
           ),
-        ],
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray2),
+          ),
+        ),
       ),
     );
-  }
-
-  // 폼 유효성
-  bool isFormValid() {
-    final startTotal = startHour * 60 + startMinute;
-    final endTotal = endHour * 60 + endMinute;
-
-    return nameController.text.trim().isNotEmpty && endTotal > startTotal;
-  }
-
-  // 다이얼로그
-  void _showAlertDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return  AlertDialog(
-          backgroundColor: ColorStyles.white,
-          content: Text(
-            message,
-            style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.black),
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                '확인',
-                style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.primaryColor),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // 요일 선택 바텀시트
-  void _showDayPicker(BuildContext context) {
-    int temp = selectedDayIndex;
-
-    showCupertinoModalPopup(
-      context: context,
-      builder: (_) => ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        child: Container(
-          height: 300,
-          color: Colors.white,
-          child: Column(
-            children: [
-              // 확인 버튼만 우측 정렬
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      '확인',
-                      style: TextStyles.largeTextRegular.copyWith(
-                        color: ColorStyles.black,
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      setState(() {
-                        selectedDayIndex = temp;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 44,
-                  scrollController: FixedExtentScrollController(initialItem: temp),
-                  onSelectedItemChanged: (value) {
-                    temp = value;
-                  },
-                  children: week.map((e) => Center(
-                    child: Text(
-                      '$e요일',
-                      style: TextStyles.largeTextRegular.copyWith(
-                        color: ColorStyles.black,
-                      ),
-                    ),
-                  )).toList(),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ).whenComplete(() {
-      setState(() {
-        selectedDayIndex = temp;
-      });
-    });
-  }
-
-  // 시간 선택 바텀시트
-  void _showTimePicker(BuildContext context) {
-    int tempStartHour = startHour;
-    int tempStartMinute = startMinute;
-    int tempEndHour = endHour;
-    int tempEndMinute = endMinute;
-
-    showCupertinoModalPopup(
-      context: context,
-      builder: (_) => ClipRRect(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
-          ),
-          child: Container(
-            padding: EdgeInsets.all(16),
-            color: ColorStyles.white,
-            height: 300,
-            child: GestureDetector(
-              onTap: () {}, // 내부 클릭 시 바깥 클릭 방지
-              child: Column(
-                children: [
-                  // 상단 확인 버튼
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          startHour = tempStartHour;
-                          startMinute = tempStartMinute;
-                          endHour = tempEndHour;
-                          endMinute = tempEndMinute;
-                        });
-                      },
-                      child: Text(
-                        '확인',
-                        style: TextStyles.largeTextRegular.copyWith(
-                          color: ColorStyles.black,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // 피커
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // 시작 시간
-                        Expanded(
-                          child: CupertinoPicker(
-                            itemExtent: 44,
-                            scrollController: FixedExtentScrollController(initialItem: tempStartHour - 9),
-                            onSelectedItemChanged: (index) {
-                              tempStartHour = 9 + index;
-                            },
-                            children: List.generate(15, (i) {
-                              return Center(
-                                child: Text(
-                                  (9 + i).toString().padLeft(2, '0'),
-                                  style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.black),
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                        // 시작 분
-                        Expanded(
-                          child: CupertinoPicker(
-                            itemExtent: 44,
-                            scrollController: FixedExtentScrollController(initialItem: tempStartMinute ~/ 5),
-                            onSelectedItemChanged: (index) {
-                              tempStartMinute = index * 5;
-                            },
-                            children: List.generate(12, (i) {
-                              return Center(
-                                child: Text(
-                                  (i * 5).toString().padLeft(2, '0'),
-                                  style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.black),
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                        SizedBox(width: 24,),
-                        // 종료 시간
-                        Expanded(
-                          child: CupertinoPicker(
-                            itemExtent: 44,
-                            scrollController: FixedExtentScrollController(initialItem: tempEndHour - 9),
-                            onSelectedItemChanged: (index) {
-                              tempEndHour = 9 + index;
-                            },
-                            children: List.generate(15, (i) {
-                              return Center(
-                                child: Text(
-                                  (9 + i).toString().padLeft(2, '0'),
-                                  style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.black),
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                        // 종료 분
-                        Expanded(
-                          child: CupertinoPicker(
-                            itemExtent: 44,
-                            scrollController: FixedExtentScrollController(initialItem: tempEndMinute ~/ 5),
-                            onSelectedItemChanged: (index) {
-                              tempEndMinute = index * 5;
-                            },
-                            children: List.generate(12, (i) {
-                              return Center(
-                                child: Text(
-                                  (i * 5).toString().padLeft(2, '0'),
-                                  style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.black),
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-    ).whenComplete(() {
-      // 외부 터치 시 값 반영
-      setState(() {
-        startHour = tempStartHour;
-        startMinute = tempStartMinute;
-        endHour = tempEndHour;
-        endMinute = tempEndMinute;
-        if ((endHour * 60 + endMinute) <= (startHour * 60 + startMinute)) {
-          startHour = 9;
-          startMinute = 0;
-          endHour = 10;
-          endMinute = 0;
-          _showAlertDialog(context, '종료 시간이 시작 시간보다 늦어야 합니다.');
-          return;
-        }
-      });
-    });
-  }
-
-  // 저장
-  void _onSubmit() {
-    if (_formKey.currentState!.validate()) {
-      // 시간 문자열로 변환
-      final startTime = '${startHour.toString().padLeft(2, '0')}:${startMinute.toString().padLeft(2, '0')}';
-      final endTime = '${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}';
-
-      final lectureData = {
-        '강의명': nameController.text.trim(),
-        '교수': professorController.text.trim(),
-        '강의실': classroomController.text.trim(),
-        '요일': week[selectedDayIndex],
-        '시작시간': startTime,
-        '종료시간': endTime,
-      };
-
-      setState(() {
-        dummyTimetable['2025학년도 1학기']!.add(lectureData);
-      });
-
-      Navigator.pop(context, true); // ← 여기서 true 넘겨줌 상태 관리 필요
-    }
-  }
-
-
-  List<Widget> buildDayColumn(int index) {
-    String currentDay = week[index];
-    List<Widget> lecturesForTheDay = [];
-
-    for (var lecture in widget.scheduleData) {
-      if (lecture.day == currentDay) {
-        double top = kFirstColumnHeight + (lecture.startTime / 60.0) * kBoxSize;
-        double height = ((lecture.endTime - lecture.startTime) / 60.0) * kBoxSize;
-
-        final color = scheduleColors[
-        widget.scheduleData.indexOf(lecture) % scheduleColors.length
-        ];
-        colorIndex++;
-
-        lecturesForTheDay.add(
-          Positioned(
-            top: top,
-            left: 0,
-            child: Container(
-              width: MediaQuery.of(context).size.width / 5,
-              height: height,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Text(
-                    lecture.name,
-                    style: TextStyles.smallTextBold.copyWith(
-                        color: ColorStyles.black
-                    ),
-                  ),
-                  if (lecture.classroom!.isNotEmpty)
-                    Text(
-                      lecture.classroom!,
-                      style: TextStyles.smallTextRegular.copyWith(
-                        color: ColorStyles.black,
-                      ),
-                    ),
-                  if (lecture.professor!.isNotEmpty)
-                    Text(
-                      lecture.professor!,
-                      style: TextStyles.smallTextRegular.copyWith(
-                        color: ColorStyles.black,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }
-    }
-    // 시간표 미리보기 블럭 (요일 일치 시)
-    if (currentDay == week[selectedDayIndex]) {
-      int startTotal = (startHour * 60 + startMinute) - 540;
-      int endTotal = (endHour * 60 + endMinute) - 540;
-
-      double previewTop = kFirstColumnHeight + (startTotal / 60.0) * kBoxSize;
-      double previewHeight = ((endTotal - startTotal) / 60.0) * kBoxSize;
-
-      lecturesForTheDay.add(
-        Positioned(
-          top: previewTop,
-          left: 0,
-          child: Container(
-            width: MediaQuery.of(context).size.width / 5,
-            height: previewHeight,
-            decoration: BoxDecoration(
-              color: const Color(0x40252525), // 25% 불투명한 #252525
-              borderRadius: BorderRadius.circular(4),
-            ),
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.all(4),
-          ),
-        ),
-      );
-    }
-
-    return [
-      Container(
-        width: 1,
-        height: (kColumnLength / 2 * kBoxSize) + kFirstColumnHeight + 2,
-        color: ColorStyles.gray2,
-      ),
-      Expanded(
-        flex: 4,
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                SizedBox(
-                  height: kFirstColumnHeight,
-                  child: Text(
-                      textAlign: TextAlign.center,
-                      currentDay,
-                      style: TextStyles.smallTextRegular.copyWith(
-                          color: ColorStyles.gray4
-                      )
-                  ),
-                ),
-                ...List.generate(
-                  kColumnLength,
-                      (i) => i % 2 == 0
-                      ? const Divider(color: ColorStyles.gray2, height: 0)
-                      : SizedBox(height: kBoxSize),
-                ),
-              ],
-            ),
-            ...lecturesForTheDay,
-          ],
-        ),
-      ),
-    ];
   }
 }

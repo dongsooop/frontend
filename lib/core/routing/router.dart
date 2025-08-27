@@ -1,5 +1,6 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
+import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
@@ -29,6 +30,7 @@ import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/splash/splash_screen.dart';
 import 'package:dongsoop/presentation/timetable/list/timetable_list_screen.dart';
 import 'package:dongsoop/presentation/timetable/timetable_screen.dart';
+import 'package:dongsoop/presentation/timetable/write/lecture_write_screen.dart';
 import 'package:dongsoop/presentation/timetable/write/timetable_write_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
@@ -57,7 +59,15 @@ final router = GoRouter(
           semester: semester,
           onTapTimetableList: () => context.push(RoutePaths.timetableList),
           onTapTimetableWrite: () => context.push(RoutePaths.timetableWrite),
-          onTapLectureWrite: () => context.push(RoutePaths.timetableLectureWrite),
+          onTapLectureWrite: (lectureList) async {
+            final isSucceed = await context.push<bool>(
+              RoutePaths.timetableLectureWrite,
+              extra: {
+                'lectureList': lectureList,
+              },
+            );
+            return isSucceed ?? false;
+          },
         );
       }
     ),
@@ -78,7 +88,14 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.timetableLectureWrite,
-      builder: (context, state) => SignUpScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final lectureList = extra?['lectureList'] as List<Lecture>?;
+
+          return LectureWriteScreen(
+            lectureList: lectureList,
+          );
+        }
     ),
     GoRoute(
       path: RoutePaths.timetableWrite,

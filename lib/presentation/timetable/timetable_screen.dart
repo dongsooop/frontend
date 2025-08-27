@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
+import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/presentation/timetable/detail/timetable_detail_screen.dart';
 import 'package:dongsoop/presentation/timetable/widgets/create_timetable_button.dart';
 import 'package:dongsoop/providers/timetable_providers.dart';
@@ -17,7 +18,7 @@ class TimetableScreen extends HookConsumerWidget {
 
   final VoidCallback onTapTimetableList;
   final VoidCallback onTapTimetableWrite;
-  final VoidCallback onTapLectureWrite;
+  final Future<bool> Function(List<Lecture>?) onTapLectureWrite;
 
   const TimetableScreen({
     super.key,
@@ -45,6 +46,14 @@ class TimetableScreen extends HookConsumerWidget {
       });
       return null;
     }, [year, semester]);
+
+    if (timetableState.isLoading) {
+      return Scaffold(
+        backgroundColor: ColorStyles.white,
+        appBar: DetailHeader(),
+        body: Center(child: CircularProgressIndicator(color: ColorStyles.primaryColor,))
+      );
+    }
 
     useEffect(() {
       if (timetableState.errorMessage != null) {
@@ -78,19 +87,9 @@ class TimetableScreen extends HookConsumerWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
-              onPressed: onTapTimetableList,
-              icon: Icon(
-                Icons.format_list_bulleted_outlined,
-                size: 24,
-                color: ColorStyles.black,
-              ),
-            ),
             if (timetableState.lectureList != null && timetableState.lectureList!.isNotEmpty)
               IconButton(
-                onPressed: () {
-                  // 강의 추가
-                },
+                onPressed: () => onTapLectureWrite(timetableState.lectureList),
                 icon: SvgPicture.asset(
                   'assets/icons/add_lecture.svg',
                   width: 24,
@@ -101,6 +100,14 @@ class TimetableScreen extends HookConsumerWidget {
                   ),
                 ),
               ),
+            IconButton(
+              onPressed: onTapTimetableList,
+              icon: Icon(
+                Icons.format_list_bulleted_outlined,
+                size: 24,
+                color: ColorStyles.black,
+              ),
+            ),
           ],
         ),
       ),
