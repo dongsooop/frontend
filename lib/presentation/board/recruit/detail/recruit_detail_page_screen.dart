@@ -26,6 +26,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
   final Future<bool?> Function() onTapRecruitApply;
   final void Function(String reportType, int targetId) onTapReport;
   final VoidCallback onTapApplicantList;
+  final VoidCallback onTapApplicantDetail;
   final String? status;
   final void Function(String roomId) onTapChatDetail;
 
@@ -35,6 +36,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
     required this.onTapRecruitApply,
     required this.onTapReport,
     required this.onTapApplicantList,
+    required this.onTapApplicantDetail,
     this.status = '모집 중',
     required this.onTapChatDetail,
     super.key,
@@ -94,13 +96,34 @@ class RecruitDetailPageScreen extends ConsumerWidget {
 
           String buttonLabel = '지원하기';
           bool isPrimaryButtonEnabled = isRecruiting;
+          VoidCallback? onPrimaryPressed;
 
           if (isAuthor) {
+            // 작성자 → 지원자 확인
             buttonLabel = '지원자 확인';
             isPrimaryButtonEnabled = true;
-          } else if (viewType == 'MEMBER' && detail.isAlreadyApplied) {
-            buttonLabel = '지원 완료';
-            isPrimaryButtonEnabled = false;
+            onPrimaryPressed = () => onTapApplicantList();
+          } else if (isGuest) {
+            // 게스트 → 로그인 필요
+            isPrimaryButtonEnabled = true;
+            onPrimaryPressed = () async => await LoginRequiredDialog(context);
+          } else if (detail.isAlreadyApplied) {
+            // 일반 유저 + 이미 지원한 경우
+            buttonLabel = '지원 상태 확인';
+            isPrimaryButtonEnabled = true;
+            onPrimaryPressed = () => onTapApplicantDetail();
+          } else {
+            // 일반 유저 + 아직 지원 안 한 경우
+            onPrimaryPressed = () async {
+              final didApply = await onTapRecruitApply();
+              if (didApply == true) {
+                ref.invalidate(
+                  recruitDetailViewModelProvider(
+                    RecruitDetailArgs(id: id, type: type),
+                  ),
+                );
+              }
+            };
           }
 
           final bool canInquire = isRecruiting;
@@ -109,22 +132,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
             label: buttonLabel,
             isApplyEnabled: isPrimaryButtonEnabled,
             isInquiryEnabled: canInquire,
-            onPressed: () async {
-              if (isAuthor) {
-                onTapApplicantList();
-              } else if (isGuest) {
-                await LoginRequiredDialog(context);
-              } else {
-                final didApply = await onTapRecruitApply();
-                if (didApply == true) {
-                  ref.invalidate(
-                    recruitDetailViewModelProvider(
-                      RecruitDetailArgs(id: id, type: type),
-                    ),
-                  );
-                }
-              }
-            },
+            onPressed: onPrimaryPressed,
             onIconPressed: () async {
               if (isAuthor) {
                 showDialog(
