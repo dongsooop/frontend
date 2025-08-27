@@ -61,6 +61,18 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
   }
 
   @override
+  Future<RecruitApplicantDetailEntity> recruitApplicantDetailStatus({
+    required RecruitType type,
+    required int boardId,
+  }) async {
+    return _handle(() async {
+      final model = await _dataSource.recruitApplicantDetailStatus(
+          type: type, boardId: boardId);
+      return model.toEntity();
+    }, RecruitApplicantStatusException());
+  }
+
+  @override
   Future<void> recruitDecision({
     required RecruitType type,
     required int boardId,
