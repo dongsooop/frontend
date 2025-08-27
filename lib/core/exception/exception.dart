@@ -198,6 +198,15 @@ class RecruitApplicantDetailException implements Exception {
   String toString() => message;
 }
 
+class RecruitApplicantStatusException implements Exception {
+  final String message;
+  RecruitApplicantStatusException(
+      [this.message = "지원 상태를 조회하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
 class RecruitApplicantException implements Exception {
   final String message;
   RecruitApplicantException(
