@@ -15,16 +15,19 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   );
 
   @override
-  Future<List<Lecture>> getLecture(int year, Semester semester) async {
+  Future<List<Lecture>?> getLecture(int year, Semester semester) async {
     final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+    final pathParam = '$endpoint/$year/${semester.name}';
 
     try {
-      final response = await _authDio.get(endpoint);
+      final response = await _authDio.get(pathParam);
 
       if (response.statusCode == HttpStatusCode.ok.code) {
+        print('timetable: ${response.data}');
+        if (response.data == null) return null;
         final List<dynamic> data = response.data;
 
-        final List<Lecture> timetable = data
+        final List<Lecture>? timetable = data
             .map((e) => Lecture.fromJson(e as Map<String, dynamic>))
             .toList();
 

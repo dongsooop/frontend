@@ -1,24 +1,22 @@
-import 'package:dongsoop/presentation/timetable/temp/timetable_model.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/utils/time_formatter.dart';
+import 'package:dongsoop/domain/timetable/enum/week_day.dart';
+import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class TimetableDetailScreen extends StatefulWidget {
-  const TimetableDetailScreen({required this.scheduleData, super.key});
+class TimetableDetailScreen extends HookConsumerWidget {
+  final List<Lecture>? lectureList;
 
-  final List<Schedule> scheduleData;
+  TimetableDetailScreen({
+    required this.lectureList,
+    super.key
+  });
 
-  @override
-  State<TimetableDetailScreen> createState() => _TimetableDetailScreenState();
-}
-
-class _TimetableDetailScreenState extends State<TimetableDetailScreen> {
-  // 시간표
-  final List<String> week = ['월', '화', '수', '목', '금'];
-  int kColumnLength = 28;
-  double kFirstColumnHeight = 24;
-  double kBoxSize = 48; // 30분 단위 높이
-  late List<Schedule> selectedLectures;
+  static const double kFirstColumnHeight = 24;
+  static const double kBoxSize = 48; // 30분 단위 높이
 
   // 시간표 색상
   final List<Color> scheduleColors = [
@@ -30,55 +28,42 @@ class _TimetableDetailScreenState extends State<TimetableDetailScreen> {
     const Color(0xFFF8DEEF),
     const Color(0xFFF9F2DE),
   ];
-  int colorIndex = 0; // 강의 색상 인덱스
 
   // 시간표 최대 시간
-  int calculateColumnLength(List<Schedule> scheduleData) {
+  int calculateColumnLength(List<Lecture>? lectureList) {
     // 기본 종료 시각 블록 수: 14시까지 → (14 - 9) * 2 = 10블럭
     const int defaultBlockCount = (14 - 9) * 2;
-
-    if (scheduleData.isEmpty) return defaultBlockCount;
-
+    if (lectureList == null || lectureList.isEmpty) return defaultBlockCount;
     // endTime은 9시 기준 상대 분. 30분 단위 블록 개수로 변환해서 최대값 구함
-    int maxBlock = scheduleData
-        .map((e) => (e.endTime / 30).ceil())
+    final int maxBlock = lectureList
+        .map((e) => (e.endAt.toMinutesFrom9AM() / 30).ceil())
         .reduce((a, b) => a > b ? a : b);
-
     return maxBlock < defaultBlockCount ? defaultBlockCount : maxBlock;
   }
 
   @override
-  Widget build(BuildContext context) {
-    selectedLectures = widget.scheduleData;
-
+  Widget build(BuildContext context, WidgetRef ref) {
     // 시간표 최대 시간
-    kColumnLength = calculateColumnLength(widget.scheduleData);
+    final kColumnLength = calculateColumnLength(lectureList);
 
     return Container(
       decoration: ShapeDecoration(
         shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: 1,
-            color: ColorStyles.gray2
-          ),
-          borderRadius: BorderRadius.circular(8)
-        )
+          side: BorderSide(width: 1, color: ColorStyles.gray2),
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
       height: (kColumnLength / 2 * kBoxSize) + kFirstColumnHeight + 2,
       child: Row(
         children: [
-          buildTimeColumn(),
-          ...buildDayColumn(0),
-          ...buildDayColumn(1),
-          ...buildDayColumn(2),
-          ...buildDayColumn(3),
-          ...buildDayColumn(4),
+          buildTimeColumn(kColumnLength),
+          ...WeekDay.values.expand((day) => buildDayColumn(day, context, kColumnLength)),
         ],
-      ),
+      )
     );
   }
 
-  SizedBox buildTimeColumn() {
+  SizedBox buildTimeColumn(int kColumnLength) {
     return SizedBox(
       width: 28,
       child: Column(
@@ -86,98 +71,91 @@ class _TimetableDetailScreenState extends State<TimetableDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           SizedBox(height: kFirstColumnHeight),
-          ...List.generate(
-            kColumnLength,
-                (index) {
-              if (index % 2 == 0) {
-                return const Divider(color: ColorStyles.gray2, height: 0);
-              }
-              return SizedBox(
-                height: kBoxSize,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: Text(
-                    '${index ~/ 2 + 9}',
-                    style: TextStyles.smallTextRegular.copyWith(
-                      color: ColorStyles.gray4
-                    )
-                  ),
+          ...List.generate(kColumnLength, (index) {
+            if (index % 2 == 0) {
+              return const Divider(color: ColorStyles.gray2, height: 0);
+            }
+            return SizedBox(
+              height: kBoxSize,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Text(
+                  '${index ~/ 2 + 9}',
+                  style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },),
         ],
       ),
     );
   }
 
-  List<Widget> buildDayColumn(int index) {
-    String currentDay = week[index];
+  List<Widget> buildDayColumn(WeekDay day, BuildContext context, int kColumnLength) {
     List<Widget> lecturesForTheDay = [];
 
-    for (var lecture in widget.scheduleData) {
-      if (lecture.day == currentDay) {
-        double top = kFirstColumnHeight + (lecture.startTime / 60.0) * kBoxSize;
-        double height = ((lecture.endTime - lecture.startTime) / 60.0) * kBoxSize;
+    if (lectureList != null) {
+      for (var lecture in lectureList!) {
+        if (lecture.week == day) {
+          double top = kFirstColumnHeight + (lecture.startAt.toMinutesFrom9AM() / 60.0) * kBoxSize;
+          double height = ((lecture.endAt.toMinutesFrom9AM() - lecture.startAt.toMinutesFrom9AM()) / 60.0) * kBoxSize;
 
-        final color = scheduleColors[
-          widget.scheduleData.indexOf(lecture) % scheduleColors.length
-        ];
-        colorIndex++;
+          final color = scheduleColors[lectureList!.indexOf(lecture) % scheduleColors.length];
 
-        lecturesForTheDay.add(
-          Positioned(
-            top: top,
-            left: 0,
-            child: GestureDetector(
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                  ),
-                  builder: (_) => _buildLectureBottomSheet(context, lecture),
-                );
-              },
-              child: Container(
-                width: MediaQuery.of(context).size.width / 5,
-                height: height,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 2,
-                  children: [
-                    Text(
-                      lecture.name,
-                      style: TextStyles.smallTextBold.copyWith(
-                        color: ColorStyles.black
-                      ),
+          lecturesForTheDay.add(
+            Positioned(
+              top: top,
+              left: 0,
+              child: GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                     ),
-                    if (lecture.classroom!.isNotEmpty)
+                    builder: (_) => _buildLectureBottomSheet(context, lecture),
+                  );
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width / 5,
+                  height: height,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
+                    children: [
                       Text(
-                        lecture.classroom!,
-                        style: TextStyles.smallTextRegular.copyWith(
-                          color: ColorStyles.black,
+                        lecture.name,
+                        style: TextStyles.smallTextBold.copyWith(
+                            color: ColorStyles.black
                         ),
                       ),
-                    if (lecture.professor!.isNotEmpty)
-                      Text(
-                        lecture.professor!,
-                        style: TextStyles.smallTextRegular.copyWith(
-                          color: ColorStyles.black,
+                      if (lecture.location!.isNotEmpty)
+                        Text(
+                          lecture.location!,
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: ColorStyles.black,
+                          ),
                         ),
-                      ),
-                  ],
+                      if (lecture.professor!.isNotEmpty)
+                        Text(
+                          lecture.professor!,
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: ColorStyles.black,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
+          );
+        }
       }
     }
 
@@ -191,21 +169,25 @@ class _TimetableDetailScreenState extends State<TimetableDetailScreen> {
               children: [
                 SizedBox(
                   height: kFirstColumnHeight,
-                  child: Text(
-                    textAlign: TextAlign.center,
-                    currentDay,
-                    style: TextStyles.smallTextRegular.copyWith(
-                      color: ColorStyles.gray4
-                    )
-                  ),
                 ),
                 ...List.generate(
                   kColumnLength,
-                    (i) => i % 2 == 0
+                  (i) => i % 2 == 0
                     ? const Divider(color: ColorStyles.gray2, height: 0)
                     : SizedBox(height: kBoxSize),
                 ),
               ],
+            ),
+            // 맨 위 요일 라벨
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Text(
+                  day.korean,
+                  style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
             ...lecturesForTheDay,
           ],
@@ -215,7 +197,7 @@ class _TimetableDetailScreenState extends State<TimetableDetailScreen> {
   }
 
   // 강의 터치 시 바텀시트
-  Widget _buildLectureBottomSheet(BuildContext context, Schedule lecture) {
+  Widget _buildLectureBottomSheet(BuildContext context, Lecture lecture) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       height: 320,
@@ -249,22 +231,26 @@ class _TimetableDetailScreenState extends State<TimetableDetailScreen> {
           SizedBox(height: 16),
           // 요일 + 시간
           Text(
-            '${lecture.day}  '
-                '${(lecture.startTime ~/ 60).toString().padLeft(2, '0')}:${(lecture.startTime % 60).toString().padLeft(2, '0')}'
+            '${lecture.week.korean}  '
+                '${lecture.startAt}'
                 ' ~ '
-                '${(lecture.endTime ~/ 60).toString().padLeft(2, '0')}:${(lecture.endTime % 60).toString().padLeft(2, '0')}',
+                '${lecture.endAt}',
             style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
           ),
           SizedBox(height: 8),
           // 강의실
           Text(
-            lecture.classroom ?? '',
+            lecture.location ?? '',
             style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
           ),
           SizedBox(height: 24),
 
           // 수정 버튼
-          GestureDetector(
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            focusColor: Colors.transparent,
             onTap: () {
               Navigator.pop(context);
               // 강의 수정 로직 추가
@@ -286,8 +272,23 @@ class _TimetableDetailScreenState extends State<TimetableDetailScreen> {
           ),
           SizedBox(height: 16),
           // 삭제 버튼
-          GestureDetector(
-            onTap: () => _showDeleteDialog(context, lecture),
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            focusColor: Colors.transparent,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => CustomConfirmDialog(
+                  title: '강의 시간표 삭제',
+                  content: '해당 강의를 삭제하시겠어요?',
+                  onConfirm: () async {
+                    Navigator.of(context).pop(); // 다이얼로그 닫기
+                  },
+                ),
+              );
+            },
             child: SizedBox(
               height: 44,
               width: double.infinity,
@@ -296,50 +297,11 @@ class _TimetableDetailScreenState extends State<TimetableDetailScreen> {
                   Icon(Icons.delete_outline, color: ColorStyles.gray4),
                   SizedBox(width: 8),
                   Text(
-                    '강의 정보 삭제',
+                    '강의 시간표 삭제',
                     style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
                   ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 삭제 다이얼로그
-  void _showDeleteDialog(BuildContext context, Schedule lecture) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: ColorStyles.gray1,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        content: Text(
-          '해당 강의를 삭제하실 건가요?',
-          style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.black),
-          textAlign: TextAlign.center,
-        ),
-        actionsAlignment: MainAxisAlignment.spaceEvenly,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              '취소',
-              style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.warning100),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                widget.scheduleData.remove(lecture);
-              });
-              Navigator.pop(context); // 다이얼로그 닫기
-              Navigator.pop(context); // 바텀시트 닫기
-            },
-            child: Text(
-              '삭제',
-              style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.primaryColor),
             ),
           ),
         ],

@@ -9,8 +9,8 @@ part 'lecture.g.dart';
 class Lecture with _$Lecture {
   final int id;
   final String name;
-  final String professor;
-  final String location;
+  final String? professor;
+  final String? location;
   final WeekDay week;
   final String startAt;
   final String endAt;

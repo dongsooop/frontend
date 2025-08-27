@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
@@ -26,6 +27,7 @@ import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
 import 'package:dongsoop/presentation/splash/splash_screen.dart';
+import 'package:dongsoop/presentation/timetable/list/timetable_list_screen.dart';
 import 'package:dongsoop/presentation/timetable/timetable_screen.dart';
 import 'package:dongsoop/presentation/timetable/write/timetable_write_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
@@ -44,15 +46,35 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.timetable,
       name: 'timetable',
-      builder: (context, state) => TimetableScreen(
-        onTapTimetableList: () => context.push(RoutePaths.timetableList),
-        onTapTimetableWrite: () => context.push(RoutePaths.timetableWrite),
-        onTapLectureWrite: () => context.push(RoutePaths.timetableLectureWrite),
-      ),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+
+        final int? year = extra?['year'] as int?;
+        final Semester? semester = extra?['semester'] as Semester?;
+
+        return TimetableScreen(
+          year: year,
+          semester: semester,
+          onTapTimetableList: () => context.push(RoutePaths.timetableList),
+          onTapTimetableWrite: () => context.push(RoutePaths.timetableWrite),
+          onTapLectureWrite: () => context.push(RoutePaths.timetableLectureWrite),
+        );
+      }
     ),
     GoRoute(
       path: RoutePaths.timetableList,
-      builder: (context, state) => SignUpScreen(),
+      builder: (context, state) => TimetableListScreen(
+        onTapTimetable: (year, semester) {
+          context.push(
+            RoutePaths.timetable,
+            extra: {
+              'year': year,
+              'semester': semester,
+            },
+          );
+        },
+        onTapTimetableWrite: () => context.push(RoutePaths.timetableWrite),
+      ),
     ),
     GoRoute(
       path: RoutePaths.timetableLectureWrite,

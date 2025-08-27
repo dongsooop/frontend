@@ -1,53 +1,48 @@
-import 'package:dongsoop/presentation/timetable/timetable_screen.dart';
+import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/presentation/timetable/temp/schedule_data.dart';
-import 'package:dongsoop/presentation/timetable/temp/timetable_model.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class TimetableListScreen extends StatefulWidget {
-  const TimetableListScreen({super.key});
+class TimetableListScreen extends HookConsumerWidget {
+  final void Function(int, Semester) onTapTimetable;
+  final VoidCallback onTapTimetableWrite;
 
-  @override
-  State<TimetableListScreen> createState() => _TimetableListScreenState();
-}
-
-class _TimetableListScreenState extends State<TimetableListScreen> {
-  Map<String, List<Map<String, dynamic>>> timetableData = Map.from(dummyTimetable);
-
-  void _deleteTimetable(String semester) {
-    setState(() {
-      timetableData.remove(semester);
-    });
-  }
+  const TimetableListScreen({
+    super.key,
+    required this.onTapTimetable,
+    required this.onTapTimetableWrite,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: AppBar(
-          title: Text(
-            '강의 시간표 목록',
-            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+  Widget build(BuildContext context, WidgetRef ref) {
+    Map<String, List<Map<String, dynamic>>> timetableData = Map.from(dummyTimetable);
+
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: '시간표 목록',
+        trailing: IconButton(
+          onPressed: onTapTimetableWrite,
+          icon: Icon(
+            Icons.add_box_outlined,
+            size: 24,
+            color: ColorStyles.gray4,
           ),
-          backgroundColor: ColorStyles.white,
-          foregroundColor: ColorStyles.black,
-          elevation: 0,
         ),
-        body: ListView.separated(
+      ),
+      body: SafeArea(
+        child: ListView.separated(
+          padding: EdgeInsets.only(top: 24),
           itemCount: timetableData.keys.length,
           separatorBuilder: (_, __) => Divider(height: 1, color: ColorStyles.gray2),
           itemBuilder: (context, index) {
             final semester = timetableData.keys.elementAt(index);
             return ListTile(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (_) => TimetableScreen(yearSemester: semester),
-                //   ),
-                // );
+                print('시간표 이동');
               },
               title: Text(
                 semester,
@@ -55,44 +50,19 @@ class _TimetableListScreenState extends State<TimetableListScreen> {
               ),
               trailing: GestureDetector(
                 onTap: () {
-                  _showDeleteDialog(semester);
+                  // 시간표 삭제 기능
+                  print('시간표 삭제');
                 },
                 child: Text(
-                    '삭제',
-                    style: TextStyles.normalTextRegular.copyWith(
-                      color: ColorStyles.gray4,
-                    ),
+                  '삭제',
+                  style: TextStyles.normalTextRegular.copyWith(
+                    color: ColorStyles.gray4,
                   ),
+                ),
               ),
             );
           },
         ),
-      ),
-    );
-  }
-
-  void _showDeleteDialog(String semester) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        content: Text(
-          '해당 시간표를 삭제하시겠어요?',
-          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('취소', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.warning100)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _deleteTimetable(semester);
-            },
-            child: Text('삭제', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.primaryColor)),
-          ),
-        ],
       ),
     );
   }

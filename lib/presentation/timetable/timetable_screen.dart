@@ -1,63 +1,107 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/presentation/timetable/detail/timetable_detail_screen.dart';
-import 'package:dongsoop/presentation/timetable/temp/schedule_data.dart';
-import 'package:dongsoop/presentation/timetable/temp/timetable_model.dart';
 import 'package:dongsoop/presentation/timetable/widgets/create_timetable_button.dart';
+import 'package:dongsoop/providers/timetable_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
-import 'package:dongsoop/ui/text_styles.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class TimetableScreen extends HookConsumerWidget {
+  final int? year;
+  final Semester? semester;
+
   final VoidCallback onTapTimetableList;
   final VoidCallback onTapTimetableWrite;
   final VoidCallback onTapLectureWrite;
 
   const TimetableScreen({
     super.key,
-    this.yearSemester,
+    this.year,
+    this.semester,
     required this.onTapTimetableList,
     required this.onTapTimetableWrite,
     required this.onTapLectureWrite,
   });
 
-  final String? yearSemester;
-
-  // 현재 학기 계산
-  String getCurrentSemesterLabel(DateTime now) {
-    final year = now.year;
-    final month = now.month;
-
-    if (month >= 3 && month <= 8) {
-      return '$year학년도 1학기';
-    } else {
-      // 9~12월이면 올해 2학기, 1~2월이면 작년 2학기
-      final academicYear = (month >= 9) ? year : year - 1;
-      return '$academicYear학년도 2학기';
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedSemester = yearSemester ?? getCurrentSemesterLabel(DateTime.now());
-    final hasTimetable = dummyTimetable.containsKey(selectedSemester);
-    // 현재 학기 데이터
-    final List<Schedule> scheduleData = dummyTimetable[selectedSemester]
-        ?.map((e) => Schedule.fromJson(e))
-        .toList() ??
-        [];
+    final timetableState = ref.watch(timetableViewModelProvider);
+    final viewModel = ref.read(timetableViewModelProvider.notifier);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (year != null && semester != null) {
+          viewModel.setYearSemester(year!, semester!);
+          await viewModel.getLecture();
+        } else {
+          viewModel.getCurrentSemester(DateTime.now());
+          await viewModel.getLecture();
+        }
+      });
+      return null;
+    }, [year, semester]);
+
+    useEffect(() {
+      if (timetableState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '시간표 오류',
+              content: timetableState.errorMessage!,
+              onConfirm: () {
+                context.pop();
+                context.pop();
+              },
+              confirmText: '확인',
+              dismissOnConfirm: false,
+              isSingleAction: true,
+            ),
+          );
+        });
+      }
+      return null;
+    }, [timetableState.errorMessage]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
       appBar: DetailHeader(
-        title: '시간표 관리',
-        trailing: IconButton(
-          onPressed: onTapTimetableList,
-          icon: Icon(
-            Icons.format_list_bulleted_outlined,
-            size: 24,
-            color: ColorStyles.black,
-          ),
+        title: timetableState.lectureList == null || timetableState.lectureList!.isEmpty
+          ? '시간표 관리'
+          : '',
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: onTapTimetableList,
+              icon: Icon(
+                Icons.format_list_bulleted_outlined,
+                size: 24,
+                color: ColorStyles.black,
+              ),
+            ),
+            if (timetableState.lectureList != null && timetableState.lectureList!.isNotEmpty)
+              IconButton(
+                onPressed: () {
+                  // 강의 추가
+                },
+                icon: SvgPicture.asset(
+                  'assets/icons/add_lecture.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                    ColorStyles.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
       body: SafeArea(
@@ -70,9 +114,9 @@ class TimetableScreen extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 24,
               children: [
-                hasTimetable
-                  ? TimetableDetailScreen(scheduleData: scheduleData,)
-                  : CreateTimetableButton(onTapTimetableWrite: onTapTimetableWrite),
+                timetableState.lectureList == null || timetableState.lectureList!.isEmpty
+                  ? CreateTimetableButton(onTapTimetableWrite: onTapTimetableWrite)
+                  : TimetableDetailScreen(lectureList: timetableState.lectureList,),
               ],
             ),
           ),

@@ -1,9 +1,9 @@
 import 'package:dongsoop/domain/timetable/repository/timetable_repository.dart';
 
-class DeleteTimetableUseCase {
+class DeleteLectureUseCase {
   final TimetableRepository _timetableRepository;
 
-  DeleteTimetableUseCase(this._timetableRepository,);
+  DeleteLectureUseCase(this._timetableRepository,);
 
   Future<bool> execute(int id) async {
     return await _timetableRepository.deleteLecture(id);

@@ -4,7 +4,7 @@ import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
 import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 
 abstract class TimetableRepository {
-  Future<List<Lecture>> getLecture(int year, Semester semester);
+  Future<List<Lecture>?> getLecture(int year, Semester semester);
   Future<bool> createLecture(LectureRequest request);
   Future<bool> updateLecture(Lecture timetable);
   Future<bool> deleteLecture(int id);

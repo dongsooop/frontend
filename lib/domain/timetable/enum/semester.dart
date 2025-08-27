@@ -11,9 +11,9 @@ enum Semester {
       case Semester.SECOND:
         return '2학기';
       case Semester.SUMMER:
-        return '하계 계절학기';
+        return '여름학기';
       case Semester.WINTER:
-        return '동계 계절학기';
+        return '겨울학기';
     }
   }
 }

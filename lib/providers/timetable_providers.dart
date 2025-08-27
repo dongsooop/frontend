@@ -6,6 +6,8 @@ import 'package:dongsoop/domain/timetable/use_case/create_lecture_use_case.dart'
 import 'package:dongsoop/domain/timetable/use_case/delete_lecture_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/get_lecture_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/update_lecture_use_case.dart';
+import 'package:dongsoop/presentation/timetable/timetable_state.dart';
+import 'package:dongsoop/presentation/timetable/timetable_view_model.dart';
 import 'package:dongsoop/presentation/timetable/write/timetable_write_state.dart';
 import 'package:dongsoop/presentation/timetable/write/timetable_write_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,14 +34,14 @@ final createLectureUseCaseProvider = Provider<CreateLectureUseCase>((ref) {
   return CreateLectureUseCase(repository);
 });
 
-final deleteLectureUseCaseProvider = Provider<DeleteTimetableUseCase>((ref) {
+final deleteLectureUseCaseProvider = Provider<DeleteLectureUseCase>((ref) {
   final repository = ref.watch(timetableRepositoryProvider);
-  return DeleteTimetableUseCase(repository);
+  return DeleteLectureUseCase(repository);
 });
 
-final getLectureUseCaseProvider = Provider<GetTimetableUseCase>((ref) {
+final getLectureUseCaseProvider = Provider<GetLectureUseCase>((ref) {
   final repository = ref.watch(timetableRepositoryProvider);
-  return GetTimetableUseCase(repository);
+  return GetLectureUseCase(repository);
 });
 
 final updateLectureUseCaseProvider = Provider<UpdateLectureUseCase>((ref) {
@@ -54,6 +56,13 @@ final updateLectureUseCaseProvider = Provider<UpdateLectureUseCase>((ref) {
 //
 //   return ReportViewModel(reportWriteUseCese);
 // });
+
+final timetableViewModelProvider =
+StateNotifierProvider.autoDispose<TimetableViewModel, TimetableState>((ref) {
+  final getLectureUseCase = ref.watch(getLectureUseCaseProvider);
+
+  return TimetableViewModel(getLectureUseCase);
+});
 
 final timetableWriteViewModelProvider =
 StateNotifierProvider.autoDispose<TimetableWriteViewModel, TimetableWriteState>((ref) {

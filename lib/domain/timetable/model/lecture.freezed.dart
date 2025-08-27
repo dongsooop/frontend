@@ -17,8 +17,8 @@ T _$identity<T>(T value) => value;
 mixin _$Lecture {
   int get id;
   String get name;
-  String get professor;
-  String get location;
+  String? get professor;
+  String? get location;
   WeekDay get week;
   String get startAt;
   String get endAt;
@@ -65,8 +65,8 @@ abstract mixin class $LectureCopyWith<$Res> {
   $Res call(
       {int id,
       String name,
-      String professor,
-      String location,
+      String? professor,
+      String? location,
       WeekDay week,
       String startAt,
       String endAt});
@@ -86,8 +86,8 @@ class _$LectureCopyWithImpl<$Res> implements $LectureCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? professor = null,
-    Object? location = null,
+    Object? professor = freezed,
+    Object? location = freezed,
     Object? week = null,
     Object? startAt = null,
     Object? endAt = null,
@@ -101,14 +101,14 @@ class _$LectureCopyWithImpl<$Res> implements $LectureCopyWith<$Res> {
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      professor: null == professor
+      professor: freezed == professor
           ? _self.professor
           : professor // ignore: cast_nullable_to_non_nullable
-              as String,
-      location: null == location
+              as String?,
+      location: freezed == location
           ? _self.location
           : location // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       week: null == week
           ? _self.week
           : week // ignore: cast_nullable_to_non_nullable

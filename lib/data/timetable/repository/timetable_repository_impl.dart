@@ -23,7 +23,7 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<List<Lecture>> getLecture(int year, Semester semester) {
+  Future<List<Lecture>?> getLecture(int year, Semester semester) {
     return _timetableDataSource.getLecture(year, semester);
   }
 
