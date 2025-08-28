@@ -23,7 +23,6 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       final response = await _authDio.get(pathParam);
 
       if (response.statusCode == HttpStatusCode.ok.code) {
-        print('timetable: ${response.data}');
         if (response.data == null) return null;
         final List<dynamic> data = response.data;
 
@@ -45,7 +44,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
 
     try {
       final response = await _authDio.post(endpoint, data: request.toJson());
-      if (response.statusCode == HttpStatusCode.noContent.code) {
+      if (response.statusCode == HttpStatusCode.created.code) {
         return true;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');

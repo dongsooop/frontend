@@ -9,8 +9,8 @@ part of 'lecture_request.dart';
 LectureRequest _$LectureRequestFromJson(Map<String, dynamic> json) =>
     LectureRequest(
       name: json['name'] as String,
-      professor: json['professor'] as String,
-      location: json['location'] as String,
+      professor: json['professor'] as String?,
+      location: json['location'] as String?,
       week: $enumDecode(_$WeekDayEnumMap, json['week']),
       startAt: json['startAt'] as String,
       endAt: json['endAt'] as String,

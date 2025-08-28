@@ -8,8 +8,8 @@ part 'lecture_request.g.dart';
 @JsonSerializable()
 class LectureRequest with _$LectureRequest {
   final String name;
-  final String professor;
-  final String location;
+  final String? professor;
+  final String? location;
   final WeekDay week;
   final String startAt;
   final String endAt;

@@ -1,21 +1,29 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
+import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/enum/week_day.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/presentation/timetable/widgets/day_picker_bottom_sheet.dart';
 import 'package:dongsoop/presentation/timetable/widgets/lecture_time_picker_bottom_sheet.dart';
 import 'package:dongsoop/presentation/timetable/widgets/positioned_lecture_block.dart';
 import 'package:dongsoop/presentation/timetable/widgets/timetable_grid.dart';
+import 'package:dongsoop/providers/timetable_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class LectureWriteScreen extends HookConsumerWidget {
+  final int year;
+  final Semester semester;
   final List<Lecture>? lectureList;
 
   LectureWriteScreen({
+    required this.year,
+    required this.semester,
     required this.lectureList,
     super.key
   });
@@ -35,20 +43,34 @@ class LectureWriteScreen extends HookConsumerWidget {
     const Color(0xFFF9F2DE),
   ];
 
-  WeekDay selectedDay = WeekDay.MONDAY;
-  int startHour = 9;
-  int startMinute = 0;
-  int endHour = 10;
-  int endMinute = 0;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final lectureWriteState = ref.watch(timetableViewModelProvider);
-    // final viewModel = ref.read(timetableViewModelProvider.notifier);
+    final lectureWriteState = ref.watch(lectureWriteViewModelProvider);
+    final viewModel = ref.read(lectureWriteViewModelProvider.notifier);
 
     final nameController = useTextEditingController();
     final professorController = useTextEditingController();
     final locationController = useTextEditingController();
+
+    // 오류
+    useEffect(() {
+      if (lectureWriteState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '시간표 작성 오류',
+              content: lectureWriteState.errorMessage!,
+              onConfirm: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          );
+        });
+      }
+      return null;
+    }, [lectureWriteState.errorMessage]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
@@ -57,11 +79,46 @@ class LectureWriteScreen extends HookConsumerWidget {
       ),
       bottomNavigationBar: PrimaryBottomButton(
         onPressed: () async {
-          // 유효성 만족 시 강의 추가 API 요청
+          final canCreate = viewModel.canCreateLecture(lectureList ?? []);
+
+          if (!canCreate) {
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '시간표 작성 실패',
+                content: '해당 시간에 이미 강의가 있어요',
+                onConfirm: () async {
+                  Navigator.of(context).pop();
+                },
+              ),
+            );
+          } else {
+            final result = await viewModel.createLecture(
+              year: year,
+              semester: semester,
+              name: nameController.text.trim(),
+              professor: professorController.text.trim().isEmpty ? null : professorController.text.trim(),
+              location:  locationController.text.trim().isEmpty ? null : locationController.text.trim(),
+            );
+            if (result) {
+              context.pop(true);
+            } else {
+              showDialog(
+                context: context,
+                builder: (_) => CustomConfirmDialog(
+                  title: '시간표 작성 실패',
+                  content: '시간표 작성에 실패했어요',
+                  onConfirm: () async {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              );
+            }
+          }
         },
         label: '완료',
-        isLoading: false, // 로딩상태
-        isEnabled: false, // 유효성
+        isLoading: lectureWriteState.isLoading,
+        isEnabled: true, // 유효성
       ),
       body: SafeArea(
         child: Stack(
@@ -105,26 +162,29 @@ class LectureWriteScreen extends HookConsumerWidget {
                               }
                             }
 
-                            if (day == selectedDay) {
-                              final startTotal = (startHour * 60 + startMinute) - 540; // 9*60
-                              final endTotal   = (endHour * 60 + endMinute) - 540;
+                            if (day == lectureWriteState.day) {
+                              final startTotal = (lectureWriteState.startHour * 60 + lectureWriteState.startMinute) - 540; // 9*60
+                              final endTotal   = (lectureWriteState.endHour * 60 + lectureWriteState.endMinute) - 540;
+                              final int diff   = endTotal - startTotal;
 
-                              final double top = kFirstColumnHeight + (startTotal / 60.0) * kBoxSize;
-                              final double height = ((endTotal - startTotal) / 60.0) * kBoxSize;
+                              if (diff > 0) {
+                                final double top = kFirstColumnHeight + (startTotal / 60.0) * kBoxSize;
+                                final double height = ((endTotal - startTotal) / 60.0) * kBoxSize;
 
-                              widgets.add(
-                                Positioned(
-                                  top: top,
-                                  left: 0,
-                                  child: Container(
-                                    width: dayWidth,
-                                    height: height,
-                                    decoration: BoxDecoration(
-                                      color: ColorStyles.gray2,
+                                widgets.add(
+                                  Positioned(
+                                    top: top,
+                                    left: 0,
+                                    child: Container(
+                                      width: dayWidth,
+                                      height: height,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0x40252525),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
+                                );
+                              }
                             }
                             return widgets;
                           },
@@ -156,9 +216,7 @@ class LectureWriteScreen extends HookConsumerWidget {
                               OutlinedButton(
                                 onPressed: () async {
                                   final picked = await showWeekDayPicker(context, initial: WeekDay.MONDAY);
-                                  if (picked != null) {
-                                    selectedDay = picked;
-                                  }
+                                  if (picked != null) viewModel.setDay(picked);
                                 },
                                 style: OutlinedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(horizontal: 16),
@@ -175,7 +233,7 @@ class LectureWriteScreen extends HookConsumerWidget {
                                   spacing: 16,
                                   children: [
                                     Text(
-                                      '${selectedDay.korean}요일',
+                                      '${lectureWriteState.day.korean}요일',
                                       style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
                                     ),
                                     const Icon(
@@ -191,17 +249,32 @@ class LectureWriteScreen extends HookConsumerWidget {
                                   final picked = await showTimeRangePicker(
                                     context,
                                     initial: TimeRange(
-                                      startHour: startHour,
-                                      startMinute: startMinute,
-                                      endHour: endHour,
-                                      endMinute: endMinute,
+                                      startHour: lectureWriteState.startHour,
+                                      startMinute: lectureWriteState.startMinute,
+                                      endHour: lectureWriteState.endHour,
+                                      endMinute: lectureWriteState.endMinute,
                                     ),
                                   );
                                   if (picked != null) {
-                                    startHour = picked.startHour;
-                                    startMinute = picked.startMinute;
-                                    endHour = picked.endHour;
-                                    endMinute = picked.endMinute;
+                                    viewModel.setTimeRange(
+                                      startHour: picked.startHour,
+                                      startMinute: picked.startMinute,
+                                      endHour: picked.endHour,
+                                      endMinute: picked.endMinute,
+                                    );
+                                    final isValid = viewModel.validateTimeRange();
+
+                                    if (!isValid) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => CustomConfirmDialog(
+                                          title: '시간 설정',
+                                          content: '시작 시간이 종료 시간보다 빨라야 해요',
+                                          onConfirm: () async {
+                                          },
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
                                 style: OutlinedButton.styleFrom(
@@ -215,8 +288,8 @@ class LectureWriteScreen extends HookConsumerWidget {
                                   spacing: 16,
                                   children: [
                                     Text(
-                                      '${startHour.toString().padLeft(2, '0')}:${startMinute.toString().padLeft(2, '0')} ~ '
-                                          '${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}',
+                                      '${lectureWriteState.startHour.toString().padLeft(2, '0')}:${lectureWriteState.startMinute.toString().padLeft(2, '0')} ~ '
+                                          '${lectureWriteState.endHour.toString().padLeft(2, '0')}:${lectureWriteState.endMinute.toString().padLeft(2, '0')}',
                                       style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
                                     ),
                                     const Icon(Icons.keyboard_arrow_down_outlined, size: 24, color: ColorStyles.black),

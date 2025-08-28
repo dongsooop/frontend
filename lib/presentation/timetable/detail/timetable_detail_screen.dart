@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/presentation/timetable/widgets/lecture_detail_bottom_sheet.dart';
@@ -6,7 +5,6 @@ import 'package:dongsoop/presentation/timetable/widgets/positioned_lecture_block
 import 'package:dongsoop/presentation/timetable/widgets/timetable_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
-import 'package:dongsoop/ui/text_styles.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class TimetableDetailScreen extends HookConsumerWidget {

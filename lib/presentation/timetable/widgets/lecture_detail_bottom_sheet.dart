@@ -81,7 +81,7 @@ class LectureDetailSheet extends StatelessWidget {
           const SizedBox(height: 16),
 
           Text(
-            '${lecture.week.korean}  ${_hhmm(lecture.startAt)} ~ ${_hhmm(lecture.endAt)}',
+            '${lecture.week.korean}요일  ${_hhmm(lecture.startAt)} ~ ${_hhmm(lecture.endAt)}',
             style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
           ),
           const SizedBox(height: 8),
@@ -90,7 +90,7 @@ class LectureDetailSheet extends StatelessWidget {
             lecture.location ?? '',
             style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
 
           InkWell(
             splashColor: Colors.transparent,

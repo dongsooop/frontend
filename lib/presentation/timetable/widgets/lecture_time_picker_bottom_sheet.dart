@@ -36,6 +36,19 @@ class _LectureTimePickerBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 초기값을 9:00 ~ 22:55 범위로 보정
+    final startH = temp.value.startHour.clamp(9, 22);
+    final startM = ((temp.value.startMinute ~/ 5).clamp(0, 11)) * 5;
+    final endH   = temp.value.endHour.clamp(9, 22);
+    final endM   = ((temp.value.endMinute ~/ 5).clamp(0, 11)) * 5;
+
+    temp.value = TimeRange(
+      startHour: startH,
+      startMinute: startM,
+      endHour: endH,
+      endMinute: endM,
+    );
+
     final startHourController =
     FixedExtentScrollController(initialItem: temp.value.startHour - 9);
     final startMinuteController =
@@ -60,7 +73,12 @@ class _LectureTimePickerBottomSheet extends StatelessWidget {
               children: [
                 CupertinoButton(
                   padding: const EdgeInsets.all(8),
-                  child: Text('확인', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.primaryColor,),),
+                  child: Text(
+                    '확인',
+                    style: TextStyles.normalTextRegular.copyWith(
+                      color: ColorStyles.primaryColor,
+                    ),
+                  ),
                   onPressed: () => Navigator.pop(context, temp.value),
                 ),
               ],
@@ -69,7 +87,7 @@ class _LectureTimePickerBottomSheet extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // 시작 시
+                  // 시작 시 (9~22)
                   Expanded(
                     child: CupertinoPicker(
                       itemExtent: 44,
@@ -82,18 +100,19 @@ class _LectureTimePickerBottomSheet extends StatelessWidget {
                           endMinute: temp.value.endMinute,
                         );
                       },
+                      // 9..22 => 14개
                       children: List.generate(14, (i) {
                         final v = (9 + i).toString().padLeft(2, '0');
                         return Center(
                           child: Text(
                             v,
-                            style: TextStyles.largeTextRegular
-                                .copyWith(color: ColorStyles.black),
+                            style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.black),
                           ),
                         );
                       }),
                     ),
                   ),
+                  // 시작 분 (0,5,...,55)
                   Expanded(
                     child: CupertinoPicker(
                       itemExtent: 44,
@@ -111,14 +130,14 @@ class _LectureTimePickerBottomSheet extends StatelessWidget {
                         return Center(
                           child: Text(
                             v,
-                            style: TextStyles.largeTextRegular
-                                .copyWith(color: ColorStyles.black),
+                            style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.black),
                           ),
                         );
                       }),
                     ),
                   ),
                   const SizedBox(width: 24),
+                  // 종료 시 (9~22)  ← 여기 15 → 14로 수정 (9..22)
                   Expanded(
                     child: CupertinoPicker(
                       itemExtent: 44,
@@ -131,7 +150,7 @@ class _LectureTimePickerBottomSheet extends StatelessWidget {
                           endMinute: temp.value.endMinute,
                         );
                       },
-                      children: List.generate(15, (i) {
+                      children: List.generate(14, (i) {
                         final v = (9 + i).toString().padLeft(2, '0');
                         return Center(
                           child: Text(
@@ -142,6 +161,7 @@ class _LectureTimePickerBottomSheet extends StatelessWidget {
                       }),
                     ),
                   ),
+                  // 종료 분 (0,5,...,55)
                   Expanded(
                     child: CupertinoPicker(
                       itemExtent: 44,

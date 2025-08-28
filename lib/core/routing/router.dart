@@ -59,10 +59,12 @@ final router = GoRouter(
           semester: semester,
           onTapTimetableList: () => context.push(RoutePaths.timetableList),
           onTapTimetableWrite: () => context.push(RoutePaths.timetableWrite),
-          onTapLectureWrite: (lectureList) async {
+          onTapLectureWrite: (int year, Semester semester, List<Lecture>? lectureList) async {
             final isSucceed = await context.push<bool>(
               RoutePaths.timetableLectureWrite,
               extra: {
+                'year': year,
+                'semester': semester,
                 'lectureList': lectureList,
               },
             );
@@ -90,9 +92,13 @@ final router = GoRouter(
       path: RoutePaths.timetableLectureWrite,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
+          final year = extra?['year'] as int;
+          final semester = extra?['semester'] as Semester;
           final lectureList = extra?['lectureList'] as List<Lecture>?;
 
           return LectureWriteScreen(
+            year: year,
+            semester: semester,
             lectureList: lectureList,
           );
         }

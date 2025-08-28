@@ -18,7 +18,7 @@ class TimetableScreen extends HookConsumerWidget {
 
   final VoidCallback onTapTimetableList;
   final VoidCallback onTapTimetableWrite;
-  final Future<bool> Function(List<Lecture>?) onTapLectureWrite;
+  final Future<bool> Function(int, Semester, List<Lecture>?) onTapLectureWrite;
 
   const TimetableScreen({
     super.key,
@@ -89,7 +89,13 @@ class TimetableScreen extends HookConsumerWidget {
           children: [
             if (timetableState.lectureList != null && timetableState.lectureList!.isNotEmpty)
               IconButton(
-                onPressed: () => onTapLectureWrite(timetableState.lectureList),
+                onPressed: () async {
+                  final isSucceed = await onTapLectureWrite(timetableState.year!, timetableState.semester!, timetableState.lectureList);
+                  if (isSucceed) {
+                    // refresh
+                    await viewModel.getLecture();
+                  }
+                },
                 icon: SvgPicture.asset(
                   'assets/icons/add_lecture.svg',
                   width: 24,
