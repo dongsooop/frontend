@@ -116,8 +116,7 @@ class LectureDetailSheet extends StatelessWidget {
                   title: '강의 시간표 삭제',
                   content: '해당 강의를 삭제하시겠어요?',
                   onConfirm: () async {
-                    Navigator.of(context).pop(); // 다이얼로그 닫기
-                    Navigator.of(context).maybePop(); // 바텀시트 닫기 (열려있다면)
+                    Navigator.of(context).pop();
                     onDelete?.call();
                   },
                 ),

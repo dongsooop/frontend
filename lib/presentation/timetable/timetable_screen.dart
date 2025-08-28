@@ -129,7 +129,12 @@ class TimetableScreen extends HookConsumerWidget {
               children: [
                 timetableState.lectureList == null || timetableState.lectureList!.isEmpty
                   ? CreateTimetableButton(onTapTimetableWrite: onTapTimetableWrite)
-                  : TimetableDetailScreen(lectureList: timetableState.lectureList,),
+                  : TimetableDetailScreen(
+                    lectureList: timetableState.lectureList,
+                    onLectureChanged: () async {
+                      await viewModel.getLecture();
+                    },
+                  ),
               ],
             ),
           ),

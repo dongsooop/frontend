@@ -72,9 +72,10 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   @override
   Future<bool> deleteLecture(int id) async {
     final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+    final pathParam = '$endpoint/$id';
 
     try {
-      final response = await _authDio.get(endpoint);
+      final response = await _authDio.delete(pathParam);
 
       if (response.statusCode == HttpStatusCode.noContent.code) {
         return true;

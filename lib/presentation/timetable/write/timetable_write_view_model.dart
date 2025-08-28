@@ -1,7 +1,6 @@
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/presentation/timetable/write/timetable_write_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dongsoop/core/exception/exception.dart';
 
 class TimetableWriteViewModel extends StateNotifier<TimetableWriteState> {
 

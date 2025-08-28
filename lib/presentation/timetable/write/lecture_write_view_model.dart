@@ -87,7 +87,7 @@ class LectureWriteViewModel extends StateNotifier<LectureWriteState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '시간표를 작성하는 중 오류가 발생했습니다.\n$e',
+        errorMessage: '시간표를 작성하는 중 오류가 발생했습니다.',
       );
       return false;
     }

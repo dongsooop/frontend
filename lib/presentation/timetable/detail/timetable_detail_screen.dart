@@ -1,17 +1,22 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/presentation/timetable/widgets/lecture_detail_bottom_sheet.dart';
 import 'package:dongsoop/presentation/timetable/widgets/positioned_lecture_block.dart';
 import 'package:dongsoop/presentation/timetable/widgets/timetable_grid.dart';
+import 'package:dongsoop/providers/timetable_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class TimetableDetailScreen extends HookConsumerWidget {
   final List<Lecture>? lectureList;
+  final VoidCallback? onLectureChanged;
 
   TimetableDetailScreen({
     required this.lectureList,
+    this.onLectureChanged,
     super.key
   });
 
@@ -43,8 +48,36 @@ class TimetableDetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 시간표 최대 시간
+    final timetableDetailState = ref.watch(timetableDetailViewModelProvider);
+    final viewModel = ref.read(timetableDetailViewModelProvider.notifier);
+
     final columnLength = calculateColumnLength(lectureList);
+
+    useEffect(() {
+      if (timetableDetailState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '시간표 오류',
+              content: timetableDetailState.errorMessage!,
+              onConfirm: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          );
+        });
+      }
+      return null;
+    }, [timetableDetailState.errorMessage]);
+
+    if (timetableDetailState.isLoading) {
+      return Container(
+        color: ColorStyles.white,
+        child: Center(child: CircularProgressIndicator(color: ColorStyles.primaryColor,)),
+      );
+    }
 
     return Container(
       decoration: ShapeDecoration(
@@ -77,10 +110,11 @@ class TimetableDetailScreen extends HookConsumerWidget {
                     context,
                     lecture: lecture,
                     onEdit: () {
-                      // TODO: 수정 화면으로 이동 등
+                      // TODO: 수정 화면으로 이동
                     },
-                    onDelete: () {
-                      // TODO: 삭제 처리 (리스트 갱신 등)
+                    onDelete: () async {
+                      await viewModel.deleteLecture(lecture.id);
+                      onLectureChanged?.call();
                     },
                   );
                 },
