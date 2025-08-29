@@ -5,6 +5,7 @@ import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/presentation/timetable/detail/timetable_detail_screen.dart';
 import 'package:dongsoop/presentation/timetable/widgets/create_timetable_button.dart';
 import 'package:dongsoop/providers/timetable_providers.dart';
+import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -17,7 +18,7 @@ class TimetableScreen extends HookConsumerWidget {
   final Semester? semester;
 
   final VoidCallback onTapTimetableList;
-  final VoidCallback onTapTimetableWrite;
+  final Future<({int year, Semester semester})?> Function() onTapTimetableWrite;
   final Future<bool> Function(int, Semester, List<Lecture>?) onTapLectureWrite;
 
   const TimetableScreen({
@@ -81,13 +82,13 @@ class TimetableScreen extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: ColorStyles.white,
       appBar: DetailHeader(
-        title: timetableState.lectureList == null || timetableState.lectureList!.isEmpty
+        title: timetableState.exists == false
           ? '시간표 관리'
           : '',
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (timetableState.lectureList != null && timetableState.lectureList!.isNotEmpty)
+            if (timetableState.exists == true)
               IconButton(
                 onPressed: () async {
                   final isSucceed = await onTapLectureWrite(timetableState.year!, timetableState.semester!, timetableState.lectureList);
@@ -125,10 +126,28 @@ class TimetableScreen extends HookConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 24,
+              spacing: 4,
               children: [
-                timetableState.lectureList == null || timetableState.lectureList!.isEmpty
-                  ? CreateTimetableButton(onTapTimetableWrite: onTapTimetableWrite)
+                if (timetableState.exists == true) ...[
+                  Text(
+                    '${timetableState.year}년 ${timetableState.semester!.label}',
+                    style: TextStyles.smallTextBold.copyWith(color: ColorStyles.primaryColor),
+                  ),
+                  Text(
+                    '강의 시간표',
+                    style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                timetableState.exists == false
+                  ? CreateTimetableButton(
+                    onTapTimetableWrite: onTapTimetableWrite,
+                    onCreated: (result) async {
+                      viewModel.setYearSemester(result!.year, result.semester);
+                      await viewModel.getLecture();
+                    },
+                  )
                   : TimetableDetailScreen(
                     lectureList: timetableState.lectureList,
                     onLectureChanged: () async {

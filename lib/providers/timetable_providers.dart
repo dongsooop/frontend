@@ -1,8 +1,11 @@
+import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source.dart';
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source_impl.dart';
 import 'package:dongsoop/data/timetable/repository/timetable_repository_impl.dart';
 import 'package:dongsoop/domain/timetable/repository/timetable_repository.dart';
+import 'package:dongsoop/domain/timetable/use_case/check_local_timetable_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/create_lecture_use_case.dart';
+import 'package:dongsoop/domain/timetable/use_case/create_timetable_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/delete_lecture_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/get_lecture_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/update_lecture_use_case.dart';
@@ -21,8 +24,9 @@ import 'auth_dio.dart';
 // Data Source
 final timetableDataSourceProvider = Provider<TimetableDataSource>((ref) {
   final authDio = ref.watch(authDioProvider);
+  final hiveService = ref.watch(hiveServiceProvider);
 
-  return TimetableDataSourceImpl(authDio);
+  return TimetableDataSourceImpl(authDio, hiveService);
 });
 
 // Repository
@@ -53,12 +57,23 @@ final updateLectureUseCaseProvider = Provider<UpdateLectureUseCase>((ref) {
   return UpdateLectureUseCase(repository);
 });
 
+final checkLocalTimetableUseCaseProvider = Provider<CheckLocalTimetableUseCase>((ref) {
+  final repository = ref.watch(timetableRepositoryProvider);
+  return CheckLocalTimetableUseCase(repository);
+});
+
+final createTimetableUseCaseProvider = Provider<CreateTimetableUseCase>((ref) {
+  final repository = ref.watch(timetableRepositoryProvider);
+  return CreateTimetableUseCase(repository);
+});
+
 // View Model
 final timetableViewModelProvider =
 StateNotifierProvider.autoDispose<TimetableViewModel, TimetableState>((ref) {
   final getLectureUseCase = ref.watch(getLectureUseCaseProvider);
+  final checkLocalTimetableUseCase = ref.watch(checkLocalTimetableUseCaseProvider);
 
-  return TimetableViewModel(getLectureUseCase);
+  return TimetableViewModel(getLectureUseCase, checkLocalTimetableUseCase);
 });
 
 final timetableDetailViewModelProvider =
@@ -70,8 +85,9 @@ StateNotifierProvider.autoDispose<TimetableDetailViewModel, TimetableDetailState
 
 final timetableWriteViewModelProvider =
 StateNotifierProvider.autoDispose<TimetableWriteViewModel, TimetableWriteState>((ref) {
+  final createTimetableUseCase= ref.watch(createTimetableUseCaseProvider);
 
-  return TimetableWriteViewModel();
+  return TimetableWriteViewModel(createTimetableUseCase);
 });
 
 final lectureWriteViewModelProvider =

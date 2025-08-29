@@ -13,27 +13,37 @@ class TimetableRepositoryImpl implements TimetableRepository {
   );
 
   @override
-  Future<bool> createLecture(LectureRequest request) {
-    return _timetableDataSource.createLecture(request);
+  Future<bool> createLecture(LectureRequest request) async {
+    return await _timetableDataSource.createLecture(request);
   }
 
   @override
-  Future<bool> deleteLecture(int id) {
-    return _timetableDataSource.deleteLecture(id);
+  Future<bool> deleteLecture(int id) async {
+    return await _timetableDataSource.deleteLecture(id);
   }
 
   @override
-  Future<List<Lecture>?> getLecture(int year, Semester semester) {
-    return _timetableDataSource.getLecture(year, semester);
+  Future<List<Lecture>?> getLecture(int year, Semester semester) async {
+    return await _timetableDataSource.getLecture(year, semester);
   }
 
   @override
-  Future<LectureAi> timetableAnalysis() {
-    return _timetableDataSource.timetableAnalysis();
+  Future<LectureAi> timetableAnalysis() async {
+    return await _timetableDataSource.timetableAnalysis();
   }
 
   @override
-  Future<bool> updateLecture(Lecture timetable) {
-    return _timetableDataSource.updateLecture(timetable);
+  Future<bool> updateLecture(Lecture timetable) async {
+    return await _timetableDataSource.updateLecture(timetable);
+  }
+
+  @override
+  Future<bool> createTimetable(int year, Semester semester) async {
+    return await _timetableDataSource.createTimetable(year, semester);
+  }
+
+  @override
+  Future<bool> checkLocalTimetable(int year, Semester semester) async {
+    return await _timetableDataSource.hasLocalTimetable(year, semester);
   }
 }

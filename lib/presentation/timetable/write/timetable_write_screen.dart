@@ -14,7 +14,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 class TimetableWriteScreen extends HookConsumerWidget {
 
   const TimetableWriteScreen({
-    super.key
+    super.key,
   });
 
   @override
@@ -33,7 +33,7 @@ class TimetableWriteScreen extends HookConsumerWidget {
             context: context,
             barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
-              title: '시간표 오류',
+              title: '시간표 생성 오류',
               content: state.errorMessage!,
               onConfirm: () async {
                 Navigator.of(context).pop();
@@ -67,11 +67,20 @@ class TimetableWriteScreen extends HookConsumerWidget {
       bottomNavigationBar: PrimaryBottomButton(
         onPressed: () async {
           if (state.year == null || state.semester == null) return;
-          final isSuccessed = await viewModel.createTimetable();
+          final isSucceed = await viewModel.createTimetable(state.year!, state.semester!);
           if (!context.mounted) return;
 
-          if (isSuccessed) {
-            context.pop();
+          if (isSucceed) {
+            context.pop((year: state.year!, semester: state.semester!,));
+          } else {
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '시간표 생성 실패',
+                content: '이미 해당 학기의 시간표가 존재해요',
+                onConfirm: () {},
+              ),
+            );
           }
         },
         label: '완료',

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
@@ -9,9 +10,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class TimetableDataSourceImpl implements TimetableDataSource {
   final Dio _authDio;
+  final HiveService _hiveService;
 
   TimetableDataSourceImpl(
     this._authDio,
+    this._hiveService,
   );
 
   @override
@@ -89,5 +92,25 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   @override
   Future<LectureAi> timetableAnalysis() async {
     throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> createTimetable(int year, Semester semester) async {
+    try {
+      final exists = await _hiveService.hasLocalTimetable(year, semester);
+      if (exists) {
+        return false;
+      }
+
+      await _hiveService.saveTimetableInfo(year, semester);
+      return true;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> hasLocalTimetable(int year, Semester semester) async {
+    return await _hiveService.hasLocalTimetable(year, semester);
   }
 }

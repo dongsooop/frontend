@@ -4,6 +4,8 @@ import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
 import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 
 abstract class TimetableDataSource {
+  Future<bool> createTimetable(int year, Semester semester);
+  Future<bool> hasLocalTimetable(int year, Semester semester);
   Future<List<Lecture>?> getLecture(int year, Semester semester);
   Future<bool> createLecture(LectureRequest request);
   Future<bool> updateLecture(Lecture timetable);

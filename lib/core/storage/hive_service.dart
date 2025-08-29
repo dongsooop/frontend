@@ -1,4 +1,6 @@
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
+import 'package:dongsoop/domain/timetable/enum/semester.dart';
+import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
@@ -9,6 +11,41 @@ class HiveService {
   final chatRoomBoxManager = BoxManager<ChatRoomDetail>('chat_room');
   final chatMessageBoxManager = BoxManager<ChatMessage>('chat_messages');
 
+  // timetable
+  static const String _timetableBoxName = 'local_timetables';
+
+  Future<void> saveTimetableInfo(int year, Semester semester) async {
+    final box = await Hive.openBox<LocalTimetableInfo>(_timetableBoxName);
+    final info = LocalTimetableInfo(year: year, semester: semester);
+
+    if (!box.values.contains(info)) {
+      await box.add(info);
+    }
+  }
+
+  Future<bool> hasLocalTimetable(int year, Semester semester) async {
+    final box = await Hive.openBox<LocalTimetableInfo>(_timetableBoxName);
+    final info = LocalTimetableInfo(year: year, semester: semester);
+    return box.values.contains(info);
+  }
+
+  Future<void> deleteTimetableInfo(int year, Semester semester) async {
+    final box = await Hive.openBox<LocalTimetableInfo>(_timetableBoxName);
+
+    final keyToDelete = box.keys.firstWhere(
+          (key) {
+        final value = box.get(key);
+        return value?.year == year && value?.semester == semester;
+      },
+      orElse: () => null,
+    );
+
+    if (keyToDelete != null) {
+      await box.delete(keyToDelete);
+    }
+  }
+
+  // Chat
   Future<void> saveChatMember(String roomId, ChatRoomMember member) async {
     final memberBox = await chatMemberBoxManager.getBox(roomId);
     await memberBox.put(member.userId, member);

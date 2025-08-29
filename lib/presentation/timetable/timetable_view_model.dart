@@ -1,15 +1,18 @@
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
+import 'package:dongsoop/domain/timetable/use_case/check_local_timetable_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/get_lecture_use_case.dart';
 import 'package:dongsoop/presentation/timetable/timetable_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TimetableViewModel extends StateNotifier<TimetableState> {
   final GetLectureUseCase _getLectureUseCase;
+  final CheckLocalTimetableUseCase _checkLocalTimetableUseCase;
 
   TimetableViewModel(
     this._getLectureUseCase,
+    this._checkLocalTimetableUseCase,
   ) : super(
-    TimetableState(isLoading: false),
+    TimetableState(isLoading: false,),
   );
 
   // 현재 학기 계산
@@ -47,6 +50,10 @@ class TimetableViewModel extends StateNotifier<TimetableState> {
     try {
       final lectureList = await _getLectureUseCase.execute(year!, semester!);
       state = state.copyWith(isLoading: false, lectureList: lectureList);
+      if (lectureList == null || lectureList.isEmpty) {
+        final exists = await _checkLocalTimetableUseCase.execute(year, semester);
+        state = state.copyWith(exists: exists);
+      }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

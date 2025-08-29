@@ -58,7 +58,11 @@ final router = GoRouter(
           year: year,
           semester: semester,
           onTapTimetableList: () => context.push(RoutePaths.timetableList),
-          onTapTimetableWrite: () => context.push(RoutePaths.timetableWrite),
+          onTapTimetableWrite: () async {
+            return await context.push<({int year, Semester semester})>(
+              RoutePaths.timetableWrite,
+            );
+          },
           onTapLectureWrite: (int year, Semester semester, List<Lecture>? lectureList) async {
             final isSucceed = await context.push<bool>(
               RoutePaths.timetableLectureWrite,

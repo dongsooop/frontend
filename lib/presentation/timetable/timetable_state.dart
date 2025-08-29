@@ -7,6 +7,7 @@ class TimetableState {
   final int? year;
   final Semester? semester;
   final List<Lecture>? lectureList;
+  final bool? exists;
 
   TimetableState({
     required this.isLoading,
@@ -14,6 +15,7 @@ class TimetableState {
     this.year,
     this.semester,
     this.lectureList,
+    this.exists,
   });
 
   TimetableState copyWith({
@@ -22,6 +24,7 @@ class TimetableState {
     int? year,
     Semester? semester,
     List<Lecture>? lectureList,
+    bool? exists,
   }) {
     return TimetableState(
       isLoading: isLoading ?? this.isLoading,
@@ -29,6 +32,7 @@ class TimetableState {
       year: year ?? this.year,
       semester: semester ?? this.semester,
       lectureList: lectureList ?? this.lectureList,
+      exists: exists ?? this.exists,
     );
   }
 }

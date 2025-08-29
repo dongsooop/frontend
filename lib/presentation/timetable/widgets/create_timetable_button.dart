@@ -1,13 +1,16 @@
+import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
 class CreateTimetableButton extends StatelessWidget {
-  final VoidCallback onTapTimetableWrite;
+  final Future<({int year, Semester semester})?> Function() onTapTimetableWrite;
+  final void Function(({int year, Semester semester})? result)? onCreated;
 
   const CreateTimetableButton({
     super.key,
     required this.onTapTimetableWrite,
+    this.onCreated,
   });
 
   @override
@@ -36,7 +39,12 @@ class CreateTimetableButton extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: onTapTimetableWrite,
+            onPressed: () async {
+              final result = await onTapTimetableWrite();
+              if (result != null) {
+                onCreated?.call(result);
+              }
+            },
             style: ElevatedButton.styleFrom(
               elevation: 0,
               backgroundColor: ColorStyles.primaryColor,
