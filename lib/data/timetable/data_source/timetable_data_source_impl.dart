@@ -6,6 +6,7 @@ import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
 import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
+import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class TimetableDataSourceImpl implements TimetableDataSource {
@@ -112,5 +113,26 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   @override
   Future<bool> hasLocalTimetable(int year, Semester semester) async {
     return await _hiveService.hasLocalTimetable(year, semester);
+  }
+
+  @override
+  Future<List<LocalTimetableInfo>> getTimetableList() async {
+    return await _hiveService.getAllTimetableInfos();
+  }
+
+  @override
+  Future<void> deleteTimetable(int year, Semester semester) async {
+    final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+    final pathParam = '$endpoint/$year/${semester.name}';
+
+    try {
+      final response = await _authDio.delete(pathParam);
+
+      if (response.statusCode == HttpStatusCode.noContent.code) {
+        await _hiveService.deleteTimetableInfo(year, semester);
+      }
+    } catch (e) {
+      rethrow;
+    }
   }
 }

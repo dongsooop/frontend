@@ -17,7 +17,7 @@ class TimetableScreen extends HookConsumerWidget {
   final int? year;
   final Semester? semester;
 
-  final VoidCallback onTapTimetableList;
+  final Future<({int year, Semester semester})?> Function() onTapTimetableList;
   final Future<({int year, Semester semester})?> Function() onTapTimetableWrite;
   final Future<bool> Function(int, Semester, List<Lecture>?) onTapLectureWrite;
 
@@ -108,7 +108,13 @@ class TimetableScreen extends HookConsumerWidget {
                 ),
               ),
             IconButton(
-              onPressed: onTapTimetableList,
+              onPressed: () async {
+                final result = await onTapTimetableList();
+                if (result != null) {
+                  viewModel.setYearSemester(result.year, result.semester);
+                  await viewModel.getLecture();
+                }
+              },
               icon: Icon(
                 Icons.format_list_bulleted_outlined,
                 size: 24,
@@ -128,9 +134,9 @@ class TimetableScreen extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 4,
               children: [
-                if (timetableState.exists == true) ...[
+                if (timetableState.exists != false) ...[
                   Text(
-                    '${timetableState.year}년 ${timetableState.semester!.label}',
+                    '${timetableState.year ?? 'null'}년 ${timetableState.semester?.label ?? 'null'}',
                     style: TextStyles.smallTextBold.copyWith(color: ColorStyles.primaryColor),
                   ),
                   Text(

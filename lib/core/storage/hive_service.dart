@@ -45,6 +45,28 @@ class HiveService {
     }
   }
 
+  Future<List<LocalTimetableInfo>> getAllTimetableInfos() async {
+    final box = await Hive.openBox<LocalTimetableInfo>(_timetableBoxName);
+    final list = box.values.toList();
+
+    int order(Semester s) {
+      switch (s) {
+        case Semester.FIRST:  return 4;
+        case Semester.SUMMER: return 3;
+        case Semester.SECOND: return 2;
+        case Semester.WINTER: return 1;
+      }
+    }
+
+    list.sort((a, b) {
+      final byYear = b.year.compareTo(a.year);
+      if (byYear != 0) return byYear;
+      return order(a.semester).compareTo(order(b.semester));
+    });
+
+    return list;
+  }
+
   // Chat
   Future<void> saveChatMember(String roomId, ChatRoomMember member) async {
     final memberBox = await chatMemberBoxManager.getBox(roomId);
