@@ -4,136 +4,185 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
+import 'package:dongsoop/domain/notification/entity/notification_entity.dart';
+import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/core/routing/push_router.dart';
 
 class NotificationPageScreen extends HookConsumerWidget {
   const NotificationPageScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(notificationViewModelProvider);
+    final notificationController = ref.read(notificationViewModelProvider.notifier);
     final scrollController = useScrollController();
 
-    // mock data
-    final items = useState<List<_Notify>>([
-      _Notify(title: 'SQLD 자격증 취득 스터디', body: '김동양 : 안녕하세요!', time: '10분 전', unread: true),
-      _Notify(title: '컴활 2급', body: '동양킴 : 컴퓨터소프트웨어공학과 2학년 어쩌고', time: '1시간 전', unread: true),
-      _Notify(title: 'DB 프로그래밍 교재', body: '동양킴 : 아직 판매중이신가요?', time: '5일 전'),
-      _Notify(title: 'SCU 족보', body: '[판매] 게시글에 거래 요청이 들어왔어요!', time: '7일 전'),
-      _Notify(title: 'SQLD 자격증 취득 스터디', body: '새로운 [스터디] 지원이 들어왔어요!', time: '10일 전'),
-      _Notify(title: '운영체제 실습', body: '새로운 [튜터링] 지원이 들어왔어요!', time: '13일 전'),
-      _Notify(title: '웹 프로젝트 실습', body: '새로운 [프로젝트] 지원이 들어왔어요!', time: '17일 전'),
-      _Notify(title: '웹 프로젝트 실습', body: '지원 결과가 나왔어요, 지금 확인해보세요!', time: '27일 전'),
-    ]);
+    // 무한 스크롤
+    useEffect(() {
+      void onScroll() {
+        if (!scrollController.hasClients) return;
+        if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 200) {
+          notificationController.loadNextPage();
+        }
+      }
 
-    void markAllRead() {
-      items.value = [for (final n in items.value) n.copyWith(unread: false)];
+      scrollController.addListener(onScroll);
+      return () => scrollController.removeListener(onScroll);
+    }, [scrollController]);
+
+    // 에러 다이얼로그
+    useEffect(() {
+      final err = state.error;
+      if (err != null && err.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            useRootNavigator: true,
+            builder: (_) => CustomConfirmDialog(
+              title: '알림 오류',
+              content: err,
+              confirmText: '확인',
+              isSingleAction: true,
+              onConfirm: () {},
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.error]);
+
+    if (state.isLoading && state.items.isEmpty) {
+      return Scaffold(
+        backgroundColor: ColorStyles.white,
+        appBar: DetailHeader(
+          title: '알림',
+          onBack: () => context.pop(true),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: ColorStyles.primaryColor),
+        ),
+      );
     }
-
-    final hasUnread = items.value.any((e) => e.unread);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
-      appBar: const DetailHeader(title: '알림'),
+      appBar: DetailHeader(
+        title: '알림',
+        onBack: () => context.pop(true),
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              constraints: const BoxConstraints(minHeight: 44),
-              child: TextButton(
-                onPressed: hasUnread ? markAllRead : null,
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: const Size(0, 44),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  '모두 읽음',
-                  style: TextStyles.normalTextRegular.copyWith(
-                    color: ColorStyles.black,
-                  ),
-                ),
-              ),
-            ),
-
+            // 목록
             Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                itemCount: items.value.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == items.value.length) {
-                    return Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: Center(
-                        child: Text(
-                          '30일 전 알림까지 확인할 수 있어요',
-                          style: TextStyles.smallTextRegular.copyWith(
-                            color: ColorStyles.gray4,
+              child: RefreshIndicator(
+                onRefresh: notificationController.refresh,
+                child: ListView.builder(
+                  controller: scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: state.items.length + (state.isLoading ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (state.isLoading && index == state.items.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: ColorStyles.primaryColor,
+                          ),
+                        ),
+                      );
+                    }
+
+                    final NotificationEntity n = state.items[index];
+
+                    return Dismissible(
+                      key: ValueKey('notif_${n.id}'),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: const Color(0xFFFF3526),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        alignment: Alignment.centerRight,
+                        child: const Icon(Icons.delete, color: ColorStyles.white),
+                      ),
+                      onDismissed: (_) async {
+                        await notificationController.delete(n.id);
+                      },
+                      child: InkWell(
+                        onTap: () async {
+                          try {
+                            await PushRouter.routeFromTypeValue(
+                              type: n.type,
+                              value: n.value,
+                            );
+                            await notificationController.read(n.id);
+                          } catch (_) {}
+                        },
+                        child: Container(
+                          color: n.isRead ? ColorStyles.white : ColorStyles.primary5,
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const _LeadingIcon(),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      n.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyles.normalTextBold.copyWith(
+                                        color: ColorStyles.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      n.body,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyles.smallTextRegular.copyWith(
+                                        color: ColorStyles.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      formatRelativeTime(n.createdAt),
+                                      style: TextStyles.smallTextRegular.copyWith(
+                                        color: ColorStyles.gray4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     );
-                  }
+                  },
+                ),
+              ),
+            ),
 
-                  final n = items.value[index];
-
-                  return InkWell(
-                    onTap: () {
-                      items.value = [
-                        for (int i = 0; i < items.value.length; i++)
-                          i == index ? items.value[i].copyWith(unread: false) : items.value[i],
-                      ];
-                    },
-                    child: Container(
-                      color: n.unread ? ColorStyles.primary5 : ColorStyles.white,
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const _LeadingIcon(),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // 제목
-                                Text(
-                                  n.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyles.normalTextBold.copyWith(
-                                    color: ColorStyles.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                // 본문
-                                Text(
-                                  n.body,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyles.smallTextRegular.copyWith(
-                                    color: ColorStyles.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                // 시간
-                                Text(
-                                  n.time,
-                                  style: TextStyles.smallTextRegular.copyWith(
-                                    color: ColorStyles.gray4,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+            // 하단 안내문 (항상 고정)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  '30일 전 알림까지 확인할 수 있어요',
+                  style: TextStyles.smallTextRegular.copyWith(
+                    color: ColorStyles.gray4,
+                  ),
+                ),
               ),
             ),
           ],
@@ -162,29 +211,6 @@ class _LeadingIcon extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Notify {
-  const _Notify({
-    required this.title,
-    required this.body,
-    required this.time,
-    this.unread = false,
-  });
-
-  final String title;
-  final String body;
-  final String time;
-  final bool unread;
-
-  _Notify copyWith({String? title, String? body, String? time, bool? unread}) {
-    return _Notify(
-      title: title ?? this.title,
-      body: body ?? this.body,
-      time: time ?? this.time,
-      unread: unread ?? this.unread,
     );
   }
 }

@@ -30,4 +30,26 @@ class NotificationState {
       error: error,
     );
   }
+
+  NotificationState read(int id) {
+    final updated = items.map((e) {
+      if (e.id != id || e.isRead) return e;
+      return NotificationEntity(
+        id: e.id,
+        title: e.title,
+        body: e.body,
+        type: e.type,
+        value: e.value,
+        isRead: true,
+        createdAt: e.createdAt,
+      );
+    }).toList();
+    return copyWith(items: updated, error: null);
+  }
+
+  NotificationState removeById(int id) =>
+      copyWith(items: items.where((e) => e.id != id).toList(), error: null);
+
+  int get unreadCount => items.where((e) => !e.isRead).length;
+  bool get allRead => items.every((e) => e.isRead);
 }
