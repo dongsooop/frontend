@@ -14,7 +14,11 @@ abstract class RoutePaths {
   static const String cafeteriaWebView = 'cafeteriaWebView';
   static const String mypageWebView = '/mypageWebView';
   static const String setting = '/setting';
-  static const String schedule = '/schedule';
+  static const String timetable = '/timetable';
+  static const String timetableDetail = '/timetableDetail';
+  static const String timetableWrite = '/timetableWrite';
+  static const String timetableList = '/timetableList';
+  static const String timetableLectureWrite = '/timetableLectureWrite';
   static const String calendar = '/calendar';
   static const String calendarDetail = '/calendarDetail';
   static const String recruitWrite = '/recruitWrite';
