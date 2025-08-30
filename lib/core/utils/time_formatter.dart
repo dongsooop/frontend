@@ -31,3 +31,25 @@ String formatDuration(int seconds) {
   final secs = (seconds % 60).toString().padLeft(2, '0');
   return '$minutes:$secs';
 }
+
+extension TimeStringExtensions on String {
+  int toMinutesFrom9AM() {
+    final parts = split(':');
+    final hour = int.tryParse(parts[0]) ?? 0;
+    final minute = int.tryParse(parts[1]) ?? 0;
+    return (hour - 9) * 60 + minute;
+  }
+}
+
+extension MinutesToTimeString on int {
+  String toTimeStringFrom9AM() {
+    final totalMinutes = this + 9 * 60;
+    final hour = totalMinutes ~/ 60;
+    final minute = totalMinutes % 60;
+
+    final hh = hour.toString().padLeft(2, '0');
+    final mm = minute.toString().padLeft(2, '0');
+
+    return '$hh:$mm';
+  }
+}
