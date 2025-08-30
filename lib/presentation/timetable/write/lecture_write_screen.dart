@@ -20,14 +20,17 @@ class LectureWriteScreen extends HookConsumerWidget {
   final int year;
   final Semester semester;
   final List<Lecture>? lectureList;
+  final Lecture? editingLecture;
 
   LectureWriteScreen({
     required this.year,
     required this.semester,
     required this.lectureList,
+    this.editingLecture,
     super.key
   });
 
+  bool get isEditing => editingLecture != null;
   static const int kColumnLength = 28;
   static const double kFirstColumnHeight = 24;
   static const double kBoxSize = 48; // 30분 단위 높이
@@ -52,6 +55,40 @@ class LectureWriteScreen extends HookConsumerWidget {
     final professorController = useTextEditingController();
     final locationController = useTextEditingController();
 
+    useListenable(nameController);
+
+    final isNameFilled = nameController.text.trim().isNotEmpty && nameController.text != '';
+    final isTimeValid = (lectureWriteState.endHour * 60 + lectureWriteState.endMinute) > (lectureWriteState.startHour * 60 + lectureWriteState.startMinute);
+
+    useEffect(() {
+      if (isEditing) {
+        final lecture = editingLecture!;
+
+        nameController.text = lecture.name;
+        professorController.text = lecture.professor ?? '';
+        locationController.text = lecture.location ?? '';
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+
+          final sp = lecture.startAt.split(':');
+          final ep = lecture.endAt.split(':');
+
+          final sh = int.tryParse(sp[0]) ?? 9;
+          final sm = int.tryParse(sp[1]) ?? 0;
+          final eh = int.tryParse(ep[0]) ?? (sh + 1);
+          final em = int.tryParse(ep[1]) ?? sm;
+
+          viewModel.setDay(lecture.week);
+          viewModel.setTimeRange(
+            startHour: sh, startMinute: sm,
+            endHour: eh, endMinute: em,
+          );
+        });
+      }
+      return null;
+    }, const []);
+
     // 오류
     useEffect(() {
       if (lectureWriteState.errorMessage != null) {
@@ -75,11 +112,17 @@ class LectureWriteScreen extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: ColorStyles.white,
       appBar: DetailHeader(
-        title: '강의 시간표 추가',
+        title: isEditing ? '강의 시간표 수정' : '강의 시간표 추가',
       ),
       bottomNavigationBar: PrimaryBottomButton(
         onPressed: () async {
-          final canCreate = viewModel.canCreateLecture(lectureList ?? []);
+          if (!isNameFilled || !isTimeValid) return;
+
+          final others = (lectureList ?? [])
+              .where((e) => e.id != editingLecture?.id)
+              .toList();
+
+          final canCreate = viewModel.canCreateLecture(others);
 
           if (!canCreate) {
             showDialog(
@@ -87,38 +130,52 @@ class LectureWriteScreen extends HookConsumerWidget {
               builder: (_) => CustomConfirmDialog(
                 title: '시간표 작성 실패',
                 content: '해당 시간에 이미 강의가 있어요',
-                onConfirm: () async {
-                  Navigator.of(context).pop();
-                },
+                onConfirm: () => Navigator.of(context).pop(),
               ),
             );
+            return;
+          }
+
+          final name = nameController.text.trim();
+          final prof = professorController.text.trim().isEmpty
+              ? null : professorController.text.trim();
+          final loc  = locationController.text.trim().isEmpty
+              ? null : locationController.text.trim();
+
+          bool ok;
+          if (isEditing) {
+            ok = await viewModel.updateLecture(
+              id: editingLecture!.id,
+              name: name,
+              professor: prof,
+              location: loc,
+            );
           } else {
-            final result = await viewModel.createLecture(
+            ok = await viewModel.createLecture(
               year: year,
               semester: semester,
-              name: nameController.text.trim(),
-              professor: professorController.text.trim().isEmpty ? null : professorController.text.trim(),
-              location:  locationController.text.trim().isEmpty ? null : locationController.text.trim(),
+              name: name,
+              professor: prof,
+              location: loc,
             );
-            if (result) {
-              context.pop(true);
-            } else {
-              showDialog(
-                context: context,
-                builder: (_) => CustomConfirmDialog(
-                  title: '시간표 작성 실패',
-                  content: '시간표 작성에 실패했어요',
-                  onConfirm: () async {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              );
-            }
+          }
+
+          if (ok) {
+            context.pop(true);
+          } else {
+            showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: isEditing ? '시간표 수정 실패' : '시간표 작성 실패',
+                content: isEditing ? '시간표 수정에 실패했어요' : '시간표 작성에 실패했어요',
+                onConfirm: () => Navigator.of(context).pop(),
+              ),
+            );
           }
         },
-        label: '완료',
+        label: isEditing ? '수정 완료' : '완료',
         isLoading: lectureWriteState.isLoading,
-        isEnabled: true, // 유효성
+        isEnabled: isNameFilled && isTimeValid,
       ),
       body: SafeArea(
         child: Stack(

@@ -6,7 +6,7 @@ class UpdateLectureUseCase {
 
   UpdateLectureUseCase(this._timetableRepository,);
 
-  Future<bool> execute(Lecture timetable) async {
-    return await _timetableRepository.updateLecture(timetable);
+  Future<bool> execute(Lecture lecture) async {
+    return await _timetableRepository.updateLecture(lecture);
   }
 }

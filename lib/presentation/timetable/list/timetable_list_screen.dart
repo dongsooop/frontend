@@ -78,7 +78,6 @@ class TimetableListScreen extends HookConsumerWidget {
                       onConfirm: () async {
                         await viewModel.deleteTimetable(info.year, info.semester);
                         await viewModel.getTimetableList();
-                        Navigator.of(context).pop();
                       },
                     ),
                   );

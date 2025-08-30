@@ -14,9 +14,12 @@ class TimetableDetailScreen extends HookConsumerWidget {
   final List<Lecture>? lectureList;
   final VoidCallback? onLectureChanged;
 
+  final Future<bool> Function(Lecture editingLecture)? onEditLecture;
+
   TimetableDetailScreen({
     required this.lectureList,
     this.onLectureChanged,
+    this.onEditLecture,
     super.key
   });
 
@@ -109,8 +112,9 @@ class TimetableDetailScreen extends HookConsumerWidget {
                   showLectureDetailBottomSheet(
                     context,
                     lecture: lecture,
-                    onEdit: () {
-                      // TODO: 수정 화면으로 이동
+                    onEdit: () async {
+                      final ok = await onEditLecture?.call(lecture) ?? false;
+                      if (ok) onLectureChanged?.call();
                     },
                     onDelete: () async {
                       await viewModel.deleteLecture(lecture.id);

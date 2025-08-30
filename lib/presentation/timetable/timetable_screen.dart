@@ -20,6 +20,7 @@ class TimetableScreen extends HookConsumerWidget {
   final Future<({int year, Semester semester})?> Function() onTapTimetableList;
   final Future<({int year, Semester semester})?> Function() onTapTimetableWrite;
   final Future<bool> Function(int, Semester, List<Lecture>?) onTapLectureWrite;
+  final Future<bool> Function(int, Semester, List<Lecture>?, Lecture) onTapLectureUpdate;
 
   const TimetableScreen({
     super.key,
@@ -28,6 +29,7 @@ class TimetableScreen extends HookConsumerWidget {
     required this.onTapTimetableList,
     required this.onTapTimetableWrite,
     required this.onTapLectureWrite,
+    required this.onTapLectureUpdate,
   });
 
   @override
@@ -111,6 +113,7 @@ class TimetableScreen extends HookConsumerWidget {
               onPressed: () async {
                 final result = await onTapTimetableList();
                 if (result != null) {
+                  if (!context.mounted) return;
                   viewModel.setYearSemester(result.year, result.semester);
                   await viewModel.getLecture();
                 }
@@ -157,8 +160,26 @@ class TimetableScreen extends HookConsumerWidget {
                   : TimetableDetailScreen(
                     lectureList: timetableState.lectureList,
                     onLectureChanged: () async {
+                      if (!context.mounted) return;
                       await viewModel.getLecture();
                     },
+                    onEditLecture: (editing) async {
+                      final year = timetableState.year;
+                      final semester = timetableState.semester;
+                      if (year == null || semester == null) return false;
+
+                      final ok = await onTapLectureUpdate(
+                        year,
+                        semester,
+                        timetableState.lectureList,
+                        editing,
+                      );
+                      if (ok) {
+                        if (!context.mounted) return false;
+                        await viewModel.getLecture();
+                      }
+                      return ok;
+                    }
                   ),
               ],
             ),

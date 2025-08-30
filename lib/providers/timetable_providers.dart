@@ -115,6 +115,7 @@ StateNotifierProvider.autoDispose<TimetableListViewModel, TimetableListState>((r
 final lectureWriteViewModelProvider =
 StateNotifierProvider.autoDispose<LectureWriteViewModel, LectureWriteState>((ref) {
   final createLectureUseCase = ref.watch(createLectureUseCaseProvider);
+  final updateLectureUseCase = ref.watch(updateLectureUseCaseProvider);
 
-  return LectureWriteViewModel(createLectureUseCase);
+  return LectureWriteViewModel(createLectureUseCase, updateLectureUseCase);
 });

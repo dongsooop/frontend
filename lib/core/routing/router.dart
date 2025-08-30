@@ -74,6 +74,18 @@ final router = GoRouter(
             );
             return isSucceed ?? false;
           },
+          onTapLectureUpdate: (int year, Semester semester, List<Lecture>? lectureList, Lecture? editingLecture) async {
+            final isSucceed = await context.push<bool>(
+              RoutePaths.timetableLectureWrite,
+              extra: {
+                'year': year,
+                'semester': semester,
+                'lectureList': lectureList,
+                'editingLecture': editingLecture,
+              },
+            );
+            return isSucceed ?? false;
+          },
         );
       }
     ),
@@ -99,11 +111,13 @@ final router = GoRouter(
           final year = extra?['year'] as int;
           final semester = extra?['semester'] as Semester;
           final lectureList = extra?['lectureList'] as List<Lecture>?;
+          final editingLecture = extra?['editingLecture'] as Lecture?;
 
           return LectureWriteScreen(
             year: year,
             semester: semester,
             lectureList: lectureList,
+            editingLecture: editingLecture,
           );
         }
     ),

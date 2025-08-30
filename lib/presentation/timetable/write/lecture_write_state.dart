@@ -8,6 +8,7 @@ class LectureWriteState {
   final int startMinute;
   final int endHour;
   final int endMinute;
+  final bool isEnabled;
 
   LectureWriteState({
     required this.isLoading,
@@ -17,6 +18,7 @@ class LectureWriteState {
     required this.startMinute,
     required this.endHour,
     required this.endMinute,
+    required this.isEnabled,
   });
 
   LectureWriteState copyWith({
@@ -27,6 +29,7 @@ class LectureWriteState {
     int? startMinute,
     int? endHour,
     int? endMinute,
+    bool? isEnabled,
   }) {
     return LectureWriteState(
       isLoading: isLoading ?? this.isLoading,
@@ -36,6 +39,7 @@ class LectureWriteState {
       startMinute: startMinute ?? this.startMinute,
       endHour: endHour ?? this.endHour,
       endMinute: endMinute ?? this.endMinute,
+      isEnabled: isEnabled ?? this.isEnabled,
     );
   }
 }
