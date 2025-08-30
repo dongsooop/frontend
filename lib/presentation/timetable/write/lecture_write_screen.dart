@@ -256,14 +256,17 @@ class LectureWriteScreen extends HookConsumerWidget {
                           _buildTextField(
                             controller: nameController,
                             hintText: '강의명을 입력해 주세요',
+                            maxLength: 15,
                           ),
                           _buildTextField(
                             controller: professorController,
                             hintText: '교수님 성함을 입력해 주세요',
+                            maxLength: 8,
                           ),
                           _buildTextField(
                             controller: locationController,
                             hintText: '강의실을 입력해 주세요',
+                            maxLength: 10,
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -372,11 +375,13 @@ class LectureWriteScreen extends HookConsumerWidget {
     required TextEditingController controller,
     required String hintText,
     double height = 44,
+    int? maxLength,
   }) {
     return SizedBox(
       height: height,
       child: TextFormField(
         controller: controller,
+        maxLength: maxLength,
         style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
         decoration: InputDecoration(
           hintText: hintText,
@@ -387,6 +392,7 @@ class LectureWriteScreen extends HookConsumerWidget {
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: ColorStyles.gray2),
           ),
+          counterText: '',
         ),
       ),
     );
