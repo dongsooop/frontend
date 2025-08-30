@@ -38,7 +38,14 @@ class TimetableViewModel extends StateNotifier<TimetableState> {
   }
 
   void setYearSemester(int year, Semester semester) {
-    state = state.copyWith(year: year, semester: semester);
+    state = state.copyWith(
+      year: year,
+      semester: semester,
+      isLoading: true,
+      exists: null,
+      lectureList: const [],
+      errorMessage: null,
+    );
   }
 
   Future<void> getLecture({int? overrideYear, Semester? overrideSemester}) async {
@@ -49,11 +56,18 @@ class TimetableViewModel extends StateNotifier<TimetableState> {
 
     try {
       final lectureList = await _getLectureUseCase.execute(year!, semester!);
-      state = state.copyWith(isLoading: false, lectureList: lectureList);
-      if (lectureList == null || lectureList.isEmpty) {
-        final exists = await _checkLocalTimetableUseCase.execute(year, semester);
-        state = state.copyWith(exists: exists);
+
+      if (lectureList != null && lectureList.isNotEmpty) {
+        state = state.copyWith(
+          isLoading: false,
+          lectureList: lectureList,
+          exists: true,
+        );
+        return;
       }
+
+      final exists = await _checkLocalTimetableUseCase.execute(year, semester);
+      state = state.copyWith(isLoading: false, exists: exists);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

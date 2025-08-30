@@ -4,11 +4,15 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
 class CreateTimetableButton extends StatelessWidget {
+  final int year;
+  final Semester semester;
   final Future<({int year, Semester semester})?> Function() onTapTimetableWrite;
   final void Function(({int year, Semester semester})? result)? onCreated;
 
   const CreateTimetableButton({
     super.key,
+    required this.year,
+    required this.semester,
     required this.onTapTimetableWrite,
     this.onCreated,
   });
@@ -32,7 +36,7 @@ class CreateTimetableButton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '이번 학기 시간표를 만들어 주세요',
+            '$year년 ${semester.label} 시간표를 만들어 주세요',
             style: TextStyles.smallTextRegular.copyWith(
               color: ColorStyles.black,
             ),

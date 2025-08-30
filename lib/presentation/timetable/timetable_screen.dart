@@ -115,8 +115,8 @@ class TimetableScreen extends HookConsumerWidget {
                 if (result != null) {
                   if (!context.mounted) return;
                   viewModel.setYearSemester(result.year, result.semester);
-                  await viewModel.getLecture();
                 }
+                await viewModel.getLecture();
               },
               icon: Icon(
                 Icons.format_list_bulleted_outlined,
@@ -149,8 +149,10 @@ class TimetableScreen extends HookConsumerWidget {
                   const SizedBox(height: 24),
                 ],
 
-                timetableState.exists == false
+                timetableState.exists == false && !timetableState.isLoading
                   ? CreateTimetableButton(
+                    year: timetableState.year!,
+                    semester: timetableState.semester!,
                     onTapTimetableWrite: onTapTimetableWrite,
                     onCreated: (result) async {
                       viewModel.setYearSemester(result!.year, result.semester);
