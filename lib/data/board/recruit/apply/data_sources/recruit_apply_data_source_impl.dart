@@ -97,6 +97,24 @@ class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
   }
 
   @override
+  Future<RecruitApplicantDetailModel> recruitApplicantDetailStatus({
+    required RecruitType type,
+    required int boardId,
+  }) async {
+    final baseUrl = RecruitTypeConfig.getApplyEndpoint(type);
+    final url = '$baseUrl/self/$boardId';
+    final response = await _authDio.get(url);
+
+    if (response.statusCode == HttpStatusCode.ok.code) {
+      final data = response.data;
+      if (data is! Map<String, dynamic>)
+        throw FormatException('응답 데이터 형식이 Map<String, dynamic>이 아닙니다.');
+      return RecruitApplicantDetailModel.fromJson(data);
+    }
+    throw Exception('status: ${response.statusCode}');
+  }
+
+  @override
   Future<void> recruitDecision({
     required RecruitType type,
     required int boardId,

@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
+import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
@@ -316,6 +317,16 @@ final router = GoRouter(
               },
             );
           },
+          onTapApplicantDetail: () {
+            context.push(
+              RoutePaths.recruitApplicantDetail,
+              extra: {
+                'viewer': RecruitApplicantViewer.APPLICANT,
+                'type': type,
+                'id': id,
+              },
+            );
+          },
           onTapChatDetail: (roomId) {
             context.push(RoutePaths.chatDetail, extra: roomId);
           },
@@ -345,6 +356,7 @@ final router = GoRouter(
             final result = await context.push<String>(
               RoutePaths.recruitApplicantDetail,
               extra: {
+                'viewer': RecruitApplicantViewer.OWNER,
                 'id': id,
                 'type': type,
                 'memberId': memberId,
@@ -359,13 +371,15 @@ final router = GoRouter(
       path: RoutePaths.recruitApplicantDetail,
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
+        final viewer = extra?['viewer'];
         final boardId = extra?['id'];
         final type = extra?['type'];
         final memberId = extra?['memberId'];
 
         return RecruitApplicantDetailPage(
-          type: type,
-          boardId: boardId,
+          viewer: viewer!,
+          type: type!,
+          boardId: boardId!,
           memberId: memberId,
         );
       },
