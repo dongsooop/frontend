@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
-import 'package:dongsoop/core/routing/push_router.dart';
+
+typedef ReadFn = Future<void> Function(int id);
 
 class FirebaseMessagingService {
   FirebaseMessagingService._internal();
@@ -16,6 +18,9 @@ class FirebaseMessagingService {
   LocalNotificationsService? _localNotificationsService;
   bool _initialized = false;
 
+  ReadFn? _read;
+  void setReadCallback(ReadFn read) => _read = read;
+
   // FCM 초기화 메서드
   Future<void> init({required LocalNotificationsService localNotificationsService}) async {
     if (_initialized) return;
@@ -24,17 +29,22 @@ class FirebaseMessagingService {
     _localNotificationsService = localNotificationsService;
 
     // 로컬 알림 탭 시 라우팅 처리
-    _localNotificationsService?.onTap = (payloadJson) {
+    _localNotificationsService?.onTap = (payloadJson) async {
       print('[LocalTap] raw payload=$payloadJson');
       try {
         final map = jsonDecode(payloadJson) as Map<String, dynamic>;
-        print('[LocalTap] parsed map=$map');
-        final t = map['type']?.toString();
-        final v = map['value']?.toString();
-        if (t != null && v != null) {
-          PushRouter.routeFromTypeValue(type: t, value: v);
-        } else {
-          print('[LocalTap] missing type/value in payload');
+        final type = map['type']?.toString();
+        final value = map['value']?.toString();
+        final id = _extractValidId(map['id']);
+
+        if (type != null && value != null) {
+          try {
+            await PushRouter.routeFromTypeValue(type: type, value: value);
+          } catch (_) {
+          }
+        }
+        if (id != null) {
+          await _read?.call(id);
         }
       } catch (e, st) {
         print('[LocalTap] payload parse error: $e\n$st');
@@ -81,14 +91,29 @@ class FirebaseMessagingService {
     }
   }
   // 백그라운드 or 종료 상태에서 알림 클릭으로 앱이 열렸을 떄
-  void _onMessageOpenedApp(RemoteMessage message) {
+  Future<void> _onMessageOpenedApp(RemoteMessage message) async {
     final type = message.data['type']?.toString();
     final value = message.data['value']?.toString();
+    final id = _extractValidId(message.data['id']);
+
     if (type != null && value != null) {
-      PushRouter.routeFromTypeValue(type: type, value: value);
-    } else {
-      print('[onMessageOpenedApp] missing type/value in data=${message.data}');
+      try {
+        await PushRouter.routeFromTypeValue(type: type, value: value);
+      } catch (_) {
+      }
     }
+
+    if (id != null) {
+      await _read?.call(id);
+    }
+  }
+
+  int? _extractValidId(dynamic raw) {
+    final s = raw?.toString();
+    if (s == null) return null;
+    final v = int.tryParse(s);
+    if (v == null || v <= 0) return null;
+    return v;
   }
 }
 
