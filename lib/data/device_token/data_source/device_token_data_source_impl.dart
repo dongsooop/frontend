@@ -14,20 +14,26 @@ class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
   Future<void> registerDeviceToken(DeviceTokenRequest request) async {
     if (request.deviceToken.isEmpty) return;
 
+    final last = await _storage.read(SecureStorageService.fcmLastToken);
+    if (last == 'true') return;
+
     final endpoint = dotenv.get('DEVICE_REGISTRATION_ENDPOINT');
     final requestBody = request.toJson();
+    try {
+      final response = await _plainDio.post(endpoint, data: requestBody);
 
-    final last = await _storage.read(SecureStorageService.fcmLastToken);
-    if (last != null && last.isNotEmpty && last == request.deviceToken) {
-      return;
+      if (response.statusCode == HttpStatusCode.noContent.code) {
+        await _storage.write(SecureStorageService.fcmLastToken, 'true');
+        return;
+      }
+
+      throw Exception('status: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.conflict.code) {
+        await _storage.write(SecureStorageService.fcmLastToken, 'true');
+        return;
+      }
+      rethrow;
     }
-
-    final response = await _plainDio.post(endpoint, data: requestBody);
-
-    if (response.statusCode == HttpStatusCode.noContent.code) {
-      await _storage.write(SecureStorageService.fcmLastToken, request.deviceToken);
-      return;
-    }
-    throw Exception('status: ${response.statusCode}');
   }
 }

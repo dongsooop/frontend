@@ -406,3 +406,38 @@ class NoAdminAuthorityException extends SanctionException {
   @override
   String toString() => message;
 }
+
+class NotificationListException implements Exception {
+  final String message;
+  NotificationListException(
+      [this.message = "알림 목록을 불러오는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class NotificationReadException implements Exception {
+  final String message;
+  NotificationReadException(
+      [this.message = "해당 알림을 확인하는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class NotificationDeleteException implements Exception {
+  final String message;
+  NotificationDeleteException(
+      [this.message = "알림을 삭제하는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class NotFoundBoardException implements Exception {
+  final String message;
+  const NotFoundBoardException([this.message = "존재하지 않거나 삭제된 게시글이에요."]);
+
+  @override
+  String toString() => message;
+}

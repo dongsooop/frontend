@@ -14,31 +14,46 @@ class NoticeWebViewScreen extends StatefulWidget {
 class _NoticeWebViewScreenState extends State<NoticeWebViewScreen> {
   WebViewController? _controller;
 
+  static const String _baseUrl = 'https://www.dongyang.ac.kr';
+
   @override
   void initState() {
     super.initState();
 
-    final baseUrl = 'https://www.dongyang.ac.kr';
-    final fullUrl = _mergeUrl(baseUrl, widget.path);
-    final uri = Uri.tryParse(fullUrl);
+    final uri = _normalizeToUri(_baseUrl, widget.path);
 
-    if (uri != null && uri.hasScheme) {
+    if (uri != null) {
       _controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setNavigationDelegate(NavigationDelegate())
         ..loadRequest(uri);
-    } else {
-      debugPrint('Invalid URL: $fullUrl');
     }
   }
 
-  String _mergeUrl(String base, String path) {
-    if (base.endsWith('/') && path.startsWith('/')) {
-      return base + path.substring(1);
-    } else if (!base.endsWith('/') && !path.startsWith('/')) {
-      return '$base/$path';
-    } else {
-      return '$base$path';
+  Uri? _normalizeToUri(String baseUrl, String rawInput) {
+    final inputUrl = rawInput.trim();
+
+    final absoluteUri = Uri.tryParse(inputUrl);
+    if (absoluteUri != null && absoluteUri.hasScheme && absoluteUri.host.isNotEmpty) {
+      return absoluteUri.replace(
+        pathSegments: absoluteUri.pathSegments.where((s) => s.isNotEmpty).toList(),
+      );
     }
+
+    final baseUri = Uri.tryParse(baseUrl);
+    if (baseUri == null || !(baseUri.hasScheme && baseUri.host.isNotEmpty)) return null;
+
+    final needsSlash = !(baseUri.path.endsWith('/')) && !(inputUrl.startsWith('/'));
+    final combinedUrl = needsSlash
+        ? '${baseUri.toString()}/$inputUrl'
+        : '${baseUri.toString()}$inputUrl';
+
+    final combinedUri = Uri.tryParse(combinedUrl);
+    if (combinedUri == null) return null;
+
+    return combinedUri.replace(
+      pathSegments: combinedUri.pathSegments.where((s) => s.isNotEmpty).toList(),
+    );
   }
 
   @override
@@ -47,9 +62,12 @@ class _NoticeWebViewScreenState extends State<NoticeWebViewScreen> {
       appBar: DetailHeader(),
       body: SafeArea(
         child: _controller == null
-          ? const Center(child: Text('잘못된 URL입니다.'))
-          : WebViewWidget(controller: _controller!),
-      )
+            ? const Center(child: Text('잘못된 URL입니다.'))
+            : WebViewWidget(
+          key: ValueKey(widget.path),
+          controller: _controller!,
+        ),
+      ),
     );
   }
 }

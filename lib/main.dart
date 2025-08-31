@@ -5,6 +5,8 @@ import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:dongsoop/firebase_options.dart';
+import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
+import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +62,13 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
+    FirebaseMessagingService.instance().setReadCallback(
+          (int id) => ref.read(notificationViewModelProvider.notifier).read(id),
+    );
+
+    FirebaseMessagingService.instance().setBadgeRefreshCallback(
+          () => ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(),
+    );
   }
 
   @override

@@ -1,57 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/ui/text_styles.dart';
+import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 
-class MainHeader extends StatelessWidget {
-  const MainHeader({super.key});
+class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
+  const MainHeader({
+    super.key,
+    required this.onTapAlarm,
+  });
+
+  final VoidCallback onTapAlarm;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(44);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userSessionProvider);
+    final unreadCount = ref.watch(notificationBadgeViewModelProvider);
+
+    final badgeText = unreadCount >= 99 ? '99+' : '$unreadCount';
+
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        height: 44,
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SvgPicture.asset('assets/icons/logo.svg', width: 28, height: 28),
+
+            if (user != null)
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onTapAlarm,
+                  borderRadius: BorderRadius.circular(64),
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Center(
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          SvgPicture.asset('assets/icons/alarm.svg',
+                              width: 28, height: 28),
+                          if (unreadCount > 0)
+                            Positioned(
+                              top: -4,
+                              right: -6,
+                              child: _Badge(text: badgeText),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  const _Badge({required this.text});
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 44,
-      decoration: const BoxDecoration(color: Colors.white),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // left: logo
-          SvgPicture.asset('assets/icons/logo.svg', width: 32, height: 32),
+    final isSingle = text.length == 1;
 
-          /// 추후 개발 기능
-          // right: alarm
-          // Stack(
-          //   clipBehavior: Clip.none,
-          //   children: [
-          //     SvgPicture.asset('assets/icons/alarm.svg', width: 24, height: 24),
-          //     Positioned(
-          //       top: -4,
-          //       right: -6,
-          //       child: Container(
-          //         padding: const EdgeInsets.symmetric(
-          //           horizontal: 3,
-          //           vertical: 1,
-          //         ),
-          //         decoration: BoxDecoration(
-          //           color: const Color(0xFFFF0000),
-          //           borderRadius: BorderRadius.circular(10),
-          //         ),
-          //         constraints: const BoxConstraints(minWidth: 16, minHeight: 9),
-          //         // alarm icon 추후 수정( 텍스트 포함 )
-          //         child: const Text(
-          //           '99+',
-          //           style: TextStyle(
-          //             color: ColorStyles.white,
-          //             fontSize: 6,
-          //             fontWeight: FontWeight.w500,
-          //             height: 2,
-          //           ),
-          //           textAlign: TextAlign.center,
-          //         ),
-          //       ),
-          //     ),
-          //   ],
-          // ),
-        ],
+    return Container(
+      padding: isSingle
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 4),
+      width: isSingle ? 16 : null,
+      height: 16,
+      decoration: BoxDecoration(
+        color: ColorStyles.warning100,
+        borderRadius: BorderRadius.circular(64),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyles.smallTextRegular.copyWith(
+          color: ColorStyles.white,
+        ),
       ),
     );
   }
