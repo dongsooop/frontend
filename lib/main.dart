@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
+import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:dongsoop/firebase_options.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
@@ -32,6 +33,7 @@ Future<void> main() async {
   await firebaseMessagingService.init(localNotificationsService: localNotificationsService);
 
   await Hive.initFlutter();
+  Hive.registerAdapter(LocalTimetableInfoAdapter());
   Hive.registerAdapter(ChatRoomMemberAdapter());
   Hive.registerAdapter(ChatRoomDetailAdapter());
   Hive.registerAdapter(ChatMessageAdapter());

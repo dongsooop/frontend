@@ -125,7 +125,7 @@ class HomeToday extends HookConsumerWidget {
   }) {
     List<Widget> content = [];
 
-    if (type == 'schedule') {
+    if (type == 'timetable') {
       content = [
         _buildRow('12:00', '프로그래밍언어실습'),
         _buildRow('14:00', '자바프로그래밍'),
@@ -217,8 +217,8 @@ class HomeToday extends HookConsumerWidget {
     // 공통 카드 UI
     return GestureDetector(
       onTap: () {
-        if (type == 'schedule') {
-          context.push('/schedule');
+        if (type == 'timetable') {
+          context.push('/timetable');
         } else if (type == 'calendar') {
           context.push('/calendar');
         } else if (type == 'cafeteria') {
