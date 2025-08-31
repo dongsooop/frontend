@@ -7,7 +7,7 @@ part of 'notification_badge_view_model.dart';
 // **************************************************************************
 
 String _$notificationBadgeViewModelHash() =>
-    r'3cfbcfe80fd524db21d8d383d73d8b28aebc2d69';
+    r'aaa467b4411f369cd1118c47efd6d53e3e37e647';
 
 /// See also [NotificationBadgeViewModel].
 @ProviderFor(NotificationBadgeViewModel)

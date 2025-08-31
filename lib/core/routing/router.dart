@@ -381,7 +381,10 @@ final router = GoRouter(
           GoRoute(
               path: RoutePaths.home,
               builder: (context, state) => HomePageScreen(
-                onTapAlarm: () => context.push(RoutePaths.notificationList),
+                onTapAlarm: () async {
+                  final ok = await context.push<bool>(RoutePaths.notificationList);
+                  return ok ?? true;
+                },
               ),
               routes: [
                 GoRoute(

@@ -11,6 +11,7 @@ import 'package:dongsoop/presentation/home/view_models/notification_view_model.d
 import 'package:dongsoop/domain/notification/entity/notification_entity.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/core/routing/push_router.dart';
+import 'package:dongsoop/presentation/home/state/notification_state.dart';
 
 class NotificationPageScreen extends HookConsumerWidget {
   const NotificationPageScreen({super.key});
@@ -18,55 +19,199 @@ class NotificationPageScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(notificationViewModelProvider);
-    final notificationController = ref.read(notificationViewModelProvider.notifier);
+    final notifier = ref.read(notificationViewModelProvider.notifier);
     final scrollController = useScrollController();
+    final prev = state.valueOrNull;
+    final isLoadingMore = state.isLoading && prev != null;
 
-    // 무한 스크롤
     useEffect(() {
       void onScroll() {
         if (!scrollController.hasClients) return;
-        if (scrollController.position.pixels >=
-            scrollController.position.maxScrollExtent - 200) {
-          notificationController.loadNextPage();
+        final position = scrollController.position;
+        if (position.pixels >= position.maxScrollExtent - 200) {
+          final hasMore =
+              (state.valueOrNull ?? const NotificationState()).hasMore;
+          if (!isLoadingMore && hasMore) {
+            notifier.loadNextPage();
+          }
         }
       }
 
       scrollController.addListener(onScroll);
       return () => scrollController.removeListener(onScroll);
-    }, [scrollController]);
+    }, [scrollController, isLoadingMore, state.valueOrNull?.hasMore]);
 
-    // 에러 다이얼로그
-    useEffect(() {
-      final err = state.error;
-      if (err != null && err.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            useRootNavigator: true,
-            builder: (_) => CustomConfirmDialog(
-              title: '알림 오류',
-              content: err,
-              confirmText: '확인',
-              isSingleAction: true,
-              onConfirm: () {},
-            ),
-          );
-        });
+    Widget buildList(
+        NotificationState s, {
+          bool showPaging = false,
+          String? message,
+        }) {
+      final items = s.items;
+
+      if (items.isEmpty && !showPaging) {
+        return const Center(child: Text('알림이 없습니다.'));
       }
-      return null;
-    }, [state.error]);
 
-    if (state.isLoading && state.items.isEmpty) {
-      return Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '알림',
-          onBack: () => context.pop(true),
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(color: ColorStyles.primaryColor),
-        ),
+      return Column(
+        children: [
+          if (message != null && message.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Center(
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: TextStyles.smallTextRegular
+                      .copyWith(color: ColorStyles.black),
+                ),
+              ),
+            ),
+          Expanded(
+            child: RefreshIndicator(
+              color: ColorStyles.primaryColor,
+              onRefresh: notifier.refresh,
+              child: ListView.builder(
+                controller: scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: items.length + (showPaging ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (showPaging && index == items.length) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                            color: ColorStyles.primaryColor),
+                      ),
+                    );
+                  }
+
+                  final NotificationEntity n = items[index];
+
+                  return Dismissible(
+                    key: ValueKey('notif_${n.id}'),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      color: const Color(0xFFFF3526),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      alignment: Alignment.centerRight,
+                      child: const Icon(Icons.delete, color: ColorStyles.white),
+                    ),
+                    confirmDismiss: (_) async {
+                      final bool? result = await showDialog<bool>(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (_) => CustomConfirmDialog(
+                          title: '알림 삭제',
+                          content: '이 알림을 삭제하시겠어요?',
+                          cancelText: '취소',
+                          confirmText: '삭제',
+                          dismissOnConfirm: false,
+                          dismissOnCancel: false,
+                          onCancel: () {
+                            Navigator.of(context, rootNavigator: true)
+                                .pop(false);
+                          },
+                          onConfirm: () async {
+                            try {
+                              await notifier.delete(n.id);
+                              if (context.mounted) {
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop(true);
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop(false);
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (_) => CustomConfirmDialog(
+                                    title: '삭제 실패',
+                                    content: e.toString(),
+                                    confirmText: '확인',
+                                    isSingleAction: true,
+                                    onConfirm: () {},
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      );
+                      return result ?? false;
+                    },
+                    child: InkWell(
+                      onTap: () async {
+                        if (!n.isRead) {
+                          try {
+                            await notifier.read(n.id);
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('$e')),
+                              );
+                            }
+                            return;
+                          }
+                        }
+                        await PushRouter.routeFromTypeValue(
+                          type: n.type,
+                          value: n.value,
+                        );
+                      },
+                      child: Container(
+                        color: n.isRead
+                            ? ColorStyles.white
+                            : ColorStyles.primary5,
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const _LeadingIcon(),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    n.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyles.normalTextBold.copyWith(
+                                      color: ColorStyles.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    n.body,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyles.smallTextRegular
+                                        .copyWith(
+                                      color: ColorStyles.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    formatRelativeTime(n.createdAt),
+                                    style: TextStyles.smallTextRegular
+                                        .copyWith(
+                                      color: ColorStyles.gray4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       );
     }
 
@@ -77,115 +222,36 @@ class NotificationPageScreen extends HookConsumerWidget {
         onBack: () => context.pop(true),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // 목록
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: notificationController.refresh,
-                child: ListView.builder(
-                  controller: scrollController,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: state.items.length + (state.isLoading ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (state.isLoading && index == state.items.length) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: ColorStyles.primaryColor,
-                          ),
-                        ),
-                      );
-                    }
-
-                    final NotificationEntity n = state.items[index];
-
-                    return Dismissible(
-                      key: ValueKey('notif_${n.id}'),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        color: const Color(0xFFFF3526),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        alignment: Alignment.centerRight,
-                        child: const Icon(Icons.delete, color: ColorStyles.white),
-                      ),
-                      onDismissed: (_) async {
-                        await notificationController.delete(n.id);
-                      },
-                      child: InkWell(
-                        onTap: () async {
-                          try {
-                            await PushRouter.routeFromTypeValue(
-                              type: n.type,
-                              value: n.value,
-                            );
-                            await notificationController.read(n.id);
-                          } catch (_) {}
-                        },
-                        child: Container(
-                          color: n.isRead ? ColorStyles.white : ColorStyles.primary5,
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const _LeadingIcon(),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      n.title,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyles.normalTextBold.copyWith(
-                                        color: ColorStyles.black,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      n.body,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyles.smallTextRegular.copyWith(
-                                        color: ColorStyles.black,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      formatRelativeTime(n.createdAt),
-                                      style: TextStyles.smallTextRegular.copyWith(
-                                        color: ColorStyles.gray4,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            // 하단 안내문 (항상 고정)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  '30일 전 알림까지 확인할 수 있어요',
-                  style: TextStyles.smallTextRegular.copyWith(
-                    color: ColorStyles.gray4,
+        child: state.when(
+          data: (data) =>
+              buildList(data, showPaging: false, message: data.error),
+          loading: () {
+            if (prev == null) {
+              return const Center(
+                child:
+                CircularProgressIndicator(color: ColorStyles.primaryColor),
+              );
+            }
+            return buildList(prev, showPaging: true, message: prev.error);
+          },
+          error: (e, _) {
+            if (prev == null) {
+              return SizedBox.expand(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Center(
+                    child: Text(
+                      '$e',
+                      style: TextStyles.normalTextRegular
+                          .copyWith(color: ColorStyles.black),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ],
+              );
+            }
+            return buildList(prev, showPaging: false, message: e.toString());
+          },
         ),
       ),
     );
