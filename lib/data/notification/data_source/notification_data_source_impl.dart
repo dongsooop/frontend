@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/notification/data_source/notification_data_source.dart';
 import 'package:dongsoop/data/notification/model/notification_response_model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class NotificationDataSourceImpl implements NotificationDataSource {
@@ -22,11 +21,6 @@ class NotificationDataSourceImpl implements NotificationDataSource {
     };
 
     final response = await _authDio.get(url, queryParameters: query);
-
-    if (kDebugMode) {
-      debugPrint('[NotificationDS] GET $url query=$query');
-      debugPrint('[NotificationDS] <- ${response.statusCode} (type=${response.data.runtimeType})');
-    }
 
     if (response.statusCode == HttpStatusCode.ok.code) {
       final data = response.data;
