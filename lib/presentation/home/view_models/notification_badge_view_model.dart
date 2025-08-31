@@ -1,19 +1,21 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:dongsoop/presentation/home/providers/notification_use_case_provider.dart';
 
 part 'notification_badge_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class NotificationBadgeViewModel extends _$NotificationBadgeViewModel {
   bool _loading = false;
+  bool get isLoading => _loading;
 
   @override
   int build() => 0;
 
-  Future<void> refreshBadge({int maxRetry = 1}) async {
-    if (_loading) return;
+  Future<void> refreshBadge({int maxRetry = 1, bool force = false}) async {
+    if (_loading && !force) {
+      return;
+    }
     _loading = true;
     int attempt = 0;
 
@@ -24,15 +26,15 @@ class NotificationBadgeViewModel extends _$NotificationBadgeViewModel {
         try {
           final count = await badge.unreadOnly();
           state = _cap99(count);
-          if (kDebugMode) debugPrint('[BadgeVM] unread=$state');
           break;
         } catch (e) {
-          if (attempt++ >= maxRetry) rethrow;
+          if (attempt++ >= maxRetry) {
+            rethrow;
+          }
           await Future<void>.delayed(const Duration(milliseconds: 200));
         }
       }
-    } catch (e, st) {
-      if (kDebugMode) debugPrint('[BadgeVM] refresh error: $e\n$st');
+    } catch (_) {
     } finally {
       _loading = false;
     }

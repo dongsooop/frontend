@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 
 typedef ReadFn = Future<void> Function(int id);
+typedef RefreshBadgeFn = Future<void> Function();
 
 class FirebaseMessagingService {
   FirebaseMessagingService._internal();
@@ -19,9 +20,22 @@ class FirebaseMessagingService {
   bool _initialized = false;
 
   ReadFn? _read;
-  void setReadCallback(ReadFn read) => _read = read;
+  RefreshBadgeFn? _refreshBadge;
 
-  // FCM 초기화 메서드
+  void setReadCallback(ReadFn read) => _read = read;
+  void setBadgeRefreshCallback(RefreshBadgeFn cb) => _refreshBadge = cb;
+
+
+  Timer? _badgeThrottle;
+  void _scheduleBadgeRefresh() {
+    final throttled = _badgeThrottle?.isActive == true;
+    if (_refreshBadge == null) return;
+    if (throttled) return;
+    _badgeThrottle = Timer(const Duration(milliseconds: 400), () {
+      _refreshBadge!.call();
+    });
+  }
+
   Future<void> init({required LocalNotificationsService localNotificationsService}) async {
     if (_initialized) return;
     _initialized = true;
@@ -30,7 +44,6 @@ class FirebaseMessagingService {
 
     // 로컬 알림 탭 시 라우팅 처리
     _localNotificationsService?.onTap = (payloadJson) async {
-      print('[LocalTap] raw payload=$payloadJson');
       try {
         final map = jsonDecode(payloadJson) as Map<String, dynamic>;
         final type = map['type']?.toString();
@@ -40,15 +53,14 @@ class FirebaseMessagingService {
         if (type != null && value != null) {
           try {
             await PushRouter.routeFromTypeValue(type: type, value: value);
-          } catch (_) {
-          }
+          } catch (_) {}
         }
         if (id != null) {
           await _read?.call(id);
         }
-      } catch (e, st) {
-        print('[LocalTap] payload parse error: $e\n$st');
-      }
+
+        _scheduleBadgeRefresh();
+      } catch (_) {}
     };
 
     // 백그라운드 상태에서 메시지 수신 핸들러
@@ -66,8 +78,6 @@ class FirebaseMessagingService {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _onMessageOpenedApp(initialMessage);
       });
-    } else {
-      print('[getInitialMessage] null (no launch via notification)');
     }
   }
 
@@ -76,19 +86,16 @@ class FirebaseMessagingService {
 
   // 포그라운드 상태에서 메시지 수신 시
   void _onForegroundMessage(RemoteMessage message) {
-    print('Foreground message received: ${message.data.toString()}');
     final notificationData = message.notification;
     if (notificationData != null) {
       final payload = jsonEncode(message.data);
-      print('[onMessage] enqueue local notification payload=$payload');
       _localNotificationsService?.showNotification(
         notificationData.title,
         notificationData.body,
         payload,
       );
-    } else {
-      print('[onMessage] notification=null (data-only?)');
     }
+    _scheduleBadgeRefresh();
   }
   // 백그라운드 or 종료 상태에서 알림 클릭으로 앱이 열렸을 떄
   Future<void> _onMessageOpenedApp(RemoteMessage message) async {
@@ -99,13 +106,14 @@ class FirebaseMessagingService {
     if (type != null && value != null) {
       try {
         await PushRouter.routeFromTypeValue(type: type, value: value);
-      } catch (_) {
-      }
+      } catch (_) {}
     }
 
     if (id != null) {
       await _read?.call(id);
     }
+
+    _scheduleBadgeRefresh();
   }
 
   int? _extractValidId(dynamic raw) {

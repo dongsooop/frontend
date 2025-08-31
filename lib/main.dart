@@ -4,11 +4,10 @@ import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:dongsoop/firebase_options.dart';
+import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,14 +30,6 @@ Future<void> main() async {
 
   final firebaseMessagingService = FirebaseMessagingService.instance();
   await firebaseMessagingService.init(localNotificationsService: localNotificationsService);
-
-  // 임시
-  final token = await FirebaseMessaging.instance.getToken();
-  debugPrint('[FCM] Device Token: $token');
-
-  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-    debugPrint('[FCM] Device Token refreshed: $newToken');
-  });
 
   await Hive.initFlutter();
   Hive.registerAdapter(ChatRoomMemberAdapter());
@@ -71,6 +62,10 @@ class _MyAppState extends ConsumerState<MyApp> {
     super.initState();
     FirebaseMessagingService.instance().setReadCallback(
           (int id) => ref.read(notificationViewModelProvider.notifier).read(id),
+    );
+
+    FirebaseMessagingService.instance().setBadgeRefreshCallback(
+          () => ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(),
     );
   }
 
