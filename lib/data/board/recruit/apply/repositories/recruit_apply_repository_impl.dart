@@ -95,7 +95,10 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
       return await action();
     } on ProfanityDetectedException {
       rethrow;
-    } catch (_) {
+    } on NotFoundBoardException {
+      rethrow;
+    }
+    catch (_) {
       throw exception;
     }
   }

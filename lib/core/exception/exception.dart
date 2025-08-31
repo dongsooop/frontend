@@ -434,10 +434,9 @@ class NotificationDeleteException implements Exception {
   String toString() => message;
 }
 
-class NotificationRoutingException implements Exception {
+class NotFoundBoardException implements Exception {
   final String message;
-  NotificationRoutingException(
-      [this.message = "해당 알림으로 이동하는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+  const NotFoundBoardException([this.message = "존재하지 않거나 삭제된 게시글이에요."]);
 
   @override
   String toString() => message;
