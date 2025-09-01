@@ -1,18 +1,22 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 
-class NoticeWebViewScreen extends StatefulWidget {
+class NoticeWebViewScreen extends ConsumerStatefulWidget {
   final String path;
 
   const NoticeWebViewScreen({super.key, required this.path});
 
   @override
-  State<NoticeWebViewScreen> createState() => _NoticeWebViewScreenState();
+  ConsumerState<NoticeWebViewScreen> createState() => _NoticeWebViewScreenState();
 }
 
-class _NoticeWebViewScreenState extends State<NoticeWebViewScreen> {
+class _NoticeWebViewScreenState extends ConsumerState<NoticeWebViewScreen> {
   WebViewController? _controller;
+  bool _didRefreshFromNotifList = false;
 
   static const String _baseUrl = 'https://www.dongyang.ac.kr';
 
@@ -27,6 +31,21 @@ class _NoticeWebViewScreenState extends State<NoticeWebViewScreen> {
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(NavigationDelegate())
         ..loadRequest(uri);
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeRefreshBadgeFromQuery();
+    });
+  }
+
+  void _maybeRefreshBadgeFromQuery() {
+    if (_didRefreshFromNotifList) return;
+
+    final from = GoRouterState.of(context).uri.queryParameters['from'];
+    if (from == 'notificationList') {
+      _didRefreshFromNotifList = true;
+      ref.read(notificationBadgeViewModelProvider.notifier)
+          .refreshBadge(force: true);
     }
   }
 
@@ -58,6 +77,7 @@ class _NoticeWebViewScreenState extends State<NoticeWebViewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _maybeRefreshBadgeFromQuery();
     return Scaffold(
       appBar: DetailHeader(),
       body: SafeArea(
