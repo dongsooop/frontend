@@ -23,7 +23,9 @@ class PushRouter {
 
       switch (type) {
         case 'CHAT':
-          await router.push(RoutePaths.chatDetail, extra: value);
+          await _goHomeThen(() async {
+            await router.push(RoutePaths.chatDetail, extra: value);
+          });
           return true;
 
         case 'NOTICE':
@@ -43,11 +45,12 @@ class PushRouter {
 
           final recruitType = _parseRecruitTypeSafe(type);
           if (recruitType == null) return await _fallbackToNotificationList();
-
-          await router.push(
-            RoutePaths.recruitApplicantList,
-            extra: {'id': id, 'type': recruitType},
-          );
+          await _goHomeThen(() async {
+            await router.push(
+              RoutePaths.recruitApplicantList,
+              extra: {'id': id, 'type': recruitType},
+            );
+          });
           return true;
         }
 
@@ -62,14 +65,16 @@ class PushRouter {
           final recruitType = _parseRecruitTypeSafe(type);
           if (recruitType == null) return await _fallbackToNotificationList();
 
-          await router.push(
-            RoutePaths.recruitApplicantDetail,
-            extra: {
-              'viewer': RecruitApplicantViewer.APPLICANT,
-              'id': id,
-              'type': recruitType,
-            },
-          );
+          await _goHomeThen(() async {
+            await router.push(
+              RoutePaths.recruitApplicantDetail,
+              extra: {
+                'viewer': RecruitApplicantViewer.APPLICANT,
+                'id': id,
+                'type': recruitType,
+              },
+            );
+          });
           return true;
         }
         default:
@@ -110,6 +115,18 @@ class PushRouter {
       await Future.microtask(navigateToNotice);
     } else {
       await navigateToNotice();
+    }
+  }
+
+  static Future<void> _goHomeThen(Future<void> Function() action) async {
+    final currentUri = router.routeInformationProvider.value.uri;
+    final isInHomeBranch = currentUri.toString().startsWith(RoutePaths.home);
+
+    if (!isInHomeBranch) {
+      router.go(RoutePaths.home);
+      await Future.microtask(action);
+    } else {
+      await action();
     }
   }
 
