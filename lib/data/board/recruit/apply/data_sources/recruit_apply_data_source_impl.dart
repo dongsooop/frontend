@@ -67,14 +67,21 @@ class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
     final baseUrl = RecruitTypeConfig.getApplyEndpoint(type);
     final url = '$baseUrl/$boardId';
 
-    final response = await _authDio.get(url);
+    try {
+      final response = await _authDio.get(url);
 
-    if (response.statusCode == HttpStatusCode.ok.code) {
-      final data = response.data;
-      if (data is! List) throw FormatException('응답 데이터 형식이 List가 아닙니다.');
-      return data.map((e) => RecruitApplicantListModel.fromJson(e)).toList();
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        if (data is! List) throw FormatException('응답 데이터 형식이 List가 아닙니다.');
+        return data.map((e) => RecruitApplicantListModel.fromJson(e)).toList();
+      }
+      throw Exception('status: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw NotFoundBoardException();
+      }
+      rethrow;
     }
-    throw Exception('status: ${response.statusCode}');
   }
 
   @override
@@ -103,15 +110,24 @@ class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
   }) async {
     final baseUrl = RecruitTypeConfig.getApplyEndpoint(type);
     final url = '$baseUrl/self/$boardId';
-    final response = await _authDio.get(url);
 
-    if (response.statusCode == HttpStatusCode.ok.code) {
-      final data = response.data;
-      if (data is! Map<String, dynamic>)
-        throw FormatException('응답 데이터 형식이 Map<String, dynamic>이 아닙니다.');
-      return RecruitApplicantDetailModel.fromJson(data);
+    try {
+      final response = await _authDio.get(url);
+
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        if (data is! Map<String, dynamic>) {
+          throw FormatException('응답 데이터 형식이 Map<String, dynamic>이 아닙니다.');
+        }
+        return RecruitApplicantDetailModel.fromJson(data);
+      }
+      throw Exception('status: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw NotFoundBoardException();
+      }
+      rethrow;
     }
-    throw Exception('status: ${response.statusCode}');
   }
 
   @override
