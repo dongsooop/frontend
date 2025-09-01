@@ -157,6 +157,7 @@ class NotificationPageScreen extends HookConsumerWidget {
                         await PushRouter.routeFromTypeValue(
                           type: n.type,
                           value: n.value,
+                          fromNotificationList: true,
                         );
                       },
                       child: Container(

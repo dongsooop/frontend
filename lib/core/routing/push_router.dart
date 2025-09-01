@@ -9,6 +9,7 @@ class PushRouter {
   static Future<bool> routeFromTypeValue({
     required String type,
     required String value,
+    bool fromNotificationList = false,
   }) async {
     if (_isRouting) return false;
     _isRouting = true;
@@ -26,7 +27,10 @@ class PushRouter {
           return true;
 
         case 'NOTICE':
-          await _goToNoticeInHomeBranch(value);
+          await _goToNoticeInHomeBranch(
+            value,
+            fromNotificationList: fromNotificationList,
+          );
           return true;
 
         case 'RECRUITMENT_STUDY_APPLY':
@@ -68,7 +72,6 @@ class PushRouter {
           );
           return true;
         }
-
         default:
           return await _fallbackToNotificationList();
       }
@@ -79,14 +82,26 @@ class PushRouter {
     }
   }
 
-  static Future<void> _goToNoticeInHomeBranch(String path) async {
+  static Future<void> _goToNoticeInHomeBranch(
+      String path, {
+        bool fromNotificationList = false,
+      }) async {
     final currentUri = router.routeInformationProvider.value.uri;
-    final isInHomeBranch = currentUri.toString().startsWith(RoutePaths.home);
+    final isInHomeBranch =
+    currentUri.toString().startsWith(RoutePaths.home);
+
+    Map<String, String> _buildQuery(String p) {
+      final qp = <String, String>{'path': p};
+      if (fromNotificationList) {
+        qp['from'] = 'notificationList';
+      }
+      return qp;
+    }
 
     Future<void> navigateToNotice() async {
       router.goNamed(
         'noticeWebView',
-        queryParameters: <String, String>{'path': path},
+        queryParameters: _buildQuery(path),
       );
     }
 
