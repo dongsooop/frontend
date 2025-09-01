@@ -77,22 +77,29 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     final isSingle = text.length == 1;
 
-    return Container(
-      padding: isSingle
-          ? EdgeInsets.zero
-          : const EdgeInsets.symmetric(horizontal: 4),
-      width: isSingle ? 16 : null,
-      height: 16,
-      decoration: BoxDecoration(
-        color: ColorStyles.warning100,
-        borderRadius: BorderRadius.circular(64),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyles.smallTextRegular.copyWith(
-          color: ColorStyles.white,
+    final media = MediaQuery.maybeOf(context);
+    final fixed = (media ?? const MediaQueryData())
+        .copyWith(textScaler: TextScaler.noScaling);
+
+    return MediaQuery(
+      data: fixed,
+      child: Container(
+        padding: isSingle
+            ? EdgeInsets.zero
+            : const EdgeInsets.symmetric(horizontal: 4),
+        width: isSingle ? 18 : null,
+        height: 18,
+        decoration: BoxDecoration(
+          color: ColorStyles.warning100,
+          borderRadius: BorderRadius.circular(64),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyles.smallTextRegular.copyWith(
+            color: ColorStyles.white,
+          ),
         ),
       ),
     );
