@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 
 class TimetableDetailScreen extends HookConsumerWidget {
   final List<Lecture>? lectureList;
@@ -78,10 +77,56 @@ class TimetableDetailScreen extends HookConsumerWidget {
       return null;
     }, [timetableDetailState.errorMessage]);
 
+    useEffect(() {
+      if (timetableDetailState.analysisErrorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '시간표 자동 작성 실패',
+              isSingleAction: true,
+              content: timetableDetailState.analysisErrorMessage!,
+              onConfirm: () async {
+
+              },
+            ),
+          );
+        });
+      }
+      return null;
+    }, [timetableDetailState.analysisErrorMessage]);
+
     if (timetableDetailState.isLoading) {
       return Container(
         color: ColorStyles.white,
         child: Center(child: CircularProgressIndicator(color: ColorStyles.primaryColor,)),
+      );
+    }
+
+    if (timetableDetailState.isAnalyzing) {
+      final size = MediaQuery.sizeOf(context);
+      return ConstrainedBox(
+        constraints: BoxConstraints(minHeight: size.height),
+        child: Container(
+          color: ColorStyles.white,
+          child: Center(
+            child: Column(
+              spacing: 24,
+              children: [
+                CircularProgressIndicator(
+                  color: ColorStyles.primaryColor,
+                ),
+                Text(
+                  timetableDetailState.analysisLoadingMessage!,
+                  style: TextStyles.normalTextRegular.copyWith(
+                    color: ColorStyles.black,
+                  ),
+                )
+              ],
+            )
+          ),
+        ),
       );
     }
 

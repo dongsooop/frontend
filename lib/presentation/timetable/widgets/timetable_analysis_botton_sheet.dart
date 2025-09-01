@@ -89,7 +89,7 @@ class AnalysisDetailSheet extends ConsumerWidget {
             // 시간표 예시 이미지
             Center(
               child: FractionallySizedBox(
-                widthFactor: 0.7,
+                widthFactor: 0.6,
                 child: Image.asset(
                   'assets/images/timetable.png',
                   fit: BoxFit.contain,
@@ -143,8 +143,8 @@ class AnalysisDetailSheet extends ConsumerWidget {
             ElevatedButton(
               onPressed: state.canSubmitAnalysis
                 ? () async {
+                  Navigator.pop(context);
                   await viewModel.submitAnalysis();
-                  if (context.mounted) Navigator.of(context).pop();
                 }
                 : null,
               style: ElevatedButton.styleFrom(

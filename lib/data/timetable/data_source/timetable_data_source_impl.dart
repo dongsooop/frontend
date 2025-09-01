@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source.dart';
@@ -8,13 +9,16 @@ import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
 import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TimetableDataSourceImpl implements TimetableDataSource {
   final Dio _authDio;
+  final Dio _aiDio;
   final HiveService _hiveService;
 
   TimetableDataSourceImpl(
     this._authDio,
+    this._aiDio,
     this._hiveService,
   );
 
@@ -91,8 +95,26 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   }
 
   @override
-  Future<LectureAi> timetableAnalysis() async {
-    throw UnimplementedError();
+  Future<List<LectureAi>> timetableAnalysis(XFile file) async {
+    final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(file.path),
+      });
+      final response = await _aiDio.post(
+        endpoint,
+        data: formData,
+      );
+      print('timetable list: ${response.data}');
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<dynamic> data = response.data['schedule'] as List<dynamic>;
+        return data.map((e) => LectureAi.fromJson(e as Map<String, dynamic>)).toList();
+      }
+      throw TimetableAnalysisFailedException();
+    } catch (e) {
+      throw TimetableAnalysisFailedException();
+    }
   }
 
   @override
