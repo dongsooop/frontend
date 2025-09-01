@@ -3,12 +3,15 @@ import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/presentation/timetable/widgets/lecture_detail_bottom_sheet.dart';
 import 'package:dongsoop/presentation/timetable/widgets/positioned_lecture_block.dart';
+import 'package:dongsoop/presentation/timetable/widgets/timetable_analysis_botton_sheet.dart';
 import 'package:dongsoop/presentation/timetable/widgets/timetable_grid.dart';
 import 'package:dongsoop/providers/timetable_providers.dart';
+import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TimetableDetailScreen extends HookConsumerWidget {
   final List<Lecture>? lectureList;
@@ -82,52 +85,103 @@ class TimetableDetailScreen extends HookConsumerWidget {
       );
     }
 
-    return Container(
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: ColorStyles.gray2),
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      height: (columnLength / 2 * kBoxSize) + kFirstColumnHeight + 2,
-      child: TimetableGrid(
-        columnLength: columnLength,
-        firstRowHeight: kFirstColumnHeight,
-        slotHeight: kBoxSize,
-        dayChildrenBuilder: (day, dayWidth) {
-          if (lectureList == null) return const [];
-          final colorList = lectureColors;
-          final items = <Widget>[];
-          for (final lecture in lectureList!) {
-            if (lecture.week != day) continue;
-            final color = colorList[lectureList!.indexOf(lecture) % colorList.length];
-            items.add(
-              PositionedLectureBlock(
-                lecture: lecture,
-                firstRowHeight: kFirstColumnHeight,
-                slotHeight: kBoxSize,
-                dayWidth: dayWidth,
-                color: color,
-                onTap: () {
-                  showLectureDetailBottomSheet(
-                    context,
+    return Column(
+      spacing: 24,
+      children: [
+        Container(
+          decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(width: 1, color: ColorStyles.gray2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          height: (columnLength / 2 * kBoxSize) + kFirstColumnHeight + 2,
+          child: TimetableGrid(
+            columnLength: columnLength,
+            firstRowHeight: kFirstColumnHeight,
+            slotHeight: kBoxSize,
+            dayChildrenBuilder: (day, dayWidth) {
+              if (lectureList == null) return const [];
+              final colorList = lectureColors;
+              final items = <Widget>[];
+              for (final lecture in lectureList!) {
+                if (lecture.week != day) continue;
+                final color = colorList[lectureList!.indexOf(lecture) % colorList.length];
+                items.add(
+                  PositionedLectureBlock(
                     lecture: lecture,
-                    onEdit: () async {
-                      final ok = await onEditLecture?.call(lecture) ?? false;
-                      if (ok) onLectureChanged?.call();
+                    firstRowHeight: kFirstColumnHeight,
+                    slotHeight: kBoxSize,
+                    dayWidth: dayWidth,
+                    color: color,
+                    onTap: () {
+                      showLectureDetailBottomSheet(
+                        context,
+                        lecture: lecture,
+                        onEdit: () async {
+                          final ok = await onEditLecture?.call(lecture) ?? false;
+                          if (ok) onLectureChanged?.call();
+                        },
+                        onDelete: () async {
+                          await viewModel.deleteLecture(lecture.id);
+                          onLectureChanged?.call();
+                        },
+                      );
                     },
-                    onDelete: () async {
-                      await viewModel.deleteLecture(lecture.id);
-                      onLectureChanged?.call();
-                    },
+                  ),
+                );
+              }
+              return items;
+            },
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 1,
+                color: ColorStyles.gray2,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 16,
+            children: [
+              Text(
+                '시간표를 사진으로 자동 작성해 봐요',
+                style: TextStyles.smallTextRegular.copyWith(
+                  color: ColorStyles.black
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  TimetableAnalysisBottomSheet(
+                    context,
                   );
                 },
-              ),
-            );
-          }
-          return items;
-        },
-      ),
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: ColorStyles.primaryColor,
+                  minimumSize: const Size.fromHeight(44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  '시간표 자동 작성하기',
+                  style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white),
+                ),
+              )
+            ],
+          ),
+        )
+      ],
     );
   }
 }
