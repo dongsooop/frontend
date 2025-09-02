@@ -1,7 +1,13 @@
+import 'dart:ui';
+
+import 'package:dongsoop/presentation/home/providers/today_schedule_provider.dart';
 import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/providers/timetable_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -15,12 +21,42 @@ class HomeToday extends HookConsumerWidget {
     final now = DateTime.now();
     final weekday = ['월', '화', '수', '목', '금', '토', '일'][now.weekday - 1];
     final todayString = '${now.month}월 ${now.day}일 ($weekday)';
+    final user = ref.watch(userSessionProvider);
 
-    String cafeteriaText = cafeteriaState.when(
+    // 학식
+    final String cafeteriaText = cafeteriaState.when(
       data: (state) => state.todayMeal?.koreanMenu ?? '오늘은 학식이 제공되지 않아요!',
       loading: () => '불러오는 중...',
       error: (err, _) => err.toString(),
     );
+
+    // 시간표
+    final timetableState = ref.watch(timetableViewModelProvider);
+    final timetableViewModel = ref.read(timetableViewModelProvider.notifier);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if ((timetableState.year == null || timetableState.semester == null) &&
+            (timetableState.lectureList == null || timetableState.lectureList!.isEmpty)) {
+          timetableViewModel.getCurrentSemester(DateTime.now());
+          await timetableViewModel.getLecture();
+        }
+      });
+      return null;
+    }, []);
+
+    final todayLectures = ref.watch(todayLecturesFromVmProvider);
+
+    final timetableContent = todayLectures.isEmpty
+        ? [
+      Text('오늘 강의가 없어요',
+          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4)),
+    ]
+        : todayLectures.map((lecture) {
+      final timeLabel =
+      lecture.startAt.length >= 5 ? lecture.startAt.substring(0, 5) : lecture.startAt;
+      return _buildRow(timeLabel, lecture.name);
+    }).toList();
 
     return Container(
       width: double.infinity,
@@ -45,54 +81,54 @@ class HomeToday extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          // // 강의시간표 + 일정 (하나의 Stack으로 묶어서 blur 처리)
-          // SizedBox(
-          //   height: 140,
-          //   child: Stack(
-          //     children: [
-          //       Row(
-          //         children: [
-          //           Expanded(
-          //             child: _buildCard(
-          //               title: '강의시간표',
-          //               type: 'schedule',
-          //               context: context,
-          //             ),
-          //           ),
-          //           const SizedBox(width: 8),
-          //           Expanded(
-          //             child: _buildCard(
-          //               title: '일정',
-          //               type: 'calendar',
-          //               context: context,
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //       if (user == null)
-          //         Positioned.fill(
-          //           child: ClipRRect(
-          //             borderRadius: BorderRadius.circular(8),
-          //             child: BackdropFilter(
-          //               filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
-          //               child: Container(
-          //                 alignment: Alignment.center,
-          //                 color:
-          //                     ColorStyles.white.withAlpha((255 * 0.5).round()),
-          //                 child: Text(
-          //                   '로그인이 필요한 서비스예요',
-          //                   style: TextStyles.normalTextBold.copyWith(
-          //                     color: ColorStyles.black,
-          //                   ),
-          //                   textAlign: TextAlign.center,
-          //                 ),
-          //               ),
-          //             ),
-          //           ),
-          //         ),
-          //     ],
-          //   ),
-          // ),
+          // 강의시간표 + 일정 (하나의 Stack으로 묶어서 blur 처리)
+          SizedBox(
+            height: 140,
+            child: Stack(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildCard(
+                        title: '강의시간표',
+                        type: 'timetable',
+                        context: context,
+                        dynamicContent: timetableContent,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildCard(
+                        title: '일정',
+                        type: 'calendar',
+                        context: context,
+
+                      ),
+                    ),
+                  ],
+                ),
+                if (user == null)
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
+                        child: Container(
+                          alignment: Alignment.center,
+                          color:
+                              ColorStyles.white.withAlpha((255 * 0.5).round()),
+                          child: Text(
+                            '로그인이 필요한 서비스예요',
+                            style: TextStyles.normalTextBold.copyWith(color: ColorStyles.black),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
           const SizedBox(height: 16),
 
           // 오늘의 학식
@@ -122,15 +158,16 @@ class HomeToday extends HookConsumerWidget {
     required String type,
     required BuildContext context,
     String? cafeteriaText,
+    List<Widget>? dynamicContent,
   }) {
     List<Widget> content = [];
 
     if (type == 'timetable') {
-      content = [
-        _buildRow('12:00', '프로그래밍언어실습'),
-        _buildRow('14:00', '자바프로그래밍'),
-        _buildRow('17:00', '슬기로운직장생활'),
-      ];
+      content = dynamicContent ??
+          [Text(
+              '',
+              style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+            )];
     } else if (type == 'calendar') {
       content = [
         _buildRow('13:00', '프로젝트 회의'),

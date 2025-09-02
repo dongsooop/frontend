@@ -441,3 +441,11 @@ class NotFoundBoardException implements Exception {
   @override
   String toString() => message;
 }
+
+class TodayTimetableException implements Exception {
+  final String message;
+  const TodayTimetableException([this.message = "알 수 없는 오류가 발생했어요."]);
+
+  @override
+  String toString() => message;
+}

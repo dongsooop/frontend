@@ -394,7 +394,7 @@ class CalendarPageScreen extends HookConsumerWidget {
               ),
             ],
           ),
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: CircularProgressIndicator(color: ColorStyles.primary100)),
           error: (e, _) => SizedBox.expand(
             child: Center(
               child: Text(
