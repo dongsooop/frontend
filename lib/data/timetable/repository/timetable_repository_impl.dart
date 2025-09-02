@@ -5,6 +5,7 @@ import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
 import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:dongsoop/domain/timetable/repository/timetable_repository.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TimetableRepositoryImpl implements TimetableRepository {
   final TimetableDataSource _timetableDataSource;
@@ -26,11 +27,6 @@ class TimetableRepositoryImpl implements TimetableRepository {
   @override
   Future<List<Lecture>?> getLecture(int year, Semester semester) async {
     return await _timetableDataSource.getLecture(year, semester);
-  }
-
-  @override
-  Future<LectureAi> timetableAnalysis() async {
-    return await _timetableDataSource.timetableAnalysis();
   }
 
   @override
@@ -56,5 +52,15 @@ class TimetableRepositoryImpl implements TimetableRepository {
   @override
   Future<void> deleteTimetable(int year, Semester semester) async {
     await _timetableDataSource.deleteTimetable(year, semester);
+  }
+
+  @override
+  Future<List<LectureAi>> getTimetableAnalysis(XFile file) async {
+    return await _timetableDataSource.timetableAnalysis(file);
+  }
+
+  @override
+  Future<void> saveMultipleTimetable(List<LectureRequest> timetable) async {
+    await _timetableDataSource.saveMultipleTimetable(timetable);
   }
 }

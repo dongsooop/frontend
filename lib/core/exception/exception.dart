@@ -441,3 +441,38 @@ class NotFoundBoardException implements Exception {
   @override
   String toString() => message;
 }
+
+class TimetableException implements Exception {
+  final String message;
+  const TimetableException([this.message = "알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+
+class TimetableAnalysisFailedException extends TimetableException {
+  const TimetableAnalysisFailedException([
+    String message = "시간표 분석에 실패했어요\n이미지를 다시 첨부해 주세요"
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class TimetableConflictException extends TimetableException {
+  const TimetableConflictException([
+    String message = "시간표 저장에 실패했어요\n겹치는 시간이 있다면 삭제해 주세요"
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class TimetableMultiStatusException extends TimetableException {
+  const TimetableMultiStatusException([
+    String message = "강의 저장에 실패했어요\n겹치는 시간이 있다면 삭제해 주세요"
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
