@@ -9,6 +9,7 @@ class PushRouter {
   static Future<bool> routeFromTypeValue({
     required String type,
     required String value,
+    bool fromNotificationList = false,
   }) async {
     if (_isRouting) return false;
     _isRouting = true;
@@ -22,11 +23,16 @@ class PushRouter {
 
       switch (type) {
         case 'CHAT':
-          await router.push(RoutePaths.chatDetail, extra: value);
+          await _goHomeThen(() async {
+            await router.push(RoutePaths.chatDetail, extra: value);
+          });
           return true;
 
         case 'NOTICE':
-          await _goToNoticeInHomeBranch(value);
+          await _goToNoticeInHomeBranch(
+            value,
+            fromNotificationList: fromNotificationList,
+          );
           return true;
 
         case 'RECRUITMENT_STUDY_APPLY':
@@ -39,11 +45,12 @@ class PushRouter {
 
           final recruitType = _parseRecruitTypeSafe(type);
           if (recruitType == null) return await _fallbackToNotificationList();
-
-          await router.push(
-            RoutePaths.recruitApplicantList,
-            extra: {'id': id, 'type': recruitType},
-          );
+          await _goHomeThen(() async {
+            await router.push(
+              RoutePaths.recruitApplicantList,
+              extra: {'id': id, 'type': recruitType},
+            );
+          });
           return true;
         }
 
@@ -58,17 +65,18 @@ class PushRouter {
           final recruitType = _parseRecruitTypeSafe(type);
           if (recruitType == null) return await _fallbackToNotificationList();
 
-          await router.push(
-            RoutePaths.recruitApplicantDetail,
-            extra: {
-              'viewer': RecruitApplicantViewer.APPLICANT,
-              'id': id,
-              'type': recruitType,
-            },
-          );
+          await _goHomeThen(() async {
+            await router.push(
+              RoutePaths.recruitApplicantDetail,
+              extra: {
+                'viewer': RecruitApplicantViewer.APPLICANT,
+                'id': id,
+                'type': recruitType,
+              },
+            );
+          });
           return true;
         }
-
         default:
           return await _fallbackToNotificationList();
       }
@@ -79,14 +87,26 @@ class PushRouter {
     }
   }
 
-  static Future<void> _goToNoticeInHomeBranch(String path) async {
+  static Future<void> _goToNoticeInHomeBranch(
+      String path, {
+        bool fromNotificationList = false,
+      }) async {
     final currentUri = router.routeInformationProvider.value.uri;
-    final isInHomeBranch = currentUri.toString().startsWith(RoutePaths.home);
+    final isInHomeBranch =
+    currentUri.toString().startsWith(RoutePaths.home);
+
+    Map<String, String> _buildQuery(String p) {
+      final qp = <String, String>{'path': p};
+      if (fromNotificationList) {
+        qp['from'] = 'notificationList';
+      }
+      return qp;
+    }
 
     Future<void> navigateToNotice() async {
       router.goNamed(
         'noticeWebView',
-        queryParameters: <String, String>{'path': path},
+        queryParameters: _buildQuery(path),
       );
     }
 
@@ -95,6 +115,18 @@ class PushRouter {
       await Future.microtask(navigateToNotice);
     } else {
       await navigateToNotice();
+    }
+  }
+
+  static Future<void> _goHomeThen(Future<void> Function() action) async {
+    final currentUri = router.routeInformationProvider.value.uri;
+    final isInHomeBranch = currentUri.toString().startsWith(RoutePaths.home);
+
+    if (!isInHomeBranch) {
+      router.go(RoutePaths.home);
+      await Future.microtask(action);
+    } else {
+      await action();
     }
   }
 
