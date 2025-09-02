@@ -8,7 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 Future<void> TimetableAnalysisBottomSheet(
-  BuildContext context) {
+  BuildContext context,{
+  required Future<void> Function() onSubmit,
+}) {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -25,6 +27,7 @@ Future<void> TimetableAnalysisBottomSheet(
         builder: (context, scrollController) {
           return AnalysisDetailSheet(
             scrollController: scrollController,
+            onSubmit: onSubmit,
           );
         },
       );
@@ -34,10 +37,12 @@ Future<void> TimetableAnalysisBottomSheet(
 
 class AnalysisDetailSheet extends ConsumerWidget {
   final ScrollController scrollController;
+  final Future<void> Function() onSubmit;
 
   const AnalysisDetailSheet({
     super.key,
     required this.scrollController,
+    required this.onSubmit,
   });
 
   @override
@@ -142,9 +147,9 @@ class AnalysisDetailSheet extends ConsumerWidget {
             // 제출 버튼
             ElevatedButton(
               onPressed: state.canSubmitAnalysis
-                ? () async {
+                ? () {
                   Navigator.pop(context);
-                  await viewModel.submitAnalysis();
+                  Future.microtask(onSubmit);
                 }
                 : null,
               style: ElevatedButton.styleFrom(

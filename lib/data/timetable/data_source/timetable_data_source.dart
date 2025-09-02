@@ -16,4 +16,5 @@ abstract class TimetableDataSource {
   Future<bool> deleteLecture(int id);
   // AI
   Future<List<LectureAi>> timetableAnalysis(XFile file);
+  Future<void> saveMultipleTimetable(List<LectureRequest> timetable);
 }

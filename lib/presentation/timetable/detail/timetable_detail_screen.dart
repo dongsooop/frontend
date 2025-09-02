@@ -53,6 +53,7 @@ class TimetableDetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final timetableState = ref.watch(timetableViewModelProvider);
     final timetableDetailState = ref.watch(timetableDetailViewModelProvider);
     final viewModel = ref.read(timetableDetailViewModelProvider.notifier);
 
@@ -206,8 +207,32 @@ class TimetableDetailScreen extends HookConsumerWidget {
               ),
               ElevatedButton(
                 onPressed: () {
+                  final year = timetableState.year!;
+                  final semester = timetableState.semester!;
                   TimetableAnalysisBottomSheet(
                     context,
+                      onSubmit: () async {
+                        final ok = await viewModel.submitAnalysis(year, semester);
+                        onLectureChanged?.call();
+
+                        final msg = ref.read(timetableDetailViewModelProvider).analysisErrorMessage;
+                        final notifier = ref.read(timetableDetailViewModelProvider.notifier);
+                        if (!ok && msg != null && context.mounted) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (_) => CustomConfirmDialog(
+                              title: '시간표 자동 작성 실패',
+                              isSingleAction: true,
+                              content: msg,
+                              onConfirm: () {},
+                            ),
+                          );
+
+                          if (!context.mounted) return;
+                          notifier.clearAnalysisError();
+                        }
+                      }
                   );
                 },
                 style: ElevatedButton.styleFrom(

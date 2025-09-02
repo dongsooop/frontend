@@ -106,9 +106,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
         endpoint,
         data: formData,
       );
-      print('timetable list: ${response.data}');
+      
       if (response.statusCode == HttpStatusCode.ok.code) {
-        final List<dynamic> data = response.data['schedule'] as List<dynamic>;
+        final List<dynamic> data = response.data as List<dynamic>;
         return data.map((e) => LectureAi.fromJson(e as Map<String, dynamic>)).toList();
       }
       throw TimetableAnalysisFailedException();
@@ -153,6 +153,36 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       if (response.statusCode == HttpStatusCode.noContent.code) {
         await _hiveService.deleteTimetableInfo(year, semester);
       }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> saveMultipleTimetable(List<LectureRequest> timetable) async {
+    final endpoint = dotenv.get('TIMETABLE_MULTIPLE_ENDPOINT');
+    final requestBody = timetable.map((e) => e.toJson()).toList();
+
+    try {
+      final response = await _authDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.created.code) {
+        return; // 성공
+      }
+      if (response.statusCode == HttpStatusCode.multiStatus.code) {
+        // 부분 성공
+        final failed = (response.data as List)
+            .map((e) => e is Map<String, dynamic> ? e['name'] as String? : null)
+            .whereType<String>()
+            .toList();
+        final prefix = failed.isEmpty ? '일부 강의' : failed.join(', ');
+        throw TimetableMultiStatusException('$prefix 강의 저장에 실패했어요');
+      }
+      throw TimetableException();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.conflict.code) {
+        throw TimetableConflictException();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }

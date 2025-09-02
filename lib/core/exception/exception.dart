@@ -461,7 +461,7 @@ class TimetableAnalysisFailedException extends TimetableException {
 
 class TimetableConflictException extends TimetableException {
   const TimetableConflictException([
-    String message = "시간표 저장에 실패했어요\n다시 시도해 주세요"
+    String message = "시간표 저장에 실패했어요\n겹치는 시간이 있다면 삭제해 주세요"
   ]) : super(message);
 
   @override
@@ -470,7 +470,7 @@ class TimetableConflictException extends TimetableException {
 
 class TimetableMultiStatusException extends TimetableException {
   const TimetableMultiStatusException([
-    String message = "강의 저장에 실패했어요"
+    String message = "강의 저장에 실패했어요\n겹치는 시간이 있다면 삭제해 주세요"
   ]) : super(message);
 
   @override

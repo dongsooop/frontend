@@ -58,4 +58,9 @@ class TimetableRepositoryImpl implements TimetableRepository {
   Future<List<LectureAi>> getTimetableAnalysis(XFile file) async {
     return await _timetableDataSource.timetableAnalysis(file);
   }
+
+  @override
+  Future<void> saveMultipleTimetable(List<LectureRequest> timetable) async {
+    await _timetableDataSource.saveMultipleTimetable(timetable);
+  }
 }

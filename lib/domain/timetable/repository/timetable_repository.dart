@@ -11,6 +11,7 @@ abstract class TimetableRepository {
   Future<bool> checkLocalTimetable(int year, Semester semester);
   Future<List<LocalTimetableInfo>> getTimetableList();
   Future<List<LectureAi>> getTimetableAnalysis(XFile file);
+  Future<void> saveMultipleTimetable(List<LectureRequest> timetable);
   Future<void> deleteTimetable(int year, Semester semester);
   Future<List<Lecture>?> getLecture(int year, Semester semester);
   Future<bool> createLecture(LectureRequest request);

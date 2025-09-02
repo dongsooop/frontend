@@ -12,6 +12,7 @@ import 'package:dongsoop/domain/timetable/use_case/delete_timetable_use_case.dar
 import 'package:dongsoop/domain/timetable/use_case/get_analysis_timetable_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/get_lecture_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/get_timetable_info_use_case.dart';
+import 'package:dongsoop/domain/timetable/use_case/save_multiple_timetable_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/update_lecture_use_case.dart';
 import 'package:dongsoop/presentation/timetable/detail/timetable_detail_state.dart';
 import 'package:dongsoop/presentation/timetable/detail/timetable_detail_view_model.dart';
@@ -91,6 +92,11 @@ final getAnalysisTimetableUseCaseProvider = Provider<GetAnalysisTimetableUseCase
   return GetAnalysisTimetableUseCase(repository);
 });
 
+final saveMultipleTimetableUseCaseProvider = Provider<SaveMultipleTimetableUseCase>((ref) {
+  final repository = ref.watch(timetableRepositoryProvider);
+  return SaveMultipleTimetableUseCase(repository);
+});
+
 // View Model
 final timetableViewModelProvider =
 StateNotifierProvider.autoDispose<TimetableViewModel, TimetableState>((ref) {
@@ -104,8 +110,9 @@ final timetableDetailViewModelProvider =
 StateNotifierProvider.autoDispose<TimetableDetailViewModel, TimetableDetailState>((ref) {
   final deleteLectureUseCase= ref.watch(deleteLectureUseCaseProvider);
   final getAnalysisTimetableUseCase = ref.watch(getAnalysisTimetableUseCaseProvider);
+  final saveMultipleTimetableUseCase = ref.watch(saveMultipleTimetableUseCaseProvider);
 
-  return TimetableDetailViewModel(deleteLectureUseCase, getAnalysisTimetableUseCase);
+  return TimetableDetailViewModel(deleteLectureUseCase, getAnalysisTimetableUseCase, saveMultipleTimetableUseCase);
 });
 
 final timetableWriteViewModelProvider =
