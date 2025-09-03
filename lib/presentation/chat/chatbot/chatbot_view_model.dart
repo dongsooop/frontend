@@ -16,39 +16,46 @@ class ChatbotViewModel extends StateNotifier<ChatbotState> {
 
   String _prevTextValue = '';
 
+  void init() {
+    _ref.read(chatbotMessagesProvider.notifier).addSystemOnce(
+      '동냥이와의 대화 내용은 저장되지 않아요',
+    );
+  }
+
   Future<void> sendChatbotMessage(String text) async {
+    if (state.isLoading || text.isEmpty) return;
+
     state = state.copyWith(isLoading: true);
 
-    _ref.read(chatbotMessagesProvider.notifier).addUser(text);
-    final pendingId = _ref.read(chatbotMessagesProvider.notifier).addBotTyping();
+    final messages = _ref.read(chatbotMessagesProvider.notifier);
+    messages.addUser(text);
+    final pendingId = messages.addBotTyping();
 
     try {
       // AI 통신
       final result = await _sendChatbotMessageUseCase.execute(text);
       await Future.delayed(const Duration(seconds: 5));
-      _ref.read(chatbotMessagesProvider.notifier).resolveBot(pendingId, result);
+      messages.resolveBot(pendingId, result);
 
-      state = state.copyWith(isLoading: false);
     } on ChatbotException catch (e) {
-      _ref.read(chatbotMessagesProvider.notifier).resolveBot(pendingId, e.message);
+      messages.resolveBot(pendingId, e.message);
 
+    } finally {
       state = state.copyWith(isLoading: false);
     }
   }
 
   void onChanged(String text) {
-    if (_prevTextValue == text) {
-      return;
-    }
+    if (_prevTextValue == text) return;
     _prevTextValue = text;
 
     state = state.copyWith(isEnabled: false);
 
-    if (text.length > 64 || text.isEmpty || text == '') {
-      return;
+    var enabled = false;
+    if (text.isNotEmpty && text.length <= 64) {
+      enabled = true;
     }
-
-    state = state.copyWith(isEnabled: true);
+    state = state.copyWith(isEnabled: enabled);
   }
 }
 
@@ -56,6 +63,13 @@ class ChatbotMessagesNotifier extends StateNotifier<List<Chatbot>> {
   ChatbotMessagesNotifier() : super([]);
 
   void addMessage(Chatbot message) => state = [message, ...state];
+
+  void addSystemOnce(String text) {
+    final hasSystem = state.any((m) => m.isSystem == true);
+    if (hasSystem) return;
+    final id = 'sys_${DateTime.now().microsecondsSinceEpoch}';
+    addMessage(Chatbot(id: id, isMe: false, text: text, isSystem: true));
+  }
 
   String addUser(String text) {
     final id = 'user_${DateTime.now().microsecondsSinceEpoch}';

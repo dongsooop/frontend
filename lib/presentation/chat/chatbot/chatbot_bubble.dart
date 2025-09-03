@@ -7,18 +7,42 @@ class ChatbotBubble extends StatelessWidget {
   final String text;
   final bool isMe;
   final bool isLoading;
+  final bool isSystem;
 
   const ChatbotBubble({
     super.key,
     required this.text,
     required this.isMe,
     required this.isLoading,
+    this.isSystem = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final bubbleMaxWidth = screenWidth * 2 / 3;
+
+    if (isSystem) {
+      return Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: bubbleMaxWidth),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: ColorStyles.gray2,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+                style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray3),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     final effectiveIsMe = isLoading ? false : isMe;
 

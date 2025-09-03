@@ -23,6 +23,11 @@ class ChatbotScreen extends HookConsumerWidget{
     final scrollController = useScrollController();
 
     useEffect(() {
+      Future.microtask(() => viewModel.init());
+      return null;
+    }, const []);
+
+    useEffect(() {
       textController.addListener(() {
         viewModel.onChanged(textController.text.trim());
       });
@@ -41,6 +46,7 @@ class ChatbotScreen extends HookConsumerWidget{
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: Container(
+            margin: EdgeInsets.only(top: 8),
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
@@ -58,6 +64,7 @@ class ChatbotScreen extends HookConsumerWidget{
                           text: msg.text,
                           isMe: msg.isMe,
                           isLoading: msg.typing,
+                          isSystem: msg.isSystem,
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(
