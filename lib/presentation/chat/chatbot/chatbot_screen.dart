@@ -41,7 +41,6 @@ class ChatbotScreen extends HookConsumerWidget{
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: Container(
-            margin: EdgeInsets.only(top: 24),
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
@@ -58,7 +57,7 @@ class ChatbotScreen extends HookConsumerWidget{
                         return ChatbotBubble(
                           text: msg.text,
                           isMe: msg.isMe,
-                          isLoading: chatbotState.isLoading,
+                          isLoading: msg.typing,
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(

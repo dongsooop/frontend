@@ -1,6 +1,7 @@
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ChatbotBubble extends StatelessWidget {
   final String text;
@@ -19,6 +20,8 @@ class ChatbotBubble extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final bubbleMaxWidth = screenWidth * 2 / 3;
 
+    final effectiveIsMe = isLoading ? false : isMe;
+
     Widget bubble(bool me) => Container(
       decoration: BoxDecoration(
         color: me ? ColorStyles.white : ColorStyles.primaryColor,
@@ -26,15 +29,23 @@ class ChatbotBubble extends StatelessWidget {
       ),
       constraints: BoxConstraints(maxWidth: bubbleMaxWidth),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      child: Text(
-        text,
-        style: TextStyles.normalTextRegular.copyWith(
-          color: me ? ColorStyles.black : ColorStyles.white,
+      child:  isLoading
+        ? SizedBox(
+          width: 40,
+          child: SpinKitThreeBounce(
+            color: Colors.white,
+            size: 16.0,
+          ),
+        )
+        : Text(
+          text,
+          style: TextStyles.normalTextRegular.copyWith(
+            color: me ? ColorStyles.black : ColorStyles.white,
         ),
       ),
     );
 
-    if (isMe) {
+    if (effectiveIsMe) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(

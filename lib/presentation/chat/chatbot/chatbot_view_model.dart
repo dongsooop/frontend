@@ -18,19 +18,21 @@ class ChatbotViewModel extends StateNotifier<ChatbotState> {
 
   Future<void> sendChatbotMessage(String text) async {
     state = state.copyWith(isLoading: true);
-    _ref.read(chatbotMessagesProvider.notifier).addMessage(Chatbot(isMe: true, text: text));
+
+    _ref.read(chatbotMessagesProvider.notifier).addUser(text);
+    final pendingId = _ref.read(chatbotMessagesProvider.notifier).addBotTyping();
 
     try {
       // AI 통신
       final result = await _sendChatbotMessageUseCase.execute(text);
       await Future.delayed(const Duration(seconds: 5));
+      _ref.read(chatbotMessagesProvider.notifier).resolveBot(pendingId, result);
 
       state = state.copyWith(isLoading: false);
-      _ref.read(chatbotMessagesProvider.notifier).addMessage(Chatbot(isMe: false, text: result));
-
     } on ChatbotException catch (e) {
-      state = state.copyWith(isLoading: false,);
-      _ref.read(chatbotMessagesProvider.notifier).addMessage(Chatbot(isMe: false, text: e.message));
+      _ref.read(chatbotMessagesProvider.notifier).resolveBot(pendingId, e.message);
+
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -53,7 +55,24 @@ class ChatbotViewModel extends StateNotifier<ChatbotState> {
 class ChatbotMessagesNotifier extends StateNotifier<List<Chatbot>> {
   ChatbotMessagesNotifier() : super([]);
 
-  void addMessage(Chatbot message) {
-    state = [message, ...state];
+  void addMessage(Chatbot message) => state = [message, ...state];
+
+  String addUser(String text) {
+    final id = 'user_${DateTime.now().microsecondsSinceEpoch}';
+    addMessage(Chatbot(id: id, isMe: true, text: text));
+    return id;
+  }
+
+  String addBotTyping() {
+    final id = 'bot_${DateTime.now().microsecondsSinceEpoch}';
+    addMessage(Chatbot(id: id, isMe: false, text: '', typing: true));
+    return id;
+  }
+
+  void resolveBot(String id, String text) {
+    state = [
+      for (final m in state)
+        if (m.id == id) m.copyWith(text: text, typing: false) else m,
+    ];
   }
 }
