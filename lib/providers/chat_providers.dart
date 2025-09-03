@@ -2,6 +2,7 @@ import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
+import 'package:dongsoop/domain/chat/model/chatbot.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 import 'package:dongsoop/domain/chat/use_case/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
@@ -16,6 +17,8 @@ import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:dongsoop/presentation/chat/chat_view_model.dart';
+import 'package:dongsoop/presentation/chat/chatbot/chatbot_state.dart';
+import 'package:dongsoop/presentation/chat/chatbot/chatbot_view_model.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -198,3 +201,13 @@ final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref)
     return ChatBlockNotifier();
   },
 );
+
+final chatbotViewModelProvider =
+StateNotifierProvider.autoDispose<ChatbotViewModel, ChatbotState>((ref) {
+
+  return ChatbotViewModel(ref,);
+});
+
+final chatbotMessagesProvider = StateNotifierProvider<ChatbotMessagesNotifier, List<Chatbot>>((ref) {
+  return ChatbotMessagesNotifier();
+});

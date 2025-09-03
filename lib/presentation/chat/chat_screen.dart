@@ -15,11 +15,13 @@ import 'chat_view_model.dart';
 class ChatScreen extends HookConsumerWidget {
   final Future<bool> Function(String roomId) onTapChatDetail;
   final VoidCallback onTapSignIn;
+  final VoidCallback onTapChatbot;
 
   const ChatScreen({
     super.key,
     required this.onTapChatDetail,
     required this.onTapSignIn,
+    required this.onTapChatbot,
   });
 
   @override
@@ -82,7 +84,7 @@ class ChatScreen extends HookConsumerWidget {
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           floatingActionButton: Padding(
             padding: EdgeInsets.only(bottom: 24,),
-            child: ChatbotButton(onTap: () {}),
+            child: ChatbotButton(onTap: onTapChatbot),
           ),
           body: SafeArea(
             child: Padding(
