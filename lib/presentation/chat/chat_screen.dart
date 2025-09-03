@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
+import 'package:dongsoop/presentation/chat/widgets/chatbot_button.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
@@ -78,6 +79,11 @@ class ChatScreen extends HookConsumerWidget {
       children: [
         Scaffold(
           backgroundColor: ColorStyles.white,
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          floatingActionButton: Padding(
+            padding: EdgeInsets.only(bottom: 24,),
+            child: ChatbotButton(onTap: () {}),
+          ),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
