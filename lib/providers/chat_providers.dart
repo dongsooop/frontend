@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
@@ -14,6 +15,7 @@ import 'package:dongsoop/domain/chat/use_case/get_chat_rooms_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/kick_user_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/send_chatbot_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:dongsoop/presentation/chat/chat_view_model.dart';
@@ -35,7 +37,7 @@ import 'package:dongsoop/presentation/chat/chat_state.dart';
 import 'package:dongsoop/domain/chat/use_case/subscribe_block_use_case.dart';
 
 
-// 추후 기능, 책임 별로 providers 분리
+final aiDioProvider = Provider<Dio>((ref) => createAuthDio(ref: ref, useAi: true));
 
 // stomp
 final stompServiceProvider = Provider<StompService>((ref) {
@@ -46,10 +48,11 @@ final stompServiceProvider = Provider<StompService>((ref) {
 // Data Source
 final chatDataSourceProvider = Provider<ChatDataSource>((ref) {
   final authDio = ref.watch(authDioProvider);
+  final aiDio = ref.watch(aiDioProvider);
   final stompService = ref.watch(stompServiceProvider);
   final hiveService = ref.watch(hiveServiceProvider);
 
-  return ChatDataSourceImpl(authDio, stompService, hiveService);
+  return ChatDataSourceImpl(authDio, aiDio, stompService, hiveService);
 });
 
 // Repository
@@ -146,6 +149,11 @@ final kickUserUseCaseProvider = Provider<KickUserUseCase>((ref) {
   return KickUserUseCase(repository);
 });
 
+final sendChatbotMessageUseCaseProvider = Provider<SendChatbotMessageUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return SendChatbotMessageUseCase(repository);
+});
+
 // View Model
 final chatViewModelProvider =
 StateNotifierProvider.autoDispose<ChatViewModel, ChatState>((ref) {
@@ -204,8 +212,9 @@ final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref)
 
 final chatbotViewModelProvider =
 StateNotifierProvider.autoDispose<ChatbotViewModel, ChatbotState>((ref) {
+  final sendChatbotMessageUseCase = ref.watch(sendChatbotMessageUseCaseProvider);
 
-  return ChatbotViewModel(ref,);
+  return ChatbotViewModel(ref, sendChatbotMessageUseCase);
 });
 
 final chatbotMessagesProvider = StateNotifierProvider<ChatbotMessagesNotifier, List<Chatbot>>((ref) {

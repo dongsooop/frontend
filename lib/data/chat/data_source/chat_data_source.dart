@@ -20,6 +20,7 @@ abstract class ChatDataSource {
   Future<void> kickUser(String roomId, int userId);
   Future<String> createOneToOneChatRoom(String title, int targetUserId);
   Future<String> createQNAChatRoom(ChatRoomRequest request);
+  Future<String> sendChatbot(String text);
 
   // stomp
   Future<void> connect(String roomId);

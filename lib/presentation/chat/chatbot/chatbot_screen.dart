@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/presentation/chat/chatbot/chatbot_bubble.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
@@ -7,7 +6,6 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatbotScreen extends HookConsumerWidget{
@@ -17,57 +15,19 @@ class ChatbotScreen extends HookConsumerWidget{
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final messages = ref.watch(chatbotMessagesProvider);
     final chatbotState = ref.watch(chatbotViewModelProvider);
     final viewModel = ref.read(chatbotViewModelProvider.notifier);
 
     final textController = useTextEditingController();
     final scrollController = useScrollController();
 
-    final List<Map<String, dynamic>> fakeMessages = [
-      {
-        'isMe': true,
-        'text': '군인은 현역을 면한 후가 아니면 국무총리로 임명될 수 없다.',
-      },
-      {
-        'isMe': false,
-        'text': '정기회의 회기는 100일을, 임시회의 회기는 30일을 초과할 수 없다.',
-      },
-      {
-        'isMe': true,
-        'text': '국회의원의 수는 법률로 정하되, 200인 이상으로 한다. 농업생산성의 제고와 농지의 합리적인 이용을 위하거나 불가피한 사정으로 발생하는 농지의 임대차와 위탁경영은 법률이 정하는 바에 의하여 인정된다.',
-      },
-      {
-        'isMe': false,
-        'text': '헌법개정은 국회재적의원 과반수 또는 대통령의 발의로 제안된다.',
-      },{
-        'isMe': true,
-        'text': '대통령의 국법상 행위는 문서로써 하며, 이 문서에는 국무총리와 관계 국무위원이 부서한다. 군사에 관한 것도 또한 같다.',
-      },
-
-    ];
-
     useEffect(() {
-      if (chatbotState.errorMessage != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => CustomConfirmDialog(
-              title: '채팅 오류',
-              content: chatbotState.errorMessage!,
-              onConfirm: () {
-                context.pop();
-                context.pop();
-              },
-              confirmText: '확인',
-              dismissOnConfirm: false,
-              isSingleAction: true,
-            ),
-          );
-        });
-      }
+      textController.addListener(() {
+        viewModel.onChanged(textController.text.trim());
+      });
       return null;
-    }, [chatbotState.errorMessage]);
+    }, [textController]);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -92,13 +52,13 @@ class ChatbotScreen extends HookConsumerWidget{
                       reverse: true,
                       shrinkWrap: true,
                       controller: scrollController,
-                      itemCount: fakeMessages.length,
+                      itemCount: messages.length,
                       itemBuilder: (BuildContext context, int index) {
-                        // final msg = fakeMessages[index];
+                        final msg = messages[index];
                         return ChatbotBubble(
-                          text: fakeMessages[index]['text'],
-                          isMe: fakeMessages[index]['isMe'],
-                          isLoading: false,
+                          text: msg.text,
+                          isMe: msg.isMe,
+                          isLoading: chatbotState.isLoading,
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(
@@ -123,11 +83,18 @@ class ChatbotScreen extends HookConsumerWidget{
                       Expanded(
                         child: TextFormField(
                           maxLines: null,
+                          maxLength: 64,
                           cursorColor: ColorStyles.gray4,
                           keyboardType: TextInputType.multiline,
                           controller: textController,
                           style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                          decoration: InputDecoration(border: InputBorder.none,),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: '최대 64글자까지 입력 가능해요',
+                            hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+                            contentPadding: EdgeInsets.symmetric(vertical: 0),
+                            counterText: '',
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -135,8 +102,12 @@ class ChatbotScreen extends HookConsumerWidget{
                         width: 44,
                         child: IconButton(
                           onPressed: () {
+                            if (!chatbotState.isEnabled || chatbotState.isLoading) return;
+
                             final text = textController.text.trim();
                             if (text.isNotEmpty && text != '') {
+                              viewModel.sendChatbotMessage(text);
+
                               textController.clear();
                               scrollController.animateTo(
                                 0,
@@ -149,8 +120,10 @@ class ChatbotScreen extends HookConsumerWidget{
                             'assets/icons/send.svg',
                             width: 24,
                             height: 24,
-                            colorFilter: const ColorFilter.mode(
-                              ColorStyles.primaryColor,
+                            colorFilter: ColorFilter.mode(
+                              (!chatbotState.isEnabled || chatbotState.isLoading)
+                                  ? ColorStyles.gray4
+                                  : ColorStyles.primaryColor,
                               BlendMode.srcIn,
                             ),
                           ),

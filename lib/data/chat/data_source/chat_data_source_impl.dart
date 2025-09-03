@@ -14,11 +14,13 @@ import 'chat_data_source.dart';
 
 class ChatDataSourceImpl implements ChatDataSource {
   final Dio _authDio;
+  final Dio _aiDio;
   final StompService _stompService;
   final HiveService _hiveService;
 
   ChatDataSourceImpl(
     this._authDio,
+    this._aiDio,
     this._stompService,
     this._hiveService,
   );
@@ -311,6 +313,28 @@ class ChatDataSourceImpl implements ChatDataSource {
     } catch (e) {
       rethrow;
     }
+  }
+
+  @override
+  Future<String> sendChatbot(String text) async {
+    // throw ChatbotException();
+    return '한 학기 최대 이수 학점은 22학점입니다.';
+    // 챗봇 endpoint
+    // final endpoint = dotenv.get('');
+    // final requestBody = {'text': text};
+    //
+    // try {
+    //   final response = await _aiDio.post(endpoint, data: requestBody);
+    //   if (response.statusCode == HttpStatusCode.ok.code) {
+    //     final data = response.data;
+    //     final result = data['text'];
+    //
+    //     return result;
+    //   }
+    //   throw ChatbotException();
+    // } catch (e) {
+    //   throw ChatbotException();
+    // }
   }
 
   @override
