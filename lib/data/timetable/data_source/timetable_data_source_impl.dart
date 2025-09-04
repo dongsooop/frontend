@@ -50,6 +50,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   Future<bool> createLecture(LectureRequest request) async {
     final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
 
+    print('request: ${request.toJson()}');
     try {
       final response = await _authDio.post(endpoint, data: request.toJson());
       if (response.statusCode == HttpStatusCode.created.code) {
@@ -106,7 +107,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
         endpoint,
         data: formData,
       );
-      
+
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data as List<dynamic>;
         return data.map((e) => LectureAi.fromJson(e as Map<String, dynamic>)).toList();
@@ -162,6 +163,8 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   Future<void> saveMultipleTimetable(List<LectureRequest> timetable) async {
     final endpoint = dotenv.get('TIMETABLE_MULTIPLE_ENDPOINT');
     final requestBody = timetable.map((e) => e.toJson()).toList();
+
+    print('timetable: $requestBody');
 
     try {
       final response = await _authDio.post(endpoint, data: requestBody);

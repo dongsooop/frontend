@@ -77,13 +77,13 @@ class AnalysisDetailSheet extends ConsumerWidget {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: 'e서비스 -> 수강신청내역조회(시간표) -> 강의시간표 화면',
+                    text: 'e서비스 -> 수강신청내역조회(시간표) -> 강의시간표 -> PDF 저장 후',
                     style: TextStyles.smallTextBold.copyWith(
                       color: ColorStyles.black,
                     ),
                   ),
                   TextSpan(
-                    text: '을\n아래와 같이 캡처해서 제출해 주세요',
+                    text: '\n아래와 같이 캡처해서 제출해 주세요',
                     style: TextStyles.smallTextRegular.copyWith(
                       color: ColorStyles.gray4,
                     ),
