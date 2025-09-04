@@ -1,3 +1,4 @@
+import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:dongsoop/data/calendar/data_sources/calendar_data_source_impl.dart';
 import 'package:dongsoop/data/calendar/repositories/calendar_repository_impl.dart';
 import 'package:dongsoop/domain/calendar/use_cases/calendar_delete_use_case.dart';
@@ -6,13 +7,10 @@ import 'package:dongsoop/domain/calendar/use_cases/calendar_write_use_case.dart'
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final calendarDataSourceProvider = Provider<CalendarDataSourceImpl>((ref) {
-  final dio = ref.watch(authDioProvider);
-  return CalendarDataSourceImpl(dio);
-});
-
 final calendarRepositoryProvider = Provider<CalendarRepositoryImpl>((ref) {
-  final dataSource = ref.watch(calendarDataSourceProvider);
+  final authDio = ref.watch(authDioProvider);
+  final plainDio = ref.watch(plainDioProvider);
+  final dataSource = CalendarDataSourceImpl(authDio, plainDio);
   return CalendarRepositoryImpl(dataSource);
 });
 
