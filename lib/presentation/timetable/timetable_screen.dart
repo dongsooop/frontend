@@ -132,7 +132,7 @@ class TimetableScreen extends HookConsumerWidget {
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 4,
