@@ -5,7 +5,6 @@ import 'package:dongsoop/domain/calendar/entities/calendar_list_entity.dart';
 import 'package:dongsoop/presentation/calendar/common/calendar_text_form.dart';
 import 'package:dongsoop/presentation/calendar/util/calendar_date_utils.dart';
 import 'package:dongsoop/presentation/calendar/view_models/calendar_delete_view_model.dart';
-import 'package:dongsoop/presentation/calendar/view_models/calendar_view_model.dart';
 import 'package:dongsoop/presentation/calendar/view_models/calendar_write_view_model.dart';
 import 'package:dongsoop/presentation/calendar/widget/calendar_day_picker.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -61,10 +60,6 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
     String normalizeText(String raw) {
       final trimmed = raw.trim();
       return trimmed.isEmpty ? "" : trimmed;
-    }
-
-    Future<void> invalidateCalendar() async {
-      ref.invalidate(calendarViewModelProvider);
     }
 
     Widget buildCupertinoDatePicker({
@@ -152,8 +147,6 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
                 .read(calendarDeleteViewModelProvider.notifier)
                 .delete(calendarId: event!.id!);
 
-            await invalidateCalendar();
-
             if (context.mounted) context.pop(true);
           } catch (e) {
             messenger.showSnackBar(
@@ -238,8 +231,6 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
                   await ref
                       .read(calendarWriteViewModelProvider.notifier)
                       .submit(entity);
-
-                  await invalidateCalendar();
 
                   if (context.mounted) context.pop(true);
                 } catch (e) {
