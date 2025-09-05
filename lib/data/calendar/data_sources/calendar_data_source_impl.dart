@@ -79,7 +79,7 @@ class CalendarDataSourceImpl implements CalendarDataSource {
     final model = CalendarModel.fromEntity(entity);
     final response = await _authDio.patch(url, data: model.toJson());
 
-    if (response.statusCode != HttpStatusCode.ok.code) {
+    if (response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception('status: ${response.statusCode}');
     }
   }
