@@ -90,11 +90,16 @@ class CalendarPageScreen extends HookConsumerWidget {
                             await viewModel.jumpToMonth(picked);
                           }
                         },
-                        icon: const Icon(Icons.calendar_month),
+                        icon: const Icon(Icons.calendar_month, size: 24),
                         color: ColorStyles.black,
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
                         hoverColor: Colors.transparent,
+                        constraints: const BoxConstraints(
+                          minWidth: 44,
+                          minHeight: 44,
+                        ),
+                        padding: EdgeInsets.zero,
                       ),
                       const SizedBox(width: 8),
 
@@ -104,6 +109,11 @@ class CalendarPageScreen extends HookConsumerWidget {
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           hoverColor: Colors.transparent,
+                          constraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 44,
+                          ),
+                          padding: EdgeInsets.zero,
                           icon: Icon(
                             Icons.person,
                             size: 24,
@@ -117,6 +127,11 @@ class CalendarPageScreen extends HookConsumerWidget {
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
                         hoverColor: Colors.transparent,
+                        constraints: const BoxConstraints(
+                          minWidth: 44,
+                          minHeight: 44,
+                        ),
+                        padding: EdgeInsets.zero,
                         icon: Icon(
                           Icons.school,
                           size: 24,

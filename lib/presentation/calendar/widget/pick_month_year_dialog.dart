@@ -41,7 +41,9 @@ Future<DateTime?> pickMonthYearDialog(
                           onPressed: (year > yearStart)
                               ? () => setState(() => year -= 1)
                               : null,
-                          icon: Icon(Icons.chevron_left, size: 24.0, color: ColorStyles.black),
+                          icon: Icon(Icons.chevron_left, size: 24.0),
+                          color: ColorStyles.black,
+                          disabledColor: ColorStyles.gray2,
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           hoverColor: Colors.transparent,
@@ -60,7 +62,9 @@ Future<DateTime?> pickMonthYearDialog(
                           onPressed: (year < yearEnd)
                               ? () => setState(() => year += 1)
                               : null,
-                          icon: const Icon(Icons.chevron_right, size: 24.0, color: ColorStyles.black),
+                          icon: const Icon(Icons.chevron_right, size: 24.0),
+                          color: ColorStyles.black,
+                          disabledColor: ColorStyles.gray2,
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           hoverColor: Colors.transparent,

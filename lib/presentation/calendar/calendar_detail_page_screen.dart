@@ -7,9 +7,9 @@ import 'package:dongsoop/presentation/calendar/util/calendar_date_utils.dart';
 import 'package:dongsoop/presentation/calendar/view_models/calendar_delete_view_model.dart';
 import 'package:dongsoop/presentation/calendar/view_models/calendar_view_model.dart';
 import 'package:dongsoop/presentation/calendar/view_models/calendar_write_view_model.dart';
+import 'package:dongsoop/presentation/calendar/widget/calendar_day_picker.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -69,17 +69,11 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
 
     Widget buildCupertinoDatePicker({
       required DateTime initialDateTime,
-      required void Function(DateTime) onDateTimeChanged,
+      required void Function(DateTime) onChanged,
     }) {
-      return SizedBox(
-        height: 300,
-        child: CupertinoDatePicker(
-          mode: CupertinoDatePickerMode.dateAndTime,
-          initialDateTime: initialDateTime,
-          onDateTimeChanged: onDateTimeChanged,
-          use24hFormat: true,
-          minuteInterval: 5,
-        ),
+      return CalendarDayPicker(
+        initialDateTime: initialDateTime,
+        onChanged: onChanged,
       );
     }
 
@@ -115,7 +109,7 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
             if (showStartPicker.value)
               buildCupertinoDatePicker(
                 initialDateTime: startDate.value,
-                onDateTimeChanged: (date) => startDate.value = date,
+                onChanged: (date) => startDate.value = date,
               ),
             const Divider(height: 1, thickness: 1, color: ColorStyles.gray2),
             GestureDetector(
@@ -141,7 +135,7 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
             if (showEndPicker.value)
               buildCupertinoDatePicker(
                 initialDateTime: endDate.value,
-                onDateTimeChanged: (date) => endDate.value = date,
+                onChanged: (date) => endDate.value = date,
               ),
           ],
         ),
