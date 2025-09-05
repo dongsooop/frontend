@@ -7,7 +7,7 @@ part of 'calendar_delete_view_model.dart';
 // **************************************************************************
 
 String _$calendarDeleteViewModelHash() =>
-    r'df456a892595b07c63b0d161c322f475cc44a6f9';
+    r'f1f7197e9bff124fe4b4338f37bbca118493f048';
 
 /// See also [CalendarDeleteViewModel].
 @ProviderFor(CalendarDeleteViewModel)

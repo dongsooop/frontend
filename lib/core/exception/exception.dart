@@ -146,7 +146,7 @@ class CalendarActionException implements Exception {
   final String message;
 
   CalendarActionException([
-    this.message = "일정을 처리하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
+    this.message = "일정을 처리하는 과정에서 문제가 발생했어요.\n잠시 후 다시 시도해주세요.",
   ]);
 
   @override
