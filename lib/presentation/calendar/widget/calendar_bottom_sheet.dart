@@ -1,21 +1,20 @@
 import 'package:dongsoop/domain/calendar/entities/calendar_list_entity.dart';
+import 'package:dongsoop/presentation/calendar/providers/calendar_filter_provider.dart';
 import 'package:dongsoop/presentation/calendar/util/calendar_date_utils.dart';
 import 'package:dongsoop/presentation/calendar/util/calendar_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class CalendarBottomSheet extends StatelessWidget {
+class CalendarBottomSheet extends ConsumerWidget {
   const CalendarBottomSheet({
     super.key,
     required this.selectedDate,
-    required this.items,
     this.onTapCalendarDetail,
   });
 
   final DateTime selectedDate;
-  final List<CalendarListEntity> items;
-
   final Future<bool?> Function(CalendarListEntity? item, DateTime selectedDate)?
   onTapCalendarDetail;
 
@@ -31,14 +30,15 @@ class CalendarBottomSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final selectedDateText = _formatFullDate(selectedDate);
-
-    final dayEvents = deduplicateEvents(eventsOnDay(items, selectedDate))
+  Widget build(BuildContext context, WidgetRef ref) {
+    final allEvents = ref.watch(filterProvider);
+    final dayEvents = (deduplicateEvents(eventsOnDay(allEvents, selectedDate))
       ..sort((a, b) {
         final s = a.startAt.compareTo(b.startAt);
         return s != 0 ? s : a.title.compareTo(b.title);
-      });
+      }));
+
+    final selectedDateText = _formatFullDate(selectedDate);
 
     return Container(
       height: 400,
@@ -83,11 +83,7 @@ class CalendarBottomSheet extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: () async {
-                          final isSuccess =
                           await onTapCalendarDetail?.call(event, selectedDate);
-                          if (isSuccess == true && context.mounted) {
-                            Navigator.pop(context, true);
-                          }
                         },
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(
@@ -188,11 +184,7 @@ class CalendarBottomSheet extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () async {
-                  final isSuccess =
                   await onTapCalendarDetail?.call(null, selectedDate);
-                  if (isSuccess == true && context.mounted) {
-                    Navigator.pop(context, true);
-                  }
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),

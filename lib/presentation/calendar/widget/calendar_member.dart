@@ -168,24 +168,18 @@ class _CalendarMemberViewState extends State<CalendarMemberView> {
                   onTap: () async {
                     setState(() => _selectedDay = day);
 
-                    final dayEvents = eventsOnDay(widget.items, day);
-
-                    final result = await showModalBottomSheet<bool>(
+                    await showModalBottomSheet<void>(
                       context: context,
                       isScrollControlled: true,
+                      useRootNavigator: false,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                       ),
                       builder: (_) => CalendarBottomSheet(
                         selectedDate: day,
-                        items: dayEvents,
                         onTapCalendarDetail: widget.onTapCalendarDetail,
                       ),
                     );
-
-                    if (result == true) {
-                      await widget.onRefresh?.call();
-                    }
                   },
                   child: const SizedBox.expand(),
                 ),
