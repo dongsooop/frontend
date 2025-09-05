@@ -17,15 +17,10 @@ class CalendarDataSourceImpl implements CalendarDataSource {
     required DateTime currentMonth,
   }) async {
     final base = dotenv.get('CALENDAR_ENDPOINT');
-    final yearMonth =
-        '${currentMonth.year}-${currentMonth.month.toString().padLeft(2, '0')}';
+    final yearMonth = '${currentMonth.year}-${currentMonth.month.toString().padLeft(2, '0')}';
     final url = '$base/$yearMonth';
 
-    print('[fetchCalendarList] GET $url');
-
     final response = await _authDio.get(url);
-
-    print('[fetchCalendarList] status: ${response.statusCode}, data: ${response.data}');
 
     if (response.statusCode == HttpStatusCode.ok.code) {
       final data = response.data;
@@ -43,15 +38,10 @@ class CalendarDataSourceImpl implements CalendarDataSource {
     required DateTime currentMonth,
   }) async {
     final base = dotenv.get('CALENDAR_ENDPOINT');
-    final yearMonth =
-        '${currentMonth.year}-${currentMonth.month.toString().padLeft(2, '0')}';
+    final yearMonth = '${currentMonth.year}-${currentMonth.month.toString().padLeft(2, '0')}';
     final url = '$base/$yearMonth';
 
-    print('[fetchGuestCalendar] GET $url');
-
     final response = await _plainDio.get(url);
-
-    print('[fetchGuestCalendar] status: ${response.statusCode}, data: ${response.data}');
 
     if (response.statusCode == HttpStatusCode.ok.code) {
       final data = response.data;
@@ -71,12 +61,7 @@ class CalendarDataSourceImpl implements CalendarDataSource {
     final url = dotenv.get('CALENDAR_WRITE_ENDPOINT');
     final model = CalendarModel.fromEntity(entity);
 
-    print('[submitCalendar] POST $url');
-    print('[submitCalendar] body: ${model.toJson()}');
-
     final response = await _authDio.post(url, data: model.toJson());
-
-    print('[submitCalendar] status: ${response.statusCode}, data: ${response.data}');
 
     if (response.statusCode != HttpStatusCode.created.code) {
       throw Exception('status: ${response.statusCode}');
@@ -95,12 +80,7 @@ class CalendarDataSourceImpl implements CalendarDataSource {
     final url = '${dotenv.get('CALENDAR_WRITE_ENDPOINT')}/$calendarId';
     final model = CalendarModel.fromEntity(entity);
 
-    print('[updateCalendar] PATCH $url');
-    print('[updateCalendar] body: ${model.toJson()}');
-
     final response = await _authDio.patch(url, data: model.toJson());
-
-    print('[updateCalendar] status: ${response.statusCode}, data: ${response.data}');
 
     if (response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception('status: ${response.statusCode}');
@@ -113,11 +93,7 @@ class CalendarDataSourceImpl implements CalendarDataSource {
   }) async {
     final url = '${dotenv.get('CALENDAR_WRITE_ENDPOINT')}/$calendarId';
 
-    print('[deleteCalendar] DELETE $url');
-
     final response = await _authDio.delete(url);
-
-    print('[deleteCalendar] status: ${response.statusCode}, data: ${response.data}');
 
     if (response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception('status: ${response.statusCode}');
