@@ -1,61 +1,44 @@
 import 'package:dongsoop/domain/calendar/entities/calendar_list_entity.dart';
-import 'package:dongsoop/domain/calendar/enum/calendar_type.dart';
-import 'package:dongsoop/presentation/calendar/common/type_ui_color.dart';
+import 'package:dongsoop/presentation/calendar/providers/calendar_filter_provider.dart';
+import 'package:dongsoop/presentation/calendar/util/calendar_date_utils.dart';
+import 'package:dongsoop/presentation/calendar/util/calendar_utils.dart';
+import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
-import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class CalendarBottomSheet extends StatelessWidget {
-  final DateTime selectedDate;
-  final List<CalendarListEntity> events;
-  final Future<bool?> Function(
-      CalendarListEntity? event, DateTime selectedDate)? onTapCalendarDetail;
-
+class CalendarBottomSheet extends ConsumerWidget {
   const CalendarBottomSheet({
     super.key,
     required this.selectedDate,
-    required this.events,
     this.onTapCalendarDetail,
   });
 
-  String formatFullDate(DateTime date) {
-    const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-    final year = date.year;
-    final month = date.month;
-    final day = date.day;
-    final weekday = weekdays[date.weekday % 7];
-    return '$year년 $month월 $day일 ($weekday)';
+  final DateTime selectedDate;
+  final Future<bool?> Function(CalendarListEntity? item, DateTime selectedDate)?
+  onTapCalendarDetail;
+
+  String _formatFullDate(DateTime date) {
+    final weekdayLabel = weekdays[date.weekday % 7];
+    return '${date.year}년 ${date.month}월 ${date.day}일 ($weekdayLabel)';
+  }
+
+  String _formatHHmm(DateTime dateTime) {
+    final hh = dateTime.hour.toString().padLeft(2, '0');
+    final mm = dateTime.minute.toString().padLeft(2, '0');
+    return '$hh:$mm';
   }
 
   @override
-  Widget build(BuildContext context) {
-    final formattedDate = formatFullDate(selectedDate);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final allEvents = ref.watch(filterProvider);
+    final dayEvents = (deduplicateEvents(eventsOnDay(allEvents, selectedDate))
+      ..sort((a, b) {
+        final s = a.startAt.compareTo(b.startAt);
+        return s != 0 ? s : a.title.compareTo(b.title);
+      }));
 
-    final seen = <String>{};
-    final filteredEvents = events.where((event) {
-      final key =
-          '${event.title}_${event.startAt}_${event.endAt}_${event.type}';
-      if (seen.contains(key)) return false;
-      seen.add(key);
-      final target =
-          DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-      final start =
-          DateTime(event.startAt.year, event.startAt.month, event.startAt.day);
-      final end =
-          DateTime(event.endAt.year, event.endAt.month, event.endAt.day);
-      return !target.isBefore(start) && !target.isAfter(end);
-    }).toList();
-
-    filteredEvents.sort((a, b) {
-      if (a.type == CalendarType.official && b.type != CalendarType.official) {
-        return -1;
-      } else if (a.type != CalendarType.official &&
-          b.type == CalendarType.official) {
-        return 1;
-      } else {
-        return a.startAt.compareTo(b.startAt);
-      }
-    });
+    final selectedDateText = _formatFullDate(selectedDate);
 
     return Container(
       height: 400,
@@ -71,49 +54,36 @@ class CalendarBottomSheet extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  formattedDate,
+                  selectedDateText,
                   style: TextStyles.titleTextBold.copyWith(
                     color: ColorStyles.black,
                   ),
                 ),
               ),
             ),
+
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: filteredEvents.length,
+                itemCount: dayEvents.length,
                 itemBuilder: (context, index) {
-                  final event = filteredEvents[index];
-                  final isLast = index == filteredEvents.length - 1;
+                  final event = dayEvents[index];
+                  final isLastItem = index == dayEvents.length - 1;
 
-                  final start = event.startAt;
-                  final end = event.endAt;
+                  final titleText = event.title;
+                  final locationText = event.location ?? '';
 
-                  final isAllDay = start.hour == 0 &&
-                      start.minute == 0 &&
-                      end.hour == 23 &&
-                      end.minute == 59;
-
-                  final startHour = start.hour.toString().padLeft(2, '0');
-                  final startMinute = start.minute.toString().padLeft(2, '0');
-                  String endTimeText;
-                  if (end.hour == 23 && end.minute == 59) {
-                    endTimeText = '24:00';
-                  } else {
-                    final endHour = end.hour.toString().padLeft(2, '0');
-                    final endMinute = end.minute.toString().padLeft(2, '0');
-                    endTimeText = '$endHour:$endMinute';
-                  }
+                  final startTimeText = _formatHHmm(event.startAt);
+                  final endTimeText =
+                  (event.endAt.hour == 23 && event.endAt.minute == 59)
+                      ? '24:00'
+                      : _formatHHmm(event.endAt);
 
                   return Column(
                     children: [
                       InkWell(
                         onTap: () async {
-                          final result = await onTapCalendarDetail?.call(
-                              event, selectedDate);
-                          if (result == true && context.mounted) {
-                            Navigator.pop(context, true);
-                          }
+                          await onTapCalendarDetail?.call(event, selectedDate);
                         },
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(
@@ -125,102 +95,59 @@ class CalendarBottomSheet extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: SizedBox(
-                                    width: 72,
-                                    child: isAllDay
-                                        ? Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              '하루 종일',
-                                              style: TextStyles
-                                                  .normalTextRegular
-                                                  .copyWith(
-                                                      color: ColorStyles.black),
-                                            ),
-                                          )
-                                        : Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text('$startHour:$startMinute',
-                                                  style: TextStyles
-                                                      .normalTextRegular
-                                                      .copyWith(
-                                                          color: ColorStyles
-                                                              .black)),
-                                              Text(endTimeText,
-                                                  style: TextStyles
-                                                      .normalTextRegular
-                                                      .copyWith(
-                                                          color: ColorStyles
-                                                              .black)),
-                                            ],
-                                          ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        startTimeText,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyles.normalTextRegular.copyWith(
+                                          color: ColorStyles.black,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        endTimeText,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyles.normalTextRegular.copyWith(
+                                          color: ColorStyles.black,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
+
                                 Container(
                                   width: 4,
                                   height: double.infinity,
-                                  margin: const EdgeInsets.only(right: 24),
+                                  margin: const EdgeInsets.symmetric(horizontal: 24),
                                   decoration: BoxDecoration(
-                                    color: event.type.color,
+                                    color: ColorStyles.warning100,
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
+
                                 Expanded(
                                   child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
                                         child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              event.title,
+                                              titleText,
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
-                                              style: TextStyles
-                                                  .normalTextRegular
-                                                  .copyWith(
-                                                      color: ColorStyles.black),
-                                            ),
-                                            if (event.location.isNotEmpty)
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 2),
-                                                child: Row(
-                                                  children: [
-                                                    const Icon(
-                                                      Icons.place_outlined,
-                                                      size: 14,
-                                                      color: ColorStyles.gray3,
-                                                    ),
-                                                    const SizedBox(width: 4),
-                                                    Expanded(
-                                                      child: Text(
-                                                        event.location,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: TextStyles
-                                                            .smallTextRegular
-                                                            .copyWith(
-                                                                color:
-                                                                    ColorStyles
-                                                                        .black),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                              style: TextStyles.normalTextRegular.copyWith(
+                                                color: ColorStyles.black,
                                               ),
+                                            ),
+                                            _buildLocationLine(locationText),
                                           ],
                                         ),
                                       ),
@@ -237,7 +164,8 @@ class CalendarBottomSheet extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (!isLast)
+
+                      if (!isLastItem)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 16),
                           child: Divider(
@@ -251,15 +179,12 @@ class CalendarBottomSheet extends StatelessWidget {
                 },
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () async {
-                  final result =
-                      await onTapCalendarDetail?.call(null, selectedDate);
-                  if (result == true && context.mounted) {
-                    Navigator.pop(context, true);
-                  }
+                  await onTapCalendarDetail?.call(null, selectedDate);
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),
@@ -279,6 +204,29 @@ class CalendarBottomSheet extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLocationLine(String locationText) {
+    if (locationText.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          const Icon(Icons.place_outlined, size: 14, color: ColorStyles.gray3),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              locationText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyles.smallTextRegular.copyWith(
+                color: ColorStyles.black,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

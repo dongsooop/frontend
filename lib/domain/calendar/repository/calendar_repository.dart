@@ -3,7 +3,10 @@ import 'package:dongsoop/domain/calendar/entities/calendar_list_entity.dart';
 
 abstract class CalendarRepository {
   Future<List<CalendarListEntity>> fetchCalendarList({
-    required int memberId,
+    required DateTime currentMonth,
+  });
+
+  Future<List<CalendarListEntity>> fetchGuestCalendar({
     required DateTime currentMonth,
   });
 
