@@ -34,6 +34,14 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }
 
   @override
+  Future<void> readAllNotification() {
+    return _handle(
+          () => _dataSource.readAllNotification(),
+      NotificationReadException(),
+    );
+  }
+
+  @override
   Future<void> deleteNotification({required int id}) {
     return _handle(
           () => _dataSource.deleteNotification(id: id),
