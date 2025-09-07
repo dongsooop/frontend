@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +15,7 @@ class HomeToday extends HookConsumerWidget {
     final now = DateTime.now();
     final weekday = ['월', '화', '수', '목', '금', '토', '일'][now.weekday - 1];
     final todayString = '${now.month}월 ${now.day}일 ($weekday)';
-    final user = ref.watch(userSessionProvider);
+    // final user = ref.watch(userSessionProvider);
 
     String cafeteriaText = cafeteriaState.when(
       data: (state) => state.todayMeal?.koreanMenu ?? '오늘은 학식이 제공되지 않아요!',
@@ -49,7 +46,10 @@ class HomeToday extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          // 강의시간표 + 일정
+          // =========================
+          // 강의시간표 + 일정 (주석 처리)
+          // =========================
+          /*
           SizedBox(
             height: 140,
             child: Row(
@@ -98,6 +98,7 @@ class HomeToday extends HookConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
+          */
 
           // 오늘의 학식
           SizedBox(
