@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/notification/use_case/notification_read_all_use_case.dart';
 import 'package:dongsoop/presentation/home/providers/notification_use_case_provider.dart';
 import 'package:dongsoop/presentation/home/state/notification_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -14,6 +15,7 @@ class NotificationViewModel extends _$NotificationViewModel {
 
   NotificationListUseCase get _listUseCase => ref.read(notificationUseCaseProvider);
   NotificationReadUseCase get _readUseCase => ref.read(notificationReadUseCaseProvider);
+  NotificationReadAllUseCase get _readAllUseCase => ref.read(notificationReadAllUseCaseProvider);
   NotificationDeleteUseCase get _deleteUseCase => ref.read(notificationDeleteUseCaseProvider);
 
   @override
@@ -63,6 +65,13 @@ class NotificationViewModel extends _$NotificationViewModel {
     final current = state.value;
     if (current == null) return;
     state = AsyncData(current.read(id));
+  }
+
+  Future<void> readAll() async {
+    await _readAllUseCase.execute();
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(current.readAll());
   }
 
   Future<void> delete(int id) async {

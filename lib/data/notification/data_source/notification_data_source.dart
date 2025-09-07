@@ -7,6 +7,6 @@ abstract class NotificationDataSource {
   });
 
   Future<void> readNotification({required int id});
-
+  Future<void> readAllNotification();
   Future<void> deleteNotification({required int id});
 }

@@ -44,6 +44,26 @@ class NotificationState {
         createdAt: e.createdAt,
       );
     }).toList();
+
+    return copyWith(items: updated, error: null);
+  }
+
+  NotificationState readAll() {
+    if (allRead) return copyWith(error: null);
+
+    final updated = items.map((e) {
+      if (e.isRead) return e;
+      return NotificationEntity(
+        id: e.id,
+        title: e.title,
+        body: e.body,
+        type: e.type,
+        value: e.value,
+        isRead: true,
+        createdAt: e.createdAt,
+      );
+    }).toList();
+
     return copyWith(items: updated, error: null);
   }
 
