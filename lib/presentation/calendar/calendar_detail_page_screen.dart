@@ -2,14 +2,14 @@ import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/domain/calendar/entities/calendar_entity.dart';
 import 'package:dongsoop/domain/calendar/entities/calendar_list_entity.dart';
-import 'package:dongsoop/domain/calendar/enum/calendar_type.dart';
+import 'package:dongsoop/presentation/calendar/common/calendar_text_form.dart';
+import 'package:dongsoop/presentation/calendar/util/calendar_date_utils.dart';
 import 'package:dongsoop/presentation/calendar/view_models/calendar_delete_view_model.dart';
-import 'package:dongsoop/presentation/calendar/view_models/calendar_view_model.dart';
 import 'package:dongsoop/presentation/calendar/view_models/calendar_write_view_model.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/presentation/calendar/view_models/calendar_view_model.dart'; // ★ 원천 소스 갱신용
+import 'package:dongsoop/presentation/calendar/widget/calendar_day_picker.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -25,12 +25,11 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
   final DateTime selectedDate;
   final CalendarListEntity? event;
 
-  String formatDateTime(DateTime date, {bool showTime = true}) {
-    final weekdayNames = ['일', '월', '화', '수', '목', '금', '토'];
+  String formatDateTime(DateTime date) {
     final year = date.year;
     final month = date.month.toString().padLeft(2, '0');
     final day = date.day.toString().padLeft(2, '0');
-    final weekday = weekdayNames[date.weekday % 7];
+    final weekday = weekdays[date.weekday % 7];
 
     String hour;
     String minute;
@@ -42,45 +41,35 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
       hour = date.hour.toString().padLeft(2, '0');
       minute = date.minute.toString().padLeft(2, '0');
     }
-
-    if (showTime) {
-      return '$year년 $month월 $day일 ($weekday) $hour:$minute';
-    } else {
-      return '$year년 $month월 $day일 ($weekday)';
-    }
+    return '$year년 $month월 $day일 ($weekday) $hour:$minute';
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final messenger = ScaffoldMessenger.of(context);
+
     final isEditMode = event != null;
-    final isOfficial = event?.type == CalendarType.official;
-    final user = ref.watch(userSessionProvider);
 
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final titleController = useTextEditingController(text: event?.title ?? '');
-    final locationController = useTextEditingController(
-      text: isOfficial ? '동양미래대학교' : event?.location ?? '',
-    );
+    final locationController = useTextEditingController(text: event?.location ?? '');
     final startDate = useState<DateTime>(event?.startAt ?? selectedDate);
-    final endDate = useState<DateTime>(
-      event?.endAt ?? selectedDate.add(const Duration(hours: 1)),
-    );
+    final endDate = useState<DateTime>(event?.endAt ?? selectedDate.add(const Duration(hours: 1)));
     final showStartPicker = useState(false);
     final showEndPicker = useState(false);
 
+    String normalizeText(String raw) {
+      final trimmed = raw.trim();
+      return trimmed.isEmpty ? "" : trimmed;
+    }
+
     Widget buildCupertinoDatePicker({
       required DateTime initialDateTime,
-      required void Function(DateTime) onDateTimeChanged,
+      required void Function(DateTime) onChanged,
     }) {
-      return SizedBox(
-        height: 300,
-        child: CupertinoDatePicker(
-          mode: CupertinoDatePickerMode.dateAndTime,
-          initialDateTime: initialDateTime,
-          onDateTimeChanged: onDateTimeChanged,
-          use24hFormat: true,
-          minuteInterval: 5,
-        ),
+      return CalendarDayPicker(
+        initialDateTime: initialDateTime,
+        onChanged: onChanged,
       );
     }
 
@@ -94,12 +83,10 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
         child: Column(
           children: [
             GestureDetector(
-              onTap: isOfficial
-                  ? null
-                  : () {
-                      showStartPicker.value = !showStartPicker.value;
-                      showEndPicker.value = false;
-                    },
+              onTap: () {
+                showStartPicker.value = !showStartPicker.value;
+                showEndPicker.value = false;
+              },
               behavior: HitTestBehavior.opaque,
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -108,26 +95,24 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
                   children: [
                     Text('시작', style: TextStyles.normalTextRegular),
                     Text(
-                      formatDateTime(startDate.value, showTime: !isOfficial),
+                      formatDateTime(startDate.value),
                       style: TextStyles.normalTextRegular,
                     ),
                   ],
                 ),
               ),
             ),
-            if (!isOfficial && showStartPicker.value)
+            if (showStartPicker.value)
               buildCupertinoDatePicker(
                 initialDateTime: startDate.value,
-                onDateTimeChanged: (date) => startDate.value = date,
+                onChanged: (date) => startDate.value = date,
               ),
             const Divider(height: 1, thickness: 1, color: ColorStyles.gray2),
             GestureDetector(
-              onTap: isOfficial
-                  ? null
-                  : () {
-                      showEndPicker.value = !showEndPicker.value;
-                      showStartPicker.value = false;
-                    },
+              onTap: () {
+                showEndPicker.value = !showEndPicker.value;
+                showStartPicker.value = false;
+              },
               behavior: HitTestBehavior.opaque,
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -136,41 +121,43 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
                   children: [
                     Text('종료', style: TextStyles.normalTextRegular),
                     Text(
-                      formatDateTime(endDate.value, showTime: !isOfficial),
+                      formatDateTime(endDate.value),
                       style: TextStyles.normalTextRegular,
                     ),
                   ],
                 ),
               ),
             ),
-            if (!isOfficial && showEndPicker.value)
+            if (showEndPicker.value)
               buildCupertinoDatePicker(
                 initialDateTime: endDate.value,
-                onDateTimeChanged: (date) => endDate.value = date,
+                onChanged: (date) => endDate.value = date,
               ),
           ],
         ),
       );
     }
 
+    Future<void> _refreshData() async {
+      await ref.read(calendarViewModelProvider.notifier).refresh();
+    }
     void showDeleteActionSheet() {
       customActionSheet(
         context,
         onDelete: () async {
-          if (event?.id != null) {
-            try {
-              await ref
-                  .read(calendarDeleteViewModelProvider.notifier)
-                  .delete(calendarId: event!.id!);
-              ref.invalidate(calendarViewModelProvider(user!.id, selectedDate));
-              if (context.mounted) context.pop(true);
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$e')),
-                );
-              }
-            }
+          if (event?.id == null) return;
+          try {
+            await ref
+                .read(calendarDeleteViewModelProvider.notifier)
+                .delete(calendarId: event!.id!);
+
+            await _refreshData();
+
+            if (context.mounted) context.pop(true);
+          } catch (e) {
+            messenger.showSnackBar(
+              SnackBar(content: Text('$e')),
+            );
           }
         },
       );
@@ -185,13 +172,8 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
           elevation: 0,
           automaticallyImplyLeading: false,
           title: Text(
-            isOfficial
-                ? '학사 일정'
-                : isEditMode
-                    ? '일정 편집'
-                    : '일정 추가',
-            style:
-                TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+            isEditMode ? '일정 편집' : '일정 추가',
+            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
           ),
           centerTitle: true,
           leading: TextButton(
@@ -208,75 +190,81 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
             ),
           ),
           actions: [
-            isOfficial
-                ? const SizedBox(width: 64)
-                : TextButton(
-                    onPressed: () async {
-                      if (!formKey.currentState!.validate()) return;
-    
-                      final hasChanged = ref
-                          .read(calendarWriteViewModelProvider.notifier)
-                          .isChanged(
-                            original: event == null
-                                ? null
-                                : CalendarEntity(
-                                    id: event!.id,
-                                    title: event!.title,
-                                    location: event!.location,
-                                    startAt: event!.startAt,
-                                    endAt: event!.endAt,
-                                    isPersonal:
-                                        event!.type != CalendarType.official,
-                                  ),
-                            title: titleController.text,
-                            location: locationController.text,
-                            startAt: startDate.value,
-                            endAt: endDate.value,
-                          );
-    
-                      if (!hasChanged) {
-                        if (context.mounted) context.pop(false);
-                        return;
-                      }
-    
-                      final entity = CalendarEntity(
-                        id: event?.id,
-                        title: titleController.text,
-                        location: locationController.text,
-                        startAt: startDate.value,
-                        endAt: endDate.value,
-                        isPersonal: !isOfficial,
-                      );
-    
-                      try {
-                        await ref
-                            .read(calendarWriteViewModelProvider.notifier)
-                            .submit(entity);
-                        ref.invalidate(calendarViewModelProvider(
-                            user!.id, selectedDate));
-                        if (context.mounted) context.pop(true);
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('$e')),
-                          );
-                        }
-                      }
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor: ColorStyles.primary100,
-                      overlayColor: Colors.transparent,
-                    ),
-                    child: Text('저장',
-                        style: TextStyles.normalTextBold
-                            .copyWith(color: ColorStyles.primary100)),
-                  ),
+            TextButton(
+              onPressed: () async {
+                if (!(formKey.currentState?.validate() ?? true)) return;
+                if (endDate.value.isBefore(startDate.value)) {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('종료 시간이 시작 시간보다 이전입니다.')),
+                  );
+                  return;
+                }
+
+                final original = event == null
+                    ? null
+                    : CalendarEntity(
+                  id: event!.id,
+                  title: event!.title,
+                  location: event!.location ?? "",
+                  startAt: event!.startAt,
+                  endAt: event!.endAt,
+                );
+
+                final changed = ref
+                    .read(calendarWriteViewModelProvider.notifier)
+                    .isChanged(
+                  original: original,
+                  title: titleController.text,
+                  location: normalizeText(locationController.text),
+                  startAt: startDate.value,
+                  endAt: endDate.value,
+                );
+
+                if (isEditMode && !changed) {
+                  if (context.mounted) context.pop(false);
+                  return;
+                }
+
+                final entity = CalendarEntity(
+                  id: event?.id,
+                  title: titleController.text,
+                  location: normalizeText(locationController.text),
+                  startAt: startDate.value,
+                  endAt: endDate.value,
+                );
+
+                try {
+                  await ref
+                      .read(calendarWriteViewModelProvider.notifier)
+                      .submit(entity);
+
+                  await _refreshData();
+
+                  if (context.mounted) context.pop(true);
+                } catch (e) {
+                  messenger.showSnackBar(
+                    SnackBar(content: Text('$e')),
+                  );
+                }
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: ColorStyles.primary100,
+                overlayColor: Colors.transparent,
+              ),
+              child: Text(
+                '저장',
+                style: TextStyles.normalTextBold
+                    .copyWith(color: ColorStyles.primary100),
+              ),
+            ),
           ],
         ),
       ),
-      bottomNavigationBar: isEditMode && !isOfficial
+      bottomNavigationBar: isEditMode
           ? PrimaryBottomButton(
-              label: '일정 삭제', onPressed: showDeleteActionSheet)
+        label: '일정 삭제',
+        onPressed: showDeleteActionSheet,
+      )
           : null,
       body: SafeArea(
         child: GestureDetector(
@@ -291,62 +279,20 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 8),
-                    TextFormField(
+                    CalendarTextForm(
                       controller: titleController,
-                      enabled: !isOfficial,
+                      hintText: '일정 제목을 입력해주세요.',
                       maxLength: 60,
-                      style: TextStyles.normalTextRegular
-                          .copyWith(color: ColorStyles.black),
-                      validator: (value) =>
-                      value == null || value.isEmpty ? '제목을 입력해주세요' : null,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: ColorStyles.white,
-                        contentPadding: const EdgeInsets.all(16),
-                        hintText: '일정 제목을 입력해주세요.',
-                        hintStyle: TextStyles.normalTextRegular
-                            .copyWith(color: ColorStyles.gray3),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: ColorStyles.gray2),
-                            borderRadius: BorderRadius.circular(8)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: ColorStyles.gray2),
-                            borderRadius: BorderRadius.circular(8)),
-                        disabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: ColorStyles.gray2),
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
+                      validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? '제목을 입력해주세요' : null,
                     ),
                     const SizedBox(height: 24),
                     buildTimeRangeSection(),
                     const SizedBox(height: 24),
-                    TextFormField(
+                    CalendarTextForm(
                       controller: locationController,
-                      enabled: !isOfficial,
+                      hintText: '장소를 입력해주세요',
                       maxLength: 20,
-                      style: TextStyles.normalTextRegular
-                          .copyWith(color: ColorStyles.black),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: ColorStyles.white,
-                        contentPadding: const EdgeInsets.all(16),
-                        hintText: '장소를 입력해주세요',
-                        hintStyle: TextStyles.normalTextRegular
-                            .copyWith(color: ColorStyles.gray3),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: ColorStyles.gray2),
-                            borderRadius: BorderRadius.circular(8)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: ColorStyles.gray2),
-                            borderRadius: BorderRadius.circular(8)),
-                        disabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: ColorStyles.gray2),
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
                     ),
                   ],
                 ),

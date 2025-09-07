@@ -258,7 +258,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: 40),
+              padding: const EdgeInsets.only(bottom: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -371,6 +371,26 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                     hintText: '모집 세부 내용을 입력해 주세요',
                     onChanged: (value) =>
                         updateField((s) => s.copyWith(content: value)),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.info_outline_rounded,
+                        color: ColorStyles.gray4,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '부적절하거나 불쾌감을 주는 게시글은 제재받을 수 있어요.',
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: ColorStyles.gray4,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 40),
                   MajorTagSection(

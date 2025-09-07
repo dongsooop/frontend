@@ -12,12 +12,22 @@ class CalendarRepositoryImpl implements CalendarRepository {
 
   @override
   Future<List<CalendarListEntity>> fetchCalendarList({
-    required int memberId,
     required DateTime currentMonth,
   }) async {
     return _handle(() async {
       final models = await _dataSource.fetchCalendarList(
-        memberId: memberId,
+        currentMonth: currentMonth,
+      );
+      return models.map((model) => model.toEntity()).toList();
+    }, CalendarException());
+  }
+
+  @override
+  Future<List<CalendarListEntity>> fetchGuestCalendar({
+    required DateTime currentMonth,
+  }) async {
+    return _handle(() async {
+      final models = await _dataSource.fetchGuestCalendar(
         currentMonth: currentMonth,
       );
       return models.map((model) => model.toEntity()).toList();

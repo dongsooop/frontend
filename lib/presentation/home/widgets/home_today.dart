@@ -15,6 +15,7 @@ class HomeToday extends HookConsumerWidget {
     final now = DateTime.now();
     final weekday = ['월', '화', '수', '목', '금', '토', '일'][now.weekday - 1];
     final todayString = '${now.month}월 ${now.day}일 ($weekday)';
+    // final user = ref.watch(userSessionProvider);
 
     String cafeteriaText = cafeteriaState.when(
       data: (state) => state.todayMeal?.koreanMenu ?? '오늘은 학식이 제공되지 않아요!',
@@ -45,55 +46,59 @@ class HomeToday extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          // // 강의시간표 + 일정 (하나의 Stack으로 묶어서 blur 처리)
-          // SizedBox(
-          //   height: 140,
-          //   child: Stack(
-          //     children: [
-          //       Row(
-          //         children: [
-          //           Expanded(
-          //             child: _buildCard(
-          //               title: '강의시간표',
-          //               type: 'schedule',
-          //               context: context,
-          //             ),
-          //           ),
-          //           const SizedBox(width: 8),
-          //           Expanded(
-          //             child: _buildCard(
-          //               title: '일정',
-          //               type: 'calendar',
-          //               context: context,
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //       if (user == null)
-          //         Positioned.fill(
-          //           child: ClipRRect(
-          //             borderRadius: BorderRadius.circular(8),
-          //             child: BackdropFilter(
-          //               filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
-          //               child: Container(
-          //                 alignment: Alignment.center,
-          //                 color:
-          //                     ColorStyles.white.withAlpha((255 * 0.5).round()),
-          //                 child: Text(
-          //                   '로그인이 필요한 서비스예요',
-          //                   style: TextStyles.normalTextBold.copyWith(
-          //                     color: ColorStyles.black,
-          //                   ),
-          //                   textAlign: TextAlign.center,
-          //                 ),
-          //               ),
-          //             ),
-          //           ),
-          //         ),
-          //     ],
-          //   ),
-          // ),
+          // =========================
+          // 강의시간표 + 일정 (주석 처리)
+          // =========================
+          /*
+          SizedBox(
+            height: 140,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Stack(
+                    children: [
+                      // home 작업할 때 추가될 예정
+                      // _buildCard(
+                      //   title: '강의시간표',
+                      //   type: 'timetable',
+                      //   context: context,
+                      // ),
+                      if (user == null)
+                        Positioned.fill(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
+                              child: Container(
+                                alignment: Alignment.center,
+                                color: ColorStyles.white.withAlpha((255 * 0.5).round()),
+                                child: Text(
+                                  '로그인이 \n필요한 서비스예요',
+                                  style: TextStyles.normalTextBold.copyWith(
+                                    color: ColorStyles.black,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildCard(
+                    title: '일정',
+                    type: 'calendar',
+                    context: context,
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 16),
+          */
 
           // 오늘의 학식
           SizedBox(

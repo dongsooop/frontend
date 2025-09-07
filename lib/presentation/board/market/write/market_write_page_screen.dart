@@ -221,6 +221,26 @@ class MarketWritePageScreen extends HookConsumerWidget {
                     maxLength: 500,
                     maxLines: 6,
                   ),
+                  const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.info_outline_rounded,
+                        color: ColorStyles.gray4,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '부적절하거나 불쾌감을 주는 게시글은 제재받을 수 있어요.',
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: ColorStyles.gray4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 40),
 
                   // 가격

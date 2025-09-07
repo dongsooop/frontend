@@ -1,7 +1,6 @@
 import 'package:dongsoop/domain/calendar/entities/calendar_entity.dart';
 import 'package:dongsoop/domain/calendar/use_cases/calendar_write_use_case.dart';
 import 'package:dongsoop/presentation/calendar/providers/calendar_use_case_provider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'calendar_write_view_model.g.dart';
@@ -36,14 +35,12 @@ class CalendarWriteViewModel extends _$CalendarWriteViewModel {
     try {
       await _useCase.execute(entity: entity);
     } catch (e) {
-      debugPrint('[Calendar Submit Error] $e');
-      state = state.copyWith(error: e.toString());
+      rethrow;
     } finally {
       state = state.copyWith(isLoading: false);
     }
   }
 
-  // 기존 데이터와 비교해 변경 여부 확인
   bool isChanged({
     required CalendarEntity? original,
     required String title,
@@ -53,9 +50,13 @@ class CalendarWriteViewModel extends _$CalendarWriteViewModel {
   }) {
     if (original == null) return true;
 
-    return original.title != title ||
-        original.location != location ||
-        original.startAt != startAt ||
-        original.endAt != endAt;
+    final titleChanged = original.title != title;
+    final locationChanged = original.location != location;
+    final startChanged = original.startAt != startAt;
+    final endChanged = original.endAt != endAt;
+
+    return titleChanged || locationChanged || startChanged || endChanged;
   }
+
+  void clearError() => state = state.copyWith(error: null);
 }

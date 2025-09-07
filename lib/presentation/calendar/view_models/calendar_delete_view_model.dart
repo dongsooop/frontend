@@ -1,6 +1,5 @@
 import 'package:dongsoop/domain/calendar/use_cases/calendar_delete_use_case.dart';
 import 'package:dongsoop/presentation/calendar/providers/calendar_use_case_provider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'calendar_delete_view_model.g.dart';
@@ -33,8 +32,7 @@ class CalendarDeleteViewModel extends _$CalendarDeleteViewModel {
     try {
       await _useCase.execute(calendarId: calendarId);
     } catch (e) {
-      debugPrint('[Delete Error] $e');
-      state = state.copyWith(error: e.toString());
+      rethrow;
     } finally {
       state = state.copyWith(isLoading: false);
     }

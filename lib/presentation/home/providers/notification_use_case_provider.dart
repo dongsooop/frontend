@@ -2,6 +2,7 @@ import 'package:dongsoop/data/notification/data_source/notification_data_source_
 import 'package:dongsoop/data/notification/repository/notification_repository_impl.dart';
 import 'package:dongsoop/domain/notification/use_case/notification_delete_use_case.dart';
 import 'package:dongsoop/domain/notification/use_case/notification_list_use_case.dart';
+import 'package:dongsoop/domain/notification/use_case/notification_read_all_use_case.dart';
 import 'package:dongsoop/domain/notification/use_case/notification_read_use_case.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +23,11 @@ final notificationUseCaseProvider = Provider<NotificationListUseCase>((ref) {
 final notificationReadUseCaseProvider = Provider<NotificationReadUseCase>((ref) {
   final repository = ref.read(notificationRepositoryProvider);
   return NotificationReadUseCase(repository);
+});
+
+final notificationReadAllUseCaseProvider = Provider<NotificationReadAllUseCase>((ref) {
+  final repository = ref.read(notificationRepositoryProvider);
+  return NotificationReadAllUseCase(repository);
 });
 
 final notificationDeleteUseCaseProvider = Provider<NotificationDeleteUseCase>((ref) {
