@@ -1,4 +1,5 @@
 import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +16,11 @@ class HomeToday extends HookConsumerWidget {
     final now = DateTime.now();
     final weekday = ['월', '화', '수', '목', '금', '토', '일'][now.weekday - 1];
     final todayString = '${now.month}월 ${now.day}일 ($weekday)';
-    // final user = ref.watch(userSessionProvider);
+    final user = ref.watch(userSessionProvider);
 
-    String cafeteriaText = cafeteriaState.when(
+    final isLoggedOut = (user == null);
+
+    final cafeteriaText = cafeteriaState.when(
       data: (state) => state.todayMeal?.koreanMenu ?? '오늘은 학식이 제공되지 않아요!',
       loading: () => '불러오는 중...',
       error: (err, _) => err.toString(),
@@ -46,68 +49,42 @@ class HomeToday extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          // =========================
-          // 강의시간표 + 일정 (주석 처리)
-          // =========================
-          /*
+          // 강의시간표 + 일정
           SizedBox(
-            height: 140,
+            height: isLoggedOut ? 112 : 140,
             child: Row(
               children: [
-                Expanded(
-                  child: Stack(
-                    children: [
-                      // home 작업할 때 추가될 예정
-                      // _buildCard(
-                      //   title: '강의시간표',
-                      //   type: 'timetable',
-                      //   context: context,
-                      // ),
-                      if (user == null)
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
-                              child: Container(
-                                alignment: Alignment.center,
-                                color: ColorStyles.white.withAlpha((255 * 0.5).round()),
-                                child: Text(
-                                  '로그인이 \n필요한 서비스예요',
-                                  style: TextStyles.normalTextBold.copyWith(
-                                    color: ColorStyles.black,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+                if (!isLoggedOut) ...[
+                  Expanded(
+                    child: _buildCard(
+                      title: '강의시간표',
+                      type: 'timetable',
+                      context: context,
+                      isLoggedOut: isLoggedOut,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
+                ],
                 Expanded(
                   child: _buildCard(
                     title: '일정',
                     type: 'calendar',
                     context: context,
+                    isLoggedOut: isLoggedOut,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          */
 
           // 오늘의 학식
-          SizedBox(
-            child: _buildCard(
-              title: '오늘의 학식',
-              type: 'cafeteria',
-              context: context,
-              cafeteriaText: cafeteriaText,
-            ),
+          _buildCard(
+            title: '오늘의 학식',
+            type: 'cafeteria',
+            context: context,
+            cafeteriaText: cafeteriaText,
+            isLoggedOut: isLoggedOut,
           ),
           const SizedBox(height: 16),
 
@@ -116,6 +93,7 @@ class HomeToday extends HookConsumerWidget {
             title: '',
             type: 'banner',
             context: context,
+            isLoggedOut: isLoggedOut,
           ),
         ],
       ),
@@ -127,6 +105,7 @@ class HomeToday extends HookConsumerWidget {
     required String type,
     required BuildContext context,
     String? cafeteriaText,
+    bool isLoggedOut = false,
   }) {
     List<Widget> content = [];
 
@@ -137,10 +116,28 @@ class HomeToday extends HookConsumerWidget {
         _buildRow('17:00', '슬기로운직장생활'),
       ];
     } else if (type == 'calendar') {
-      content = [
-        _buildRow('13:00', '프로젝트 회의'),
-        _buildRow('19:00', '술먹기'),
-      ];
+      if (isLoggedOut) {
+        content = [
+          Text(
+            '로그인하면 개인 일정을 미리 볼 수 있어요',
+            style: TextStyles.smallTextRegular.copyWith(
+              color: ColorStyles.black,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '학사 일정은 캘린더 화면에서 확인할 수 있어요',
+            style: TextStyles.smallTextRegular.copyWith(
+              color: ColorStyles.gray4,
+            ),
+          ),
+        ];
+      } else {
+        content = [
+          _buildRow('13:00', '프로젝트 회의'),
+          _buildRow('19:00', '팀 저녁식사'),
+        ];
+      }
     } else if (type == 'cafeteria') {
       content = [
         Text(
@@ -246,9 +243,8 @@ class HomeToday extends HookConsumerWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyles.normalTextBold.copyWith(
-                      color: ColorStyles.black,
-                    ),
+                    style:
+                    TextStyles.normalTextBold.copyWith(color: ColorStyles.black),
                   ),
                   const Icon(
                     Icons.arrow_forward_ios,
