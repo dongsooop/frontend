@@ -9,13 +9,18 @@ class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
   DeviceTokenDataSourceImpl(this._plainDio, this._storage);
   final Dio _plainDio;
   final SecureStorageService _storage;
+  static const fcmLastToken = 'fcmLastToken';
 
   @override
   Future<void> registerDeviceToken(DeviceTokenRequest request) async {
-    if (request.deviceToken.isEmpty) return;
-
-    final last = await _storage.read(SecureStorageService.fcmLastToken);
-    if (last == 'true') return;
+    final currentToken = request.deviceToken;
+    if (currentToken.isEmpty) {
+      return;
+    }
+    final fcmLastToken = await _storage.read(SecureStorageService.fcmLastToken);
+    if (fcmLastToken != null && fcmLastToken == currentToken) {
+      return;
+    }
 
     final endpoint = dotenv.get('DEVICE_REGISTRATION_ENDPOINT');
     final requestBody = request.toJson();
@@ -23,14 +28,14 @@ class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
       final response = await _plainDio.post(endpoint, data: requestBody);
 
       if (response.statusCode == HttpStatusCode.noContent.code) {
-        await _storage.write(SecureStorageService.fcmLastToken, 'true');
+        await _storage.write(SecureStorageService.fcmLastToken, currentToken);
         return;
       }
 
       throw Exception('status: ${response.statusCode}');
     } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.conflict.code) {
-        await _storage.write(SecureStorageService.fcmLastToken, 'true');
+        await _storage.write(SecureStorageService.fcmLastToken, currentToken);
         return;
       }
       rethrow;
