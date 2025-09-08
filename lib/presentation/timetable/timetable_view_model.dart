@@ -56,15 +56,9 @@ class TimetableViewModel extends StateNotifier<TimetableState> {
 
     try {
       final lectureList = await _getLectureUseCase.execute(year!, semester!);
-
-      if (lectureList != null && lectureList.isNotEmpty) {
-        state = state.copyWith(
-          isLoading: false,
-          lectureList: lectureList,
-          exists: true,
-        );
-        return;
-      }
+      state = state.copyWith(
+        lectureList: lectureList,
+      );
 
       final exists = await _checkLocalTimetableUseCase.execute(year, semester);
       state = state.copyWith(isLoading: false, exists: exists);
