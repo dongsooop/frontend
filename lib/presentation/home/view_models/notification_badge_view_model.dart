@@ -40,5 +40,9 @@ class NotificationBadgeViewModel extends _$NotificationBadgeViewModel {
     }
   }
 
+  void setBadge(int v) {
+    state = _cap99(v);
+  }
+
   int _cap99(int v) => v <= 0 ? 0 : (v > 99 ? 99 : v);
 }

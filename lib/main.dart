@@ -10,6 +10,7 @@ import 'package:dongsoop/presentation/home/view_models/notification_view_model.d
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,17 +59,49 @@ class MyApp extends ConsumerStatefulWidget {
   ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends ConsumerState<MyApp> {
+class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
+  static const MethodChannel _pushChannel = MethodChannel('app/push');
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     FirebaseMessagingService.instance().setReadCallback(
           (int id) => ref.read(notificationViewModelProvider.notifier).read(id),
     );
 
     FirebaseMessagingService.instance().setBadgeRefreshCallback(
-          () => ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(),
+          () => ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: true),
     );
+
+    FirebaseMessagingService.instance().setBadgeCallback(
+          (int n) => ref.read(notificationBadgeViewModelProvider.notifier).setBadge(n),
+    );
+
+    _pushChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onPush') {
+        await ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: true);
+      }
+      return;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge();
+    }
   }
 
   @override
