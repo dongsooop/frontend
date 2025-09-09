@@ -48,6 +48,8 @@ class AuthDataSourceImpl implements AuthDataSource {
         throw InvalidCredentialsException();
       } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw UserSanctionedException();
+      } else if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw UserNotFoundException();
       }
       rethrow;
     } catch (e) {
