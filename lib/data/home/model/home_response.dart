@@ -10,22 +10,20 @@ part 'home_response.g.dart';
 @freezed
 @JsonSerializable()
 class HomeResponse with _$HomeResponse {
-  final DateTime date;
-  @JsonKey(name: 'timeTableItem')
+  @Default([]) @JsonKey(name: 'timetable')
   final List<TimeTableItemResponse> timeTableItems;
-  @JsonKey(name: 'calendarItem')
+  @Default([]) @JsonKey(name: 'schedules')
   final List<CalendarItemResponse> calendarItems;
-  @JsonKey(name: 'newNoticeItem')
+  @Default([]) @JsonKey(name: 'notices')
   final List<NewNoticeItemResponse> newNoticeItems;
-  @JsonKey(name: 'popularRecruitItem')
-  final List<PopularRecruitItemResponse> popularRecruitItem;
+  @Default([]) @JsonKey(name: 'popular_recruitments')
+  final List<PopularRecruitItemResponse> popularRecruitItems;
 
   const HomeResponse({
-    required this.date,
     required this.timeTableItems,
     required this.calendarItems,
     required this.newNoticeItems,
-    required this.popularRecruitItem,
+    required this.popularRecruitItems,
   });
 
   factory HomeResponse.fromJson(Map<String, dynamic> json) =>

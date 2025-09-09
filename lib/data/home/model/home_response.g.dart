@@ -7,17 +7,16 @@ part of 'home_response.dart';
 // **************************************************************************
 
 HomeResponse _$HomeResponseFromJson(Map<String, dynamic> json) => HomeResponse(
-      date: DateTime.parse(json['date'] as String),
-      timeTableItems: (json['timeTableItem'] as List<dynamic>)
+      timeTableItems: (json['timetable'] as List<dynamic>)
           .map((e) => TimeTableItemResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
-      calendarItems: (json['calendarItem'] as List<dynamic>)
+      calendarItems: (json['schedules'] as List<dynamic>)
           .map((e) => CalendarItemResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
-      newNoticeItems: (json['newNoticeItem'] as List<dynamic>)
+      newNoticeItems: (json['notices'] as List<dynamic>)
           .map((e) => NewNoticeItemResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
-      popularRecruitItem: (json['popularRecruitItem'] as List<dynamic>)
+      popularRecruitItems: (json['popular_recruitments'] as List<dynamic>)
           .map((e) =>
               PopularRecruitItemResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -25,9 +24,8 @@ HomeResponse _$HomeResponseFromJson(Map<String, dynamic> json) => HomeResponse(
 
 Map<String, dynamic> _$HomeResponseToJson(HomeResponse instance) =>
     <String, dynamic>{
-      'date': instance.date.toIso8601String(),
-      'timeTableItem': instance.timeTableItems,
-      'calendarItem': instance.calendarItems,
-      'newNoticeItem': instance.newNoticeItems,
-      'popularRecruitItem': instance.popularRecruitItem,
+      'timetable': instance.timeTableItems,
+      'schedules': instance.calendarItems,
+      'notices': instance.newNoticeItems,
+      'popular_recruitments': instance.popularRecruitItems,
     };

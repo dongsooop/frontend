@@ -18,6 +18,7 @@ mixin _$PopularRecruitItemResponse {
   String get title;
   String get content;
   String get tags;
+  int get volunteer;
 
   /// Create a copy of PopularRecruitItemResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -35,16 +36,18 @@ mixin _$PopularRecruitItemResponse {
             other is PopularRecruitItemResponse &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.content, content) || other.content == content) &&
-            (identical(other.tags, tags) || other.tags == tags));
+            (identical(other.tags, tags) || other.tags == tags) &&
+            (identical(other.volunteer, volunteer) ||
+                other.volunteer == volunteer));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, title, content, tags);
+  int get hashCode => Object.hash(runtimeType, title, content, tags, volunteer);
 
   @override
   String toString() {
-    return 'PopularRecruitItemResponse(title: $title, content: $content, tags: $tags)';
+    return 'PopularRecruitItemResponse(title: $title, content: $content, tags: $tags, volunteer: $volunteer)';
   }
 }
 
@@ -54,7 +57,7 @@ abstract mixin class $PopularRecruitItemResponseCopyWith<$Res> {
           $Res Function(PopularRecruitItemResponse) _then) =
       _$PopularRecruitItemResponseCopyWithImpl;
   @useResult
-  $Res call({String title, String content, String tags});
+  $Res call({String title, String content, String tags, int volunteer});
 }
 
 /// @nodoc
@@ -73,6 +76,7 @@ class _$PopularRecruitItemResponseCopyWithImpl<$Res>
     Object? title = null,
     Object? content = null,
     Object? tags = null,
+    Object? volunteer = null,
   }) {
     return _then(PopularRecruitItemResponse(
       title: null == title
@@ -87,6 +91,10 @@ class _$PopularRecruitItemResponseCopyWithImpl<$Res>
           ? _self.tags
           : tags // ignore: cast_nullable_to_non_nullable
               as String,
+      volunteer: null == volunteer
+          ? _self.volunteer
+          : volunteer // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }

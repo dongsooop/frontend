@@ -15,11 +15,10 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$HomeResponse {
-  DateTime get date;
   List<TimeTableItemResponse> get timeTableItems;
   List<CalendarItemResponse> get calendarItems;
   List<NewNoticeItemResponse> get newNoticeItems;
-  List<PopularRecruitItemResponse> get popularRecruitItem;
+  List<PopularRecruitItemResponse> get popularRecruitItems;
 
   /// Create a copy of HomeResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -34,7 +33,6 @@ mixin _$HomeResponse {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is HomeResponse &&
-            (identical(other.date, date) || other.date == date) &&
             const DeepCollectionEquality()
                 .equals(other.timeTableItems, timeTableItems) &&
             const DeepCollectionEquality()
@@ -42,22 +40,21 @@ mixin _$HomeResponse {
             const DeepCollectionEquality()
                 .equals(other.newNoticeItems, newNoticeItems) &&
             const DeepCollectionEquality()
-                .equals(other.popularRecruitItem, popularRecruitItem));
+                .equals(other.popularRecruitItems, popularRecruitItems));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      date,
       const DeepCollectionEquality().hash(timeTableItems),
       const DeepCollectionEquality().hash(calendarItems),
       const DeepCollectionEquality().hash(newNoticeItems),
-      const DeepCollectionEquality().hash(popularRecruitItem));
+      const DeepCollectionEquality().hash(popularRecruitItems));
 
   @override
   String toString() {
-    return 'HomeResponse(date: $date, timeTableItems: $timeTableItems, calendarItems: $calendarItems, newNoticeItems: $newNoticeItems, popularRecruitItem: $popularRecruitItem)';
+    return 'HomeResponse(timeTableItems: $timeTableItems, calendarItems: $calendarItems, newNoticeItems: $newNoticeItems, popularRecruitItems: $popularRecruitItems)';
   }
 }
 
@@ -68,11 +65,10 @@ abstract mixin class $HomeResponseCopyWith<$Res> {
       _$HomeResponseCopyWithImpl;
   @useResult
   $Res call(
-      {DateTime date,
-      List<TimeTableItemResponse> timeTableItems,
+      {List<TimeTableItemResponse> timeTableItems,
       List<CalendarItemResponse> calendarItems,
       List<NewNoticeItemResponse> newNoticeItems,
-      List<PopularRecruitItemResponse> popularRecruitItem});
+      List<PopularRecruitItemResponse> popularRecruitItems});
 }
 
 /// @nodoc
@@ -87,17 +83,12 @@ class _$HomeResponseCopyWithImpl<$Res> implements $HomeResponseCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? date = null,
     Object? timeTableItems = null,
     Object? calendarItems = null,
     Object? newNoticeItems = null,
-    Object? popularRecruitItem = null,
+    Object? popularRecruitItems = null,
   }) {
     return _then(HomeResponse(
-      date: null == date
-          ? _self.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
       timeTableItems: null == timeTableItems
           ? _self.timeTableItems
           : timeTableItems // ignore: cast_nullable_to_non_nullable
@@ -110,9 +101,9 @@ class _$HomeResponseCopyWithImpl<$Res> implements $HomeResponseCopyWith<$Res> {
           ? _self.newNoticeItems
           : newNoticeItems // ignore: cast_nullable_to_non_nullable
               as List<NewNoticeItemResponse>,
-      popularRecruitItem: null == popularRecruitItem
-          ? _self.popularRecruitItem
-          : popularRecruitItem // ignore: cast_nullable_to_non_nullable
+      popularRecruitItems: null == popularRecruitItems
+          ? _self.popularRecruitItems
+          : popularRecruitItems // ignore: cast_nullable_to_non_nullable
               as List<PopularRecruitItemResponse>,
     ));
   }

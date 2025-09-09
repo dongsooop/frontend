@@ -12,6 +12,7 @@ PopularRecruitItemResponse _$PopularRecruitItemResponseFromJson(
       title: json['title'] as String,
       content: json['content'] as String,
       tags: json['tags'] as String,
+      volunteer: (json['volunteer'] as num).toInt(),
     );
 
 Map<String, dynamic> _$PopularRecruitItemResponseToJson(
@@ -20,4 +21,5 @@ Map<String, dynamic> _$PopularRecruitItemResponseToJson(
       'title': instance.title,
       'content': instance.content,
       'tags': instance.tags,
+      'volunteer': instance.volunteer,
     };

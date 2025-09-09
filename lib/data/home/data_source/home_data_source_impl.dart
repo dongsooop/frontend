@@ -8,31 +8,37 @@ import 'home_data_source.dart';
 class HomeDataSourceImpl implements HomeDataSource {
   final Dio _authDio;
   final Dio _plainDio;
+
   HomeDataSourceImpl(this._authDio, this._plainDio);
 
   @override
-  Future<HomeResponse> fetchHome() async {
-    final url = dotenv.get('HOME_ENDPOINT');
-    return _fetch(_authDio, url);
-  }
+  Future<HomeResponse> fetchHome({required String departmentType}) async {
+    final base = dotenv.get('HOME_ENDPOINT');
+    final url = '$base/$departmentType';
 
-  @override
-  Future<HomeResponse> fetchGuestHome() async {
-    final url = dotenv.get('HOME_ENDPOINT');
-    return _fetch(_plainDio, url);
-  }
-
-  Future<HomeResponse> _fetch(Dio dio, String url) async {
-    final res = await dio.get(url);
-
-    if (res.statusCode == HttpStatusCode.ok.code) {
-      final data = res.data;
+    final response = await _authDio.get(url);
+    if (response.statusCode == HttpStatusCode.ok.code) {
+      final data = response.data;
       if (data is! Map<String, dynamic>) {
         throw const FormatException('응답이 Map<String, dynamic> 형식이 아닙니다.');
       }
       return HomeResponse.fromJson(data);
     }
+    throw Exception('status: ${response.statusCode}');
+  }
 
-    throw Exception('Unexpected status: ${res.statusCode}');
+  @override
+  Future<HomeResponse> fetchGuestHome() async {
+    final url = dotenv.get('HOME_ENDPOINT');
+
+    final response = await _plainDio.get(url);
+    if (response.statusCode == HttpStatusCode.ok.code) {
+      final data = response.data;
+      if (data is! Map<String, dynamic>) {
+        throw const FormatException('응답이 Map<String, dynamic> 형식이 아닙니다.');
+      }
+      return HomeResponse.fromJson(data);
+    }
+    throw Exception('status: ${response.statusCode}');
   }
 }

@@ -9,11 +9,13 @@ class PopularRecruitItemResponse with _$PopularRecruitItemResponse {
   final String title;
   final String content;
   final String tags;
+  final int volunteer;
 
   const PopularRecruitItemResponse({
     required this.title,
     required this.content,
     required this.tags,
+    required this.volunteer,
   });
 
   factory PopularRecruitItemResponse.fromJson(Map<String, dynamic> json) => _$PopularRecruitItemResponseFromJson(json);
