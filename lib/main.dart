@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dongsoop/core/routing/router.dart';
+import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
@@ -80,8 +81,41 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     );
 
     _pushChannel.setMethodCallHandler((call) async {
-      if (call.method == 'onPush') {
-        await ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: true);
+      switch (call.method) {
+        case 'onPush':
+        // 배지/목록 동기화(사일런트, 포그라운드 수신 등)
+          await ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: true);
+          break;
+
+        case 'onPushTap':
+          final raw = call.arguments;
+          if (raw is Map) {
+            final args = raw.map((k, v) => MapEntry(k.toString(), v));
+            final type = args['type']?.toString();
+            final value = args['value']?.toString();
+            final id = int.tryParse(args['id']?.toString() ?? '');
+            final badge = int.tryParse(args['badge']?.toString() ?? '');
+
+            if (type != null && value != null) {
+              try {
+                await Future.microtask(() {});
+                await PushRouter.routeFromTypeValue(type: type, value: value);
+              } catch (_) {}
+            }
+
+            if (id != null && id > 0) {
+              try {
+                await ref.read(notificationViewModelProvider.notifier).read(id);
+              } catch (_) {}
+            }
+
+            if (badge != null) {
+              ref.read(notificationBadgeViewModelProvider.notifier).setBadge(badge);
+            } else {
+              await ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: true);
+            }
+          }
+          break;
       }
       return;
     });

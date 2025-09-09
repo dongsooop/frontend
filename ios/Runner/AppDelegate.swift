@@ -6,6 +6,7 @@ import flutter_local_notifications
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private var pushChannel: FlutterMethodChannel?
+  private var pendingTapUserInfo: [AnyHashable: Any]?
 
   override func application(
     _ application: UIApplication,
@@ -21,7 +22,7 @@ import flutter_local_notifications
         binaryMessenger: controller.binaryMessenger
       )
 
-      pushChannel?.setMethodCallHandler { [weak self] call, result in
+      pushChannel?.setMethodCallHandler { call, result in
         switch call.method {
         case "setBadge":
           if let args = call.arguments as? [String: Any],
@@ -45,6 +46,11 @@ import flutter_local_notifications
         default:
           result(FlutterMethodNotImplemented)
         }
+      }
+
+      if let info = pendingTapUserInfo {
+        pushChannel?.invokeMethod("onPushTap", arguments: info)
+        pendingTapUserInfo = nil
       }
     }
 
@@ -81,15 +87,24 @@ import flutter_local_notifications
     pushChannel?.invokeMethod("onPush", arguments: nil)
   }
 
-  @available(iOS 10.0, *)
-  override func userNotificationCenter(
-    _ center: UNUserNotificationCenter,
-    didReceive response: UNNotificationResponse,
-    withCompletionHandler completionHandler: @escaping () -> Void
-  ) {
-    pushChannel?.invokeMethod("onPush", arguments: nil)
-    completionHandler()
-  }
+    @available(iOS 10.0, *)
+    override func userNotificationCenter(
+      _ center: UNUserNotificationCenter,
+      didReceive response: UNNotificationResponse,
+      withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+
+        if let channel = pushChannel {
+          channel.invokeMethod("onPushTap", arguments: userInfo)
+          channel.invokeMethod("onPush", arguments: nil)
+        } else {
+          pendingTapUserInfo = userInfo
+        }
+
+        completionHandler()
+    }
+
 
   override func application(
     _ application: UIApplication,
