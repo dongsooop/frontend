@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 typedef ReadFn = Future<void> Function(int id);
 typedef RefreshBadgeFn = Future<void> Function();
+typedef SetBadgeFn = void Function(int badge);
 
 class FirebaseMessagingService {
   FirebaseMessagingService._internal();
@@ -21,21 +22,37 @@ class FirebaseMessagingService {
 
   ReadFn? _read;
   RefreshBadgeFn? _refreshBadge;
+  SetBadgeFn? _setBadge;
 
   void setReadCallback(ReadFn read) => _read = read;
   void setBadgeRefreshCallback(RefreshBadgeFn cb) => _refreshBadge = cb;
-
+  void setBadgeCallback(SetBadgeFn cb) => _setBadge = cb;
 
   Timer? _badgeThrottle;
   void _scheduleBadgeRefresh() {
-    final throttled = _badgeThrottle?.isActive == true;
     if (_refreshBadge == null) return;
-    if (throttled) return;
+    if (_badgeThrottle?.isActive == true) return;
     _badgeThrottle = Timer(const Duration(milliseconds: 400), () async {
       try {
         await _refreshBadge!.call();
       } catch (_) {}
     });
+  }
+
+  void _applyBadgeOrRefresh(RemoteMessage message) {
+    final dataBadge = int.tryParse(message.data['badge']?.toString() ?? '');
+    final apnsBadge = message.notification?.apple?.badge as int?;
+    final int? badge = dataBadge ?? apnsBadge;
+
+    if (badge != null) {
+      try {
+        _setBadge?.call(badge);
+      } catch (_) {
+        _scheduleBadgeRefresh();
+      }
+    } else {
+      _scheduleBadgeRefresh();
+    }
   }
 
   Future<void> init({required LocalNotificationsService localNotificationsService}) async {
@@ -51,6 +68,7 @@ class FirebaseMessagingService {
         final type = map['type']?.toString();
         final value = map['value']?.toString();
         final id = _extractValidId(map['id']);
+        final payloadBadge = int.tryParse(map['badge']?.toString() ?? '');
 
         if (type != null && value != null) {
           try {
@@ -63,7 +81,15 @@ class FirebaseMessagingService {
           } catch (_) {}
         }
 
-        _scheduleBadgeRefresh();
+        if (payloadBadge != null) {
+          try {
+            _setBadge?.call(payloadBadge);
+          } catch (_) {
+            _scheduleBadgeRefresh();
+          }
+        } else {
+          _scheduleBadgeRefresh();
+        }
       } catch (_) {}
     };
 
@@ -101,7 +127,7 @@ class FirebaseMessagingService {
         );
       } catch (_) {}
     }
-    _scheduleBadgeRefresh();
+    _applyBadgeOrRefresh(message);
   }
   // 백그라운드 or 종료 상태에서 알림 클릭으로 앱이 열렸을 떄
   Future<void> _onMessageOpenedApp(RemoteMessage message) async {
@@ -121,7 +147,7 @@ class FirebaseMessagingService {
       } catch (_) {}
     }
 
-    _scheduleBadgeRefresh();
+    _applyBadgeOrRefresh(message);
   }
 
   int? _extractValidId(dynamic raw) {
