@@ -12,6 +12,7 @@ import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_s
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_detail_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
+import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
@@ -169,7 +170,6 @@ final router = GoRouter(
       path: RoutePaths.passwordReset,
       builder: (context, state) => PasswordResetScreen(),
     ),
-
     GoRoute(
       path: RoutePaths.chatDetail,
       builder: (context, state) {
@@ -532,23 +532,41 @@ final router = GoRouter(
             ),
           ],
         ),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: RoutePaths.chat,
-            builder: (context, state) => ChatScreen(
-              onTapChatDetail: (roomId) async {
-                final isLeaved = await context.push<bool>(
-                  RoutePaths.chatDetail,
-                  extra: roomId,
-                );
-                return isLeaved ?? false;
-              },
-              onTapSignIn: () {
-                context.push(RoutePaths.signIn);
-              },
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RoutePaths.chat,
+              builder: (context, state) => ChatScreen(
+                onTapChatDetail: (roomId) async {
+                  final isLeaved = await context.push<bool>(
+                    RoutePaths.chatDetail,
+                    extra: roomId,
+                  );
+                  return isLeaved ?? false;
+                },
+                onTapSignIn: () { context.push(RoutePaths.signIn); },
+                onTapBlindDate: () {
+                  context.push('${RoutePaths.chat}/${RoutePaths.blindDate}');
+                },
+              ),
+              routes: [
+                GoRoute(
+                  path: RoutePaths.blindDate,
+                  name: 'blindDate',
+                  builder: (context, state) => BlindDateScreen(
+                    onTapChat: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go(RoutePaths.chat);
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
-          ),
-        ]),
+          ]
+        ),
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.mypage,
