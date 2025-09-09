@@ -1,69 +1,20 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dongsoop/core/presentation/components/common_tag.dart';
 
-class HomePopularRecruits extends StatefulWidget {
-  const HomePopularRecruits({super.key});
+class HomePopularRecruits extends StatelessWidget {
+  const HomePopularRecruits({super.key, required this.recruits});
 
-  @override
-  State<HomePopularRecruits> createState() => _State();
-}
-
-class _State extends State<HomePopularRecruits> {
-  final List<Map<String, dynamic>> popularList = [
-    {
-      "title": "DB 프로그래밍",
-      "description": "DB 프로그래밍 튜터링 모집합니다] 교내 튜터링 인원 모집합니다..",
-      "tags": ["컴퓨터소프트웨어공학과", "DB", "김희숙교수님"]
-    },
-    {
-      "title": "웹 프로젝트 실습",
-      "description": "팀원 잘 만나는 게 A+ 받는 방법이다",
-      "tags": ["컴퓨터소프트웨어공학과", "JAVA", "장용미교수님"]
-    },
-    {
-      "title": "운영체제 실습",
-      "description": "리눅스를 배워보아요",
-      "tags": ["컴퓨터소프트웨어공학과", "Linux", "전종로교수님"]
-    },
-  ];
-
-  Widget _buildTag(String tag) {
-    Color bgColor;
-    Color textColor;
-
-    if (tag == "컴퓨터소프트웨어공학과") {
-      bgColor = ColorStyles.primary5;
-      textColor = ColorStyles.primary100;
-    } else if (tag == "DB" || tag == "JAVA" || tag == "Linux") {
-      bgColor = ColorStyles.labelColorRed10;
-      textColor = ColorStyles.labelColorRed100;
-    } else if (tag == "김희숙교수님" || tag == "장용미교수님" || tag == "전종로교수님") {
-      bgColor = ColorStyles.labelColorYellow10;
-      textColor = ColorStyles.labelColorYellow100;
-    } else {
-      bgColor = ColorStyles.gray2;
-      textColor = ColorStyles.gray4;
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(32),
-      ),
-      child: Text(
-        tag,
-        style: TextStyles.smallTextBold.copyWith(color: textColor),
-      ),
-    );
-  }
+  final List<Recruit> recruits;
 
   @override
   Widget build(BuildContext context) {
+    final items = recruits;
+
     return Container(
       color: ColorStyles.gray1,
       width: double.infinity,
@@ -120,33 +71,58 @@ class _State extends State<HomePopularRecruits> {
             ),
             padding:
                 const EdgeInsets.only(top: 32, left: 16, right: 16, bottom: 40),
-            child: Column(
+            child: (items.isEmpty)
+                ? Center(
+              child: Text(
+                '지금은 인기 모집 게시글이 없어요',
+                style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+              ),
+            )
+                : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: List.generate(popularList.length, (index) {
-                final notice = popularList[index];
+              children: List.generate(items.length, (index) {
+                final item = items[index];
+                final tags = _splitTags(item.tags);
+                final volunteerCount = item.volunteer;
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      notice['title'],
-                      style: TextStyles.largeTextBold.copyWith(
-                        color: ColorStyles.black,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.title,
+                            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          '$volunteerCount명이 지원했어요',
+                          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+                          textAlign: TextAlign.right,
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      notice['description'],
-                      style: TextStyles.smallTextRegular.copyWith(
-                        color: ColorStyles.black,
-                      ),
+                      item.content,
+                      style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: notice['tags']
-                          .map<Widget>((tag) => _buildTag(tag))
-                          .toList(),
-                    ),
-                    if (index != popularList.length - 1)
+                    if (tags.isNotEmpty)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: tags
+                            .asMap()
+                            .entries
+                            .map((e) => CommonTag(label: e.value, index: e.key))
+                            .toList(),
+                      ),
+                    if (index != items.length - 1)
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 24),
                         width: double.infinity,
@@ -162,4 +138,11 @@ class _State extends State<HomePopularRecruits> {
       ),
     );
   }
+
+  List<String> _splitTags(String raw) => raw
+      .trim()
+      .split(RegExp(r'[,，]'))
+      .map((e) => e.trim())
+      .where((e) => e.isNotEmpty)
+      .toList(growable: false);
 }
