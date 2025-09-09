@@ -43,6 +43,15 @@ class NotificationDataSourceImpl implements NotificationDataSource {
   }
 
   @override
+  Future<void> readAllNotification() async {
+    final url = dotenv.get('NOTIFICATION_READ_ALL_ENDPOINT');
+    final response = await _authDio.post(url);
+    if (response.statusCode != HttpStatusCode.noContent.code) {
+      throw Exception('status: ${response.statusCode}');
+    }
+  }
+
+  @override
   Future<void> deleteNotification({required int id}) async {
     final baseUrl = dotenv.get('NOTIFICATION_ENDPOINT');
     final url = '$baseUrl/$id';

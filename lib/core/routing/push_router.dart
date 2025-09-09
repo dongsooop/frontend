@@ -17,7 +17,9 @@ class PushRouter {
     try {
       type = type.trim().toUpperCase();
       value = value.trim();
-      if (type.isEmpty || value.isEmpty) {
+
+      final needsValue = _requiresValue(type);
+      if (type.isEmpty || (needsValue && value.isEmpty)) {
         return await _fallbackToNotificationList();
       }
 
@@ -33,6 +35,20 @@ class PushRouter {
             value,
             fromNotificationList: fromNotificationList,
           );
+          return true;
+
+      // 캘린더 (value 불필요)
+        case 'CALENDAR':
+          await _goHomeThen(() async {
+            await router.push(RoutePaths.calendar);
+          });
+          return true;
+
+      // 시간표 (value 불필요)
+        case 'TIMETABLE':
+          await _goHomeThen(() async {
+            await router.push(RoutePaths.timetable);
+          });
           return true;
 
         case 'RECRUITMENT_STUDY_APPLY':
@@ -84,6 +100,25 @@ class PushRouter {
       return await _fallbackToNotificationList();
     } finally {
       _isRouting = false;
+    }
+  }
+
+  static bool _requiresValue(String type) {
+    switch (type) {
+      case 'CALENDAR':
+      case 'TIMETABLE':
+        return false;
+      case 'CHAT':
+      case 'NOTICE':
+      case 'RECRUITMENT_STUDY_APPLY':
+      case 'RECRUITMENT_PROJECT_APPLY':
+      case 'RECRUITMENT_TUTORING_APPLY':
+      case 'RECRUITMENT_STUDY_APPLY_RESULT':
+      case 'RECRUITMENT_PROJECT_APPLY_RESULT':
+      case 'RECRUITMENT_TUTORING_APPLY_RESULT':
+        return true;
+      default:
+        return true;
     }
   }
 

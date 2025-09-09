@@ -1,5 +1,5 @@
+import 'package:dongsoop/data/calendar/mapper/calendar_type_mapper.dart';
 import 'package:dongsoop/domain/calendar/entities/calendar_list_entity.dart';
-import 'package:dongsoop/domain/calendar/enum/calendar_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'calendar_list_model.freezed.dart';
@@ -33,10 +33,10 @@ extension CalendarListModelMapper on CalendarListModel {
     return CalendarListEntity(
       id: id,
       title: title,
-      location: location,
+      location: location.isEmpty ? null : location,
       startAt: startAt,
       endAt: endAt,
-      type: CalendarTypeExtension.fromString(type),
+      type: CalendarTypeMapper.fromApi(type),
     );
   }
 }

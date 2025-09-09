@@ -33,6 +33,7 @@ class StompService {
             'Authorization': 'Bearer $accessToken',
           },
           onWebSocketError: (error) {
+            print('stomp error: $error');
             if (error.toString().contains('403')) {
               throw ChatForbiddenException();
             } else if (error.toString().contains('401')) {
@@ -41,6 +42,10 @@ class StompService {
               throw Exception('WebSocket Error: $error');
             }
           },
+          beforeConnect: () async {
+            print('beforeConnect');
+          },
+          onDebugMessage: (msg) => print('DEBUG: $msg'),
         ),
       );
 
@@ -51,6 +56,7 @@ class StompService {
   }
 
   void _onConnect(StompFrame frame, String roomId) {
+    print('on connect');
     final enterDestination = dotenv.get('ENTER_DESTINATION');
     final chatDestination = dotenv.get('CHAT_DESTINATION');
     final blockDestination = dotenv.get('BLOCK_DESTINATION');

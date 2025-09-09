@@ -31,8 +31,10 @@ class FirebaseMessagingService {
     final throttled = _badgeThrottle?.isActive == true;
     if (_refreshBadge == null) return;
     if (throttled) return;
-    _badgeThrottle = Timer(const Duration(milliseconds: 400), () {
-      _refreshBadge!.call();
+    _badgeThrottle = Timer(const Duration(milliseconds: 400), () async {
+      try {
+        await _refreshBadge!.call();
+      } catch (_) {}
     });
   }
 
@@ -56,7 +58,9 @@ class FirebaseMessagingService {
           } catch (_) {}
         }
         if (id != null) {
-          await _read?.call(id);
+          try {
+            await _read?.call(id);
+          } catch (_) {}
         }
 
         _scheduleBadgeRefresh();
@@ -89,11 +93,13 @@ class FirebaseMessagingService {
     final notificationData = message.notification;
     if (notificationData != null) {
       final payload = jsonEncode(message.data);
-      _localNotificationsService?.showNotification(
-        notificationData.title,
-        notificationData.body,
-        payload,
-      );
+      try {
+        _localNotificationsService?.showNotification(
+          notificationData.title,
+          notificationData.body,
+          payload,
+        );
+      } catch (_) {}
     }
     _scheduleBadgeRefresh();
   }
@@ -110,7 +116,9 @@ class FirebaseMessagingService {
     }
 
     if (id != null) {
-      await _read?.call(id);
+      try {
+        await _read?.call(id);
+      } catch (_) {}
     }
 
     _scheduleBadgeRefresh();

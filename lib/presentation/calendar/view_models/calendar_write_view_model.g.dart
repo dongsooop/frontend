@@ -7,7 +7,7 @@ part of 'calendar_write_view_model.dart';
 // **************************************************************************
 
 String _$calendarWriteViewModelHash() =>
-    r'b90ee842694555de157a223dd2fc8abc9d9c268d';
+    r'7b5e3e482c1f5f88c765560d702a6b931f9a2ab8';
 
 /// See also [CalendarWriteViewModel].
 @ProviderFor(CalendarWriteViewModel)

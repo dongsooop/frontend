@@ -41,7 +41,7 @@ class TimetableDetailViewModel extends StateNotifier<TimetableDetailState> {
     } catch (e) {
       state = state.copyWith(
         isAnalyzing: false,
-        analysisErrorMessage: '알 수 없는 오류가 발생했어요',
+        analysisErrorMessage: '알 수 없는 오류가 발생했어요\n$e',
       );
       return false;
     }

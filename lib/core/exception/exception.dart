@@ -66,6 +66,15 @@ class UserSanctionedException extends LoginException {
   String toString() => message;
 }
 
+class UserNotFoundException extends LoginException {
+  const UserNotFoundException(
+      [String message = "등록된 회원 정보를 찾을 수 없습니다."])
+      : super(message);
+
+  @override
+  String toString() => message;
+}
+
 class ReIssueException implements Exception {
   final String message;
   ReIssueException([this.message = "refresh Token이 만료됐습니다. 다시 로그인 해 주세요"]);
@@ -146,7 +155,7 @@ class CalendarActionException implements Exception {
   final String message;
 
   CalendarActionException([
-    this.message = "일정을 처리하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
+    this.message = "일정을 처리하는 과정에서 문제가 발생했어요.\n잠시 후 다시 시도해주세요.",
   ]);
 
   @override

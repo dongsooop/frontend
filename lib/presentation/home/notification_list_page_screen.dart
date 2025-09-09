@@ -24,6 +24,11 @@ class NotificationPageScreen extends HookConsumerWidget {
     final prev = state.valueOrNull;
     final isLoadingMore = state.isLoading && prev != null;
 
+    bool _hasUnread(NotificationState? s) {
+      if (s == null) return false;
+      return s.items.any((e) => !e.isRead);
+    }
+
     useEffect(() {
       void onScroll() {
         if (!scrollController.hasClients) return;
@@ -223,36 +228,94 @@ class NotificationPageScreen extends HookConsumerWidget {
         onBack: () => context.pop(true),
       ),
       body: SafeArea(
-        child: state.when(
-          data: (data) =>
-              buildList(data, showPaging: false, message: data.error),
-          loading: () {
-            if (prev == null) {
-              return const Center(
-                child:
-                CircularProgressIndicator(color: ColorStyles.primaryColor),
-              );
-            }
-            return buildList(prev, showPaging: true, message: prev.error);
-          },
-          error: (e, _) {
-            if (prev == null) {
-              return SizedBox.expand(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Center(
+        child: Column(
+          children: [
+            state.when(
+              data: (data) => _hasUnread(data)
+                  ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () async {
+                      try {
+                        await notifier.readAll();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('모든 알림을 읽음 처리했어요.')),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          showDialog(
+                            context: context,
+                            builder: (_) => CustomConfirmDialog(
+                              title: '실패',
+                              content: '$e',
+                              confirmText: '확인',
+                              isSingleAction: true,
+                              onConfirm: () {},
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(44, 44),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      splashFactory: NoSplash.splashFactory,
+                      overlayColor: Colors.transparent,
+                    ),
                     child: Text(
-                      '$e',
-                      style: TextStyles.normalTextRegular
-                          .copyWith(color: ColorStyles.black),
-                      textAlign: TextAlign.center,
+                      '모두 읽기',
+                      style: TextStyles.normalTextRegular.copyWith(
+                        color: ColorStyles.black,
+                      ),
                     ),
                   ),
                 ),
-              );
-            }
-            return buildList(prev, showPaging: false, message: e.toString());
-          },
+              )
+                  : const SizedBox.shrink(),
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+
+            Expanded(
+              child: state.when(
+                data: (data) =>
+                    buildList(data, showPaging: false, message: data.error),
+                loading: () {
+                  if (prev == null) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                          color: ColorStyles.primaryColor),
+                    );
+                  }
+                  return buildList(prev, showPaging: true, message: prev.error);
+                },
+                error: (e, _) {
+                  if (prev == null) {
+                    return SizedBox.expand(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Center(
+                          child: Text(
+                            '$e',
+                            style: TextStyles.normalTextRegular
+                                .copyWith(color: ColorStyles.black),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return buildList(prev, showPaging: false, message: e.toString());
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
