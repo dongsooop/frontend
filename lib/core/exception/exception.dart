@@ -485,3 +485,12 @@ class TimetableMultiStatusException extends TimetableException {
   @override
   String toString() => message;
 }
+
+class HomeException implements Exception {
+  final String message;
+  HomeException(
+      [this.message = "화면을 불러오는 중 오류가 발생했어요\n잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}

@@ -10,6 +10,7 @@ import 'package:dongsoop/presentation/home/view_models/notification_badge_view_m
 import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -33,6 +34,9 @@ Future<void> main() async {
 
   final firebaseMessagingService = FirebaseMessagingService.instance();
   await firebaseMessagingService.init(localNotificationsService: localNotificationsService);
+
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  print("🔥 FCM Token: $fcmToken");
 
   await Hive.initFlutter();
   Hive.registerAdapter(LocalTimetableInfoAdapter());
