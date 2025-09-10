@@ -37,4 +37,5 @@ abstract class RoutePaths {
   static const String mypageRecruit = '/mypage/recruit';
   static const String mypageBlock = '/mypage/block';
   static const String blindDate = 'blind-date';
+  static const String blindDateDetail = '/blindDateDetail';
 }

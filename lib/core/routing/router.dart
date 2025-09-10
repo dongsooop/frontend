@@ -12,6 +12,7 @@ import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_s
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_detail_page_screen.dart';
 import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
+import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
@@ -179,6 +180,10 @@ final router = GoRouter(
           roomId: roomId,
         );
       }
+    ),
+    GoRoute(
+      path: RoutePaths.blindDateDetail,
+      builder: (context, state) => BlindDateDetailScreen(),
     ),
     GoRoute(
       path: RoutePaths.mypageWebView,
@@ -560,6 +565,9 @@ final router = GoRouter(
                       } else {
                         context.go(RoutePaths.chat);
                       }
+                    },
+                    onTapBlindDateDetail: () {
+                      context.push(RoutePaths.blindDateDetail);
                     },
                   ),
                 ),

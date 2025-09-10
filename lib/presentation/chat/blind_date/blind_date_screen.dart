@@ -5,10 +5,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class BlindDateScreen extends HookConsumerWidget {
   final VoidCallback onTapChat;
+  final VoidCallback onTapBlindDateDetail;
 
   const BlindDateScreen({
     super.key,
     required this.onTapChat,
+    required this.onTapBlindDateDetail,
   });
 
   @override
@@ -37,7 +39,7 @@ class BlindDateScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              _joinBlindDateButton(),
+              _joinBlindDateButton(onTap: onTapBlindDateDetail),
             ],
           ),
         ),
@@ -69,7 +71,9 @@ class BlindDateScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _joinBlindDateButton() {
+  Widget _joinBlindDateButton({
+    required VoidCallback onTap,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -94,7 +98,7 @@ class BlindDateScreen extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: onTap,
             style: ElevatedButton.styleFrom(
               elevation: 0,
               backgroundColor: ColorStyles.primaryColor,

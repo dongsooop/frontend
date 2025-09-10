@@ -14,6 +14,8 @@ import 'package:dongsoop/domain/chat/use_case/kick_user_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
+import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_state.dart';
+import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_view_model.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:dongsoop/presentation/chat/chat_view_model.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
@@ -198,3 +200,7 @@ final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref)
     return ChatBlockNotifier();
   },
 );
+
+final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<BlindDateDetailViewModel, BlindDateDetailState>((ref) {
+  return BlindDateDetailViewModel();
+});
