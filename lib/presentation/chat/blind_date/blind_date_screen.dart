@@ -22,6 +22,7 @@ class BlindDateScreen extends HookConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 24,
             children: [
               SizedBox(
                 width: double.infinity,
@@ -36,7 +37,7 @@ class BlindDateScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 16),
+              _joinBlindDateButton(),
             ],
           ),
         ),
@@ -64,6 +65,50 @@ class BlindDateScreen extends HookConsumerWidget {
                 : TextStyles.titleTextRegular.copyWith(color: ColorStyles.gray4),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _joinBlindDateButton() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            width: 1,
+            color: ColorStyles.gray2,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '다양한 친구를 사귀어 봐요',
+            style: TextStyles.smallTextRegular.copyWith(
+              color: ColorStyles.black,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: ColorStyles.primaryColor,
+              minimumSize: const Size.fromHeight(44),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              '지금 과팅 참여하기',
+              style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        ],
       ),
     );
   }
