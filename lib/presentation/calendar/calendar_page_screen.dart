@@ -6,10 +6,13 @@ import 'package:dongsoop/presentation/calendar/view_models/calendar_view_model.d
 import 'package:dongsoop/presentation/calendar/widget/calendar_member.dart';
 import 'package:dongsoop/presentation/calendar/widget/calendar_official.dart';
 import 'package:dongsoop/presentation/calendar/widget/pick_month_year_dialog.dart';
+import 'package:dongsoop/presentation/home/providers/home_update_provider.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class CalendarPageScreen extends HookConsumerWidget {
@@ -25,14 +28,38 @@ class CalendarPageScreen extends HookConsumerWidget {
     final viewModel = ref.read(calendarViewModelProvider.notifier);
 
     final items = ref.watch(filterProvider);
+    final changed = useState(false);
 
     void goPrev() => viewModel.goToPreviousMonth();
     void goNext() => viewModel.goToNextMonth();
     Future<void> doRefresh() => viewModel.refresh();
 
+    Future<bool?> handleTapCalendarDetail(
+        CalendarListEntity? event,
+        DateTime selectedDate,
+        ) async {
+      if (onTapCalendarDetail == null) return null;
+      final result = await onTapCalendarDetail!(event, selectedDate);
+      if (result == true) {
+        await viewModel.refresh();
+        changed.value = true;
+      }
+      return result;
+    }
+
+    Future<void> _onBack() async {
+      if (changed.value) {
+        ref.read(homeNeedsRefreshProvider.notifier).state = true;
+      }
+      context.pop(true);
+    }
+
     return Scaffold(
       backgroundColor: ColorStyles.white,
-      appBar: const DetailHeader(title: '일정 관리'),
+      appBar: DetailHeader(
+        title: '일정 관리',
+        onBack: _onBack,
+      ),
       body: SafeArea(
         child: state.when(
           loading: () => const Center(
@@ -154,7 +181,7 @@ class CalendarPageScreen extends HookConsumerWidget {
                     onPrevMonth: goPrev,
                     onNextMonth: goNext,
                     onRefresh: doRefresh,
-                    onTapCalendarDetail: onTapCalendarDetail,
+                    onTapCalendarDetail: handleTapCalendarDetail,
                   )
                       : CalendarOfficialList(
                     events: items,
