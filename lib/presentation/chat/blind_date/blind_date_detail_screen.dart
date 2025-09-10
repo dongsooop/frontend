@@ -1,5 +1,6 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/presentation/chat/widgets/match_vote_bottom_sheet.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -25,6 +26,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     // user
     final user = ref.watch(userSessionProvider);
     final int? userId = user?.id;
+    final String nickname = '익명 3';
 
     final textController = useTextEditingController();
     final scrollController = useScrollController();
@@ -174,14 +176,25 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                         height: 44,
                         width: 44,
                         child: IconButton(
-                          onPressed: () {
-                            textController.clear();
-                            // 스크롤 맨 아래로 이동
-                            scrollController.animateTo(
-                              0,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
+                          onPressed: () async {
+                            await MatchVoteBottomSheet.show(
+                              context,
+                              candidates: ['익명1', '익명2', '익명3', '익명4', '익명5', '익명6', '익명7'],
+                              onSubmit: (selected) async {
+                                print('selected: $selected');
+                                // selected == null 이면 미선택
+                                // 서버 전송 로직 작성
+                                // await repo.sendVote(selected);
+                              },
+                              seconds: 10, // 기본 10초
                             );
+                            // textController.clear();
+                            // // 스크롤 맨 아래로 이동
+                            // scrollController.animateTo(
+                            //   0,
+                            //   duration: const Duration(milliseconds: 300),
+                            //   curve: Curves.easeInOut,
+                            // );
                           },
                           icon: SvgPicture.asset(
                             'assets/icons/send.svg',
