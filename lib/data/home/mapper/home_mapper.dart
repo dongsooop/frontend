@@ -4,6 +4,7 @@ import 'package:dongsoop/data/home/model/calendar_item_response.dart';
 import 'package:dongsoop/data/home/model/new_notice_item_response.dart';
 import 'package:dongsoop/data/home/model/popular_recruit_item_response.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 
 String _string(String? v) => (v ?? '').trim();
 
@@ -13,15 +14,27 @@ int _toInt(Object? v) {
   return 0;
 }
 
-NoticeType _noticeTypeFrom(String? v) {
-  switch (_string(v).toLowerCase()) {
+NoticeType _noticeTypeFrom(String? value) {
+  switch (_string(value).toLowerCase()) {
     case 'official':
       return NoticeType.official;
     case 'department':
       return NoticeType.department;
     default:
-      throw FormatException('Unexpected NoticeType: $v');
+      throw FormatException('$value');
   }
+}
+
+RecruitType _recruitTypeFrom(Object? value) {
+  final typeString = _string(value?.toString());
+
+  for (final recruitType in RecruitType.values) {
+    if (recruitType.name == typeString) {
+      return recruitType;
+    }
+  }
+
+  throw FormatException('Unexpected RecruitType: $typeString');
 }
 
 extension HomeResponseMapper on HomeResponse {
@@ -29,8 +42,7 @@ extension HomeResponseMapper on HomeResponse {
     final timeTableSlots = timeTableItems.map((e) => e.toSlot()).toList();
     final calendarSlots = calendarItems.map((e) => e.toSlot()).toList();
     final noticeList = newNoticeItems.map((e) => e.toNotice()).toList();
-    final popularRecruitList =
-    popularRecruitItems.map((e) => e.toRecruit()).toList();
+    final popularRecruitList = popularRecruitItems.map((e) => e.toRecruit()).toList();
 
     return HomeEntity(
       timeTable: timeTableSlots,
@@ -67,9 +79,11 @@ extension NewNoticeItemResponseMapper on NewNoticeItemResponse {
 
 extension PopularRecruitItemResponseMapper on PopularRecruitItemResponse {
   Recruit toRecruit() => (
+  id: _toInt(id),
   title: _string(title),
   content: _string(content),
   tags: _string(tags),
   volunteer: _toInt(volunteer),
+  type: _recruitTypeFrom(type),
   );
 }

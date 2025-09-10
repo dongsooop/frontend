@@ -15,10 +15,12 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$PopularRecruitItemResponse {
+  int get id;
   String get title;
   String get content;
   String get tags;
   int get volunteer;
+  String get type;
 
   /// Create a copy of PopularRecruitItemResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -34,20 +36,23 @@ mixin _$PopularRecruitItemResponse {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is PopularRecruitItemResponse &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.tags, tags) || other.tags == tags) &&
             (identical(other.volunteer, volunteer) ||
-                other.volunteer == volunteer));
+                other.volunteer == volunteer) &&
+            (identical(other.type, type) || other.type == type));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, title, content, tags, volunteer);
+  int get hashCode =>
+      Object.hash(runtimeType, id, title, content, tags, volunteer, type);
 
   @override
   String toString() {
-    return 'PopularRecruitItemResponse(title: $title, content: $content, tags: $tags, volunteer: $volunteer)';
+    return 'PopularRecruitItemResponse(id: $id, title: $title, content: $content, tags: $tags, volunteer: $volunteer, type: $type)';
   }
 }
 
@@ -57,7 +62,13 @@ abstract mixin class $PopularRecruitItemResponseCopyWith<$Res> {
           $Res Function(PopularRecruitItemResponse) _then) =
       _$PopularRecruitItemResponseCopyWithImpl;
   @useResult
-  $Res call({String title, String content, String tags, int volunteer});
+  $Res call(
+      {int id,
+      String title,
+      String content,
+      String tags,
+      int volunteer,
+      String type});
 }
 
 /// @nodoc
@@ -73,12 +84,18 @@ class _$PopularRecruitItemResponseCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? title = null,
     Object? content = null,
     Object? tags = null,
     Object? volunteer = null,
+    Object? type = null,
   }) {
     return _then(PopularRecruitItemResponse(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
       title: null == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -95,6 +112,10 @@ class _$PopularRecruitItemResponseCopyWithImpl<$Res>
           ? _self.volunteer
           : volunteer // ignore: cast_nullable_to_non_nullable
               as int,
+      type: null == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
