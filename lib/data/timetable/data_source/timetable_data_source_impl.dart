@@ -97,13 +97,13 @@ class TimetableDataSourceImpl implements TimetableDataSource {
 
   @override
   Future<List<LectureAi>> timetableAnalysis(XFile file) async {
-    final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+    final endpoint = dotenv.get('TIMETABLE_ANALYSIS_ENDPOINT');
 
     try {
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(file.path),
       });
-      final response = await _aiDio.post(
+      final response = await _authDio.post(
         endpoint,
         data: formData,
       );
