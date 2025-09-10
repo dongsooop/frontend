@@ -85,51 +85,65 @@ class HomePopularRecruits extends StatelessWidget {
                 final tags = _splitTags(item.tags);
                 final volunteerCount = item.volunteer;
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.title,
-                            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    context.push(
+                      RoutePaths.recruitDetail,
+                      extra: {
+                        'id': item.id,
+                        'type': item.type,
+                      },
+                    );
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.title,
+                              style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '$volunteerCount명이 지원했어요',
-                          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
-                          textAlign: TextAlign.right,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      item.content,
-                      style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
-                    ),
-                    const SizedBox(height: 16),
-                    if (tags.isNotEmpty)
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: tags
-                            .asMap()
-                            .entries
-                            .map((e) => CommonTag(label: e.value, index: e.key))
-                            .toList(),
+                          Text(
+                            '$volunteerCount명이 지원했어요',
+                            style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+                            textAlign: TextAlign.right,
+                          ),
+                        ],
                       ),
-                    if (index != items.length - 1)
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 24),
-                        width: double.infinity,
-                        height: 1,
-                        color: ColorStyles.gray2,
+                      const SizedBox(height: 8),
+                      Text(
+                        item.content,
+                        style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                  ],
+                      const SizedBox(height: 16),
+                      if (tags.isNotEmpty)
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: tags
+                              .asMap()
+                              .entries
+                              .map((e) => CommonTag(label: e.value, index: e.key))
+                              .toList(),
+                        ),
+                      if (index != items.length - 1)
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 24),
+                          width: double.infinity,
+                          height: 1,
+                          color: ColorStyles.gray2,
+                        ),
+                    ],
+                  ),
                 );
               }),
             ),

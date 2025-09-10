@@ -57,6 +57,7 @@ class HomePageScreen extends HookConsumerWidget {
             bottom: true,
             child: RefreshIndicator(
               onRefresh: homeViewModel.refresh,
+              color:  ColorStyles.primary100,
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
