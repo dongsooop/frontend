@@ -35,6 +35,7 @@ class ChatCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
