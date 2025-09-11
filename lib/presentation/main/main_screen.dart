@@ -38,6 +38,7 @@ class MainScreen extends StatelessWidget {
           ),
         ),
         child: NavigationBar(
+          height: 48,
           indicatorColor: Colors.transparent,
           onDestinationSelected: onChangeIndex,
           selectedIndex: currentPageIndex,
