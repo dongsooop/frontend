@@ -51,15 +51,24 @@ class RecruitDataSourceImpl implements RecruitDataSource {
   }) async {
     final baseUrl = RecruitTypeConfig.getRecruitEndpoint(type);
     final url = '$baseUrl/$id';
-    final response = await _authDio.get(url);
 
-    if (response.statusCode == HttpStatusCode.ok.code) {
-      final data = response.data;
-      if (data is! Map<String, dynamic>)
-        throw FormatException('응답 데이터 형식이 Map<String, dynamic>이 아닙니다.');
-      return RecruitDetailModel.fromJson(data);
+    try {
+      final response = await _authDio.get(url);
+
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        if (data is! Map<String, dynamic>) {
+          throw FormatException('응답 데이터 형식이 Map<String, dynamic>이 아닙니다.');
+        }
+        return RecruitDetailModel.fromJson(data);
+      }
+      throw Exception('status: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw NotFoundBoardException();
+      }
+      rethrow;
     }
-    throw Exception('status: ${response.statusCode}');
   }
 
   @override

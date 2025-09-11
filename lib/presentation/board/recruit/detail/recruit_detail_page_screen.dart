@@ -13,6 +13,7 @@ import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_d
 import 'package:dongsoop/presentation/board/recruit/detail/widget/botton_button.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/presentation/home/providers/home_update_provider.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -394,6 +395,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
               type: type,
               departmentCode: user.departmentType,
             ).notifier).refresh();
+            ref.read(homeNeedsRefreshProvider.notifier).state = true;
             context.pop(true);
           } catch (e) {
             showDialog(

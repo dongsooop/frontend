@@ -2,6 +2,7 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
+import 'package:dongsoop/presentation/home/providers/home_update_provider.dart';
 import 'package:dongsoop/presentation/timetable/detail/timetable_detail_screen.dart';
 import 'package:dongsoop/presentation/timetable/widgets/create_timetable_button.dart';
 import 'package:dongsoop/providers/timetable_providers.dart';
@@ -36,6 +37,8 @@ class TimetableScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final timetableState = ref.watch(timetableViewModelProvider);
     final viewModel = ref.read(timetableViewModelProvider.notifier);
+
+    final changed = useState(false);
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -81,12 +84,20 @@ class TimetableScreen extends HookConsumerWidget {
       return null;
     }, [timetableState.errorMessage]);
 
+    Future<void> _onBack() async {
+      if (changed.value) {
+        ref.read(homeNeedsRefreshProvider.notifier).state = true;
+      }
+      if (context.mounted) context.pop(true);
+    }
+
     return Scaffold(
       backgroundColor: ColorStyles.white,
       appBar: DetailHeader(
         title: timetableState.exists == false
           ? '시간표 관리'
           : '',
+        onBack: _onBack,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -97,6 +108,7 @@ class TimetableScreen extends HookConsumerWidget {
                   if (isSucceed) {
                     // refresh
                     await viewModel.getLecture();
+                    changed.value = true;
                   }
                 },
                 icon: SvgPicture.asset(
@@ -117,6 +129,7 @@ class TimetableScreen extends HookConsumerWidget {
                   viewModel.setYearSemester(result.year, result.semester);
                 }
                 await viewModel.getLecture();
+                changed.value = true;
               },
               icon: Icon(
                 Icons.format_list_bulleted_outlined,
@@ -157,6 +170,7 @@ class TimetableScreen extends HookConsumerWidget {
                     onCreated: (result) async {
                       viewModel.setYearSemester(result!.year, result.semester);
                       await viewModel.getLecture();
+                      changed.value = true;
                     },
                   )
                   : TimetableDetailScreen(
@@ -164,6 +178,7 @@ class TimetableScreen extends HookConsumerWidget {
                     onLectureChanged: () async {
                       if (!context.mounted) return;
                       await viewModel.getLecture();
+                      changed.value = true;
                     },
                     onEditLecture: (editing) async {
                       final year = timetableState.year;
@@ -179,6 +194,7 @@ class TimetableScreen extends HookConsumerWidget {
                       if (ok) {
                         if (!context.mounted) return false;
                         await viewModel.getLecture();
+                        changed.value = true;
                       }
                       return ok;
                     }
