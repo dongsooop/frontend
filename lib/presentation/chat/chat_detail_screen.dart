@@ -122,20 +122,23 @@ class ChatDetailScreen extends HookConsumerWidget {
         preferredSize: Size.fromHeight(44),
         child: AppBar(
           backgroundColor: ColorStyles.gray1,
-          title: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 8,
-            children: [
-              Text(
-                chatDetailState.roomDetail?.title ?? '',
-                style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-              ),
-              Text(
-                chatDetailState.nicknameMap.length.toString(),
-                style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
-              ),
-            ],
+          title: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 8,
+              children: [
+                Text(
+                  chatDetailState.roomDetail?.title ?? '',
+                  style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                ),
+                Text(
+                  chatDetailState.nicknameMap.length.toString(),
+                  style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
+                ),
+              ],
+            ),
           ),
           leading: IconButton(
             onPressed: () {
