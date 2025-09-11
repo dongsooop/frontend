@@ -34,7 +34,7 @@ class LoggedInUserCard extends HookConsumerWidget {
       children: [
         Container(
           width: double.infinity,
-          height: 88,
+          constraints: const BoxConstraints(minHeight: 88),
           padding: const EdgeInsets.all(16),
           decoration: ShapeDecoration(
             color: ColorStyles.white,
