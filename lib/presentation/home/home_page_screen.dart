@@ -11,6 +11,7 @@ import 'package:dongsoop/presentation/home/view_models/notification_badge_view_m
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/presentation/home/view_models/home_view_model.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
+import 'package:dongsoop/presentation/home/providers/home_update_provider.dart';
 
 class HomePageScreen extends HookConsumerWidget {
   const HomePageScreen({super.key, required this.onTapAlarm});
@@ -28,6 +29,25 @@ class HomePageScreen extends HookConsumerWidget {
     final homeProvider = homeViewModelProvider(departmentCode: departmentCode);
     final homeAsyncValue = ref.watch(homeProvider);
     final homeViewModel = ref.read(homeProvider.notifier);
+
+    ref.listen<bool>(homeNeedsRefreshProvider, (prev, next) async {
+      if (next == true) {
+        await homeViewModel.refresh();
+        ref.read(homeNeedsRefreshProvider.notifier).state = false;
+      }
+    });
+
+    useEffect(() {
+      if (ref.read(homeNeedsRefreshProvider) == true) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await homeViewModel.refresh();
+          if (context.mounted) {
+            ref.read(homeNeedsRefreshProvider.notifier).state = false;
+          }
+        });
+      }
+      return null;
+    }, [departmentCode]);
 
     useEffect(() {
       if (user != null) {

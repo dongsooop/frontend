@@ -11,7 +11,7 @@ class HomeViewModel extends _$HomeViewModel {
     final code = (departmentCode == null || departmentCode.trim().isEmpty)
         ? null
         : departmentCode.trim();
-    final useCase = ref.watch(homeUseCaseProvider);
+    final useCase = ref.read(homeUseCaseProvider);
     return useCase.execute(departmentType: code);
   }
 
