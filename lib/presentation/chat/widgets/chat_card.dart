@@ -41,7 +41,7 @@ class ChatCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 16,
+                  spacing: 8,
                   children: [
                     Flexible(
                       child: Text(
@@ -53,7 +53,7 @@ class ChatCard extends StatelessWidget {
                     ),
                     Text(
                       chatRoom.participantCount.toString(),
-                      style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+                      style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
                     ),
                   ],
                 ),

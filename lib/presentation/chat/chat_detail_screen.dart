@@ -135,7 +135,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                   style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
                 ),
                 Text(
-                  chatDetailState.nicknameMap.length.toString(),
+                  chatDetailState.roomDetail?.participants.length.toString() ?? '',
                   style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
                 ),
               ],
