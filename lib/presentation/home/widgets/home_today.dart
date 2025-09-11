@@ -5,9 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:dongsoop/domain/home/entity/home_entity.dart';
 
 class HomeToday extends HookConsumerWidget {
-  const HomeToday({super.key});
+  const HomeToday({
+    super.key,
+    required this.timeTable,
+    required this.calendar,
+    required this.isLoggedOut,
+  });
+
+  final List<Slot> timeTable;
+  final List<Slot> calendar;
+  final bool isLoggedOut;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,9 +25,8 @@ class HomeToday extends HookConsumerWidget {
     final now = DateTime.now();
     final weekday = ['월', '화', '수', '목', '금', '토', '일'][now.weekday - 1];
     final todayString = '${now.month}월 ${now.day}일 ($weekday)';
-    // final user = ref.watch(userSessionProvider);
 
-    String cafeteriaText = cafeteriaState.when(
+    final cafeteriaText = cafeteriaState.when(
       data: (state) => state.todayMeal?.koreanMenu ?? '오늘은 학식이 제공되지 않아요!',
       loading: () => '불러오는 중...',
       error: (err, _) => err.toString(),
@@ -37,7 +46,6 @@ class HomeToday extends HookConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 날짜 텍스트
           Text(
             todayString,
             style: TextStyles.titleTextBold.copyWith(
@@ -46,117 +54,120 @@ class HomeToday extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          // =========================
-          // 강의시간표 + 일정 (주석 처리)
-          // =========================
-          /*
           SizedBox(
-            height: 140,
+            height: isLoggedOut ? 112 : 140,
             child: Row(
               children: [
-                Expanded(
-                  child: Stack(
-                    children: [
-                      // home 작업할 때 추가될 예정
-                      // _buildCard(
-                      //   title: '강의시간표',
-                      //   type: 'timetable',
-                      //   context: context,
-                      // ),
-                      if (user == null)
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
-                              child: Container(
-                                alignment: Alignment.center,
-                                color: ColorStyles.white.withAlpha((255 * 0.5).round()),
-                                child: Text(
-                                  '로그인이 \n필요한 서비스예요',
-                                  style: TextStyles.normalTextBold.copyWith(
-                                    color: ColorStyles.black,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+                if (!isLoggedOut) ...[
+                  Expanded(
+                    child: _buildCard(
+                      title: '강의시간표',
+                      type: _CardType.timetable,
+                      context: context,
+                      slots: timeTable,
+                      isLoggedOut: isLoggedOut,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
+                ],
                 Expanded(
                   child: _buildCard(
                     title: '일정',
-                    type: 'calendar',
+                    type: _CardType.calendar,
                     context: context,
+                    slots: calendar,
+                    isLoggedOut: isLoggedOut,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          */
 
-          // 오늘의 학식
-          SizedBox(
-            child: _buildCard(
-              title: '오늘의 학식',
-              type: 'cafeteria',
-              context: context,
-              cafeteriaText: cafeteriaText,
-            ),
+          _buildCard(
+            title: '오늘의 학식',
+            type: _CardType.cafeteria,
+            context: context,
+            cafeteriaText: cafeteriaText,
+            isLoggedOut: isLoggedOut,
           ),
           const SizedBox(height: 16),
 
-          // 도서관 배너
           _buildCard(
             title: '',
-            type: 'banner',
+            type: _CardType.banner,
             context: context,
+            isLoggedOut: isLoggedOut,
           ),
         ],
       ),
     );
   }
 
+  static String formatHourMinute(String value) {
+    final match = RegExp(r'^\s*(\d{1,2}):(\d{2})(?::\d{2})?\s*$').firstMatch(value);
+    if (match != null) {
+      final hourPart = match.group(1)!.padLeft(2, '0');
+      final minutePart = match.group(2)!;
+      return '$hourPart:$minutePart';
+    }
+    return value;
+  }
+
   static Widget _buildCard({
     required String title,
-    required String type,
+    required _CardType type,
     required BuildContext context,
+    List<Slot> slots = const [],
     String? cafeteriaText,
+    bool isLoggedOut = false,
   }) {
     List<Widget> content = [];
 
-    if (type == 'timetable') {
-      content = [
-        _buildRow('12:00', '프로그래밍언어실습'),
-        _buildRow('14:00', '자바프로그래밍'),
-        _buildRow('17:00', '슬기로운직장생활'),
-      ];
-    } else if (type == 'calendar') {
-      content = [
-        _buildRow('13:00', '프로젝트 회의'),
-        _buildRow('19:00', '술먹기'),
-      ];
-    } else if (type == 'cafeteria') {
+    if (type == _CardType.timetable) {
+      content = slots.isEmpty
+          ? [
+        Text(
+          '오늘 수업이 없어요',
+          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+        ),
+      ]
+          : slots.take(3).map((s) => _buildRow(formatHourMinute(s.startAt), s.title)).toList();
+    } else if (type == _CardType.calendar) {
+      if (isLoggedOut) {
+        content = [
+          Text(
+            '로그인하면 개인 일정을 미리 볼 수 있어요',
+            style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '배너를 눌러 학사 일정을 확인해보세요',
+            style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+          ),
+        ];
+      } else {
+        content = slots.isEmpty
+            ? [
+          Text(
+            '오늘 일정이 없어요',
+            style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+          ),
+        ]
+            : slots.take(3).map((s) => _buildRow(formatHourMinute(s.startAt), s.title)).toList();
+      }
+    } else if (type == _CardType.cafeteria) {
       content = [
         Text(
           cafeteriaText ?? '',
-          style: TextStyles.smallTextRegular.copyWith(
-            color: ColorStyles.gray4,
-          ),
+          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
         ),
       ];
     }
 
-    if (type == 'banner') {
+    if (type == _CardType.banner) {
       return GestureDetector(
-        onTap: () {
-          context.goNamed('libraryWebView');
-        },
+        onTap: () => context.goNamed('libraryWebView'),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -219,15 +230,20 @@ class HomeToday extends HookConsumerWidget {
       );
     }
 
-    // 공통 카드 UI
     return GestureDetector(
       onTap: () {
-        if (type == 'timetable') {
-          context.push('/timetable');
-        } else if (type == 'calendar') {
-          context.push('/calendar');
-        } else if (type == 'cafeteria') {
-          context.goNamed('cafeteriaWebView');
+        switch (type) {
+          case _CardType.timetable:
+            context.push('/timetable');
+            break;
+          case _CardType.calendar:
+            context.push('/calendar');
+            break;
+          case _CardType.cafeteria:
+            context.goNamed('cafeteriaWebView');
+            break;
+          case _CardType.banner:
+            break;
         }
       },
       child: Container(
@@ -244,21 +260,12 @@ class HomeToday extends HookConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyles.normalTextBold.copyWith(
-                      color: ColorStyles.black,
-                    ),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: ColorStyles.gray3,
-                  ),
+                  Text(title, style: TextStyles.normalTextBold.copyWith(color: ColorStyles.black)),
+                  const Icon(Icons.arrow_forward_ios, size: 16, color: ColorStyles.gray3),
                 ],
               ),
             ),
-            SizedBox(height: (type == 'cafeteria') ? 8 : 16),
+            SizedBox(height: (type == _CardType.cafeteria) ? 8 : 16),
             ...content,
           ],
         ),
@@ -271,21 +278,13 @@ class HomeToday extends HookConsumerWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Text(
-            time,
-            style: TextStyles.smallTextRegular.copyWith(
-              color: ColorStyles.gray4,
-            ),
-          ),
+          Text(time, style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4)),
           const SizedBox(width: 8),
-          Text(
-            subject,
-            style: TextStyles.smallTextRegular.copyWith(
-              color: ColorStyles.black,
-            ),
-          ),
+          Text(subject, style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black)),
         ],
       ),
     );
   }
 }
+
+enum _CardType { timetable, calendar, cafeteria, banner }

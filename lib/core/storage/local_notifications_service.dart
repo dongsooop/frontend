@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // 로컬 알림 서비스 클래스
@@ -13,6 +15,10 @@ class LocalNotificationsService {
 
   void Function(String payloadJson)? onTap;
 
+  bool _isFlutterLocalNotificationInitialized = false;
+
+  int _notificationIdCounter = 0;
+
   // ios 알림 초기화 설정
   final _iosInitializationSettings = const DarwinInitializationSettings(
     requestAlertPermission: true,
@@ -20,17 +26,11 @@ class LocalNotificationsService {
     requestSoundPermission: true,
   );
 
-  // 초기화 여부 플래그
-  bool _isFlutterLocalNotificationInitialized = false;
+  static const MethodChannel _channel = MethodChannel('app/push');
 
-  // 각 알림에 부여할 id
-  int _notificationIdCounter = 0;
-
-  // 로컬 알림 서비스 초기화 메서드
   Future<void> init() async {
-    if (_isFlutterLocalNotificationInitialized) {
-      return;
-    }
+    if (_isFlutterLocalNotificationInitialized) return;
+
     _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
     final initializationSettings = InitializationSettings(
@@ -40,8 +40,6 @@ class LocalNotificationsService {
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         final payload = response.payload;
-        print('[LocalNotifications] onDidReceiveNotificationResponse fired');
-        print('[LocalNotifications] response.id=${response.id}, actionId=${response.actionId}, payload=$payload');
         if (payload != null) {
           onTap?.call(payload);
         }
@@ -50,7 +48,6 @@ class LocalNotificationsService {
     );
 
     _isFlutterLocalNotificationInitialized = true;
-    print('[LocalNotifications] initialized');
   }
 
   // 로컬 알림 표시 메서드
@@ -59,15 +56,13 @@ class LocalNotificationsService {
       String? body,
       String? payload,
       ) async {
-    // ios 알림 세부 설정(기본 값 사용)
-    const iosDetails = DarwinNotificationDetails();
-
-    final notificationDetails = NotificationDetails(
-      iOS: iosDetails,
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
     );
 
-    print('[LocalNotifications] showNotification: '
-        'id=$_notificationIdCounter, title=$title, body=$body, payload=$payload');
+    const notificationDetails = NotificationDetails(iOS: iosDetails);
 
     await _flutterLocalNotificationsPlugin.show(
       _notificationIdCounter++, // 고유 알림 id,
@@ -77,14 +72,22 @@ class LocalNotificationsService {
       payload: payload,
     );
   }
+  Future<void> setBadgeCount(int count) async {
+    if (!Platform.isIOS) return;
+    try {
+      await _channel.invokeMethod('setBadge', {'count': count});
+    } catch (_) {}
+  }
+
+  Future<void> clearBadge() => setBadgeCount(0);
+
+  bool get isInitialized => _isFlutterLocalNotificationInitialized;
 }
 
 @pragma('vm:entry-point')
 void _notificationTapBackground(NotificationResponse response) {
   try {
     final payload = response.payload;
-    print('[LocalNotifications] _notificationTapBackground fired');
-    print('[LocalNotifications] response.id=${response.id}, actionId=${response.actionId}, payload=$payload');
     if (payload != null) {
       LocalNotificationsService.instance().onTap?.call(payload);
     }

@@ -6,7 +6,6 @@ import 'package:dongsoop/presentation/calendar/common/calendar_text_form.dart';
 import 'package:dongsoop/presentation/calendar/util/calendar_date_utils.dart';
 import 'package:dongsoop/presentation/calendar/view_models/calendar_delete_view_model.dart';
 import 'package:dongsoop/presentation/calendar/view_models/calendar_write_view_model.dart';
-import 'package:dongsoop/presentation/calendar/view_models/calendar_view_model.dart'; // ★ 원천 소스 갱신용
 import 'package:dongsoop/presentation/calendar/widget/calendar_day_picker.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -138,9 +137,6 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
       );
     }
 
-    Future<void> _refreshData() async {
-      await ref.read(calendarViewModelProvider.notifier).refresh();
-    }
     void showDeleteActionSheet() {
       customActionSheet(
         context,
@@ -150,8 +146,6 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
             await ref
                 .read(calendarDeleteViewModelProvider.notifier)
                 .delete(calendarId: event!.id!);
-
-            await _refreshData();
 
             if (context.mounted) context.pop(true);
           } catch (e) {
@@ -177,7 +171,7 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
           ),
           centerTitle: true,
           leading: TextButton(
-            onPressed: () => context.pop(),
+            onPressed: () => context.pop(false),
             style: TextButton.styleFrom(
               foregroundColor: ColorStyles.primary100,
               overlayColor: Colors.transparent,
@@ -237,8 +231,6 @@ class CalendarDetailPageScreen extends HookConsumerWidget {
                   await ref
                       .read(calendarWriteViewModelProvider.notifier)
                       .submit(entity);
-
-                  await _refreshData();
 
                   if (context.mounted) context.pop(true);
                 } catch (e) {

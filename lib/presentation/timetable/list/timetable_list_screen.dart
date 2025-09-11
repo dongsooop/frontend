@@ -69,6 +69,7 @@ class TimetableListScreen extends HookConsumerWidget {
                 style: TextStyles.normalTextBold.copyWith(color: ColorStyles.black),
               ),
               trailing: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () async {
                   showDialog(
                     context: context,
@@ -82,10 +83,14 @@ class TimetableListScreen extends HookConsumerWidget {
                     ),
                   );
                 },
-                child: Text(
-                  '삭제',
-                  style: TextStyles.normalTextRegular.copyWith(
-                    color: ColorStyles.gray4,
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Center(
+                    child: Text(
+                      '삭제',
+                      style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4,),
+                    ),
                   ),
                 ),
               ),

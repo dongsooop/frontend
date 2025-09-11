@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:dongsoop/presentation/home/providers/notification_use_case_provider.dart';
 
@@ -10,12 +11,32 @@ class NotificationBadgeViewModel extends _$NotificationBadgeViewModel {
   bool get isLoading => _loading;
 
   @override
-  int build() => 0;
+  int build() {
+    ref.listen(userSessionProvider, (prev, next) {
+      final userPrev = prev;
+      final userNext = next;
+
+      if (userPrev != null && userNext == null) {
+        state = 0;
+      }
+
+      if (userPrev == null && userNext != null) {
+        unawaited(refreshBadge(force: true));
+      }
+    });
+
+    return 0;
+  }
 
   Future<void> refreshBadge({int maxRetry = 1, bool force = false}) async {
-    if (_loading && !force) {
+    final user = ref.read(userSessionProvider);
+    if (user == null) {
+      state = 0;
       return;
     }
+
+    if (_loading && !force) return;
+
     _loading = true;
     int attempt = 0;
 
@@ -38,6 +59,10 @@ class NotificationBadgeViewModel extends _$NotificationBadgeViewModel {
     } finally {
       _loading = false;
     }
+  }
+
+  void setBadge(int v) {
+    state = _cap99(v);
   }
 
   int _cap99(int v) => v <= 0 ? 0 : (v > 99 ? 99 : v);

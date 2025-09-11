@@ -13,6 +13,7 @@ import 'package:dongsoop/presentation/board/recruit/write/view_models/date_time_
 import 'package:dongsoop/presentation/board/recruit/write/view_models/recruit_write_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/date_time_bottom_sheet.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/major_tag_section.dart';
+import 'package:dongsoop/presentation/home/providers/home_update_provider.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -177,6 +178,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
           userId: user!.id,
         );
         if (success) {
+          ref.read(homeNeedsRefreshProvider.notifier).state = true;
           context.pop(true);
         }
       } catch (e) {
