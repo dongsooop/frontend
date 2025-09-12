@@ -54,8 +54,7 @@ class HomeToday extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          SizedBox(
-            height: isLoggedOut ? 112 : 140,
+          IntrinsicHeight(
             child: Row(
               children: [
                 if (!isLoggedOut) ...[
@@ -278,9 +277,19 @@ class HomeToday extends HookConsumerWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Text(time, style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4)),
+          Text(
+            time,
+            style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+          ),
           const SizedBox(width: 8),
-          Text(subject, style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black)),
+          Expanded(
+            child: Text(
+              subject,
+              style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
         ],
       ),
     );
