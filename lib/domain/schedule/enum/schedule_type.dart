@@ -1,0 +1,4 @@
+enum ScheduleType {
+  official,
+  member,
+}

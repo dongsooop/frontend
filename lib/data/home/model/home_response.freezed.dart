@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$HomeResponse {
   List<TimeTableItemResponse> get timeTableItems;
-  List<CalendarItemResponse> get calendarItems;
+  List<ScheduleItemResponse> get scheduleItems;
   List<NewNoticeItemResponse> get newNoticeItems;
   List<PopularRecruitItemResponse> get popularRecruitItems;
 
@@ -36,7 +36,7 @@ mixin _$HomeResponse {
             const DeepCollectionEquality()
                 .equals(other.timeTableItems, timeTableItems) &&
             const DeepCollectionEquality()
-                .equals(other.calendarItems, calendarItems) &&
+                .equals(other.scheduleItems, scheduleItems) &&
             const DeepCollectionEquality()
                 .equals(other.newNoticeItems, newNoticeItems) &&
             const DeepCollectionEquality()
@@ -48,13 +48,13 @@ mixin _$HomeResponse {
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(timeTableItems),
-      const DeepCollectionEquality().hash(calendarItems),
+      const DeepCollectionEquality().hash(scheduleItems),
       const DeepCollectionEquality().hash(newNoticeItems),
       const DeepCollectionEquality().hash(popularRecruitItems));
 
   @override
   String toString() {
-    return 'HomeResponse(timeTableItems: $timeTableItems, calendarItems: $calendarItems, newNoticeItems: $newNoticeItems, popularRecruitItems: $popularRecruitItems)';
+    return 'HomeResponse(timeTableItems: $timeTableItems, scheduleItems: $scheduleItems, newNoticeItems: $newNoticeItems, popularRecruitItems: $popularRecruitItems)';
   }
 }
 
@@ -66,7 +66,7 @@ abstract mixin class $HomeResponseCopyWith<$Res> {
   @useResult
   $Res call(
       {List<TimeTableItemResponse> timeTableItems,
-      List<CalendarItemResponse> calendarItems,
+      List<ScheduleItemResponse> scheduleItems,
       List<NewNoticeItemResponse> newNoticeItems,
       List<PopularRecruitItemResponse> popularRecruitItems});
 }
@@ -84,7 +84,7 @@ class _$HomeResponseCopyWithImpl<$Res> implements $HomeResponseCopyWith<$Res> {
   @override
   $Res call({
     Object? timeTableItems = null,
-    Object? calendarItems = null,
+    Object? scheduleItems = null,
     Object? newNoticeItems = null,
     Object? popularRecruitItems = null,
   }) {
@@ -93,10 +93,10 @@ class _$HomeResponseCopyWithImpl<$Res> implements $HomeResponseCopyWith<$Res> {
           ? _self.timeTableItems
           : timeTableItems // ignore: cast_nullable_to_non_nullable
               as List<TimeTableItemResponse>,
-      calendarItems: null == calendarItems
-          ? _self.calendarItems
-          : calendarItems // ignore: cast_nullable_to_non_nullable
-              as List<CalendarItemResponse>,
+      scheduleItems: null == scheduleItems
+          ? _self.scheduleItems
+          : scheduleItems // ignore: cast_nullable_to_non_nullable
+              as List<ScheduleItemResponse>,
       newNoticeItems: null == newNoticeItems
           ? _self.newNoticeItems
           : newNoticeItems // ignore: cast_nullable_to_non_nullable

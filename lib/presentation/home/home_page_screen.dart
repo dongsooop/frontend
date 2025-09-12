@@ -70,7 +70,7 @@ class HomePageScreen extends HookConsumerWidget {
                 children: [
                   HomeToday(
                     timeTable: homeEntity.timeTable,
-                    calendar: homeEntity.calendar,
+                    schedule: homeEntity.schedule,
                     isLoggedOut: user == null,
                   ),
                   HomeNewNotice(notices: homeEntity.notices),

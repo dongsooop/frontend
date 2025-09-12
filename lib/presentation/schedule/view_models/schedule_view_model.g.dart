@@ -1,27 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'notification_badge_view_model.dart';
+part of 'schedule_view_model.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$notificationBadgeViewModelHash() =>
-    r'673fc14a134e9870a70112345afc06194b2b234f';
+String _$scheduleViewModelHash() => r'48cda10f89fb265c9aed9155ad4901b9113eaddc';
 
-/// See also [NotificationBadgeViewModel].
-@ProviderFor(NotificationBadgeViewModel)
-final notificationBadgeViewModelProvider =
-    NotifierProvider<NotificationBadgeViewModel, int>.internal(
-  NotificationBadgeViewModel.new,
-  name: r'notificationBadgeViewModelProvider',
+/// See also [ScheduleViewModel].
+@ProviderFor(ScheduleViewModel)
+final scheduleViewModelProvider =
+    AutoDisposeAsyncNotifierProvider<ScheduleViewModel, ScheduleState>.internal(
+  ScheduleViewModel.new,
+  name: r'scheduleViewModelProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$notificationBadgeViewModelHash,
+      : _$scheduleViewModelHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$NotificationBadgeViewModel = Notifier<int>;
+typedef _$ScheduleViewModel = AutoDisposeAsyncNotifier<ScheduleState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
