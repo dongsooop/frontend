@@ -11,12 +11,12 @@ class HomeToday extends HookConsumerWidget {
   const HomeToday({
     super.key,
     required this.timeTable,
-    required this.calendar,
+    required this.schedule,
     required this.isLoggedOut,
   });
 
   final List<Slot> timeTable;
-  final List<Calendar> calendar;
+  final List<Schedule> schedule;
   final bool isLoggedOut;
 
   @override
@@ -73,9 +73,9 @@ class HomeToday extends HookConsumerWidget {
                 Expanded(
                   child: _buildCard(
                     title: '일정',
-                    type: _CardType.calendar,
+                    type: _CardType.schedule,
                     context: context,
-                    calendar: calendar,
+                    schedule: schedule,
                     isLoggedOut: isLoggedOut,
                   ),
                 ),
@@ -114,8 +114,8 @@ class HomeToday extends HookConsumerWidget {
     return value;
   }
 
-  static String _displayTimeForSchedule(Calendar s) {
-    final isOfficial = s.type == CalendarType.official;
+  static String _displayTimeForSchedule(Schedule s) {
+    final isOfficial = s.type == ScheduleType.official;
     return isOfficial ? '학사' : formatHourMinute(s.startAt);
   }
 
@@ -124,7 +124,7 @@ class HomeToday extends HookConsumerWidget {
     required _CardType type,
     required BuildContext context,
     List<Slot> slots = const [],
-    List<Calendar> calendar = const [],
+    List<Schedule> schedule = const [],
     String? cafeteriaText,
     bool isLoggedOut = false,
   }) {
@@ -143,10 +143,10 @@ class HomeToday extends HookConsumerWidget {
           .map((s) => _buildRow(formatHourMinute(s.startAt), s.title))
           .toList();
 
-    } else if (type == _CardType.calendar) {
+    } else if (type == _CardType.schedule) {
       if (isLoggedOut) {
-        final officialOnly = calendar
-            .where((s) => s.type == CalendarType.official)
+        final officialOnly = schedule
+            .where((s) => s.type == ScheduleType.official)
             .toList();
 
         content = officialOnly.isEmpty
@@ -161,14 +161,14 @@ class HomeToday extends HookConsumerWidget {
             .map((c) => _buildRow('학사', c.title))
             .toList();
       } else {
-        content = calendar.isEmpty
+        content = schedule.isEmpty
             ? [
           Text(
             '오늘 일정이 없어요',
             style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
           ),
         ]
-            : calendar
+            : schedule
             .take(3)
             .map((c) => _buildRow(_displayTimeForSchedule(c), c.title))
             .toList();
@@ -254,8 +254,8 @@ class HomeToday extends HookConsumerWidget {
           case _CardType.timetable:
             context.push('/timetable');
             break;
-          case _CardType.calendar:
-            context.push('/calendar');
+          case _CardType.schedule:
+            context.push('/schedule');
             break;
           case _CardType.cafeteria:
             context.goNamed('cafeteriaWebView');
@@ -305,4 +305,4 @@ class HomeToday extends HookConsumerWidget {
   }
 }
 
-enum _CardType { timetable, calendar, cafeteria, banner }
+enum _CardType { timetable, schedule, cafeteria, banner }

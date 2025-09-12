@@ -40,7 +40,7 @@ class PushRouter {
       // 캘린더 (value 불필요)
         case 'CALENDAR':
           await _goHomeThen(() async {
-            await router.push(RoutePaths.calendar);
+            await router.push(RoutePaths.schedule);
           });
           return true;
 

@@ -1,6 +1,6 @@
 import 'package:dongsoop/data/home/model/home_response.dart';
 import 'package:dongsoop/data/home/model/time_table_item_response.dart';
-import 'package:dongsoop/data/home/model/calendar_item_response.dart';
+import 'package:dongsoop/data/home/model/schedule_item_response.dart';
 import 'package:dongsoop/data/home/model/new_notice_item_response.dart';
 import 'package:dongsoop/data/home/model/popular_recruit_item_response.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
@@ -37,12 +37,12 @@ RecruitType _recruitTypeFrom(Object? value) {
   throw FormatException('Unexpected RecruitType: $typeString');
 }
 
-CalendarType _scheduleTypeFrom(String? value) {
+ScheduleType _scheduleTypeFrom(String? value) {
   switch (_string(value).toLowerCase()) {
     case 'official':
-      return CalendarType.official;
+      return ScheduleType.official;
     case 'member':
-      return CalendarType.member;
+      return ScheduleType.member;
     default:
       throw FormatException('$value');
   }
@@ -51,13 +51,13 @@ CalendarType _scheduleTypeFrom(String? value) {
 extension HomeResponseMapper on HomeResponse {
   HomeEntity toEntity() {
     final timeTableSlots = timeTableItems.map((e) => e.toSlot()).toList();
-    final calendar = calendarItems.map((e) => e.toCalendar()).toList();
+    final schedule = scheduleItems.map((e) => e.toSchedule()).toList();
     final noticeList = newNoticeItems.map((e) => e.toNotice()).toList();
     final popularRecruitList = popularRecruitItems.map((e) => e.toRecruit()).toList();
 
     return HomeEntity(
       timeTable: timeTableSlots,
-      calendar: calendar,
+      schedule: schedule,
       notices: noticeList,
       popularRecruits: popularRecruitList,
     );
@@ -72,8 +72,8 @@ extension TimeTableItemResponseMapper on TimeTableItemResponse {
   );
 }
 
-extension CalendarItemResponseMapper on CalendarItemResponse {
-  Calendar toCalendar() => (
+extension ScheduleItemResponseMapper on ScheduleItemResponse {
+  Schedule toSchedule() => (
   title: _string(title),
   startAt: _string(startAt),
   endAt: _string(endAt),
