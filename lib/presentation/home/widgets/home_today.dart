@@ -16,7 +16,7 @@ class HomeToday extends HookConsumerWidget {
   });
 
   final List<Slot> timeTable;
-  final List<Slot> calendar;
+  final List<Calendar> calendar;
   final bool isLoggedOut;
 
   @override
@@ -75,7 +75,7 @@ class HomeToday extends HookConsumerWidget {
                     title: '일정',
                     type: _CardType.calendar,
                     context: context,
-                    slots: calendar,
+                    calendar: calendar,
                     isLoggedOut: isLoggedOut,
                   ),
                 ),
@@ -114,11 +114,17 @@ class HomeToday extends HookConsumerWidget {
     return value;
   }
 
+  static String _displayTimeForSchedule(Calendar s) {
+    final isOfficial = s.type == CalendarType.official;
+    return isOfficial ? '학사' : formatHourMinute(s.startAt);
+  }
+
   static Widget _buildCard({
     required String title,
     required _CardType type,
     required BuildContext context,
     List<Slot> slots = const [],
+    List<Calendar> calendar = const [],
     String? cafeteriaText,
     bool isLoggedOut = false,
   }) {
@@ -132,30 +138,42 @@ class HomeToday extends HookConsumerWidget {
           style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
         ),
       ]
-          : slots.take(3).map((s) => _buildRow(formatHourMinute(s.startAt), s.title)).toList();
+          : slots
+          .take(3)
+          .map((s) => _buildRow(formatHourMinute(s.startAt), s.title))
+          .toList();
+
     } else if (type == _CardType.calendar) {
       if (isLoggedOut) {
-        content = [
+        final officialOnly = calendar
+            .where((s) => s.type == CalendarType.official)
+            .toList();
+
+        content = officialOnly.isEmpty
+            ? [
           Text(
-            '로그인하면 개인 일정을 미리 볼 수 있어요',
-            style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '배너를 눌러 학사 일정을 확인해보세요',
+            '오늘 학사 일정이 없어요',
             style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
           ),
-        ];
+        ]
+            : officialOnly
+            .take(3)
+            .map((c) => _buildRow('학사', c.title))
+            .toList();
       } else {
-        content = slots.isEmpty
+        content = calendar.isEmpty
             ? [
           Text(
             '오늘 일정이 없어요',
             style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
           ),
         ]
-            : slots.take(3).map((s) => _buildRow(formatHourMinute(s.startAt), s.title)).toList();
+            : calendar
+            .take(3)
+            .map((c) => _buildRow(_displayTimeForSchedule(c), c.title))
+            .toList();
       }
+
     } else if (type == _CardType.cafeteria) {
       content = [
         Text(

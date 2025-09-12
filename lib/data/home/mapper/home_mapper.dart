@@ -37,16 +37,27 @@ RecruitType _recruitTypeFrom(Object? value) {
   throw FormatException('Unexpected RecruitType: $typeString');
 }
 
+CalendarType _scheduleTypeFrom(String? value) {
+  switch (_string(value).toLowerCase()) {
+    case 'official':
+      return CalendarType.official;
+    case 'member':
+      return CalendarType.member;
+    default:
+      throw FormatException('$value');
+  }
+}
+
 extension HomeResponseMapper on HomeResponse {
   HomeEntity toEntity() {
     final timeTableSlots = timeTableItems.map((e) => e.toSlot()).toList();
-    final calendarSlots = calendarItems.map((e) => e.toSlot()).toList();
+    final calendar = calendarItems.map((e) => e.toCalendar()).toList();
     final noticeList = newNoticeItems.map((e) => e.toNotice()).toList();
     final popularRecruitList = popularRecruitItems.map((e) => e.toRecruit()).toList();
 
     return HomeEntity(
       timeTable: timeTableSlots,
-      calendar: calendarSlots,
+      calendar: calendar,
       notices: noticeList,
       popularRecruits: popularRecruitList,
     );
@@ -62,10 +73,11 @@ extension TimeTableItemResponseMapper on TimeTableItemResponse {
 }
 
 extension CalendarItemResponseMapper on CalendarItemResponse {
-  Slot toSlot() => (
+  Calendar toCalendar() => (
   title: _string(title),
   startAt: _string(startAt),
   endAt: _string(endAt),
+  type: _scheduleTypeFrom(type),
   );
 }
 

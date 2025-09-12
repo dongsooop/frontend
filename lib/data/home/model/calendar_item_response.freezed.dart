@@ -18,6 +18,7 @@ mixin _$CalendarItemResponse {
   String get title;
   String get startAt;
   String get endAt;
+  String get type;
 
   /// Create a copy of CalendarItemResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -34,16 +35,17 @@ mixin _$CalendarItemResponse {
             other is CalendarItemResponse &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.startAt, startAt) || other.startAt == startAt) &&
-            (identical(other.endAt, endAt) || other.endAt == endAt));
+            (identical(other.endAt, endAt) || other.endAt == endAt) &&
+            (identical(other.type, type) || other.type == type));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, title, startAt, endAt);
+  int get hashCode => Object.hash(runtimeType, title, startAt, endAt, type);
 
   @override
   String toString() {
-    return 'CalendarItemResponse(title: $title, startAt: $startAt, endAt: $endAt)';
+    return 'CalendarItemResponse(title: $title, startAt: $startAt, endAt: $endAt, type: $type)';
   }
 }
 
@@ -53,7 +55,7 @@ abstract mixin class $CalendarItemResponseCopyWith<$Res> {
           $Res Function(CalendarItemResponse) _then) =
       _$CalendarItemResponseCopyWithImpl;
   @useResult
-  $Res call({String title, String startAt, String endAt});
+  $Res call({String title, String startAt, String endAt, String type});
 }
 
 /// @nodoc
@@ -72,6 +74,7 @@ class _$CalendarItemResponseCopyWithImpl<$Res>
     Object? title = null,
     Object? startAt = null,
     Object? endAt = null,
+    Object? type = null,
   }) {
     return _then(CalendarItemResponse(
       title: null == title
@@ -85,6 +88,10 @@ class _$CalendarItemResponseCopyWithImpl<$Res>
       endAt: null == endAt
           ? _self.endAt
           : endAt // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }

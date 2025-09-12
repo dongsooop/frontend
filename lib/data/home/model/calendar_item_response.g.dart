@@ -12,6 +12,7 @@ CalendarItemResponse _$CalendarItemResponseFromJson(
       title: json['title'] as String,
       startAt: json['startAt'] as String,
       endAt: json['endAt'] as String,
+      type: json['type'] as String,
     );
 
 Map<String, dynamic> _$CalendarItemResponseToJson(
@@ -20,4 +21,5 @@ Map<String, dynamic> _$CalendarItemResponseToJson(
       'title': instance.title,
       'startAt': instance.startAt,
       'endAt': instance.endAt,
+      'type': instance.type,
     };
