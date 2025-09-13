@@ -7,7 +7,7 @@ part of 'market_write_view_model.dart';
 // **************************************************************************
 
 String _$marketWriteViewModelHash() =>
-    r'5408ebadb8f4acd84fcc65180060fb100bbe37f8';
+    r'769eb971d53b8b6fb0355115afc27524f282088e';
 
 /// Copied from Dart SDK
 class _SystemHash {

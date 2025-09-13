@@ -21,6 +21,8 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
   RecruitTextFilterUseCase get _textFilterUseCase =>
       ref.watch(recruitTextFilterUseCaseProvider);
 
+  bool _submitting = false;
+
   @override
   RecruitFormState build() => RecruitFormState();
 
@@ -63,6 +65,9 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
     required RecruitWriteEntity entity,
     required int userId,
   }) async {
+    if (_submitting) return false;
+    _submitting = true;
+
     if (state.isLoading) return false;
 
     String? prevProfanityMessage;
@@ -99,6 +104,7 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
     } catch (e) {
       rethrow;
     } finally {
+      _submitting = false;
       state = state.copyWith(
         isLoading: false,
         profanityMessage: prevProfanityMessage ?? state.profanityMessage,

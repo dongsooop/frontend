@@ -7,7 +7,7 @@ part of 'schedule_write_view_model.dart';
 // **************************************************************************
 
 String _$scheduleWriteViewModelHash() =>
-    r'561342822cf7845502a3b1e0cdf1490f1d880886';
+    r'b02a601272913f81ac4e5f7cccdddc4fd01f3fbf';
 
 /// See also [ScheduleWriteViewModel].
 @ProviderFor(ScheduleWriteViewModel)

@@ -23,14 +23,19 @@ class ScheduleWriteState {
 class ScheduleWriteViewModel extends _$ScheduleWriteViewModel {
   ScheduleWriteUseCase get _useCase => ref.watch(calendarWriteUseCaseProvider);
 
+  bool _submitting = false;
+
   @override
   ScheduleWriteState build() => ScheduleWriteState();
 
   // `entity.id`가 없으면 ➝ 생성
   // `entity.id`가 있으면 ➝ 수정
   Future<void> submit(ScheduleEntity entity) async {
-    if (state.isLoading) return;
-    state = state.copyWith(isLoading: true);
+    if (_submitting) {
+      return;
+    }
+    _submitting = true;
+    state = state.copyWith(isLoading: true, error: null);
 
     try {
       await _useCase.execute(entity: entity);

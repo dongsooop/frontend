@@ -49,6 +49,10 @@ class ScheduleDetailPageScreen extends HookConsumerWidget {
 
     final isEditMode = event != null;
 
+    final writeState = ref.watch(scheduleWriteViewModelProvider);
+    final isSaving = writeState.isLoading;
+    final submittingRef = useRef<bool>(false);
+
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final titleController = useTextEditingController(text: event?.title ?? '');
     final locationController = useTextEditingController(text: event?.location ?? '');
@@ -138,6 +142,9 @@ class ScheduleDetailPageScreen extends HookConsumerWidget {
     }
 
     void showDeleteActionSheet() {
+      if (isSaving || submittingRef.value) {
+        return;
+      }
       customActionSheet(
         context,
         onDelete: () async {
@@ -185,7 +192,15 @@ class ScheduleDetailPageScreen extends HookConsumerWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () async {
+              onPressed: (isSaving || submittingRef.value)
+                  ? null
+                  : () async {
+                if (submittingRef.value) {
+                  return;
+                }
+                submittingRef.value = true;
+
+              try {
                 if (!(formKey.currentState?.validate() ?? true)) return;
                 if (endDate.value.isBefore(startDate.value)) {
                   messenger.showSnackBar(
@@ -227,7 +242,6 @@ class ScheduleDetailPageScreen extends HookConsumerWidget {
                   endAt: endDate.value,
                 );
 
-                try {
                   await ref
                       .read(scheduleWriteViewModelProvider.notifier)
                       .submit(entity);
@@ -237,13 +251,20 @@ class ScheduleDetailPageScreen extends HookConsumerWidget {
                   messenger.showSnackBar(
                     SnackBar(content: Text('$e')),
                   );
+                } finally {
+                  submittingRef.value = false;
                 }
               },
               style: TextButton.styleFrom(
                 foregroundColor: ColorStyles.primary100,
                 overlayColor: Colors.transparent,
               ),
-              child: Text(
+              child: (isSaving || submittingRef.value)
+                  ? SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(color: ColorStyles.primary100),)
+                  : Text(
                 '저장',
                 style: TextStyles.normalTextBold
                     .copyWith(color: ColorStyles.primary100),
@@ -255,7 +276,9 @@ class ScheduleDetailPageScreen extends HookConsumerWidget {
       bottomNavigationBar: isEditMode
           ? PrimaryBottomButton(
         label: '일정 삭제',
-        onPressed: showDeleteActionSheet,
+        onPressed: (isSaving || submittingRef.value)
+            ? null
+            : showDeleteActionSheet,
       )
           : null,
       body: SafeArea(
@@ -263,6 +286,8 @@ class ScheduleDetailPageScreen extends HookConsumerWidget {
           onTap: () => FocusScope.of(context).unfocus(),
           child: Padding(
             padding: const EdgeInsets.all(16),
+          child: AbsorbPointer(
+            absorbing: isSaving || submittingRef.value,
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: Form(
@@ -287,7 +312,7 @@ class ScheduleDetailPageScreen extends HookConsumerWidget {
                       maxLength: 20,
                     ),
                   ],
-                ),
+                 )),
               ),
             ),
           ),
