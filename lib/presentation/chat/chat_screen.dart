@@ -41,7 +41,6 @@ class ChatScreen extends HookConsumerWidget {
               title: '채팅 오류',
               content: chatState.errorMessage!,
               onConfirm: () async {
-                Navigator.of(context).pop();
               },
             ),
           );

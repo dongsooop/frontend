@@ -11,12 +11,12 @@ class HomeToday extends HookConsumerWidget {
   const HomeToday({
     super.key,
     required this.timeTable,
-    required this.calendar,
+    required this.schedule,
     required this.isLoggedOut,
   });
 
   final List<Slot> timeTable;
-  final List<Slot> calendar;
+  final List<Schedule> schedule;
   final bool isLoggedOut;
 
   @override
@@ -54,8 +54,7 @@ class HomeToday extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          SizedBox(
-            height: isLoggedOut ? 112 : 140,
+          IntrinsicHeight(
             child: Row(
               children: [
                 if (!isLoggedOut) ...[
@@ -73,9 +72,9 @@ class HomeToday extends HookConsumerWidget {
                 Expanded(
                   child: _buildCard(
                     title: '일정',
-                    type: _CardType.calendar,
+                    type: _CardType.schedule,
                     context: context,
-                    slots: calendar,
+                    schedule: schedule,
                     isLoggedOut: isLoggedOut,
                   ),
                 ),
@@ -114,11 +113,17 @@ class HomeToday extends HookConsumerWidget {
     return value;
   }
 
+  static String _displayTimeForSchedule(Schedule s) {
+    final isOfficial = s.type == ScheduleType.official;
+    return isOfficial ? '학사' : formatHourMinute(s.startAt);
+  }
+
   static Widget _buildCard({
     required String title,
     required _CardType type,
     required BuildContext context,
     List<Slot> slots = const [],
+    List<Schedule> schedule = const [],
     String? cafeteriaText,
     bool isLoggedOut = false,
   }) {
@@ -132,30 +137,42 @@ class HomeToday extends HookConsumerWidget {
           style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
         ),
       ]
-          : slots.take(3).map((s) => _buildRow(formatHourMinute(s.startAt), s.title)).toList();
-    } else if (type == _CardType.calendar) {
+          : slots
+          .take(3)
+          .map((s) => _buildRow(formatHourMinute(s.startAt), s.title))
+          .toList();
+
+    } else if (type == _CardType.schedule) {
       if (isLoggedOut) {
-        content = [
+        final officialOnly = schedule
+            .where((s) => s.type == ScheduleType.official)
+            .toList();
+
+        content = officialOnly.isEmpty
+            ? [
           Text(
-            '로그인하면 개인 일정을 미리 볼 수 있어요',
-            style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '배너를 눌러 학사 일정을 확인해보세요',
+            '오늘 학사 일정이 없어요',
             style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
           ),
-        ];
+        ]
+            : officialOnly
+            .take(3)
+            .map((c) => _buildRow('학사', c.title))
+            .toList();
       } else {
-        content = slots.isEmpty
+        content = schedule.isEmpty
             ? [
           Text(
             '오늘 일정이 없어요',
             style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
           ),
         ]
-            : slots.take(3).map((s) => _buildRow(formatHourMinute(s.startAt), s.title)).toList();
+            : schedule
+            .take(3)
+            .map((c) => _buildRow(_displayTimeForSchedule(c), c.title))
+            .toList();
       }
+
     } else if (type == _CardType.cafeteria) {
       content = [
         Text(
@@ -236,8 +253,8 @@ class HomeToday extends HookConsumerWidget {
           case _CardType.timetable:
             context.push('/timetable');
             break;
-          case _CardType.calendar:
-            context.push('/calendar');
+          case _CardType.schedule:
+            context.push('/schedule');
             break;
           case _CardType.cafeteria:
             context.goNamed('cafeteriaWebView');
@@ -278,13 +295,23 @@ class HomeToday extends HookConsumerWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Text(time, style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4)),
+          Text(
+            time,
+            style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+          ),
           const SizedBox(width: 8),
-          Text(subject, style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black)),
+          Expanded(
+            child: Text(
+              subject,
+              style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-enum _CardType { timetable, calendar, cafeteria, banner }
+enum _CardType { timetable, schedule, cafeteria, banner }

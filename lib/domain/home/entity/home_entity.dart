@@ -1,7 +1,9 @@
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 
 enum NoticeType {official, department}
+enum ScheduleType {official, member}
 typedef Slot    = ({String title, String startAt, String endAt});
+typedef Schedule = ({String title, String startAt, String endAt, ScheduleType type});
 typedef Notice  = ({String title, String link, NoticeType type});
 typedef Recruit = ({
     int id,
@@ -14,13 +16,13 @@ typedef Recruit = ({
 
 class HomeEntity {
   final List<Slot> timeTable;
-  final List<Slot> calendar;
+  final List<Schedule> schedule;
   final List<Notice> notices;
   final List<Recruit> popularRecruits;
 
   const HomeEntity({
     this.timeTable = const [],
-    this.calendar = const [],
+    this.schedule = const [],
     this.notices = const [],
     this.popularRecruits = const [],
   });

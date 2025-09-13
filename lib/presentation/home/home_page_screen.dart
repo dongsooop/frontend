@@ -38,18 +38,6 @@ class HomePageScreen extends HookConsumerWidget {
     });
 
     useEffect(() {
-      if (ref.read(homeNeedsRefreshProvider) == true) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          await homeViewModel.refresh();
-          if (context.mounted) {
-            ref.read(homeNeedsRefreshProvider.notifier).state = false;
-          }
-        });
-      }
-      return null;
-    }, [departmentCode]);
-
-    useEffect(() {
       if (user != null) {
         badge.refreshBadge();
       }
@@ -61,12 +49,11 @@ class HomePageScreen extends HookConsumerWidget {
       child: Scaffold(
         backgroundColor: ColorStyles.white,
         appBar: MainHeader(
-          onTapAlarm: () {
-            onTapAlarm().then((changed) {
-              if (changed == true) {
-                badge.refreshBadge();
-              }
-            });
+          onTapAlarm: () async {
+            final changed = await onTapAlarm();
+            if (changed == true) {
+              badge.refreshBadge();
+            }
           },
         ),
         body: homeAsyncValue.when(
@@ -83,7 +70,7 @@ class HomePageScreen extends HookConsumerWidget {
                 children: [
                   HomeToday(
                     timeTable: homeEntity.timeTable,
-                    calendar: homeEntity.calendar,
+                    schedule: homeEntity.schedule,
                     isLoggedOut: user == null,
                   ),
                   HomeNewNotice(notices: homeEntity.notices),

@@ -127,8 +127,6 @@ class HomePopularRecruits extends StatelessWidget {
                       const SizedBox(height: 16),
                       if (tags.isNotEmpty)
                         Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
                           children: tags
                               .asMap()
                               .entries
