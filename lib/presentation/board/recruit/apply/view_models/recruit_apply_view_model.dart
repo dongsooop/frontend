@@ -18,6 +18,8 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
   late final RecruitApplyUseCase _useCase;
   late final RecruitApplyTextFilterUseCase _textFilterUseCase;
 
+  bool _submitting = false;
+
   @override
   RecruitApplyState build() {
     _useCase = ref.read(recruitApplyUseCaseProvider);
@@ -32,6 +34,16 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
     required RecruitType type,
     required String departmentCode,
   }) async {
+    if (_submitting) {
+      return false;
+    }
+    _submitting = true;
+
+    if (state.isLoading) {
+      _submitting = false;
+      return false;
+    }
+
     state = state.copyWith(isLoading: true, profanityMessage: null);
 
     try {
@@ -94,6 +106,8 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
     } catch (e) {
       state = state.copyWith(isLoading: false);
       return false;
+    } finally {
+      _submitting = false;
     }
   }
 

@@ -38,6 +38,12 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
     final viewModel = ref.watch(recruitApplyViewModelProvider.notifier);
     final state = ref.watch(recruitApplyViewModelProvider);
 
+    final submittingRef = useRef<bool>(false);
+
+    final isSubmitting = ref.watch(
+      recruitApplyViewModelProvider.select((s) => s.isLoading),
+    );
+
     final isFormValid = useState(false);
 
     void updateFormValidState() {
@@ -75,6 +81,32 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
       return null;
     }, [state.profanityMessageTriggerKey]);
 
+    Future<void> _guardedSubmit() async {
+      if (isSubmitting || submittingRef.value) return;
+      submittingRef.value = true;
+      try {
+        final success = await viewModel.submitRecruitApply(
+          boardId: id,
+          introduction: introduceController.text.trim(),
+          motivation: supportController.text.trim(),
+          type: type,
+          departmentCode: departmentCode,
+        );
+
+        if (success) {
+          if (context.mounted) context.pop(true);
+        } else if (state.profanityMessage == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('제출에 실패했어요. 다시 시도해주세요.'),
+            ),
+          );
+        }
+      } finally {
+        submittingRef.value = false;
+      }
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: ColorStyles.white,
@@ -84,8 +116,9 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
       ),
       bottomNavigationBar: PrimaryBottomButton(
         label: '지원하기',
-        isEnabled: isFormValid.value,
+        isEnabled: isFormValid.value && !isSubmitting && !submittingRef.value,
         onPressed: () {
+          if (!isFormValid.value || isSubmitting || submittingRef.value) return;
           showDialog(
             context: context,
             builder: (_) => CustomConfirmDialog(
@@ -93,35 +126,19 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
               content: '제출한 글은 수정할 수 없어요\n글을 제출할까요?',
               cancelText: '취소',
               confirmText: '제출',
-              onConfirm: () async {
-                final success = await viewModel.submitRecruitApply(
-                  boardId: id,
-                  introduction: introduceController.text.trim(),
-                  motivation: supportController.text.trim(),
-                  type: type,
-                  departmentCode: departmentCode,
-                );
-    
-                if (success) {
-                  context.pop(true); // 성공 시 true 반환
-                } else if (state.profanityMessage == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('제출에 실패했어요. 다시 시도해주세요.'),
-                    ),
-                  );
-                }
-              },
+              onConfirm: _guardedSubmit,
             ),
           );
         },
       ),
-      body: SafeArea(
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+    body: SafeArea(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: AbsorbPointer(
+            absorbing: isSubmitting || submittingRef.value,
             child: SingleChildScrollView(
               child: Form(
                 key: formKey,
@@ -205,7 +222,7 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
                         ),
                       ),
                     ),
-                  ],
+                    ]),
                 ),
               ),
             ),
