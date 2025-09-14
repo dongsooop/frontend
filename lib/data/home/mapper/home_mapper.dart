@@ -1,6 +1,6 @@
 import 'package:dongsoop/data/home/model/home_response.dart';
 import 'package:dongsoop/data/home/model/time_table_item_response.dart';
-import 'package:dongsoop/data/home/model/calendar_item_response.dart';
+import 'package:dongsoop/data/home/model/schedule_item_response.dart';
 import 'package:dongsoop/data/home/model/new_notice_item_response.dart';
 import 'package:dongsoop/data/home/model/popular_recruit_item_response.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
@@ -37,16 +37,27 @@ RecruitType _recruitTypeFrom(Object? value) {
   throw FormatException('Unexpected RecruitType: $typeString');
 }
 
+ScheduleType _scheduleTypeFrom(String? value) {
+  switch (_string(value).toLowerCase()) {
+    case 'official':
+      return ScheduleType.official;
+    case 'member':
+      return ScheduleType.member;
+    default:
+      throw FormatException('$value');
+  }
+}
+
 extension HomeResponseMapper on HomeResponse {
   HomeEntity toEntity() {
     final timeTableSlots = timeTableItems.map((e) => e.toSlot()).toList();
-    final calendarSlots = calendarItems.map((e) => e.toSlot()).toList();
+    final schedule = scheduleItems.map((e) => e.toSchedule()).toList();
     final noticeList = newNoticeItems.map((e) => e.toNotice()).toList();
     final popularRecruitList = popularRecruitItems.map((e) => e.toRecruit()).toList();
 
     return HomeEntity(
       timeTable: timeTableSlots,
-      calendar: calendarSlots,
+      schedule: schedule,
       notices: noticeList,
       popularRecruits: popularRecruitList,
     );
@@ -61,11 +72,12 @@ extension TimeTableItemResponseMapper on TimeTableItemResponse {
   );
 }
 
-extension CalendarItemResponseMapper on CalendarItemResponse {
-  Slot toSlot() => (
+extension ScheduleItemResponseMapper on ScheduleItemResponse {
+  Schedule toSchedule() => (
   title: _string(title),
   startAt: _string(startAt),
   endAt: _string(endAt),
+  type: _scheduleTypeFrom(type),
   );
 }
 

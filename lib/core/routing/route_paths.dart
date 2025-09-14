@@ -20,8 +20,8 @@ abstract class RoutePaths {
   static const String timetableWrite = '/timetableWrite';
   static const String timetableList = '/timetableList';
   static const String timetableLectureWrite = '/timetableLectureWrite';
-  static const String calendar = '/calendar';
-  static const String calendarDetail = '/calendarDetail';
+  static const String schedule = '/schedule';
+  static const String scheduleDetail = '/scheduleDetail';
   static const String recruitWrite = '/recruitWrite';
   static const String recruitDetail = '/recruitDetail';
   static const String recruitApply = '/recruitApply';

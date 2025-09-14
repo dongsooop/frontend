@@ -1,4 +1,0 @@
-enum CalendarType {
-  official,
-  member,
-}
