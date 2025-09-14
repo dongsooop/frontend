@@ -30,6 +30,9 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       ref.watch(marketAiFilterUseCaseProvider);
   MarketDetailUseCase get _detailUseCase =>
       ref.watch(marketDetailUseCaseProvider);
+  bool _submitting = false;
+  bool _loadingDetail = false;
+  bool _compressing = false;
 
   @override
   MarketFormState build({required bool isEditing, int? marketId}) {
@@ -43,6 +46,8 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
   }
 
   Future<void> _initializeForm(int marketId) async {
+    if (_loadingDetail) return;
+    _loadingDetail = true;
     try {
       final detail = await _detailUseCase.execute(id: marketId);
       final imageFiles = await Future.wait(
@@ -70,7 +75,10 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
         images: imageFiles,
         initialImageUrls: detail.imageUrlList,
       );
-    } catch (e) {}
+    } catch (_) {
+    } finally {
+      _loadingDetail = false;
+    }
   }
 
   void updateTitle(String value) => state = state.copyWith(title: value);
@@ -112,7 +120,10 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
 
   Future<void> compressAndAddImage(XFile pickedFile) async {
     if (state.images.length >= 3) return;
+    if (_compressing) return;
+    _compressing = true;
 
+  try {
     final file = File(pickedFile.path);
     final dir = await getTemporaryDirectory();
     final currentCount = state.images.length + 1;
@@ -151,10 +162,19 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
     if (compressedFile != null) {
       addImage(XFile(compressedFile.path));
     }
+  } finally {
+    _compressing = false;
   }
+}
 
   Future<bool> submitMarket(BuildContext context) async {
-    if (state.isSubmitting || !state.isValid) return false;
+    if (_submitting) return false;
+    _submitting = true;
+
+    if (state.isSubmitting || !state.isValid) {
+      _submitting = false;
+      return false;
+    }
 
     state = state.copyWith(
       isSubmitting: true,
@@ -203,6 +223,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       state = state.copyWith(errorMessage: e.toString());
       rethrow;
     } finally {
+      _submitting = false;
       state = state.copyWith(isSubmitting: false);
     }
   }
