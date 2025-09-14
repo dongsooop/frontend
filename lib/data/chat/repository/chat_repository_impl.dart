@@ -109,4 +109,46 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<String> subscribeBlock() => _chatDataSource.subscribeBlock();
+
+  // blind
+  @override
+  Future<void> blindConnect(int userId) async {
+    await _chatDataSource.blindConnect(userId);
+  }
+  @override
+  Future<void> blindDisconnect() => _chatDataSource.blindDisconnect();
+
+  @override
+  void emit(String event, data) => _chatDataSource.emit(event, data);
+
+  @override
+  void sendBroadcast(String message) => _chatDataSource.sendBroadcast(message);
+
+  // Streams
+  @override
+  Stream<Map<String, dynamic>> get joinedStream => _chatDataSource.joinedStream;
+
+  @override
+  Stream<String> get startStream => _chatDataSource.startStream;
+
+  @override
+  Stream<Map<String, dynamic>> get systemStream => _chatDataSource.systemStream;
+
+  @override
+  Stream<bool> get freezeStream => _chatDataSource.freezeStream;
+
+  @override
+  Stream<Map<String, dynamic>> get broadcastStream => _chatDataSource.broadcastStream;
+
+  @override
+  Stream<Map<String, dynamic>> get joinStream => _chatDataSource.joinStream;
+
+  @override
+  Stream<Map<int, String>> get participantsStream => _chatDataSource.participantsStream;
+
+  @override
+  Stream<String> get disconnectStream => _chatDataSource.disconnectStream;
+
+  @override
+  bool get isConnected => _chatDataSource.isConnected;
 }

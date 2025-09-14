@@ -27,4 +27,22 @@ abstract class ChatDataSource {
   void disconnect();
   Stream<ChatMessage> subscribeMessages();
   Stream<String> subscribeBlock();
+
+  // blind
+  Future<void> blindConnect(int userId);
+  Future<void> blindDisconnect();
+
+  void emit(String event, dynamic data);
+  void sendBroadcast(String message);
+
+  // Streams
+  Stream<Map<String, dynamic>> get joinedStream;
+  Stream<String> get startStream;
+  Stream<Map<String, dynamic>> get systemStream;
+  Stream<bool> get freezeStream;
+  Stream<Map<String, dynamic>> get broadcastStream;
+  Stream<Map<String, dynamic>> get joinStream;
+  Stream<Map<int, String>> get participantsStream;
+  Stream<String> get disconnectStream;
+  bool get isConnected;
 }

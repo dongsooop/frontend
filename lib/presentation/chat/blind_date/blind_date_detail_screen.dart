@@ -32,9 +32,20 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     final scrollController = useScrollController();
 
     useEffect(() {
-      Future.microtask(() async {
-        viewModel.joinBlindDate();
-      });
+      if (userId != null)
+        Future.microtask(() {
+          viewModel.connect(userId);
+        });
+
+      return () async {
+        Future.microtask(() => viewModel.disconnect());
+      };
+    }, const []);
+
+    useEffect(() {
+      // Future.microtask(() async {
+      //   viewModel.joinBlindDate();
+      // });
 
       return () {
         // Future.microtask(() {
@@ -43,60 +54,60 @@ class BlindDateDetailScreen extends HookConsumerWidget {
       };
     }, []);
 
-    useEffect(() {
-      if (state.errorMessage != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => CustomConfirmDialog(
-              title: '과팅 오류',
-              content: state.errorMessage!,
-              onConfirm: () {
-                context.pop();
-                context.pop();
-              },
-              confirmText: '확인',
-              dismissOnConfirm: false,
-              isSingleAction: true,
-            ),
-          );
-        });
-      }
-      return null;
-    }, [state.errorMessage]);
+    // useEffect(() {
+    //   if (state.errorMessage != null) {
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //       showDialog(
+    //         context: context,
+    //         barrierDismissible: false,
+    //         builder: (_) => CustomConfirmDialog(
+    //           title: '과팅 오류',
+    //           content: state.errorMessage!,
+    //           onConfirm: () {
+    //             context.pop();
+    //             context.pop();
+    //           },
+    //           confirmText: '확인',
+    //           dismissOnConfirm: false,
+    //           isSingleAction: true,
+    //         ),
+    //       );
+    //     });
+    //   }
+    //   return null;
+    // }, [state.errorMessage]);
 
-    if (state.isLoading) {
-      return Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '',
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 8,
-            children: [
-              CircularProgressIndicator(color: ColorStyles.primaryColor,),
-              SizedBox(height: 16,),
-              Text(
-                '참여자를 모집하고 있어요...',
-                style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.black,
-                ),
-              ),
-              Text(
-                '${state.participants.toString()}/7',
-                style: TextStyles.normalTextBold.copyWith(
-                  color: ColorStyles.black,
-                ),
-              ),
-            ],
-          )
-        ),
-      );
-    }
+    // if (state.isLoading) {
+    //   return Scaffold(
+    //     backgroundColor: ColorStyles.white,
+    //     appBar: DetailHeader(
+    //       title: '',
+    //     ),
+    //     body: Center(
+    //       child: Column(
+    //         mainAxisAlignment: MainAxisAlignment.center,
+    //         crossAxisAlignment: CrossAxisAlignment.center,
+    //         spacing: 8,
+    //         children: [
+    //           CircularProgressIndicator(color: ColorStyles.primaryColor,),
+    //           SizedBox(height: 16,),
+    //           Text(
+    //             '참여자를 모집하고 있어요...',
+    //             style: TextStyles.normalTextRegular.copyWith(
+    //               color: ColorStyles.black,
+    //             ),
+    //           ),
+    //           Text(
+    //             '${state.participants.toString()}/7',
+    //             style: TextStyles.normalTextBold.copyWith(
+    //               color: ColorStyles.black,
+    //             ),
+    //           ),
+    //         ],
+    //       )
+    //     ),
+    //   );
+    // }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -177,6 +188,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                         width: 44,
                         child: IconButton(
                           onPressed: () async {
+                            // 한 프레임 뒤에서 바텀시트 실행 필요
                             await MatchVoteBottomSheet.show(
                               context,
                               candidates: ['익명1', '익명2', '익명3', '익명4', '익명5', '익명6', '익명7'],

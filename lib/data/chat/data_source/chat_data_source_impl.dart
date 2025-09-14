@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/core/network/socket_io_service.dart';
 import 'package:dongsoop/core/network/stomp_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
@@ -15,11 +16,13 @@ import 'chat_data_source.dart';
 class ChatDataSourceImpl implements ChatDataSource {
   final Dio _authDio;
   final StompService _stompService;
+  final SocketIoService _socketIoService;
   final HiveService _hiveService;
 
   ChatDataSourceImpl(
     this._authDio,
     this._stompService,
+    this._socketIoService,
     this._hiveService,
   );
 
@@ -328,4 +331,48 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Stream<String> subscribeBlock() => _stompService.blockStream;
+
+  // blind
+  @override
+  Future<void> blindConnect(int userId) async {
+    final String url = dotenv.get('BLIND_URL');
+    final String sessionId = dotenv.get('BLIND_SESSION');
+    await _socketIoService.connect(url: url, sessionId: sessionId, memberId: userId);
+  }
+
+  @override
+  Future<void> blindDisconnect() => _socketIoService.disconnect();
+
+  @override
+  void emit(String event, data) => _socketIoService.emit(event, data);
+
+  @override
+  void sendBroadcast(String message) => _socketIoService.sendBroadcast(message);
+
+  @override
+  Stream<Map<String, dynamic>> get joinedStream => _socketIoService.joinedStream;
+
+  @override
+  Stream<String> get startStream => _socketIoService.startStream;
+
+  @override
+  Stream<Map<String, dynamic>> get systemStream => _socketIoService.systemStream;
+
+  @override
+  Stream<bool> get freezeStream => _socketIoService.freezeStream;
+
+  @override
+  Stream<Map<String, dynamic>> get broadcastStream => _socketIoService.broadcastStream;
+
+  @override
+  Stream<Map<String, dynamic>> get joinStream => _socketIoService.joinStream;
+
+  @override
+  Stream<Map<int, String>> get participantsStream => _socketIoService.participantsStream;
+
+  @override
+  Stream<String> get disconnectStream => _socketIoService.disconnectStream;
+
+  @override
+  bool get isConnected => _socketIoService.isConnected;
 }
