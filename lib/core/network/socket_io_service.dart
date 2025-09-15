@@ -86,6 +86,7 @@ class SocketIoService {
         _freezeCtrl.add(false);
       })
       ..on('broadcast', (msg) {
+        print('broadcase: $msg');
         final message = BlindDateMessage.fromUserJson(msg);
         _broadcastCtrl.add(message);
       })

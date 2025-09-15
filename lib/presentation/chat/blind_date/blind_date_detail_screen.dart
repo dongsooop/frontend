@@ -177,6 +177,23 @@ class BlindDateDetailScreen extends HookConsumerWidget {
           centerTitle: true,
         ),
       ),
+      bottomNavigationBar: state.isFrozen
+        ? SafeArea(
+          child: Container(
+            height: 64,
+            width: double.infinity,
+            color: ColorStyles.gray2,
+            child: Center(
+              child: Text(
+                '동냥이가 얘기하는 중에는 채팅을 할 수 없어요',
+                style: TextStyles.normalTextBold.copyWith(
+                  color: ColorStyles.gray4,
+                ),
+              ),
+            ),
+          ),
+        )
+        : null,
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -212,77 +229,67 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                 ),
 
                 // 채팅 입력창
-                Container(
-                  width: double.infinity,
-                  height: 52,
-                  margin: EdgeInsets.only(top: 16, bottom: 24),
-                  padding: EdgeInsets.only(left: 16, right: 8),
-                  decoration: ShapeDecoration(
-                    color: ColorStyles.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          maxLines: null,
-                          cursorColor: ColorStyles.gray4,
-                          keyboardType: TextInputType.multiline,
-                          controller: textController,
-                          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                          decoration: InputDecoration(border: InputBorder.none,),
+                if (!state.isFrozen) ...[
+                  Container(
+                    width: double.infinity,
+                    height: 52,
+                    margin: EdgeInsets.only(top: 16, bottom: 24),
+                    padding: EdgeInsets.only(left: 16, right: 8),
+                    decoration: ShapeDecoration(
+                      color: ColorStyles.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            maxLines: null,
+                            cursorColor: ColorStyles.gray4,
+                            keyboardType: TextInputType.multiline,
+                            controller: textController,
+                            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+                            decoration: InputDecoration(border: InputBorder.none,),
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 44,
-                        width: 44,
-                        child: IconButton(
-                          onPressed: () async {
-                            // 한 프레임 뒤에서 바텀시트 실행 필요
-                            // await MatchVoteBottomSheet.show(
-                            //   context,
-                            //   candidates: ['익명1', '익명2', '익명3', '익명4', '익명5', '익명6', '익명7'],
-                            //   onSubmit: (selected) async {
-                            //     print('selected: $selected');
-                            //     // selected == null 이면 미선택
-                            //     // 서버 전송 로직 작성
-                            //     // await repo.sendVote(selected);
-                            //   },
-                            //   seconds: 10, // 기본 10초
-                            // );
-                            final message = textController.text.trim();
-                            if (message.isNotEmpty) {
-                              final send = BlindDateRequest(
-                                sessionId: state.sessionId!,
-                                message: message,
-                                senderId: userId!,
-                              );
-                              viewModel.send(send);
-                              textController.clear();
-                              // 스크롤 맨 아래로 이동
-                              scrollController.animateTo(
-                                0,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            }
-                          },
-                          icon: SvgPicture.asset(
-                            'assets/icons/send.svg',
-                            width: 24,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(
-                              ColorStyles.primaryColor,
-                              BlendMode.srcIn,
+                        SizedBox(
+                          height: 44,
+                          width: 44,
+                          child: IconButton(
+                            onPressed: () async {
+                              final message = textController.text.trim();
+                              if (message.isNotEmpty) {
+                                final send = BlindDateRequest(
+                                  sessionId: state.sessionId!,
+                                  message: message,
+                                  senderId: userId!,
+                                );
+                                viewModel.send(send);
+                                textController.clear();
+                                // 스크롤 맨 아래로 이동
+                                scrollController.animateTo(
+                                  0,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                            icon: SvgPicture.asset(
+                              'assets/icons/send.svg',
+                              width: 24,
+                              height: 24,
+                              colorFilter: const ColorFilter.mode(
+                                ColorStyles.primaryColor,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
-                )
+                ]
               ],
             ),
           ),
