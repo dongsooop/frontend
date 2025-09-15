@@ -34,6 +34,7 @@ class ChatDetailScreen extends HookConsumerWidget {
     // 사용자
     final String? userNickname = user?.nickname;
     final int? userId = user?.id;
+    final bool isManager = chatDetailState.roomDetail?.managerId == userId;
 
     final textController = useTextEditingController();
     final scrollController = useScrollController();
@@ -122,20 +123,23 @@ class ChatDetailScreen extends HookConsumerWidget {
         preferredSize: Size.fromHeight(44),
         child: AppBar(
           backgroundColor: ColorStyles.gray1,
-          title: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 8,
-            children: [
-              Text(
-                chatDetailState.roomDetail?.title ?? '',
-                style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-              ),
-              Text(
-                chatDetailState.nicknameMap.length.toString(),
-                style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
-              ),
-            ],
+          title: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 8,
+              children: [
+                Text(
+                  chatDetailState.roomDetail?.title ?? '',
+                  style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                ),
+                Text(
+                  chatDetailState.roomDetail?.participants.length.toString() ?? '',
+                  style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
+                ),
+              ],
+            ),
           ),
           leading: IconButton(
             onPressed: () {
@@ -158,7 +162,9 @@ class ChatDetailScreen extends HookConsumerWidget {
                       context: context,
                       builder: (_) => CustomConfirmDialog(
                         title: '채팅방 나가기',
-                        content: '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
+                        content: isManager
+                          ? '채팅방을 나가면 모집이 즉시 종료되며,\n미정인 지원자는 불합격처리 돼요.\n그래도 나가시겠어요?'
+                          : '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
                         confirmText: '나가기',
                         cancelText: '취소',
                         onConfirm: () async {
@@ -245,7 +251,7 @@ class ChatDetailScreen extends HookConsumerWidget {
                           nickname == userNickname,
                           msg.type,
                           () async {
-                            if (chatDetailState.roomDetail!.managerId != userId) return;
+                            if (!isManager) return;
                             // 채팅 내보내기(관리자 == 사옹자)
                             customActionSheet(
                               context,

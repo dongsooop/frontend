@@ -17,7 +17,7 @@ class ChatCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: EdgeInsets.only(bottom: 24),
-      height: 48,
+      constraints: const BoxConstraints(minHeight: 64),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,38 +35,31 @@ class ChatCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
               children: [
-                Expanded(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 16,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          chatRoom.title,
-                          style: TextStyles.normalTextBold.copyWith(
-                              color: ColorStyles.black
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 8,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        chatRoom.title,
+                        style: TextStyles.normalTextBold.copyWith(color: ColorStyles.black),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                      Text(
-                        chatRoom.participantCount.toString(),
-                        style: TextStyles.smallTextRegular.copyWith(
-                            color: ColorStyles.gray4
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    Text(
+                      chatRoom.participantCount.toString(),
+                      style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+                    ),
+                  ],
                 ),
                 Text(
                   chatRoom.lastMessage ?? '',
-                  style: TextStyles.smallTextRegular.copyWith(
-                      color: ColorStyles.gray4
-                  ),
+                  style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
                 )
               ],
             ),
@@ -79,9 +72,7 @@ class ChatCard extends StatelessWidget {
             children: [
               Text(
                 formatLastActivityTime(chatRoom.lastActivityAt),
-                style: TextStyles.smallTextRegular.copyWith(
-                    color: ColorStyles.gray4
-                ),
+                style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
               ),
               chatRoom.unreadCount != 0
                 ?  Container(
@@ -102,7 +93,7 @@ class ChatCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   )
-                : SizedBox(height: 0,)
+              : SizedBox(height: 0,),
             ],
           ),
         ],

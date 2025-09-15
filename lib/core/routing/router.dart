@@ -10,8 +10,8 @@ import 'package:dongsoop/presentation/board/recruit/apply/list/recruit_applicant
 import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
-import 'package:dongsoop/presentation/calendar/calendar_detail_page_screen.dart';
-import 'package:dongsoop/presentation/calendar/calendar_page_screen.dart';
+import 'package:dongsoop/presentation/schedule/schedule_detail_page_screen.dart';
+import 'package:dongsoop/presentation/schedule/schedule_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
 import 'package:dongsoop/presentation/chat/chatbot/chatbot_screen.dart';
@@ -129,11 +129,11 @@ final router = GoRouter(
       builder: (context, state) => TimetableWriteScreen(),
     ),
     GoRoute(
-      path: RoutePaths.calendar,
-      builder: (context, state) => CalendarPageScreen(
+      path: RoutePaths.schedule,
+      builder: (context, state) => SchedulePageScreen(
         onTapCalendarDetail: (event, selectedDate) async {
           return await context.push<bool?>(
-            RoutePaths.calendarDetail,
+            RoutePaths.scheduleDetail,
             extra: {
               'event': event,
               'selectedDate': selectedDate,
@@ -143,13 +143,13 @@ final router = GoRouter(
       ),
     ),
     GoRoute(
-      path: RoutePaths.calendarDetail,
+      path: RoutePaths.scheduleDetail,
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
         final event = extra?['event'];
         final selectedDate = extra?['selectedDate'] as DateTime;
 
-        return CalendarDetailPageScreen(
+        return ScheduleDetailPageScreen(
           selectedDate: selectedDate,
           event: event,
         );
@@ -578,7 +578,7 @@ final router = GoRouter(
                 context.push(RoutePaths.adminReport);
               },
               onTapCalendar: () {
-                context.push(RoutePaths.calendar);
+                context.push(RoutePaths.schedule);
               },
               onTapTimetable: () {
                 context.push(RoutePaths.timetable);

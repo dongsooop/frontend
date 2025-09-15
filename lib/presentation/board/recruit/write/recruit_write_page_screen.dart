@@ -13,6 +13,7 @@ import 'package:dongsoop/presentation/board/recruit/write/view_models/date_time_
 import 'package:dongsoop/presentation/board/recruit/write/view_models/recruit_write_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/date_time_bottom_sheet.dart';
 import 'package:dongsoop/presentation/board/recruit/write/widget/major_tag_section.dart';
+import 'package:dongsoop/presentation/home/providers/home_update_provider.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -28,6 +29,13 @@ class RecruitWritePageScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.watch(recruitWriteViewModelProvider.notifier);
     final state = ref.watch(recruitWriteViewModelProvider);
+
+    final isSaving = ref.watch(
+      recruitWriteViewModelProvider.select((s) => s.isLoading),
+    );
+    final submittingRef = useRef<bool>(false);
+    final confirmingRef = useRef<bool>(false);
+
     final titleController = useTextEditingController(text: state.title);
     final contentController = useTextEditingController(text: state.content);
     final tagController = useTextEditingController();
@@ -91,6 +99,10 @@ class RecruitWritePageScreen extends HookConsumerWidget {
     }
 
     Future<void> onSubmit() async {
+      if (isSaving || submittingRef.value) return;
+      submittingRef.value = true;
+
+    try {
       final typeIndex = state.selectedTypeIndex;
       if (typeIndex == null) return;
 
@@ -170,13 +182,13 @@ class RecruitWritePageScreen extends HookConsumerWidget {
         return;
       }
 
-      try {
         final success = await viewModel.submit(
           type: type,
           entity: entity,
           userId: user!.id,
         );
         if (success) {
+          ref.read(homeNeedsRefreshProvider.notifier).state = true;
           context.pop(true);
         }
       } catch (e) {
@@ -189,6 +201,8 @@ class RecruitWritePageScreen extends HookConsumerWidget {
             onConfirm: () => context.pop(),
           ),
         );
+      } finally {
+        submittingRef.value = false;
       }
     }
 
@@ -239,7 +253,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
           ? null
           : PrimaryBottomButton(
         label: '모집 시작하기',
-        isEnabled: viewModel.isFormValid,
+        isEnabled: viewModel.isFormValid && !isSaving && !submittingRef.value,
         onPressed: () => showDialog(
           context: context,
           builder: (_) => CustomConfirmDialog(
@@ -247,16 +261,26 @@ class RecruitWritePageScreen extends HookConsumerWidget {
             content: '작성한 글은 수정할 수 없어요\n모집 시작할까요?',
             cancelText: '취소',
             confirmText: '제출',
-            onConfirm: onSubmit,
+            onConfirm: () async {
+              if (confirmingRef.value) return;
+              confirmingRef.value = true;
+              try {
+                await onSubmit();
+              } finally {
+                confirmingRef.value = false;
+              }
+            },
           ),
         ),
       ),
-      body: SafeArea(
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+    body: SafeArea(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: AbsorbPointer(
+            absorbing: isSaving || submittingRef.value,
             child: SingleChildScrollView(
               padding: const EdgeInsets.only(bottom: 40),
               child: Column(
@@ -410,6 +434,6 @@ class RecruitWritePageScreen extends HookConsumerWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }

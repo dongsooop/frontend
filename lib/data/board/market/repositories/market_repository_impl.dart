@@ -98,9 +98,12 @@ class MarketRepositoryImpl implements MarketRepository {
       return await action();
     } on ProfanityDetectedException {
       rethrow;
-    } on MarketAlreadyContactException {
+    } on MarketAlreadyContactException{
       rethrow;
-    } catch (e) {
+    } on NotFoundBoardException {
+      rethrow;
+    }
+    catch (_) {
       throw defaultException;
     }
   }

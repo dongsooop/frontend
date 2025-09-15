@@ -486,9 +486,19 @@ class TimetableMultiStatusException extends TimetableException {
   String toString() => message;
 }
 
+
 class ChatbotException implements Exception {
   final String message;
   const ChatbotException([this.message = "응답에 실패했습니다. 잠시 후에 다시 시도해 주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class HomeException implements Exception {
+  final String message;
+  HomeException(
+      [this.message = "화면을 불러오는 중 오류가 발생했어요\n잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;

@@ -1,36 +1,16 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
-import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
-import 'package:dongsoop/presentation/home/view_models/notice_view_model.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class HomeNewNotice extends HookConsumerWidget {
-  const HomeNewNotice({super.key});
+class HomeNewNotice extends StatelessWidget {
+  const HomeNewNotice({super.key, required this.notices});
+  final List<Notice> notices;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userSessionProvider);
-    final departmentName = user?.departmentType ?? '';
-    final departmentCode =
-        DepartmentTypeExtension.fromDisplayName(departmentName).code;
-    final department = departmentCode == 'UNKNOWN' ? null : departmentCode;
-
-    final noticeState = ref.watch(noticeViewModelProvider(department));
-
-    useEffect(() {
-      Future.microtask(() {
-        ref
-            .read(noticeViewModelProvider(department).notifier)
-            .refresh(departmentType: department);
-      });
-      return null;
-    }, []);
-
+  Widget build(BuildContext context) {
     return Container(
       color: ColorStyles.gray1,
       width: double.infinity,
@@ -72,10 +52,7 @@ class HomeNewNotice extends HookConsumerWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          // 공지 카드
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
@@ -83,65 +60,66 @@ class HomeNewNotice extends HookConsumerWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
-            child: noticeState.when(
-              loading: () => const Center(
-                  child: CircularProgressIndicator(
-                color: ColorStyles.primaryColor,
-              )),
-              error: (e, _) => Center(child: Text('$e')),
-              data: (notices) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: List.generate(notices.length, (index) {
-                    final item = notices[index];
-                    final tags =
-                        item.isDepartment ? ['학과공지', '학부'] : ['동양공지', '학교생활'];
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            context.pushNamed(
-                              'noticeWebView',
-                              queryParameters: {'path': item.link},
-                            );
-                          },
-                          child: Text(
-                            item.title,
-                            style: TextStyles.largeTextBold.copyWith(
-                              color: ColorStyles.black,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Wrap(
-                          children: tags
-                              .asMap()
-                              .entries
-                              .map((entry) => CommonTag(
-                                    label: entry.value,
-                                    index: entry.key,
-                                  ))
-                              .toList(),
-                        ),
-                        if (index != notices.length - 1)
-                          Container(
-                            margin: const EdgeInsets.symmetric(vertical: 24),
-                            width: double.infinity,
-                            height: 1,
-                            color: ColorStyles.gray2,
-                          ),
-                      ],
-                    );
-                  }),
-                );
-              },
-            ),
+            child: _buildNoticeList(context),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildNoticeList(BuildContext context) {
+    if (notices.isEmpty) {
+      return Center(
+        child: Text(
+          '새 공지가 없어요',
+          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(notices.length, (index) {
+        final item = notices[index];
+        final tags = (item.type == NoticeType.department)
+            ? const ['학과공지', '학부']
+            : const ['동양공지', '학교생활'];
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => context.pushNamed(
+                'noticeWebView',
+                queryParameters: {'path': item.link},
+              ),
+              child: Text(
+                item.title,
+                style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              children: tags
+                  .asMap()
+                  .entries
+                  .map((entry) => CommonTag(
+                  label: entry.value,
+                  index: entry.key,
+                ))
+                  .toList(),
+            ),
+            if (index != notices.length - 1)
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 24),
+                width: double.infinity,
+                height: 1,
+                color: ColorStyles.gray2,
+              ),
+          ],
+        );
+      }),
     );
   }
 }

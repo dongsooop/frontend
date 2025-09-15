@@ -93,13 +93,13 @@ class ReportAdminScreen extends HookConsumerWidget {
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '신고 관리',
-        ),
-        body: Padding(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: '신고 관리',
+      ),
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -143,7 +143,7 @@ class ReportAdminScreen extends HookConsumerWidget {
                             editText: '게시글 확인',
                             onEdit: () {
                               final ReportType type = ReportType.fromString(report.reportType);
-
+            
                               switch (type) {
                                 case ReportType.PROJECT_BOARD:
                                 case ReportType.STUDY_BOARD:

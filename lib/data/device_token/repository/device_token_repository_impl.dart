@@ -21,14 +21,15 @@ class DeviceTokenRepositoryImpl implements DeviceTokenRepository {
 
   @override
   Future<FailureType?> registerDeviceToken(DeviceTokenRequest request) async {
-    final allowed = await _fcm.requestPermissionIfNeeded();
-    if (!allowed) {
-      return FailureType.permissionDenied;
+    bool allowed = false;
+    try {
+      allowed = await _fcm.requestPermissionIfNeeded();
+    } catch (_) {
     }
 
     try {
       await _remote.registerDeviceToken(request);
-      return null;
+      return allowed ? null : FailureType.permissionDenied;
     } catch (_) {
       return FailureType.registerFailed;
     }
