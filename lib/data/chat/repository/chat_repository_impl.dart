@@ -1,4 +1,5 @@
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
@@ -124,6 +125,9 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   void blindSendMessage(BlindDateRequest message) => _chatDataSource.blindSendMessage(message);
 
+  @override
+  void choice(BlindChoice data) => _chatDataSource.userChoice(data);
+
   // Streams
   @override
   Stream<int> get joinedStream => _chatDataSource.joinedStream;
@@ -145,6 +149,9 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<Map<int, String>> get participantsStream => _chatDataSource.participantsStream;
+
+  @override
+  Stream<String> get matchStream => _chatDataSource.matchStream;
 
   @override
   Stream<String> get disconnectStream => _chatDataSource.disconnectStream;

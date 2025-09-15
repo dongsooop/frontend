@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_choice_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_connect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_disconnect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_send_message_use_case.dart';
@@ -9,6 +11,7 @@ import 'package:dongsoop/domain/chat/use_case/stream/blind_disconnect_stream_use
 import 'package:dongsoop/domain/chat/use_case/stream/blind_freeze_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_join_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_joined_stream_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/stream/blind_match_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_participants_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_start_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_system_stream_use_case.dart';
@@ -22,6 +25,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   final BlindConnectUseCase _connectUseCase;
   final BlindDisconnectUseCase _disconnectUseCase;
   final BlindSendMessageUseCase _blindSendMessageUseCase;
+  final BlindChoiceUseCase _blindChoiceUseCase;
 
   final BlindJoinedStreamUseCase _joined$;
   final BlindStartStreamUseCase _start$;
@@ -30,6 +34,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   final BlindBroadcastStreamUseCase _broadcast$;
   final BlindJoinStreamUseCase _join$;
   final BlindParticipantsStreamUseCase _participants$;
+  final BlindMatchStreamUseCase _match$;
   final BlindDisconnectStreamUseCase _disconnect$;
 
   BlindDateDetailViewModel(
@@ -37,6 +42,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     this._connectUseCase,
     this._disconnectUseCase,
     this._blindSendMessageUseCase,
+    this._blindChoiceUseCase,
     this._joined$,
     this._start$,
     this._system$,
@@ -44,6 +50,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     this._broadcast$,
     this._join$,
     this._participants$,
+    this._match$,
     this._disconnect$,
   ) : super(BlindDateDetailState());
 
@@ -51,7 +58,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
   Future<void> connect(int userId) async {
     if (state.isConnecting) return;
-    state = state.copyWith(isConnecting: true);
+    state = state.copyWith(isConnecting: true, isLoading: true);
 
     // 구독 설정
     _subs.add(_joined$().listen((data) {
@@ -61,7 +68,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
     _subs.add(_start$().listen((sid) {
       print('🚗 start session Id: $sid');
-      state = state.copyWith(sessionId: sid);
+      state = state.copyWith(sessionId: sid, isLoading: false);
     }));
 
     _subs.add(_system$().listen((msg) {
@@ -86,7 +93,12 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
     _subs.add(_participants$().listen((map) {
       print('👤 participants: $map');
-      state = state.copyWith(participants: map);
+      state = state.copyWith(participants: map, isVoteTime: true);
+    }));
+
+    _subs.add(_match$().listen((data) {
+      print('🥰 match: $data');
+      state = state.copyWith(match: data);
     }));
 
     _subs.add(_disconnect$().listen((reason) {
@@ -99,9 +111,6 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
     state = state.copyWith(isConnecting: false);
   }
-
-  // void emit(String event, dynamic data) => _emitEvent.execute(event, data);
-  // void sendBroadcast(String message) => _sendBroadcast.execute(message);
 
   Future<void> disconnect() async {
     await _disconnectUseCase.execute();
@@ -117,6 +126,11 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
   void send(BlindDateRequest message) {
     _blindSendMessageUseCase.execute(message);
+  }
+
+  void choice(BlindChoice data) {
+    state = state.copyWith(isVoteTime: false);
+    _blindChoiceUseCase.execute(data);
   }
 }
 

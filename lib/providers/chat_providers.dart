@@ -5,6 +5,7 @@ import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_choice_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_connect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_disconnect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_send_message_use_case.dart';
@@ -23,6 +24,7 @@ import 'package:dongsoop/domain/chat/use_case/stream/blind_disconnect_stream_use
 import 'package:dongsoop/domain/chat/use_case/stream/blind_freeze_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_join_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_joined_stream_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/stream/blind_match_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_participants_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_start_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_system_stream_use_case.dart';
@@ -51,7 +53,8 @@ import 'package:dongsoop/domain/chat/use_case/subscribe_block_use_case.dart';
 
 // blind
 final socketIoServiceProvider = Provider<SocketIoService>((ref) {
-  return SocketIoService();
+  final secureStorageService = ref.watch(secureStorageProvider);
+  return SocketIoService(secureStorageService);
 });
 
 // stomp
@@ -209,6 +212,11 @@ final blindParticipantsStreamUseCaseProvider = Provider<BlindParticipantsStreamU
   return BlindParticipantsStreamUseCase(repository);
 });
 
+final blindMatchStreamUseCaseProvider = Provider<BlindMatchStreamUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return BlindMatchStreamUseCase(repository);
+});
+
 final blindDisconnectStreamUseCaseProvider = Provider<BlindDisconnectStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindDisconnectStreamUseCase(repository);
@@ -217,6 +225,11 @@ final blindDisconnectStreamUseCaseProvider = Provider<BlindDisconnectStreamUseCa
 final blindSendMessageUseCaseProvider = Provider<BlindSendMessageUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindSendMessageUseCase(repository);
+});
+
+final blindChoiceUseCaseProvider = Provider<BlindChoiceUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return BlindChoiceUseCase(repository);
 });
 
 // View Model
@@ -277,14 +290,12 @@ final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref)
 
 
 // blind date
-final socketServiceProvider = Provider<SocketIoService>((ref) {
-  return SocketIoService();
-});
 
 final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<BlindDateDetailViewModel, BlindDateDetailState>((ref) {
   final blindConnectUseCase = ref.watch(blindConnectUseCaseProvider);
   final blindDisconnectUseCase = ref.watch(blindDisconnectUseCaseProvider);
   final blindSendMessageUseCase = ref.watch(blindSendMessageUseCaseProvider);
+  final blindChoiceUseCase = ref.watch(blindChoiceUseCaseProvider);
 
   final blindJoinedStreamUseCase = ref.watch(blindJoinedStreamUseCaseProvider);
   final blindStartStreamUseCase = ref.watch(blindStartStreamUseCaseProvider);
@@ -293,6 +304,7 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
   final blindBroadcastStreamUseCase = ref.watch(blindBroadcastStreamUseCaseProvider);
   final blindJoinStreamUseCase = ref.watch(blindJoinStreamUseCaseProvider);
   final blindParticipantsStreamUseCase = ref.watch(blindParticipantsStreamUseCaseProvider);
+  final blindMatchStreamUseCase = ref.watch(blindMatchStreamUseCaseProvider);
   final blindDisconnectStreamUseCase = ref.watch(blindDisconnectStreamUseCaseProvider);
 
   return BlindDateDetailViewModel(
@@ -300,6 +312,7 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
     blindConnectUseCase,
     blindDisconnectUseCase,
     blindSendMessageUseCase,
+    blindChoiceUseCase,
     blindJoinedStreamUseCase,
     blindStartStreamUseCase,
     blindSystemStreamUseCase,
@@ -307,12 +320,12 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
     blindBroadcastStreamUseCase,
     blindJoinStreamUseCase,
     blindParticipantsStreamUseCase,
+    blindMatchStreamUseCase,
     blindDisconnectStreamUseCase,
   );
 });
 
-final blindDateMessagesProvider = StateNotifierProvider<BlindDateMessagesNotifier, List<BlindDateMessage>>(
-      (ref) {
+final blindDateMessagesProvider = StateNotifierProvider<BlindDateMessagesNotifier, List<BlindDateMessage>>((ref) {
     // final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
     return BlindDateMessagesNotifier();
   },

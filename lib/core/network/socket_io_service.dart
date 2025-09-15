@@ -1,10 +1,16 @@
 import 'dart:async';
+import 'package:dongsoop/core/storage/secure_storage_service.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketIoService {
+  final SecureStorageService _secureStorageService;
+
+  SocketIoService(this._secureStorageService);
+
   IO.Socket? _socket;
 
   // 이벤트
@@ -16,14 +22,14 @@ class SocketIoService {
   final _systemCtrl = StreamController<BlindDateMessage>.broadcast();
   // 채팅 입력 비활성화/활성화
   final _freezeCtrl = StreamController<bool>.broadcast();
-  // 채팅 입력 활성화
-  // final _thawCtrl  = StreamController<void>.broadcast();
   // 메시지 수신 브로드캐스트
   final _broadcastCtrl = StreamController<BlindDateMessage>.broadcast();
   // 입장 시 정보 받기
   final _joinCtrl = StreamController<BlindJoinInfo>.broadcast();
   // 모든 사용자 받기
   final _participantsCtrl = StreamController<Map<int, String>>.broadcast();
+  // 매칭 성공
+  final _matchCtrl = StreamController<String>.broadcast();
   // 연결 해제
   final _disconnectCtrl= StreamController<String>.broadcast();
 
@@ -31,11 +37,12 @@ class SocketIoService {
   Stream<String> get startStream => _startCtrl.stream; // sessionId
   Stream<BlindDateMessage> get systemStream => _systemCtrl.stream;
   Stream<bool> get freezeStream  => _freezeCtrl.stream;
-  // Stream<void> get thawStream => _thawCtrl.stream;
   Stream<BlindDateMessage> get broadcastStream => _broadcastCtrl.stream;  // message
-  Stream<String> get disconnectStream=> _disconnectCtrl.stream; // reason
   Stream<BlindJoinInfo> get joinStream => _joinCtrl.stream;
   Stream<Map<int, String>> get participantsStream => _participantsCtrl.stream;
+  Stream<String> get disconnectStream=> _disconnectCtrl.stream; // reason
+  Stream<String> get matchStream => _matchCtrl.stream;
+
   bool get isConnected => _socket?.connected ?? false;
 
 
@@ -92,6 +99,10 @@ class SocketIoService {
         final info = BlindJoinInfo.fromJson(data);
         _joinCtrl.add(info);
       })
+      ..on('create_chat', (data) {
+        print('🥰 roomId: $data');
+        _matchCtrl.add(data);
+      })
       ..on('participants', (data) {
         if (data is List) {
           final map = <int, String>{};
@@ -125,6 +136,18 @@ class SocketIoService {
     _socket!.emit('message', message.toJson());
   }
 
+  void userChoice(BlindChoice data) async {
+    final accessToken = await _secureStorageService.read('accessToken') ?? '';
+
+    if (_socket?.connected != true) {
+      throw StateError('Socket is not connected');
+    }
+
+    final updated = data.copyWith(choicerToken: accessToken);
+    print('update: $updated');
+    _socket!.emit('choice', updated.toJson());
+  }
+
   // 연결 해제
   Future<void> disconnect() async {
     _socket?.disconnect();
@@ -136,11 +159,11 @@ class SocketIoService {
     await _startCtrl.close();
     await _systemCtrl.close();
     await _freezeCtrl.close();
-    // await _thawCtrl.close();
     await _broadcastCtrl.close();
     await _disconnectCtrl.close();
     await _joinCtrl.close();
     await _participantsCtrl.close();
+    await _matchCtrl.close();
     _socket?.dispose();
     _socket = null;
   }

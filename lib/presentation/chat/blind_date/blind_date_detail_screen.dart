@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
 import 'package:dongsoop/presentation/chat/widgets/blind_bubble.dart';
 import 'package:dongsoop/presentation/chat/widgets/match_vote_bottom_sheet.dart';
@@ -15,8 +16,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class BlindDateDetailScreen extends HookConsumerWidget {
+  final void Function(String roomId) onTapChatDetail;
 
   const BlindDateDetailScreen({
+    required this.onTapChatDetail,
     super.key,
   });
 
@@ -32,7 +35,6 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     // user
     final user = ref.watch(userSessionProvider);
     final int? userId = user?.id;
-    final String nickname = '익명 3';
 
     final textController = useTextEditingController();
     final scrollController = useScrollController();
@@ -67,25 +69,63 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     }, [state.nickname]);
 
     useEffect(() {
-      if (state.nickname != '') {
+      if (state.isVoteTime) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          // 한 프레임 뒤에서 바텀시트 실행 필요
           await MatchVoteBottomSheet.show(
             context,
             participants: state.participants,
             currentUserId: userId!,
             onSubmit: (selected) async {
               print('selected: $selected');
-              // selected == null 이면 미선택
-              // 서버 전송 로직 작성
-              // await repo.sendVote(selected);
+              viewModel.choice(BlindChoice(
+                sessionId: state.sessionId!,
+                choicerId: userId,
+                targetId: selected,
+              ));
             },
-            seconds: 10, // 기본 10초
+            seconds: 10,
           );
         });
       }
       return null;
-    }, [state.participants]);
+    }, [state.isVoteTime]);
+
+    useEffect(() {
+      if (state.match != 'failed' && state.match != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '사랑의 작대기 성공',
+              content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
+              onConfirm: () {
+                context.pop();
+                onTapChatDetail(state.match!);
+              },
+              confirmText: '확인',
+              isSingleAction: false,
+            ),
+          );
+        });
+      } else if (state.match != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '사랑의 작대기 실패',
+              content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봤요!',
+              onConfirm: () {
+                context.pop();
+                context.pop();
+              },
+              confirmText: '확인',
+              isSingleAction: true,
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.match]);
 
     // useEffect(() {
     //   if (state.errorMessage != null) {
@@ -110,37 +150,37 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     //   return null;
     // }, [state.errorMessage]);
 
-    // if (state.isLoading) {
-    //   return Scaffold(
-    //     backgroundColor: ColorStyles.white,
-    //     appBar: DetailHeader(
-    //       title: '',
-    //     ),
-    //     body: Center(
-    //       child: Column(
-    //         mainAxisAlignment: MainAxisAlignment.center,
-    //         crossAxisAlignment: CrossAxisAlignment.center,
-    //         spacing: 8,
-    //         children: [
-    //           CircularProgressIndicator(color: ColorStyles.primaryColor,),
-    //           SizedBox(height: 16,),
-    //           Text(
-    //             '참여자를 모집하고 있어요...',
-    //             style: TextStyles.normalTextRegular.copyWith(
-    //               color: ColorStyles.black,
-    //             ),
-    //           ),
-    //           Text(
-    //             '${state.participants.toString()}/7',
-    //             style: TextStyles.normalTextBold.copyWith(
-    //               color: ColorStyles.black,
-    //             ),
-    //           ),
-    //         ],
-    //       )
-    //     ),
-    //   );
-    // }
+    if (state.isLoading) {
+      return Scaffold(
+        backgroundColor: ColorStyles.white,
+        appBar: DetailHeader(
+          title: '',
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 8,
+            children: [
+              CircularProgressIndicator(color: ColorStyles.primaryColor,),
+              SizedBox(height: 16,),
+              Text(
+                '참여자를 모집하고 있어요...',
+                style: TextStyles.normalTextRegular.copyWith(
+                  color: ColorStyles.black,
+                ),
+              ),
+              Text(
+                '${state.volunteer}/7',
+                style: TextStyles.normalTextBold.copyWith(
+                  color: ColorStyles.black,
+                ),
+              ),
+            ],
+          )
+        ),
+      );
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
