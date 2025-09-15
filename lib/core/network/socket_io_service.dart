@@ -9,7 +9,7 @@ class SocketIoService {
 
   // 이벤트
   // 사용자 참여(대기화면)
-  final _joinedCtrl = StreamController<Map<String, dynamic>>.broadcast();
+  final _joinedCtrl = StreamController<int>.broadcast();
   // 과팅 시작
   final _startCtrl = StreamController<String>.broadcast();
   // 동냥이 메시지(서버)
@@ -27,7 +27,7 @@ class SocketIoService {
   // 연결 해제
   final _disconnectCtrl= StreamController<String>.broadcast();
 
-  Stream<Map<String, dynamic>> get joinedStream => _joinedCtrl.stream; // { sessionId, volunteer }
+  Stream<int> get joinedStream => _joinedCtrl.stream; // { sessionId, volunteer }
   Stream<String> get startStream => _startCtrl.stream; // sessionId
   Stream<BlindDateMessage> get systemStream => _systemCtrl.stream;
   Stream<bool> get freezeStream  => _freezeCtrl.stream;
@@ -60,12 +60,9 @@ class SocketIoService {
     // 콜백 등록
     _socket!
       ..onConnect((_) {
-        print('✅ socket.io connected: id=${_socket!.id}');
       })
       ..on('joined', (data) {
-        if (data is Map) {
-          _joinedCtrl.add(Map<String, dynamic>.from(data));
-        }
+        _joinedCtrl.add(data['volunteer']);
       })
       ..on('start', (data) {
         if (data is Map && data['sessionId'] is String) {
@@ -75,18 +72,16 @@ class SocketIoService {
         }
       })
       ..on('system', (data) {
-        print(Map<String, dynamic>.from(data));
         final message = BlindDateMessage.fromSystemJson(data);
         _systemCtrl.add(message);
       })
       ..on('freeze', (_) {
         _freezeCtrl.add(true);
       })
-      ..on('thaw',   (_){
+      ..on('thaw', (_){
         _freezeCtrl.add(false);
       })
       ..on('broadcast', (msg) {
-        print('broadcase: $msg');
         final message = BlindDateMessage.fromUserJson(msg);
         _broadcastCtrl.add(message);
       })
@@ -122,21 +117,12 @@ class SocketIoService {
     _socket!.connect();
   }
 
-  void sendUserMessage(BlindDateRequest message,) {
+  void sendUserMessage(BlindDateRequest message) {
     if (_socket == null || !_socket!.connected) {
       throw StateError('Socket is not connected');
     }
 
-    final payload = {
-      'data': {
-        'sessionId': message.sessionId,
-        'message': message.message,
-        'senderId': message.senderId,
-      }
-    };
-
-    print('📮 send massage: $payload');
-    _socket!.emit('message', payload);
+    _socket!.emit('message', message.toJson());
   }
 
   // 연결 해제

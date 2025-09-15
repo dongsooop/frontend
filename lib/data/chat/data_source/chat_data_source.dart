@@ -38,7 +38,7 @@ abstract class ChatDataSource {
   void blindSendMessage(BlindDateRequest message);
 
   // Streams
-  Stream<Map<String, dynamic>> get joinedStream;
+  Stream<int> get joinedStream;
   Stream<String> get startStream;
   Stream<BlindDateMessage> get systemStream;
   Stream<bool> get freezeStream;

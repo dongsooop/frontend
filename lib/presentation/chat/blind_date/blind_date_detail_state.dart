@@ -2,7 +2,7 @@ class BlindDateDetailState {
   final bool isConnecting;
   final bool isFrozen;
   final String? sessionId;
-  final Map<String, dynamic>? joined;       // { sessionId, volunteer }
+  final int volunteer;
   final String nickname;
   final Map<int, String> participants;
   final String? disconnectReason;
@@ -11,7 +11,7 @@ class BlindDateDetailState {
     this.isConnecting = false,
     this.isFrozen = false,
     this.sessionId,
-    this.joined,
+    this.volunteer = 0,
     this.nickname = '',
     this.participants = const {},
     this.disconnectReason,
@@ -21,7 +21,7 @@ class BlindDateDetailState {
     bool? isConnecting,
     bool? isFrozen,
     String? sessionId,
-    Map<String, dynamic>? joined,
+    int? volunteer,
     String? nickname,
     Map<int, String>? participants,
     String? disconnectReason,
@@ -30,7 +30,7 @@ class BlindDateDetailState {
       isConnecting: isConnecting ?? this.isConnecting,
       isFrozen: isFrozen ?? this.isFrozen,
       sessionId: sessionId ?? this.sessionId,
-      joined: joined ?? this.joined,
+      volunteer: volunteer ?? this.volunteer,
       nickname: nickname ?? this.nickname,
       participants: participants ?? this.participants,
       disconnectReason: disconnectReason ?? this.disconnectReason,

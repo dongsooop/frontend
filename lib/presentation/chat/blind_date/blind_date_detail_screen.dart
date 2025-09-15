@@ -159,7 +159,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                 style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
               ),
               Text(
-                state.participants.length.toString(),
+                state.volunteer.toString(),
                 style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
               ),
             ],
@@ -207,9 +207,9 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: ListView.separated(
-                      reverse: true, // 리스트 아이템을 역순으로 배치
-                      shrinkWrap: true, // 상단 배치(Align)
-                      controller: scrollController, // 스크롤 위치 컨트롤러
+                      reverse: true,
+                      shrinkWrap: true,
+                      controller: scrollController,
                       itemCount: messages.length,
                       itemBuilder: (BuildContext context, int index) {
                         final msg = messages[index];

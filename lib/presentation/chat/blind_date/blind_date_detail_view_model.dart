@@ -55,8 +55,8 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
     // 구독 설정
     _subs.add(_joined$().listen((data) {
-      print('📲 joined ${Map<String, dynamic>.from(data)}');
-      state = state.copyWith(joined: data);
+      print('📲 joined $data');
+      state = state.copyWith(volunteer: data);
     }));
 
     _subs.add(_start$().listen((sid) {

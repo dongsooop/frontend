@@ -35,7 +35,12 @@ class BlindBubble extends StatelessWidget {
           _avatar(),
           const SizedBox(width: 8),
         ],
-        Expanded(child: body),
+        Expanded(
+          child: Align(
+            alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+            child: body,
+          ),
+        ),
         if (_isSystem && isMe) ...[
           const SizedBox(width: 8),
           _avatar(),
@@ -81,11 +86,12 @@ class BlindBubble extends StatelessWidget {
     final time = _timestampText();
 
     return Row(
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: isMe
-        ? [time, const SizedBox(width: 8), bubble]
-        : [bubble, const SizedBox(width: 8), time],
+          ? [time, const SizedBox(width: 8), bubble]
+          : [bubble, const SizedBox(width: 8), time],
     );
   }
 

@@ -350,7 +350,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   void blindSendMessage(BlindDateRequest message) => _socketIoService.sendUserMessage(message);
 
   @override
-  Stream<Map<String, dynamic>> get joinedStream => _socketIoService.joinedStream;
+  Stream<int> get joinedStream => _socketIoService.joinedStream;
 
   @override
   Stream<String> get startStream => _socketIoService.startStream;

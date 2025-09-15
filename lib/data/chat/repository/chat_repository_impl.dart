@@ -126,7 +126,7 @@ class ChatRepositoryImpl implements ChatRepository {
 
   // Streams
   @override
-  Stream<Map<String, dynamic>> get joinedStream => _chatDataSource.joinedStream;
+  Stream<int> get joinedStream => _chatDataSource.joinedStream;
 
   @override
   Stream<String> get startStream => _chatDataSource.startStream;
