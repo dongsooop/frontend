@@ -56,8 +56,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
             builder: (_) => CustomConfirmDialog(
               title: '과팅은 익명으로 진행돼요',
               content: '당신의 닉네임은 "${state.nickname}"입니다.',
-              onConfirm: () {
-              },
+              onConfirm: () {},
               confirmText: '확인',
               isSingleAction: true,
             ),
@@ -74,6 +73,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
           await MatchVoteBottomSheet.show(
             context,
             participants: state.participants,
+            currentUserId: userId!,
             onSubmit: (selected) async {
               print('selected: $selected');
               // selected == null 이면 미선택
