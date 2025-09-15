@@ -3,6 +3,7 @@ import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_connect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_disconnect_use_case.dart';
@@ -270,6 +271,7 @@ final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref)
 );
 
 
+// blind date
 final socketServiceProvider = Provider<SocketIoService>((ref) {
   return SocketIoService();
 });
@@ -301,3 +303,10 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
     blindDisconnectStreamUseCase,
   );
 });
+
+final blindDateMessagesProvider = StateNotifierProvider<BlindDateMessagesNotifier, List<BlindDateMessage>>(
+      (ref) {
+    // final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
+    return BlindDateMessagesNotifier();
+  },
+);

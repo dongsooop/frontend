@@ -1,4 +1,5 @@
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
@@ -132,13 +133,13 @@ class ChatRepositoryImpl implements ChatRepository {
   Stream<String> get startStream => _chatDataSource.startStream;
 
   @override
-  Stream<Map<String, dynamic>> get systemStream => _chatDataSource.systemStream;
+  Stream<BlindDateMessage> get systemStream => _chatDataSource.systemStream;
 
   @override
   Stream<bool> get freezeStream => _chatDataSource.freezeStream;
 
   @override
-  Stream<Map<String, dynamic>> get broadcastStream => _chatDataSource.broadcastStream;
+  Stream<BlindDateMessage> get broadcastStream => _chatDataSource.broadcastStream;
 
   @override
   Stream<Map<String, dynamic>> get joinStream => _chatDataSource.joinStream;

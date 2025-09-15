@@ -3,6 +3,7 @@ import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/core/network/socket_io_service.dart';
 import 'package:dongsoop/core/network/stomp_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
@@ -356,13 +357,13 @@ class ChatDataSourceImpl implements ChatDataSource {
   Stream<String> get startStream => _socketIoService.startStream;
 
   @override
-  Stream<Map<String, dynamic>> get systemStream => _socketIoService.systemStream;
+  Stream<BlindDateMessage> get systemStream => _socketIoService.systemStream;
 
   @override
   Stream<bool> get freezeStream => _socketIoService.freezeStream;
 
   @override
-  Stream<Map<String, dynamic>> get broadcastStream => _socketIoService.broadcastStream;
+  Stream<BlindDateMessage> get broadcastStream => _socketIoService.broadcastStream;
 
   @override
   Stream<Map<String, dynamic>> get joinStream => _socketIoService.joinStream;

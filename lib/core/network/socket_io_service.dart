@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketIoService {
@@ -10,13 +11,13 @@ class SocketIoService {
   // 과팅 시작
   final _startCtrl = StreamController<String>.broadcast();
   // 동냥이 메시지(서버)
-  final _systemCtrl = StreamController<Map<String, dynamic>>.broadcast();
+  final _systemCtrl = StreamController<BlindDateMessage>.broadcast();
   // 채팅 입력 비활성화/활성화
   final _freezeCtrl = StreamController<bool>.broadcast();
   // 채팅 입력 활성화
   // final _thawCtrl  = StreamController<void>.broadcast();
   // 메시지 수신 브로드캐스트
-  final _broadcastCtrl = StreamController<Map<String, dynamic>>.broadcast();
+  final _broadcastCtrl = StreamController<BlindDateMessage>.broadcast();
   // 입장 시 정보 받기
   final _joinCtrl = StreamController<Map<String, dynamic>>.broadcast();
   // 모든 사용자 받기
@@ -26,10 +27,10 @@ class SocketIoService {
 
   Stream<Map<String, dynamic>> get joinedStream => _joinedCtrl.stream; // { sessionId, volunteer }
   Stream<String> get startStream => _startCtrl.stream; // sessionId
-  Stream<Map<String, dynamic>> get systemStream    => _systemCtrl.stream; // { name, message }
+  Stream<BlindDateMessage> get systemStream => _systemCtrl.stream;
   Stream<bool> get freezeStream  => _freezeCtrl.stream;
   // Stream<void> get thawStream => _thawCtrl.stream;
-  Stream<Map<String, dynamic>> get broadcastStream => _broadcastCtrl.stream;  // message
+  Stream<BlindDateMessage> get broadcastStream => _broadcastCtrl.stream;  // message
   Stream<String> get disconnectStream=> _disconnectCtrl.stream; // reason
   Stream<Map<String, dynamic>> get joinStream => _joinCtrl.stream;
   Stream<Map<int, String>> get participantsStream => _participantsCtrl.stream;
@@ -72,9 +73,9 @@ class SocketIoService {
         }
       })
       ..on('system', (data) {
-        if (data is Map) {
-          _systemCtrl.add(Map<String, dynamic>.from(data));
-        }
+        print(Map<String, dynamic>.from(data));
+        final message = BlindDateMessage.fromSystemJson(data);
+        _systemCtrl.add(message);
       })
       ..on('freeze', (_) {
         _freezeCtrl.add(true);
@@ -83,9 +84,8 @@ class SocketIoService {
         _freezeCtrl.add(false);
       })
       ..on('broadcast', (msg) {
-        if (msg is Map) {
-          _broadcastCtrl.add(Map<String, dynamic>.from(msg));
-        }
+        final message = BlindDateMessage.fromUserJson(msg);
+        _broadcastCtrl.add(message);
       })
       ..on('join', (data) {
         if (data is Map) {

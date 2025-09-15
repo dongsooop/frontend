@@ -1,5 +1,7 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/utils/time_formatter.dart';
+import 'package:dongsoop/presentation/chat/widgets/blind_bubble.dart';
 import 'package:dongsoop/presentation/chat/widgets/match_vote_bottom_sheet.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
@@ -22,6 +24,9 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     // provider
     final state = ref.watch(blindDateDetailViewModelProvider);
     final viewModel = ref.read(blindDateDetailViewModelProvider.notifier);
+
+    // message
+    final messages = ref.watch(blindDateMessagesProvider);
 
     // user
     final user = ref.watch(userSessionProvider);
@@ -126,7 +131,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                 style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
               ),
               Text(
-                state.participants.toString(),
+                state.participants.length.toString(),
                 style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
               ),
             ],
@@ -156,6 +161,25 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                 Expanded(
                   child: Align(
                     alignment: Alignment.topCenter,
+                    child: ListView.separated(
+                      reverse: true, // 리스트 아이템을 역순으로 배치
+                      shrinkWrap: true, // 상단 배치(Align)
+                      controller: scrollController, // 스크롤 위치 컨트롤러
+                      itemCount: messages.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final msg = messages[index];
+                        return BlindBubble(
+                          msg.name,
+                          msg.message,
+                          formatTimestamp(msg.sendAt),
+                          msg.memberId == userId,
+                          msg.type,
+                        );
+                      },
+                      separatorBuilder: (_, __) => const SizedBox(
+                        height: 16,
+                      ),
+                    ),
                   ),
                 ),
 

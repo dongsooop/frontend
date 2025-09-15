@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
@@ -36,9 +37,9 @@ abstract class ChatRepository {
   // Streams
   Stream<Map<String, dynamic>> get joinedStream;
   Stream<String> get startStream;
-  Stream<Map<String, dynamic>> get systemStream;
+  Stream<BlindDateMessage> get systemStream;
   Stream<bool> get freezeStream;
-  Stream<Map<String, dynamic>> get broadcastStream;
+  Stream<BlindDateMessage> get broadcastStream;
   Stream<Map<String, dynamic>> get joinStream;
   Stream<Map<int, String>> get participantsStream;
   Stream<String> get disconnectStream;
