@@ -4,8 +4,7 @@ class BlindDateDetailState {
   final String? sessionId;
   final Map<String, dynamic>? joined;       // { sessionId, volunteer }
   final String nickname;
-  final Map<int, String> participants;      // id->name
-  final List<Map<String, dynamic>> system;  // 시스템 메시지 기록
+  final Map<int, String> participants;
   final String? disconnectReason;
 
   BlindDateDetailState({
@@ -15,7 +14,6 @@ class BlindDateDetailState {
     this.joined,
     this.nickname = '',
     this.participants = const {},
-    this.system = const [],
     this.disconnectReason,
   });
 
@@ -26,7 +24,6 @@ class BlindDateDetailState {
     Map<String, dynamic>? joined,
     String? nickname,
     Map<int, String>? participants,
-    List<Map<String, dynamic>>? system,
     String? disconnectReason,
   }) {
     return BlindDateDetailState(
@@ -36,7 +33,6 @@ class BlindDateDetailState {
       joined: joined ?? this.joined,
       nickname: nickname ?? this.nickname,
       participants: participants ?? this.participants,
-      system: system ?? this.system,
       disconnectReason: disconnectReason ?? this.disconnectReason,
     );
   }

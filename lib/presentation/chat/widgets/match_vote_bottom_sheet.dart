@@ -4,15 +4,17 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 
 class MatchVoteBottomSheet extends StatefulWidget {
-  final List<String> candidates;
-  final ValueChanged<String?> onSubmit;
+  final Map<int, String> participants;
+  final int currentUserId;
+  final ValueChanged<int?> onSubmit;
   final int seconds;
   final String title;
   final String subtitle;
 
   const MatchVoteBottomSheet({
     super.key,
-    required this.candidates,
+    required this.participants,
+    required this.currentUserId,
     required this.onSubmit,
     this.seconds = 10,
     this.title = '사랑의 작대기',
@@ -21,8 +23,9 @@ class MatchVoteBottomSheet extends StatefulWidget {
 
   static Future<void> show(
     BuildContext context, {
-      required List<String> candidates,
-      required ValueChanged<String?> onSubmit,
+      required Map<int, String> participants,
+      required int currentUserId,
+      required ValueChanged<int?> onSubmit,
       int seconds = 10,
       String title = '사랑의 작대기',
       String subtitle = '마음에 드는 상대방을 골라주세요',
@@ -38,7 +41,8 @@ class MatchVoteBottomSheet extends StatefulWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (_) => MatchVoteBottomSheet(
-        candidates: candidates,
+        participants: participants,
+        currentUserId: currentUserId,
         onSubmit: onSubmit,
         seconds: seconds,
         title: title,
@@ -54,7 +58,7 @@ class MatchVoteBottomSheet extends StatefulWidget {
 class _MatchVoteBottomSheetState extends State<MatchVoteBottomSheet> {
   Timer? _timer;
   late int _remain;
-  String? _selected;
+  int? _selected;
 
   @override
   void initState() {
@@ -90,7 +94,9 @@ class _MatchVoteBottomSheetState extends State<MatchVoteBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final items = widget.candidates;
+    final entries = widget.participants.entries
+        .where((e) => e.key != widget.currentUserId)
+        .toList();
 
     return FractionallySizedBox(
       heightFactor: 0.6,
@@ -131,18 +137,18 @@ class _MatchVoteBottomSheetState extends State<MatchVoteBottomSheet> {
             const SizedBox(height: 16),
             Expanded(
               child: ListView.separated(
-                itemCount: items.length,
+                itemCount: entries.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 2),
                 itemBuilder: (context, index) {
-                  final label = items[index];
-                  return RadioListTile<String>(
-                    value: label,
+                  final e = entries[index];
+                  return RadioListTile<int>(
+                    value: e.key,
                     groupValue: _selected,
                     onChanged: (v) => setState(() => _selected = v),
                     activeColor: ColorStyles.primaryColor,
                     contentPadding: EdgeInsets.zero,
                     title: Text(
-                      label,
+                      e.value,
                       style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
                     ),
                   );

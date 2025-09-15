@@ -67,6 +67,26 @@ class BlindDateDetailScreen extends HookConsumerWidget {
       return null;
     }, [state.nickname]);
 
+    useEffect(() {
+      if (state.nickname != '') {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          // 한 프레임 뒤에서 바텀시트 실행 필요
+          await MatchVoteBottomSheet.show(
+            context,
+            participants: state.participants,
+            onSubmit: (selected) async {
+              print('selected: $selected');
+              // selected == null 이면 미선택
+              // 서버 전송 로직 작성
+              // await repo.sendVote(selected);
+            },
+            seconds: 10, // 기본 10초
+          );
+        });
+      }
+      return null;
+    }, [state.participants]);
+
     // useEffect(() {
     //   if (state.errorMessage != null) {
     //     WidgetsBinding.instance.addPostFrameCallback((_) {
