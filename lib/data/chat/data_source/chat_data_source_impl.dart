@@ -4,6 +4,8 @@ import 'package:dongsoop/core/network/socket_io_service.dart';
 import 'package:dongsoop/core/network/stomp_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
@@ -345,10 +347,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   Future<void> blindDisconnect() => _socketIoService.disconnect();
 
   @override
-  void emit(String event, data) => _socketIoService.emit(event, data);
-
-  @override
-  void sendBroadcast(String message) => _socketIoService.sendBroadcast(message);
+  void blindSendMessage(BlindDateRequest message) => _socketIoService.sendUserMessage(message);
 
   @override
   Stream<Map<String, dynamic>> get joinedStream => _socketIoService.joinedStream;
@@ -366,7 +365,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   Stream<BlindDateMessage> get broadcastStream => _socketIoService.broadcastStream;
 
   @override
-  Stream<Map<String, dynamic>> get joinStream => _socketIoService.joinStream;
+  Stream<BlindJoinInfo> get joinStream => _socketIoService.joinStream;
 
   @override
   Stream<Map<int, String>> get participantsStream => _socketIoService.participantsStream;

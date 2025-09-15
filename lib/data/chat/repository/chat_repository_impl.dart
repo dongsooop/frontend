@@ -1,5 +1,7 @@
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
@@ -120,10 +122,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<void> blindDisconnect() => _chatDataSource.blindDisconnect();
 
   @override
-  void emit(String event, data) => _chatDataSource.emit(event, data);
-
-  @override
-  void sendBroadcast(String message) => _chatDataSource.sendBroadcast(message);
+  void blindSendMessage(BlindDateRequest message) => _chatDataSource.blindSendMessage(message);
 
   // Streams
   @override
@@ -142,7 +141,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Stream<BlindDateMessage> get broadcastStream => _chatDataSource.broadcastStream;
 
   @override
-  Stream<Map<String, dynamic>> get joinStream => _chatDataSource.joinStream;
+  Stream<BlindJoinInfo> get joinStream => _chatDataSource.joinStream;
 
   @override
   Stream<Map<int, String>> get participantsStream => _chatDataSource.participantsStream;

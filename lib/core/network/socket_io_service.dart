@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketIoService {
@@ -19,7 +21,7 @@ class SocketIoService {
   // 메시지 수신 브로드캐스트
   final _broadcastCtrl = StreamController<BlindDateMessage>.broadcast();
   // 입장 시 정보 받기
-  final _joinCtrl = StreamController<Map<String, dynamic>>.broadcast();
+  final _joinCtrl = StreamController<BlindJoinInfo>.broadcast();
   // 모든 사용자 받기
   final _participantsCtrl = StreamController<Map<int, String>>.broadcast();
   // 연결 해제
@@ -32,7 +34,7 @@ class SocketIoService {
   // Stream<void> get thawStream => _thawCtrl.stream;
   Stream<BlindDateMessage> get broadcastStream => _broadcastCtrl.stream;  // message
   Stream<String> get disconnectStream=> _disconnectCtrl.stream; // reason
-  Stream<Map<String, dynamic>> get joinStream => _joinCtrl.stream;
+  Stream<BlindJoinInfo> get joinStream => _joinCtrl.stream;
   Stream<Map<int, String>> get participantsStream => _participantsCtrl.stream;
   bool get isConnected => _socket?.connected ?? false;
 
@@ -87,10 +89,12 @@ class SocketIoService {
         final message = BlindDateMessage.fromUserJson(msg);
         _broadcastCtrl.add(message);
       })
+      ..on('message', (msg) {
+        print('🛠️ message: $msg');
+      })
       ..on('join', (data) {
-        if (data is Map) {
-          _joinCtrl.add(Map<String, dynamic>.from(data));
-        }
+        final info = BlindJoinInfo.fromJson(data);
+        _joinCtrl.add(info);
       })
       ..on('participants', (data) {
         if (data is List) {
@@ -117,14 +121,21 @@ class SocketIoService {
     _socket!.connect();
   }
 
-  // 서버에 임의 이벤트 전송
-  void emit(String event, dynamic data) {
-    _socket?.emit(event, data);
-  }
+  void sendUserMessage(BlindDateRequest message,) {
+    if (_socket == null || !_socket!.connected) {
+      throw StateError('Socket is not connected');
+    }
 
-  // 서버에 broadcast 메시지 전송
-  void sendBroadcast(String message) {
-    emit('broadcast', message);
+    final payload = {
+      'data': {
+        'sessionId': message.sessionId,
+        'message': message.message,
+        'senderId': message.senderId,
+      }
+    };
+
+    print('📮 send massage: $payload');
+    _socket!.emit('message', payload);
   }
 
   // 연결 해제

@@ -1,4 +1,6 @@
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
@@ -31,8 +33,7 @@ abstract class ChatRepository {
   Future<void> blindConnect(int userId);
   Future<void> blindDisconnect();
 
-  void emit(String event, dynamic data);
-  void sendBroadcast(String message);
+  void blindSendMessage(BlindDateRequest message);
 
   // Streams
   Stream<Map<String, dynamic>> get joinedStream;
@@ -40,7 +41,7 @@ abstract class ChatRepository {
   Stream<BlindDateMessage> get systemStream;
   Stream<bool> get freezeStream;
   Stream<BlindDateMessage> get broadcastStream;
-  Stream<Map<String, dynamic>> get joinStream;
+  Stream<BlindJoinInfo> get joinStream;
   Stream<Map<int, String>> get participantsStream;
   Stream<String> get disconnectStream;
 

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_connect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_disconnect_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_broadcast_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_disconnect_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_freeze_stream_use_case.dart';
@@ -19,6 +21,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
   final BlindConnectUseCase _connectUseCase;
   final BlindDisconnectUseCase _disconnectUseCase;
+  final BlindSendMessageUseCase _blindSendMessageUseCase;
 
   final BlindJoinedStreamUseCase _joined$;
   final BlindStartStreamUseCase _start$;
@@ -33,6 +36,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     this._ref,
     this._connectUseCase,
     this._disconnectUseCase,
+    this._blindSendMessageUseCase,
     this._joined$,
     this._start$,
     this._system$,
@@ -76,8 +80,8 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_join$().listen((info) {
-      print('🚪 join: ${Map<String, dynamic>.from(info)}');
-      state = state.copyWith(joinInfo: info);
+      print('🚪 join: $info');
+      state = state.copyWith(sessionId: info.sessionId, nickname: info.name);
     }));
 
     _subs.add(_participants$().listen((map) {
@@ -109,6 +113,10 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
       unawaited(s.cancel());
     }
     super.dispose();
+  }
+
+  void send(BlindDateRequest message) {
+    _blindSendMessageUseCase.execute(message);
   }
 }
 

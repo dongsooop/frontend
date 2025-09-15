@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
 import 'package:dongsoop/presentation/chat/widgets/blind_bubble.dart';
 import 'package:dongsoop/presentation/chat/widgets/match_vote_bottom_sheet.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -48,16 +49,23 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     }, const []);
 
     useEffect(() {
-      // Future.microtask(() async {
-      //   viewModel.joinBlindDate();
-      // });
-
-      return () {
-        // Future.microtask(() {
-        //   viewModel.close();
-        // });
-      };
-    }, []);
+      if (state.nickname != '') {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '과팅은 익명으로 진행돼요',
+              content: '당신의 닉네임은 "${state.nickname}"입니다.',
+              onConfirm: () {
+              },
+              confirmText: '확인',
+              isSingleAction: true,
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.nickname]);
 
     // useEffect(() {
     //   if (state.errorMessage != null) {
@@ -213,24 +221,33 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                         child: IconButton(
                           onPressed: () async {
                             // 한 프레임 뒤에서 바텀시트 실행 필요
-                            await MatchVoteBottomSheet.show(
-                              context,
-                              candidates: ['익명1', '익명2', '익명3', '익명4', '익명5', '익명6', '익명7'],
-                              onSubmit: (selected) async {
-                                print('selected: $selected');
-                                // selected == null 이면 미선택
-                                // 서버 전송 로직 작성
-                                // await repo.sendVote(selected);
-                              },
-                              seconds: 10, // 기본 10초
-                            );
-                            // textController.clear();
-                            // // 스크롤 맨 아래로 이동
-                            // scrollController.animateTo(
-                            //   0,
-                            //   duration: const Duration(milliseconds: 300),
-                            //   curve: Curves.easeInOut,
+                            // await MatchVoteBottomSheet.show(
+                            //   context,
+                            //   candidates: ['익명1', '익명2', '익명3', '익명4', '익명5', '익명6', '익명7'],
+                            //   onSubmit: (selected) async {
+                            //     print('selected: $selected');
+                            //     // selected == null 이면 미선택
+                            //     // 서버 전송 로직 작성
+                            //     // await repo.sendVote(selected);
+                            //   },
+                            //   seconds: 10, // 기본 10초
                             // );
+                            final message = textController.text.trim();
+                            if (message.isNotEmpty) {
+                              final send = BlindDateRequest(
+                                sessionId: state.sessionId!,
+                                message: message,
+                                senderId: userId!,
+                              );
+                              viewModel.send(send);
+                              textController.clear();
+                              // 스크롤 맨 아래로 이동
+                              scrollController.animateTo(
+                                0,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
                           },
                           icon: SvgPicture.asset(
                             'assets/icons/send.svg',

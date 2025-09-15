@@ -7,6 +7,7 @@ import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_connect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_disconnect_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
@@ -213,6 +214,10 @@ final blindDisconnectStreamUseCaseProvider = Provider<BlindDisconnectStreamUseCa
   return BlindDisconnectStreamUseCase(repository);
 });
 
+final blindSendMessageUseCaseProvider = Provider<BlindSendMessageUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return BlindSendMessageUseCase(repository);
+});
 
 // View Model
 final chatViewModelProvider =
@@ -279,6 +284,7 @@ final socketServiceProvider = Provider<SocketIoService>((ref) {
 final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<BlindDateDetailViewModel, BlindDateDetailState>((ref) {
   final blindConnectUseCase = ref.watch(blindConnectUseCaseProvider);
   final blindDisconnectUseCase = ref.watch(blindDisconnectUseCaseProvider);
+  final blindSendMessageUseCase = ref.watch(blindSendMessageUseCaseProvider);
 
   final blindJoinedStreamUseCase = ref.watch(blindJoinedStreamUseCaseProvider);
   final blindStartStreamUseCase = ref.watch(blindStartStreamUseCaseProvider);
@@ -293,6 +299,7 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
     ref,
     blindConnectUseCase,
     blindDisconnectUseCase,
+    blindSendMessageUseCase,
     blindJoinedStreamUseCase,
     blindStartStreamUseCase,
     blindSystemStreamUseCase,
