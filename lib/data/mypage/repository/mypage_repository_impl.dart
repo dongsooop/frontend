@@ -1,4 +1,5 @@
 import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
+import 'package:dongsoop/domain/mypage/model/blind_date_open_request.dart';
 import 'package:dongsoop/domain/mypage/model/blocked_user.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
@@ -37,5 +38,10 @@ class MypageRepositoryImpl implements MypageRepository {
   @override
   Future<void> unBlock(int blockerId, int blockedMemberId) async {
     await _mypageDataSource.userUnBlock(blockerId, blockedMemberId);
+  }
+
+  @override
+  Future<bool> blindOpen(BlindDateOpenRequest request) async {
+    return await _mypageDataSource.blindDateOpen(request);
   }
 }

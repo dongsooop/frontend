@@ -53,3 +53,9 @@ extension MinutesToTimeString on int {
     return '$hh:$mm';
   }
 }
+
+String formatBlindDate(DateTime dt) {
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${dt.year}. ${dt.month}. ${dt.day}. ${two(dt.hour)}:${two(dt.minute)}';
+  // 필요 시 locale/intl 적용 가능
+}

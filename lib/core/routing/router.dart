@@ -12,6 +12,7 @@ import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_s
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
+import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_detail_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
@@ -199,6 +200,10 @@ final router = GoRouter(
         final title = state.uri.queryParameters['title'] ?? '';
         return MypageWebView(url: url, title: title);
       },
+    ),
+    GoRoute(
+      path: RoutePaths.adminBlindDate,
+      builder: (context, state) => BlindAdminScreen()
     ),
     GoRoute(
       path: RoutePaths.adminReport,
@@ -602,6 +607,9 @@ final router = GoRouter(
               },
               onTapAdminReport: () {
                 context.push(RoutePaths.adminReport);
+              },
+              onTapAdminBlindDate: () {
+                context.push(RoutePaths.adminBlindDate);
               },
               onTapCalendar: () {
                 context.push(RoutePaths.schedule);
