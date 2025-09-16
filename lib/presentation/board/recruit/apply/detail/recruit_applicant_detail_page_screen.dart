@@ -13,6 +13,7 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dongsoop/providers/activity_context_providers.dart';
 
 class RecruitApplicantDetailPage extends ConsumerWidget {
   final RecruitApplicantViewer viewer;
@@ -30,6 +31,21 @@ class RecruitApplicantDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(activeRecruitDetailContextProvider);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final next = (
+      viewer: viewer,
+      type: type,
+      boardId: boardId,
+      memberId: memberId,
+      );
+      final notifier = ref.read(activeRecruitDetailContextProvider.notifier);
+      if (notifier.state != next) {
+        notifier.state = next;
+      }
+    });
+
     final isApplicant = viewer == RecruitApplicantViewer.APPLICANT;
     final defaultTitle = isApplicant ? '지원 상태' : '지원자 상세';
 
