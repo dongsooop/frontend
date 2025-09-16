@@ -11,7 +11,7 @@ import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_ap
 import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_applicant_detail_view_model.dart';
 import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/providers/activity_context_providers.dart';
-
+import 'package:dongsoop/providers/chat_providers.dart';
 
 final pushSyncControllerProvider = Provider<PushSyncController>((ref) {
   final controller = PushSyncController(ref);
@@ -31,9 +31,11 @@ class PushSyncController {
 
   DateTime? _lastBadgeUpdatedAt;
 
+  DateTime? _lastChatListRefreshedAt;
+  static const Duration _chatListDebounceDuration = Duration(milliseconds: 250);
+
   final Map<String, DateTime> _lastListRefreshedAtByKey = <String, DateTime>{};
   static const Duration _listDebounceDuration = Duration(milliseconds: 180);
-
   DateTime? _lastDetailRefreshedAt;
 
   final Map<int, DateTime> _readOnceCacheTimestamps = <int, DateTime>{};
@@ -48,6 +50,20 @@ class PushSyncController {
 
     _onPush = pushChannel.onPush.listen((payload) async {
       if (payload.type.isEmpty) return;
+
+      if (payload.type == 'CHAT') {
+        final inChatList = ref.read(activeChatListContextProvider);
+        if (inChatList == true) {
+          final now = DateTime.now();
+          if (_lastChatListRefreshedAt == null ||
+              now.difference(_lastChatListRefreshedAt!) > _chatListDebounceDuration) {
+            _lastChatListRefreshedAt = now;
+            await ref.read(chatViewModelProvider.notifier).loadChatRooms();
+          }
+        }
+        return;
+      }
+
 
       bool anyTargetMatched = false;
       anyTargetMatched |= _maybeRefreshRecruitList(payload);
@@ -66,6 +82,15 @@ class PushSyncController {
 
     _onPushTap = pushChannel.onPushTap.listen((payload) async {
       if (payload.type.isEmpty) return;
+
+      if (payload.type == 'CHAT') {
+        if (payload.value != null) {
+          try {
+            await PushRouter.routeFromTypeValue(type: payload.type, value: payload.value!);
+          } catch (_) {}
+        }
+        return;
+      }
 
       if (_isSameRecruitListScreen(payload) || _isSameRecruitDetailScreen(payload)) {
         if (payload.id != null && payload.id! > 0) {

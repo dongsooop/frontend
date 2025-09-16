@@ -12,3 +12,5 @@ final activeRecruitDetailContextProvider =
     int boardId,
     int? memberId,
 })?>((ref) => null);
+
+final activeChatListContextProvider = StateProvider<bool>((ref) => false);
