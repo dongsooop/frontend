@@ -30,13 +30,15 @@ class MarketWritePageScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = ref.watch(
-      marketWriteViewModelProvider(isEditing: isEditing, marketId: marketId)
-          .notifier,
-    );
-    final state = ref.watch(
-      marketWriteViewModelProvider(isEditing: isEditing, marketId: marketId),
-    );
+    final vmProv =
+    marketWriteViewModelProvider(isEditing: isEditing, marketId: marketId);
+
+    final viewModel = ref.watch(vmProv.notifier);
+    final state = ref.watch(vmProv);
+
+    final submittingRef = useRef<bool>(false);
+    final isSubmitting = ref.watch(vmProv.select((s) => s.isSubmitting));
+    final isValid = ref.watch(vmProv.select((s) => s.isValid));
 
     final titleController = useTextEditingController();
     final contentController = useTextEditingController();
@@ -78,6 +80,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
     }, [isInitialized.value]);
 
     Future<void> _pickImage() async {
+      if (isSubmitting || submittingRef.value) return;
       final pickedFile =
       await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
@@ -86,6 +89,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
     }
 
     Future<void> _showDeleteImageActionSheet(int index) async {
+      if (isSubmitting || submittingRef.value) return;
       customActionSheet(
         context,
         onDelete: () => viewModel.removeImageAt(index),
@@ -121,8 +125,10 @@ class MarketWritePageScreen extends HookConsumerWidget {
           ? null
           : PrimaryBottomButton(
         label: isEditing ? '수정하기' : '등록하기',
-        isEnabled: state.isValid && !state.isSubmitting,
+        isEnabled: isValid && !isSubmitting && !submittingRef.value,
         onPressed: () async {
+          if (isSubmitting || submittingRef.value) return;
+          submittingRef.value = true;
           try {
             final success = await viewModel.submitMarket(context);
             if (!success) return;
@@ -148,15 +154,19 @@ class MarketWritePageScreen extends HookConsumerWidget {
                 isSingleAction: true,
               ),
             );
+          } finally {
+            submittingRef.value = false;
           }
         },
       ),
-      body: SafeArea(
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+    body: SafeArea(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: AbsorbPointer(
+            absorbing: isSubmitting || submittingRef.value,
             child: SingleChildScrollView(
               padding: EdgeInsets.only(bottom: 40),
               child: Column(
@@ -171,6 +181,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                       final isSelected = state.type?.index == index;
                       return GestureDetector(
                         onTap: () {
+                          if (isSubmitting || submittingRef.value) return;
                           viewModel.updateType(
                             index == 0 ? MarketType.SELL : MarketType.BUY,
                           );
@@ -310,6 +321,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   const SizedBox(height: 40),
                 ],
               ),
+            ),
             ),
           ),
         ),
