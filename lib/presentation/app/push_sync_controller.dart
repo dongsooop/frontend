@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:dongsoop/data/notification/channel/push_channel.dart';
+import 'package:dongsoop/domain/notification/entity/push_event.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
@@ -10,8 +12,6 @@ import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_ap
 import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/providers/activity_context_providers.dart';
 
-import 'push_channel.dart';
-import 'push_event.dart';
 
 final pushSyncControllerProvider = Provider<PushSyncController>((ref) {
   final controller = PushSyncController(ref);

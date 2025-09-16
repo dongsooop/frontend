@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:dongsoop/domain/notification/entity/push_event.dart';
 import 'package:flutter/services.dart';
-import 'push_event.dart';
 
 class PushChannel {
   PushChannel._();

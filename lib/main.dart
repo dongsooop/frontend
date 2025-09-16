@@ -16,7 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
-import 'package:dongsoop/core/push/push_sync_controller.dart';
+import 'package:dongsoop/presentation/app/push_sync_controller.dart';
 import 'domain/chat/model/chat_message.dart';
 import 'domain/chat/model/chat_room_detail.dart';
 import 'domain/chat/model/chat_room_member.dart';
