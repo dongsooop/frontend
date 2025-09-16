@@ -24,6 +24,7 @@ abstract class ChatDataSource {
   Future<void> kickUser(String roomId, int userId);
   Future<String> createOneToOneChatRoom(String title, int targetUserId);
   Future<String> createQNAChatRoom(ChatRoomRequest request);
+  Future<bool> getBlindDateOpen();
 
   // stomp
   Future<void> connect(String roomId);

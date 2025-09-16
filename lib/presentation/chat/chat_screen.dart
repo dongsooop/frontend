@@ -41,14 +41,30 @@ class ChatScreen extends HookConsumerWidget {
             builder: (_) => CustomConfirmDialog(
               title: '채팅 오류',
               content: chatState.errorMessage!,
-              onConfirm: () async {
-              },
+              onConfirm: () {},
             ),
           );
         });
       }
       return null;
     }, [chatState.errorMessage]);
+
+    useEffect(() {
+      if (chatState.isBlindDateOpened != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '과팅 미오픈',
+              content: chatState.isBlindDateOpened!,
+              onConfirm: () {},
+              isSingleAction: true,
+            ),
+          );
+        });
+      }
+      return null;
+    }, [chatState.isBlindDateOpened]);
 
     useEffect(() {
       if (user != null) {
@@ -190,7 +206,15 @@ class ChatScreen extends HookConsumerWidget {
             spacing: 16,
             children: [
               _buildTopTab(label: '채팅', isSelected: true, onTap: () {},),
-              _buildTopTab(label: '과팅', isSelected: false, onTap: onTapBlindDate,),
+              _buildTopTab(
+                label: '과팅',
+                isSelected: false,
+                onTap: () async {
+                  final result = await viewModel.isOpened();
+                  print('result: $result');
+                  if (result) onTapBlindDate();
+                },
+              ),
             ],
           ),
         ),

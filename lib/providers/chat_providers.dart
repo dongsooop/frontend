@@ -11,6 +11,7 @@ import 'package:dongsoop/domain/chat/use_case/blind_disconnect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/get_blind_date_open_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/get_room_detail_use_case.dart';
@@ -232,12 +233,18 @@ final blindChoiceUseCaseProvider = Provider<BlindChoiceUseCase>((ref) {
   return BlindChoiceUseCase(repository);
 });
 
+final getBlindDateOpenUseCaseProvider = Provider<GetBlindDateOpenUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return GetBlindDateOpenUseCase(repository);
+});
+
 // View Model
 final chatViewModelProvider =
 StateNotifierProvider.autoDispose<ChatViewModel, ChatState>((ref) {
   final loadChatRoomsUseCase = ref.watch(loadChatRoomsUseCaseProvider);
+  final getBlindDateOpenUseCase = ref.watch(getBlindDateOpenUseCaseProvider);
 
-  return ChatViewModel(loadChatRoomsUseCase);
+  return ChatViewModel(loadChatRoomsUseCase, getBlindDateOpenUseCase);
 });
 
 final chatDetailViewModelProvider =

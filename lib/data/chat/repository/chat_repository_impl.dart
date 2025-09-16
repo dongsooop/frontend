@@ -100,6 +100,11 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<bool> getBlindDateOpen() async {
+    return await _chatDataSource.getBlindDateOpen();
+  }
+
+  @override
   Future<void> connect(String roomId) => _chatDataSource.connect(roomId);
 
   @override

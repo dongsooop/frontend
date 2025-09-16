@@ -321,6 +321,23 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
+  Future<bool> getBlindDateOpen() async {
+    final endpoint = dotenv.get('BLIND_DATE_OPEN_ENDPOINT');
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        if (response.data == 'true') {
+          return true;
+        }
+        else throw BlindDateOpenException();
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> connect(String roomId) => _stompService.connect(roomId);
 
   @override
