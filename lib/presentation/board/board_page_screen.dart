@@ -238,11 +238,16 @@ class BoardPageScreen extends HookConsumerWidget {
                     tabNotifier.setMarketTabIndex(newSubIndex);
                   }
 
-                  pageController.animateToPage(
-                    newSubIndex,
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
-                  );
+                  final delta = (newSubIndex - currentIndex).abs();
+                  if (delta > 1) {
+                    pageController.jumpToPage(newSubIndex);
+                  } else {
+                    pageController.animateToPage(
+                      newSubIndex,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                    );
+                  }
                   if (isSameIndex) {
                     final controller = scrollControllers[newSubIndex];
 
