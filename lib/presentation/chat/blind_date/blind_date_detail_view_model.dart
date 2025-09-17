@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
@@ -21,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   final Ref _ref;
+  final HiveService _hive;
 
   final BlindConnectUseCase _connectUseCase;
   final BlindDisconnectUseCase _disconnectUseCase;
@@ -39,6 +41,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
   BlindDateDetailViewModel(
     this._ref,
+    this._hive,
     this._connectUseCase,
     this._disconnectUseCase,
     this._blindSendMessageUseCase,
@@ -55,6 +58,15 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   ) : super(BlindDateDetailState());
 
   final _subs = <StreamSubscription>[];
+  bool _didPersistSessionToday = false;
+
+  Future<String?> connectWithDailySession() async {
+    // 1) 오늘자 저장된 sessionId 있는지 확인 / 없으면 null return
+    String? sessionId = await _hive.getTodayBlindSessionId();
+    print('🎯 local save session id: $sessionId');
+
+    return sessionId;
+  }
 
   Future<void> connect(int userId) async {
     if (state.isConnecting) return;
@@ -66,9 +78,20 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
       state = state.copyWith(volunteer: data);
     }));
 
-    _subs.add(_start$().listen((sid) {
+    _subs.add(_start$().listen((sid) async {
       print('🚗 start session Id: $sid');
+
       state = state.copyWith(sessionId: sid, isLoading: false);
+
+      if (_didPersistSessionToday) return;
+      final saved = await _hive.getTodayBlindSessionId();
+      if (saved == null || saved.isEmpty) {
+        await _hive.saveTodayBlindSessionId(sid);
+        // (선택) 어제 기록 등 정리하고 싶으면:
+        // await _hive.keepOnlyToday();
+        print('save session id');
+      }
+      _didPersistSessionToday = true;
     }));
 
     _subs.add(_system$().listen((msg) {
@@ -101,13 +124,19 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
       state = state.copyWith(match: data);
     }));
 
-    _subs.add(_disconnect$().listen((reason) {
+    _subs.add(_disconnect$().listen((reason) async {
       print('🔌 socket.io disconnected: $reason');
       state = state.copyWith(disconnectReason: reason);
+      // 테스트용
+      // await _hive.clearAllBlindDailySessions();
     }));
 
+    // 로컬에 저장된 오늘날짜 sessionId가 있는지
+    final sessionId = await connectWithDailySession();
+    if (sessionId != null) state = state.copyWith(isLoading: false);
+
     // 웹소켓 연결
-    await _connectUseCase.execute(userId);
+    await _connectUseCase.execute(userId, sessionId);
 
     state = state.copyWith(isConnecting: false);
   }

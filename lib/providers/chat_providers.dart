@@ -296,6 +296,8 @@ final socketIoServiceProvider = Provider<SocketIoService>((ref) {
 });
 
 final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<BlindDateDetailViewModel, BlindDateDetailState>((ref) {
+  final hiveService = ref.watch(hiveServiceProvider);
+
   final blindConnectUseCase = ref.watch(blindConnectUseCaseProvider);
   final blindDisconnectUseCase = ref.watch(blindDisconnectUseCaseProvider);
   final blindSendMessageUseCase = ref.watch(blindSendMessageUseCaseProvider);
@@ -313,6 +315,7 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
 
   return BlindDateDetailViewModel(
     ref,
+    hiveService,
     blindConnectUseCase,
     blindDisconnectUseCase,
     blindSendMessageUseCase,

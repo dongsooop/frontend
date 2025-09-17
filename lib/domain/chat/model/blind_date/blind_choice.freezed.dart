@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$BlindChoice {
-  String get sessionId;
+  String? get sessionId;
   int get choicerId;
   int? get targetId;
 
@@ -54,7 +54,7 @@ abstract mixin class $BlindChoiceCopyWith<$Res> {
           BlindChoice value, $Res Function(BlindChoice) _then) =
       _$BlindChoiceCopyWithImpl;
   @useResult
-  $Res call({String sessionId, int choicerId, int? targetId});
+  $Res call({String? sessionId, int choicerId, int? targetId});
 }
 
 /// @nodoc
@@ -69,15 +69,15 @@ class _$BlindChoiceCopyWithImpl<$Res> implements $BlindChoiceCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? sessionId = null,
+    Object? sessionId = freezed,
     Object? choicerId = null,
     Object? targetId = freezed,
   }) {
     return _then(BlindChoice(
-      sessionId: null == sessionId
+      sessionId: freezed == sessionId
           ? _self.sessionId
           : sessionId // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       choicerId: null == choicerId
           ? _self.choicerId
           : choicerId // ignore: cast_nullable_to_non_nullable

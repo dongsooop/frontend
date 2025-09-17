@@ -48,6 +48,7 @@ class SocketIoService {
     required String sessionId,
     required int memberId,
   }) async {
+    print('❗❗️ connect session id: $sessionId');
     // Socket.IO 옵션 구성
     final opts = IO.OptionBuilder()
         .setTransports(['websocket'])

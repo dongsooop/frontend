@@ -78,7 +78,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
             onSubmit: (selected) async {
               print('selected: $selected');
               viewModel.choice(BlindChoice(
-                sessionId: state.sessionId!,
+                sessionId: state.sessionId,
                 choicerId: userId,
                 targetId: selected,
               ));
@@ -101,6 +101,10 @@ class BlindDateDetailScreen extends HookConsumerWidget {
               onConfirm: () {
                 context.pop();
                 onTapChatDetail(state.match!);
+              },
+              onCancel: () {
+                context.pop();
+                context.pop();
               },
               confirmText: '확인',
               isSingleAction: false,

@@ -211,7 +211,6 @@ class ChatScreen extends HookConsumerWidget {
                 isSelected: false,
                 onTap: () async {
                   final result = await viewModel.isOpened();
-                  print('result: $result');
                   if (result) onTapBlindDate();
                 },
               ),

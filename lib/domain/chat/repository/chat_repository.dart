@@ -32,7 +32,7 @@ abstract class ChatRepository {
   Stream<String> subscribeBlock();
 
   // blind
-  Future<void> blindConnect(int userId);
+  Future<void> blindConnect(int userId, String? sessionId);
   Future<void> blindDisconnect();
 
   void blindSendMessage(BlindDateRequest message);

@@ -121,8 +121,8 @@ class ChatRepositoryImpl implements ChatRepository {
 
   // blind
   @override
-  Future<void> blindConnect(int userId) async {
-    await _chatDataSource.blindConnect(userId);
+  Future<void> blindConnect(int userId, String? sessionId) async {
+    await _chatDataSource.blindConnect(userId, sessionId);
   }
   @override
   Future<void> blindDisconnect() => _chatDataSource.blindDisconnect();
