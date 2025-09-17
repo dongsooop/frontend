@@ -289,7 +289,6 @@ class ScheduleDetailPageScreen extends HookConsumerWidget {
           child: AbsorbPointer(
             absorbing: isSaving || submittingRef.value,
             child: SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: Form(
                 key: formKey,
                 child: Column(
