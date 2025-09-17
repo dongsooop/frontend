@@ -21,7 +21,7 @@ class MainScreen extends StatelessWidget {
       body: body,
       bottomNavigationBar: SafeArea(
         top: false,
-        minimum: const EdgeInsets.only(top: 24),
+        minimum: const EdgeInsets.only(top: 24, bottom: 24),
         child: Theme(
           data: Theme.of(context).copyWith(
             splashFactory: NoSplash.splashFactory,

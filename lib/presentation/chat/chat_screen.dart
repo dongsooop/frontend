@@ -1,7 +1,11 @@
 import 'dart:ui';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
+<<<<<<< HEAD
 import 'package:dongsoop/presentation/chat/widgets/chatbot_button.dart';
+=======
+import 'package:dongsoop/providers/activity_context_providers.dart';
+>>>>>>> 49c1f854d8424e2dcde344f299cea94780ce32e1
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
@@ -32,6 +36,22 @@ class ChatScreen extends HookConsumerWidget {
 
     final selectedTap = useState('채팅');
     final selectedCategory = useState('전체');
+
+    useEffect(() {
+      bool disposed = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (disposed) return;
+        final notifier = ref.read(activeChatListContextProvider.notifier);
+        if (notifier.state != true) notifier.state = true;
+      });
+      return () {
+        disposed = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final notifier = ref.read(activeChatListContextProvider.notifier);
+          if (notifier.state != false) notifier.state = false;
+        });
+      };
+    }, const []);
 
     // 오류
     useEffect(() {
