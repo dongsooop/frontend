@@ -7,10 +7,6 @@ import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketIoService {
-  final SecureStorageService _secureStorageService;
-
-  SocketIoService(this._secureStorageService);
-
   IO.Socket? _socket;
 
   // 이벤트
@@ -137,15 +133,13 @@ class SocketIoService {
   }
 
   void userChoice(BlindChoice data) async {
-    final accessToken = await _secureStorageService.read('accessToken') ?? '';
-
     if (_socket?.connected != true) {
       throw StateError('Socket is not connected');
     }
 
-    final updated = data.copyWith(choicerToken: accessToken);
-    print('update: $updated');
-    _socket!.emit('choice', updated.toJson());
+    print('data: ${data.toJson()}');
+
+    _socket!.emit('choice', data.toJson());
   }
 
   // 연결 해제

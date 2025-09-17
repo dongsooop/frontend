@@ -18,7 +18,6 @@ mixin _$BlindChoice {
   String get sessionId;
   int get choicerId;
   int? get targetId;
-  String get choicerToken;
 
   /// Create a copy of BlindChoice
   /// with the given fields replaced by the non-null parameter values.
@@ -37,18 +36,15 @@ mixin _$BlindChoice {
             (identical(other.choicerId, choicerId) ||
                 other.choicerId == choicerId) &&
             (identical(other.targetId, targetId) ||
-                other.targetId == targetId) &&
-            (identical(other.choicerToken, choicerToken) ||
-                other.choicerToken == choicerToken));
+                other.targetId == targetId));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, sessionId, choicerId, targetId, choicerToken);
+  int get hashCode => Object.hash(runtimeType, sessionId, choicerId, targetId);
 
   @override
   String toString() {
-    return 'BlindChoice(sessionId: $sessionId, choicerId: $choicerId, targetId: $targetId, choicerToken: $choicerToken)';
+    return 'BlindChoice(sessionId: $sessionId, choicerId: $choicerId, targetId: $targetId)';
   }
 }
 
@@ -58,8 +54,7 @@ abstract mixin class $BlindChoiceCopyWith<$Res> {
           BlindChoice value, $Res Function(BlindChoice) _then) =
       _$BlindChoiceCopyWithImpl;
   @useResult
-  $Res call(
-      {String sessionId, int choicerId, int? targetId, String choicerToken});
+  $Res call({String sessionId, int choicerId, int? targetId});
 }
 
 /// @nodoc
@@ -77,7 +72,6 @@ class _$BlindChoiceCopyWithImpl<$Res> implements $BlindChoiceCopyWith<$Res> {
     Object? sessionId = null,
     Object? choicerId = null,
     Object? targetId = freezed,
-    Object? choicerToken = null,
   }) {
     return _then(BlindChoice(
       sessionId: null == sessionId
@@ -92,10 +86,6 @@ class _$BlindChoiceCopyWithImpl<$Res> implements $BlindChoiceCopyWith<$Res> {
           ? _self.targetId
           : targetId // ignore: cast_nullable_to_non_nullable
               as int?,
-      choicerToken: null == choicerToken
-          ? _self.choicerToken
-          : choicerToken // ignore: cast_nullable_to_non_nullable
-              as String,
     ));
   }
 }

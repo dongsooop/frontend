@@ -9,13 +9,11 @@ class BlindChoice with _$BlindChoice {
   final String sessionId;
   final int choicerId;
   final int? targetId;
-  final String choicerToken;
 
   BlindChoice({
     required this.sessionId,
     required this.choicerId,
     required this.targetId,
-    this.choicerToken = '',
   });
 
   Map<String, dynamic> toJson() => _$BlindChoiceToJson(this);

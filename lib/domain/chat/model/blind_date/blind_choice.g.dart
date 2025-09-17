@@ -10,7 +10,6 @@ BlindChoice _$BlindChoiceFromJson(Map<String, dynamic> json) => BlindChoice(
       sessionId: json['sessionId'] as String,
       choicerId: (json['choicerId'] as num).toInt(),
       targetId: (json['targetId'] as num?)?.toInt(),
-      choicerToken: json['choicerToken'] as String? ?? '',
     );
 
 Map<String, dynamic> _$BlindChoiceToJson(BlindChoice instance) =>
@@ -18,5 +17,4 @@ Map<String, dynamic> _$BlindChoiceToJson(BlindChoice instance) =>
       'sessionId': instance.sessionId,
       'choicerId': instance.choicerId,
       'targetId': instance.targetId,
-      'choicerToken': instance.choicerToken,
     };

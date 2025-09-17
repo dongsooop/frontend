@@ -52,12 +52,6 @@ import 'package:dongsoop/domain/chat/use_case/subscribe_block_use_case.dart';
 
 // 추후 기능, 책임 별로 providers 분리
 
-// blind
-final socketIoServiceProvider = Provider<SocketIoService>((ref) {
-  final secureStorageService = ref.watch(secureStorageProvider);
-  return SocketIoService(secureStorageService);
-});
-
 // stomp
 final stompServiceProvider = Provider<StompService>((ref) {
   final secureStorageService = ref.watch(secureStorageProvider);
@@ -297,6 +291,9 @@ final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref)
 
 
 // blind date
+final socketIoServiceProvider = Provider<SocketIoService>((ref) {
+  return SocketIoService();
+});
 
 final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<BlindDateDetailViewModel, BlindDateDetailState>((ref) {
   final blindConnectUseCase = ref.watch(blindConnectUseCaseProvider);
