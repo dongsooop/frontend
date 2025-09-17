@@ -32,6 +32,8 @@ import 'package:dongsoop/domain/chat/use_case/stream/blind_system_stream_use_cas
 import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_state.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_view_model.dart';
+import 'package:dongsoop/presentation/chat/blind_date/blind_date_state.dart';
+import 'package:dongsoop/presentation/chat/blind_date/blind_date_view_model.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:dongsoop/presentation/chat/chat_view_model.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
@@ -293,6 +295,13 @@ final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref)
 // blind date
 final socketIoServiceProvider = Provider<SocketIoService>((ref) {
   return SocketIoService();
+});
+
+final blindDateViewModelProvider =
+StateNotifierProvider.autoDispose<BlindDateViewModel, BlindDateState>((ref) {
+  final getBlindDateOpenUseCase = ref.watch(getBlindDateOpenUseCaseProvider);
+
+  return BlindDateViewModel(getBlindDateOpenUseCase);
 });
 
 final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<BlindDateDetailViewModel, BlindDateDetailState>((ref) {

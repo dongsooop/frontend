@@ -74,13 +74,10 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
     // 구독 설정
     _subs.add(_joined$().listen((data) {
-      print('📲 joined $data');
       state = state.copyWith(volunteer: data);
     }));
 
     _subs.add(_start$().listen((sid) async {
-      print('🚗 start session Id: $sid');
-
       state = state.copyWith(sessionId: sid, isLoading: false);
 
       if (_didPersistSessionToday) return;
@@ -89,28 +86,23 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
         await _hive.saveTodayBlindSessionId(sid);
         // (선택) 어제 기록 등 정리하고 싶으면:
         // await _hive.keepOnlyToday();
-        print('save session id');
       }
       _didPersistSessionToday = true;
     }));
 
     _subs.add(_system$().listen((msg) {
-      print('🤖 system: $msg');
       _ref.read(blindDateMessagesProvider.notifier).addMessage(msg);
     }));
 
     _subs.add(_freeze$().listen((frozen) {
-      print('🥶🥵: $frozen');
       state = state.copyWith(isFrozen: frozen);
     }));
 
     _subs.add(_broadcast$().listen((msg) {
-      print('💬 broadcast: $msg}');
       _ref.read(blindDateMessagesProvider.notifier).addMessage(msg);
     }));
 
     _subs.add(_join$().listen((info) {
-      print('🚪 join: $info');
       state = state.copyWith(sessionId: info.sessionId, nickname: info.name);
     }));
 
@@ -133,7 +125,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
     // 로컬에 저장된 오늘날짜 sessionId가 있는지
     final sessionId = await connectWithDailySession();
-    if (sessionId != null) state = state.copyWith(isLoading: false);
+    if (sessionId != null) state = state.copyWith(isLoading: false, sessionId: sessionId);
 
     // 웹소켓 연결
     await _connectUseCase.execute(userId, sessionId);

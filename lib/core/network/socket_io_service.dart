@@ -48,7 +48,6 @@ class SocketIoService {
     required String sessionId,
     required int memberId,
   }) async {
-    print('❗❗️ connect session id: $sessionId');
     // Socket.IO 옵션 구성
     final opts = IO.OptionBuilder()
         .setTransports(['websocket'])
@@ -96,6 +95,10 @@ class SocketIoService {
         final info = BlindJoinInfo.fromJson(data);
         _joinCtrl.add(info);
       })
+      ..on('failed', (data) {
+        print('🥲 failed: $data');
+        // _matchCtrl.add(data);
+      })
       ..on('create_chat', (data) {
         print('🥰 roomId: $data');
         _matchCtrl.add(data);
@@ -137,8 +140,6 @@ class SocketIoService {
     if (_socket?.connected != true) {
       throw StateError('Socket is not connected');
     }
-
-    print('data: ${data.toJson()}');
 
     _socket!.emit('choice', data.toJson());
   }

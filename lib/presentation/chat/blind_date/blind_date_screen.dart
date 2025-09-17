@@ -1,6 +1,9 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class BlindDateScreen extends HookConsumerWidget {
@@ -15,6 +18,42 @@ class BlindDateScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final viewModel = ref.read(blindDateViewModelProvider.notifier);
+    final chatState = ref.watch(blindDateViewModelProvider);
+
+    useEffect(() {
+      if (chatState.isBlindDateOpened != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '과팅 미오픈',
+              content: chatState.isBlindDateOpened!,
+              onConfirm: () {},
+              isSingleAction: true,
+            ),
+          );
+        });
+      }
+      return null;
+    }, [chatState.isBlindDateOpened]);
+
+    useEffect(() {
+      if (chatState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '과팅 오류',
+              content: chatState.errorMessage!,
+              onConfirm: () {},
+            ),
+          );
+        });
+      }
+      return null;
+    }, [chatState.errorMessage]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
@@ -39,7 +78,12 @@ class BlindDateScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              _joinBlindDateButton(onTap: onTapBlindDateDetail),
+              _joinBlindDateButton(
+                onTap: () async {
+                  final result = await viewModel.isOpened();
+                  if (result) onTapBlindDateDetail();
+                },
+              ),
             ],
           ),
         ),
@@ -91,7 +135,7 @@ class BlindDateScreen extends HookConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '다양한 친구를 사귀어 봐요',
+            '하루에 한 번, 다양한 친구를 사귀어 봐요',
             style: TextStyles.smallTextRegular.copyWith(
               color: ColorStyles.black,
             ),
