@@ -7,6 +7,7 @@ import flutter_local_notifications
 @objc class AppDelegate: FlutterAppDelegate {
   private var pushChannel: FlutterMethodChannel?
   private var pendingTapUserInfo: [AnyHashable: Any]?
+  private var activeChatRoomId: String?
 
   override func application(
     _ application: UIApplication,
@@ -16,13 +17,24 @@ import flutter_local_notifications
       GeneratedPluginRegistrant.register(with: registry)
     }
 
+    if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self
+    }
+
+    DispatchQueue.main.async {
+      UIApplication.shared.registerForRemoteNotifications()
+    }
+
+    GeneratedPluginRegistrant.register(with: self)
+
     if let controller = window?.rootViewController as? FlutterViewController {
       pushChannel = FlutterMethodChannel(
         name: "app/push",
         binaryMessenger: controller.binaryMessenger
       )
 
-      pushChannel?.setMethodCallHandler { call, result in
+      pushChannel?.setMethodCallHandler { [weak self] call, result in
+        guard let self = self else { return }
         switch call.method {
         case "setBadge":
           if let args = call.arguments as? [String: Any],
@@ -43,27 +55,34 @@ import flutter_local_notifications
           }
           result(nil)
 
+        case "setActiveChat":
+          if let args = call.arguments as? [String: Any],
+             let rid = (args["roomId"] as? String)?
+              .trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+             !rid.isEmpty {
+            self.activeChatRoomId = rid
+          }
+          result(nil)
+
+        case "clearActiveChat":
+          self.activeChatRoomId = nil
+          result(nil)
+
+
         default:
           result(FlutterMethodNotImplemented)
         }
       }
 
       if let info = pendingTapUserInfo {
-        pushChannel?.invokeMethod("onPushTap", arguments: info)
+        DispatchQueue.main.async { [weak self] in
+          self?.pushChannel?.invokeMethod("onPushTap", arguments: info)
+        }
         pendingTapUserInfo = nil
       }
     }
 
-    if #available(iOS 10.0, *) {
-      UNUserNotificationCenter.current().delegate = self
-    }
-
-    GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-
-  override func applicationDidBecomeActive(_ application: UIApplication) {
-    super.applicationDidBecomeActive(application)
   }
 
   @available(iOS 10.0, *)
@@ -72,6 +91,30 @@ import flutter_local_notifications
     willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
+    let userInfo = notification.request.content.userInfo
+
+    let type = (userInfo["type"] as? String)?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    let valueRaw = (userInfo["value"] as? String) ?? (userInfo["roomId"] as? String)
+    let value = valueRaw?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+
+    if type == "CHAT", let active = activeChatRoomId, let v = value, active == v {
+      completionHandler([])
+
+      if let n = notification.request.content.badge as? NSNumber {
+        DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = n.intValue }
+      } else if let aps = userInfo["aps"] as? [String: Any],
+                let b = aps["badge"] as? Int {
+        DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = b }
+      }
+
+      DispatchQueue.main.async { [weak self] in
+        self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
+      }
+      return
+    }
+
     if #available(iOS 14.0, *) {
       completionHandler([.banner, .list, .sound, .badge])
     } else {
@@ -79,32 +122,33 @@ import flutter_local_notifications
     }
 
     if let n = notification.request.content.badge as? NSNumber {
-      DispatchQueue.main.async {
-        UIApplication.shared.applicationIconBadgeNumber = n.intValue
-      }
+      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = n.intValue }
+    } else if let aps = userInfo["aps"] as? [String: Any],
+              let b = aps["badge"] as? Int {
+      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = b }
     }
 
-    pushChannel?.invokeMethod("onPush", arguments: nil)
+    DispatchQueue.main.async { [weak self] in
+      self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
+    }
   }
 
-    @available(iOS 10.0, *)
-    override func userNotificationCenter(
-      _ center: UNUserNotificationCenter,
-      didReceive response: UNNotificationResponse,
-      withCompletionHandler completionHandler: @escaping () -> Void
-    ) {
-        let userInfo = response.notification.request.content.userInfo
-
-        if let channel = pushChannel {
-          channel.invokeMethod("onPushTap", arguments: userInfo)
-          channel.invokeMethod("onPush", arguments: nil)
-        } else {
-          pendingTapUserInfo = userInfo
-        }
-
-        completionHandler()
+  @available(iOS 10.0, *)
+  override func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
+    let userInfo = response.notification.request.content.userInfo
+    if let channel = pushChannel {
+      DispatchQueue.main.async {
+        channel.invokeMethod("onPushTap", arguments: userInfo)
+      }
+    } else {
+      pendingTapUserInfo = userInfo
     }
-
+    completionHandler()
+  }
 
   override func application(
     _ application: UIApplication,
@@ -115,8 +159,9 @@ import flutter_local_notifications
        let badge = aps["badge"] as? Int {
       UIApplication.shared.applicationIconBadgeNumber = badge
     }
-
-    pushChannel?.invokeMethod("onPush", arguments: nil)
+    DispatchQueue.main.async { [weak self] in
+      self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
+    }
     completionHandler(.newData)
   }
 }
