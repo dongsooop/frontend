@@ -6,6 +6,10 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 class PushRouter {
   static bool _isRouting = false;
 
+  static String? _lastRouteKey;
+  static DateTime? _lastRouteAt;
+  static const _dedupeWindow = Duration(milliseconds: 800);
+
   static Future<bool> routeFromTypeValue({
     required String type,
     required String value,
@@ -17,6 +21,10 @@ class PushRouter {
     try {
       type = type.trim().toUpperCase();
       value = value.trim();
+
+      if (_shouldSkipAsDuplicate(type, value)) {
+        return true;
+      }
 
       final needsValue = _requiresValue(type);
       if (type.isEmpty || (needsValue && value.isEmpty)) {
@@ -101,6 +109,18 @@ class PushRouter {
     } finally {
       _isRouting = false;
     }
+  }
+
+  static bool _shouldSkipAsDuplicate(String type, String value) {
+    final now = DateTime.now();
+    final key = '$type|$value';
+    if (_lastRouteKey == key && _lastRouteAt != null &&
+        now.difference(_lastRouteAt!) < _dedupeWindow) {
+      return true;
+    }
+    _lastRouteKey = key;
+    _lastRouteAt = now;
+    return false;
   }
 
   static bool _requiresValue(String type) {

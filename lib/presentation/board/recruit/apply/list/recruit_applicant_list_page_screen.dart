@@ -5,6 +5,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/providers/activity_context_providers.dart';
 
 class RecruitApplicantListPage extends ConsumerWidget {
   final int boardId;
@@ -20,6 +21,17 @@ class RecruitApplicantListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(activeRecruitListContextProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+
+      final next = (boardId: boardId, type: type);
+      final notifier = ref.read(activeRecruitListContextProvider.notifier);
+      if (notifier.state != next) {
+        notifier.state = next;
+      }
+    });
+
     final applicantListAsync = ref.watch(
       recruitApplicantListViewModelProvider(boardId: boardId, type: type),
     );
