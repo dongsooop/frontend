@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dongsoop/core/routing/router.dart';
-import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
@@ -11,13 +10,13 @@ import 'package:dongsoop/presentation/home/view_models/notification_view_model.d
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:dongsoop/presentation/app/push_sync_controller.dart';
 import 'domain/chat/model/chat_message.dart';
 import 'domain/chat/model/chat_room_detail.dart';
 import 'domain/chat/model/chat_room_member.dart';
@@ -61,67 +60,27 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
-  static const MethodChannel _pushChannel = MethodChannel('app/push');
+  DateTime? _lastBadgeRefreshAt;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
+    ref.read(pushSyncControllerProvider);
+
     FirebaseMessagingService.instance().setReadCallback(
           (int id) => ref.read(notificationViewModelProvider.notifier).read(id),
     );
-
     FirebaseMessagingService.instance().setBadgeRefreshCallback(
-          () => ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: true),
+          () => _refreshBadgeThrottled(ref, force: false),
     );
-
     FirebaseMessagingService.instance().setBadgeCallback(
           (int n) => ref.read(notificationBadgeViewModelProvider.notifier).setBadge(n),
     );
 
-    _pushChannel.setMethodCallHandler((call) async {
-      switch (call.method) {
-        case 'onPush':
-        // 배지/목록 동기화(사일런트, 포그라운드 수신 등)
-          await ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: true);
-          break;
-
-        case 'onPushTap':
-          final raw = call.arguments;
-          if (raw is Map) {
-            final args = raw.map((k, v) => MapEntry(k.toString(), v));
-            final type = args['type']?.toString();
-            final value = args['value']?.toString();
-            final id = int.tryParse(args['id']?.toString() ?? '');
-            final badge = int.tryParse(args['badge']?.toString() ?? '');
-
-            if (type != null && value != null) {
-              try {
-                await Future.microtask(() {});
-                await PushRouter.routeFromTypeValue(type: type, value: value);
-              } catch (_) {}
-            }
-
-            if (id != null && id > 0) {
-              try {
-                await ref.read(notificationViewModelProvider.notifier).read(id);
-              } catch (_) {}
-            }
-
-            if (badge != null) {
-              ref.read(notificationBadgeViewModelProvider.notifier).setBadge(badge);
-            } else {
-              await ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: true);
-            }
-          }
-          break;
-      }
-      return;
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _refreshBadgeThrottled(ref, force: false);
     });
   }
 
@@ -134,8 +93,21 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge();
+      _refreshBadgeThrottled(ref, force: false);
     }
+  }
+
+  Future<void> _refreshBadgeThrottled(WidgetRef ref, {required bool force}) async {
+    final now = DateTime.now();
+    if (!force &&
+        _lastBadgeRefreshAt != null &&
+        now.difference(_lastBadgeRefreshAt!) < const Duration(milliseconds: 350)) {
+      return;
+    }
+    _lastBadgeRefreshAt = now;
+    try {
+      await ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: force);
+    } catch (_) {}
   }
 
   @override

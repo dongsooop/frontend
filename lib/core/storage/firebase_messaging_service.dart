@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 typedef ReadFn = Future<void> Function(int id);
 typedef RefreshBadgeFn = Future<void> Function();
 typedef SetBadgeFn = void Function(int badge);
+typedef OnPushSyncFn = Future<void> Function(Map<String, dynamic> data);
 
 class FirebaseMessagingService {
   FirebaseMessagingService._internal();
@@ -17,12 +20,28 @@ class FirebaseMessagingService {
 
   factory FirebaseMessagingService.instance() => _instance;
 
+  static const MethodChannel _pushChannel = MethodChannel('app/push');
+
   LocalNotificationsService? _localNotificationsService;
   bool _initialized = false;
 
   ReadFn? _read;
   RefreshBadgeFn? _refreshBadge;
   SetBadgeFn? _setBadge;
+
+  String? _activeChatRoomId;
+  String? get activeChatRoomId => _activeChatRoomId;
+
+  void setActiveChat(String roomId) {
+    if (roomId.isEmpty) return;
+    _activeChatRoomId = roomId;
+    try { _pushChannel.invokeMethod('setActiveChat', {'roomId': _activeChatRoomId}); } catch (_) {}
+  }
+
+  void clearActiveChat() {
+    _activeChatRoomId = null;
+    try { _pushChannel.invokeMethod('clearActiveChat'); } catch (_) {}
+  }
 
   void setReadCallback(ReadFn read) => _read = read;
   void setBadgeRefreshCallback(RefreshBadgeFn cb) => _refreshBadge = cb;
@@ -96,7 +115,12 @@ class FirebaseMessagingService {
     // 백그라운드 상태에서 메시지 수신 핸들러
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // 포그라운드 상태 메시지 수신 리스터
+    if (Platform.isIOS) {
+      debugPrint('[FCM] iOS: Using MethodChannel only (no FlutterFire listeners)');
+      return;
+    }
+
+    // 포그라운드 상태 메시지
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
 
     // 백그라운드 -> 앱 진입 시 알림 클릭 이벤트 리스너
@@ -116,16 +140,15 @@ class FirebaseMessagingService {
 
   // 포그라운드 상태에서 메시지 수신 시
   void _onForegroundMessage(RemoteMessage message) {
-    final notificationData = message.notification;
-    if (notificationData != null) {
-      final payload = jsonEncode(message.data);
-      try {
-        _localNotificationsService?.showNotification(
-          notificationData.title,
-          notificationData.body,
-          payload,
-        );
-      } catch (_) {}
+    final type = message.data['type']?.toString();
+    final value = (message.data['value'] ?? message.data['roomId'])?.toString();
+
+    final isSameChat = (type != null && type == 'CHAT') &&
+        (_activeChatRoomId != null && value == _activeChatRoomId);
+
+    if (isSameChat) {
+      _applyBadgeOrRefresh(message);
+      return;
     }
     _applyBadgeOrRefresh(message);
   }
