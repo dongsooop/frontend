@@ -369,6 +369,16 @@ class ChatDataSourceImpl implements ChatDataSource {
   Future<void> blindDisconnect() => _socketIoService.disconnect();
 
   @override
+  Future<String?> getBlindDateSessionId() async {
+    await _hiveService.getTodayBlindSessionId();
+  }
+
+  @override
+  Future<void> saveBlindDateSessionId(String sessionId) async {
+    await _hiveService.saveTodayBlindSessionId(sessionId);
+  }
+
+  @override
   void blindSendMessage(BlindDateRequest message) => _socketIoService.sendUserMessage(message);
 
   @override

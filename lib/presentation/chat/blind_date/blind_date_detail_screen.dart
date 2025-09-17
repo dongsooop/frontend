@@ -95,6 +95,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
               title: '사랑의 작대기 성공',
               content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
@@ -115,6 +116,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
               title: '사랑의 작대기 실패',
               content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봤요!',

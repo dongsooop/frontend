@@ -34,6 +34,8 @@ abstract class ChatRepository {
   // blind
   Future<void> blindConnect(int userId, String? sessionId);
   Future<void> blindDisconnect();
+  Future<String?> getBlindDateSessionId();
+  Future<void> saveBlindDateSessionId(String sessionId);
 
   void blindSendMessage(BlindDateRequest message);
   void choice(BlindChoice data);

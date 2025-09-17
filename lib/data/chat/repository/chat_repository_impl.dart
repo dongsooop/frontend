@@ -128,6 +128,16 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<void> blindDisconnect() => _chatDataSource.blindDisconnect();
 
   @override
+  Future<String?> getBlindDateSessionId() async {
+    await _chatDataSource.getBlindDateSessionId();
+  }
+
+  @override
+  Future<void> saveBlindDateSessionId(String sessionId) async {
+    await _chatDataSource.saveBlindDateSessionId(sessionId);
+  }
+
+  @override
   void blindSendMessage(BlindDateRequest message) => _chatDataSource.blindSendMessage(message);
 
   @override

@@ -1,5 +1,5 @@
 import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/domain/chat/use_case/get_blind_date_open_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/get_blind_date_open_use_case.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

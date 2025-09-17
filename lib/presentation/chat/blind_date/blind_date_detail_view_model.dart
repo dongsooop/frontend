@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_choice_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_connect_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_disconnect_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_send_message_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/blind_choice_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/blind_connect_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/blind_disconnect_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/blind_send_message_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/get_blind_session_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/save_blind_session_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_broadcast_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_disconnect_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_freeze_stream_use_case.dart';
@@ -22,10 +23,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   final Ref _ref;
-  final HiveService _hive;
 
   final BlindConnectUseCase _connectUseCase;
   final BlindDisconnectUseCase _disconnectUseCase;
+  final GetBlindSessionUseCase _getBlindSessionUseCase;
+  final SaveBlindSessionUseCase _saveBlindSessionUseCase;
   final BlindSendMessageUseCase _blindSendMessageUseCase;
   final BlindChoiceUseCase _blindChoiceUseCase;
 
@@ -41,9 +43,10 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
   BlindDateDetailViewModel(
     this._ref,
-    this._hive,
     this._connectUseCase,
     this._disconnectUseCase,
+    this._getBlindSessionUseCase,
+    this._saveBlindSessionUseCase,
     this._blindSendMessageUseCase,
     this._blindChoiceUseCase,
     this._joined$,
@@ -62,7 +65,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
   Future<String?> connectWithDailySession() async {
     // 1) 오늘자 저장된 sessionId 있는지 확인 / 없으면 null return
-    String? sessionId = await _hive.getTodayBlindSessionId();
+    String? sessionId = await _getBlindSessionUseCase.execute();
     print('🎯 local save session id: $sessionId');
 
     return sessionId;
@@ -81,9 +84,9 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
       state = state.copyWith(sessionId: sid, isLoading: false);
 
       if (_didPersistSessionToday) return;
-      final saved = await _hive.getTodayBlindSessionId();
+      final saved = await _getBlindSessionUseCase.execute();
       if (saved == null || saved.isEmpty) {
-        await _hive.saveTodayBlindSessionId(sid);
+        await _saveBlindSessionUseCase.execute(sid);
         // (선택) 어제 기록 등 정리하고 싶으면:
         // await _hive.keepOnlyToday();
       }

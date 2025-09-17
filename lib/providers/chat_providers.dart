@@ -5,13 +5,15 @@ import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_choice_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_connect_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_disconnect_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_send_message_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/blind_choice_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/blind_connect_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/blind_disconnect_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/blind_send_message_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/get_blind_session_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/save_blind_session_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/get_blind_date_open_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/blind_date/get_blind_date_open_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/get_room_detail_use_case.dart';
@@ -234,6 +236,16 @@ final getBlindDateOpenUseCaseProvider = Provider<GetBlindDateOpenUseCase>((ref) 
   return GetBlindDateOpenUseCase(repository);
 });
 
+final getBlindSessionUseCaseProvider = Provider<GetBlindSessionUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return GetBlindSessionUseCase(repository);
+});
+
+final saveBlindSessionUseCaseProvider = Provider<SaveBlindSessionUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return SaveBlindSessionUseCase(repository);
+});
+
 // View Model
 final chatViewModelProvider =
 StateNotifierProvider.autoDispose<ChatViewModel, ChatState>((ref) {
@@ -305,10 +317,10 @@ StateNotifierProvider.autoDispose<BlindDateViewModel, BlindDateState>((ref) {
 });
 
 final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<BlindDateDetailViewModel, BlindDateDetailState>((ref) {
-  final hiveService = ref.watch(hiveServiceProvider);
-
   final blindConnectUseCase = ref.watch(blindConnectUseCaseProvider);
   final blindDisconnectUseCase = ref.watch(blindDisconnectUseCaseProvider);
+  final getBlindSessionUseCase = ref.watch(getBlindSessionUseCaseProvider);
+  final saveBlindSessionUseCase = ref.watch(saveBlindSessionUseCaseProvider);
   final blindSendMessageUseCase = ref.watch(blindSendMessageUseCaseProvider);
   final blindChoiceUseCase = ref.watch(blindChoiceUseCaseProvider);
 
@@ -324,9 +336,10 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
 
   return BlindDateDetailViewModel(
     ref,
-    hiveService,
     blindConnectUseCase,
     blindDisconnectUseCase,
+    getBlindSessionUseCase,
+    saveBlindSessionUseCase,
     blindSendMessageUseCase,
     blindChoiceUseCase,
     blindJoinedStreamUseCase,
