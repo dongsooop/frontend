@@ -503,3 +503,11 @@ class HomeException implements Exception {
   @override
   String toString() => message;
 }
+
+class BlindDateOpenException implements Exception {
+  final String message;
+  BlindDateOpenException([this.message = "과팅 오픈 기간이 아니에요.\n다음에 다시 만나요!"]);
+
+  @override
+  String toString() => message;
+}

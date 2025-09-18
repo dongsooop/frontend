@@ -1,11 +1,8 @@
 import 'dart:ui';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
-<<<<<<< HEAD
 import 'package:dongsoop/presentation/chat/widgets/chatbot_button.dart';
-=======
 import 'package:dongsoop/providers/activity_context_providers.dart';
->>>>>>> 49c1f854d8424e2dcde344f299cea94780ce32e1
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
@@ -18,12 +15,14 @@ import 'chat_view_model.dart';
 
 class ChatScreen extends HookConsumerWidget {
   final Future<bool> Function(String roomId) onTapChatDetail;
+  final VoidCallback onTapBlindDate;
   final VoidCallback onTapSignIn;
   final VoidCallback onTapChatbot;
 
   const ChatScreen({
     super.key,
     required this.onTapChatDetail,
+    required this.onTapBlindDate,
     required this.onTapSignIn,
     required this.onTapChatbot,
   });
@@ -34,7 +33,6 @@ class ChatScreen extends HookConsumerWidget {
     final viewModel = ref.read(chatViewModelProvider.notifier);
     final chatState = ref.watch(chatViewModelProvider);
 
-    final selectedTap = useState('채팅');
     final selectedCategory = useState('전체');
 
     useEffect(() {
@@ -63,14 +61,30 @@ class ChatScreen extends HookConsumerWidget {
             builder: (_) => CustomConfirmDialog(
               title: '채팅 오류',
               content: chatState.errorMessage!,
-              onConfirm: () async {
-              },
+              onConfirm: () {},
             ),
           );
         });
       }
       return null;
     }, [chatState.errorMessage]);
+
+    useEffect(() {
+      if (chatState.isBlindDateOpened != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '과팅 미오픈',
+              content: chatState.isBlindDateOpened!,
+              onConfirm: () {},
+              isSingleAction: true,
+            ),
+          );
+        });
+      }
+      return null;
+    }, [chatState.isBlindDateOpened]);
 
     useEffect(() {
       if (user != null) {
@@ -108,7 +122,7 @@ class ChatScreen extends HookConsumerWidget {
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              child: _buildChatBody(context, filteredRooms, selectedTap, selectedCategory, viewModel),
+              child: _buildChatBody(context, filteredRooms, selectedCategory, viewModel),
             ),
           ),
         ),
@@ -151,12 +165,8 @@ class ChatScreen extends HookConsumerWidget {
           child: Text(
             label,
             style: isSelected
-              ? TextStyles.titleTextBold.copyWith(
-                color: ColorStyles.primaryColor,
-              )
-              : TextStyles.titleTextRegular.copyWith(
-                color: ColorStyles.gray4,
-              ),
+              ? TextStyles.titleTextBold.copyWith(color: ColorStyles.primaryColor,)
+              : TextStyles.titleTextRegular.copyWith(color: ColorStyles.gray4),
           ),
         ),
       ),
@@ -207,7 +217,7 @@ class ChatScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildChatBody(BuildContext context, List<ChatRoom> rooms, selectedTab, selectedCategory, ChatViewModel viewModel,) {
+  Widget _buildChatBody(BuildContext context, List<ChatRoom> rooms, selectedCategory, ChatViewModel viewModel,) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -220,13 +230,15 @@ class ChatScreen extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 16,
             children: [
+              _buildTopTab(label: '채팅', isSelected: true, onTap: () {},),
               _buildTopTab(
-                label: '채팅', isSelected: selectedTab.value == '채팅', onTap: () => selectedCategory.value = '채팅'
+                label: '과팅',
+                isSelected: false,
+                onTap: () async {
+                  final result = await viewModel.isOpened();
+                  if (result) onTapBlindDate();
+                },
               ),
-              // _buildTopTab(
-              //   label: '과팅',
-              //   },
-              // ),
             ],
           ),
         ),

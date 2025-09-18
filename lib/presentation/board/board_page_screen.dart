@@ -12,7 +12,6 @@ import 'package:dongsoop/presentation/board/providers/board_taps_provider.dart';
 import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_item.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
-import 'package:dongsoop/presentation/board/utils/scroll_listener.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +50,11 @@ class BoardPageScreen extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        pageController.jumpToPage(selectedSubIndex);
+        final currentPage =
+        pageController.hasClients ? pageController.page?.round() : null;
+        if (currentPage != selectedSubIndex) {
+          pageController.jumpToPage(selectedSubIndex);
+        }
       });
       return null;
     }, [tabState.categoryIndex]);
@@ -82,7 +85,7 @@ class BoardPageScreen extends HookConsumerWidget {
         });
       }
       return null;
-    }, [deletedRecruitIds, isRecruit, recruitType]);
+    }, [deletedRecruitIds, isRecruit, recruitType, departmentCode]);
 
 
     final marketType = !isRecruit && safeIndex < MarketType.values.length
@@ -103,35 +106,6 @@ class BoardPageScreen extends HookConsumerWidget {
       }
       return null;
     }, [editedMarketIds, isRecruit, marketType]);
-
-    useEffect(() {
-      final controller = scrollControllers[safeIndex];
-      if (isRecruit && recruitType != null) {
-        final provider = recruitListViewModelProvider(
-          type: recruitType,
-          departmentCode: departmentCode,
-        );
-        final notifier = ref.read(provider.notifier);
-
-        return setupScrollListener(
-          scrollController: controller,
-          getState: () => ref.read(provider),
-          canFetchMore: (state) => !state.isLoading && state.hasMore,
-          fetchMore: () => notifier.loadNextPage(),
-        );
-      } else if (!isRecruit && marketType != null) {
-        final provider = marketListViewModelProvider(type: marketType);
-        final notifier = ref.read(provider.notifier);
-
-        return setupScrollListener(
-          scrollController: controller,
-          getState: () => ref.read(provider),
-          canFetchMore: (state) => !state.isLoading && state.hasMore,
-          fetchMore: () => notifier.fetchNext(),
-        );
-      }
-      return null;
-    }, [safeIndex, tabState.categoryIndex, departmentCode]);
 
     Future<void> handleWriteAction() async {
       final user = ref.watch(userSessionProvider);
@@ -157,7 +131,7 @@ class BoardPageScreen extends HookConsumerWidget {
 
       if (result == true) {
         if (isRecruit && recruitType != null) {
-          ref
+          await ref
               .read(
                 recruitListViewModelProvider(
                   type: recruitType,
@@ -166,7 +140,7 @@ class BoardPageScreen extends HookConsumerWidget {
               )
               .refresh();
         } else if (marketType != null) {
-          ref
+          await ref
               .read(
                 marketListViewModelProvider(type: marketType).notifier,
               )
@@ -200,13 +174,15 @@ class BoardPageScreen extends HookConsumerWidget {
     Future<void> handleMarketDetail(int id, MarketType type) async {
       final didComplete = await onTapMarketDetail(id, type);
       if (didComplete && marketType != null) {
-        ref
+        await ref
             .read(
               marketListViewModelProvider(type: marketType).notifier,
             )
             .refresh();
       }
     }
+
+    final lastRetapAt = useRef<DateTime?>(null);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
@@ -248,8 +224,15 @@ class BoardPageScreen extends HookConsumerWidget {
                       curve: Curves.easeInOut,
                     );
                   }
-                  if (isSameIndex) {
-                    final controller = scrollControllers[newSubIndex];
+
+                  if (!isSameIndex) return;
+
+                  final controller = scrollControllers[newSubIndex];
+                  final now = DateTime.now();
+                  if (lastRetapAt.value == null ||
+                      now.difference(lastRetapAt.value!) >
+                          const Duration(milliseconds: 800)) {
+                    lastRetapAt.value = now;
 
                     Future.microtask(() async {
                       if (isRecruit && newSubIndex < RecruitType.values.length) {
@@ -320,21 +303,27 @@ class BoardPageScreen extends HookConsumerWidget {
                   }
                 },
                 itemBuilder: (context, index) {
+                  final isActive = index == safeIndex;
                   final scrollController = scrollControllers[index];
 
                   if (isRecruit && index < RecruitType.values.length) {
-                    return RecruitItemListSection(
+                    return isActive
+                        ? RecruitItemListSection(
                       recruitType: RecruitType.values[index],
                       departmentCode: departmentCode,
                       onTapRecruitDetail: handleRecruitDetail,
                       scrollController: scrollController,
-                    );
-                  } else if (!isRecruit && index < MarketType.values.length) {
-                    return MarketItemListSection(
+                    )
+                        : const SizedBox.expand();
+                  } else if (!isRecruit &&
+                      index < MarketType.values.length) {
+                    return isActive
+                        ? MarketItemListSection(
                       marketType: MarketType.values[index],
                       onTapMarketDetail: handleMarketDetail,
                       scrollController: scrollController,
-                    );
+                    )
+                        : const SizedBox.expand();
                   } else {
                     return const SizedBox.shrink();
                   }

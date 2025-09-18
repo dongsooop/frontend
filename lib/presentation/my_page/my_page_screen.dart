@@ -15,6 +15,7 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapCalendar;
   final VoidCallback onTapTimetable;
   final VoidCallback onTapAdminReport;
+  final VoidCallback onTapAdminBlindDate;
   final VoidCallback onTapMarket;
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
@@ -26,6 +27,7 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapCalendar,
     required this.onTapTimetable,
     required this.onTapAdminReport,
+    required this.onTapAdminBlindDate,
     required this.onTapMarket,
     required this.onTapRecruit,
     required this.onTapBlockedUser,
@@ -85,6 +87,7 @@ class MyPageScreen extends HookConsumerWidget {
                       onTapCalendar: onTapCalendar,
                       onTapTimetable: onTapTimetable,
                       onTapBlockedUser: onTapBlockedUser,
+                      onTapAdminBlindDate: onTapAdminBlindDate,
                     );
                   }
                 },
