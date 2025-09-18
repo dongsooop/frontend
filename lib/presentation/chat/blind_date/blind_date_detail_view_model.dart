@@ -77,10 +77,12 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
     // 구독 설정
     _subs.add(_joined$().listen((data) {
+      print('🚪 joined: $data');
       state = state.copyWith(volunteer: data);
     }));
 
     _subs.add(_start$().listen((sid) async {
+      print('🚗 start: $sid');
       state = state.copyWith(sessionId: sid, isLoading: false);
 
       if (_didPersistSessionToday) return;
@@ -115,7 +117,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_match$().listen((data) {
-      print('🥰 match: $data');
+      print('🥰🥲 match result: $data');
       state = state.copyWith(match: data);
     }));
 
@@ -159,49 +161,13 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 }
 
 class BlindDateMessagesNotifier extends StateNotifier<List<BlindDateMessage>> {
-  // final Future<List<BlindDateMessage>> Function(String roomId, int offset, int limit) getPagedMessages;
-
   BlindDateMessagesNotifier() : super([]);
-
-  String? _roomId;
-  final int _pageSize = 50;
-  bool _hasMore = true;
-  bool _isLoading = false;
-
-  // Future<void> loadChatInitial(String roomId) async {
-  //   _roomId = roomId;
-  //   _hasMore = true;
-  //   state = [];
-  //
-  //   final messages = await getPagedMessages(roomId, 0, _pageSize);
-  //   state = messages;
-  //   if (messages.length < _pageSize) {
-  //     _hasMore = false;
-  //   }
-  // }
-
-  // Future<void> loadMore() async {
-  //   if (_isLoading || !_hasMore || _roomId == null) return;
-  //
-  //   _isLoading = true;
-  //   final offset = state.length;
-  //   final newMessages = await getPagedMessages(_roomId!, offset, _pageSize);
-  //
-  //   if (newMessages.isEmpty) {
-  //     _hasMore = false;
-  //   } else {
-  //     state = [...state, ...newMessages]; // prepend old messages
-  //   }
-  //   _isLoading = false;
-  // }
 
   void addMessage(BlindDateMessage message) {
     state = [message, ...state];
   }
 
   void clear() {
-    _roomId = null;
-    _hasMore = true;
     state = [];
   }
 }

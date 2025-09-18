@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hive/hive.dart';
 
 part 'blind_date_message.freezed.dart';
 part 'blind_date_message.g.dart';
@@ -45,30 +44,5 @@ class BlindDateMessage with _$BlindDateMessage{
       sendAt: DateTime.parse(json['sendAt'] as String),
       type: 'USER',
     );
-  }
-}
-
-class BlindDateMessageAdapter extends TypeAdapter<BlindDateMessage> {
-  @override
-  final int typeId = 4;
-
-  @override
-  BlindDateMessage read(BinaryReader reader) {
-    return BlindDateMessage(
-      message: reader.readString(),
-      memberId: reader.readInt(),
-      name: reader.readString(),
-      sendAt: DateTime.parse(reader.readString()),
-      type: reader.readString(),
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, BlindDateMessage obj) {
-    writer.writeString(obj.message);
-    writer.writeInt(obj.memberId);
-    writer.writeString(obj.name);
-    writer.writeString(obj.sendAt.toIso8601String());
-    writer.writeString(obj.type);
   }
 }

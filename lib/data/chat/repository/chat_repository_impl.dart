@@ -129,7 +129,7 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Future<String?> getBlindDateSessionId() async {
-    await _chatDataSource.getBlindDateSessionId();
+    return await _chatDataSource.getBlindDateSessionId();
   }
 
   @override

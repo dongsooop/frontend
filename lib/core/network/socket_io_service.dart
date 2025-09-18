@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
@@ -29,14 +28,14 @@ class SocketIoService {
   // 연결 해제
   final _disconnectCtrl= StreamController<String>.broadcast();
 
-  Stream<int> get joinedStream => _joinedCtrl.stream; // { sessionId, volunteer }
-  Stream<String> get startStream => _startCtrl.stream; // sessionId
+  Stream<int> get joinedStream => _joinedCtrl.stream;
+  Stream<String> get startStream => _startCtrl.stream;
   Stream<BlindDateMessage> get systemStream => _systemCtrl.stream;
   Stream<bool> get freezeStream  => _freezeCtrl.stream;
-  Stream<BlindDateMessage> get broadcastStream => _broadcastCtrl.stream;  // message
+  Stream<BlindDateMessage> get broadcastStream => _broadcastCtrl.stream;
   Stream<BlindJoinInfo> get joinStream => _joinCtrl.stream;
   Stream<Map<int, String>> get participantsStream => _participantsCtrl.stream;
-  Stream<String> get disconnectStream=> _disconnectCtrl.stream; // reason
+  Stream<String> get disconnectStream=> _disconnectCtrl.stream;
   Stream<String> get matchStream => _matchCtrl.stream;
 
   bool get isConnected => _socket?.connected ?? false;
@@ -48,11 +47,9 @@ class SocketIoService {
     required String sessionId,
     required int memberId,
   }) async {
-    // Socket.IO 옵션 구성
     final opts = IO.OptionBuilder()
         .setTransports(['websocket'])
         .setQuery({'sessionId': sessionId, 'memberId': memberId.toString()})
-        // .setExtraHeaders(headers ?? {})
         .disableAutoConnect()
         .setReconnectionAttempts(10)
         .setReconnectionDelay(600)
@@ -88,16 +85,13 @@ class SocketIoService {
         final message = BlindDateMessage.fromUserJson(msg);
         _broadcastCtrl.add(message);
       })
-      ..on('message', (msg) {
-        print('🛠️ message: $msg');
-      })
       ..on('join', (data) {
         final info = BlindJoinInfo.fromJson(data);
         _joinCtrl.add(info);
       })
       ..on('failed', (data) {
         print('🥲 failed: $data');
-        // _matchCtrl.add(data);
+        _matchCtrl.add('failed');
       })
       ..on('create_chat', (data) {
         print('🥰 roomId: $data');
@@ -149,7 +143,6 @@ class SocketIoService {
     _socket?.disconnect();
   }
 
-  // 자원 정리
   Future<void> dispose() async {
     await _joinedCtrl.close();
     await _startCtrl.close();

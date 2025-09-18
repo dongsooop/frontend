@@ -370,7 +370,7 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Future<String?> getBlindDateSessionId() async {
-    await _hiveService.getTodayBlindSessionId();
+    return await _hiveService.getTodayBlindSessionId();
   }
 
   @override

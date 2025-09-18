@@ -6,6 +6,6 @@ class GetBlindSessionUseCase {
   GetBlindSessionUseCase(this._chatRepository,);
 
   Future<String?> execute() async {
-    await _chatRepository.getBlindDateSessionId();
+    return await _chatRepository.getBlindDateSessionId();
   }
 }
