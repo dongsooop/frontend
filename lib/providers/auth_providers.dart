@@ -3,9 +3,13 @@ import 'package:dongsoop/domain/auth/use_case/delete_user_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/password_check_email_code_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/password_send_email_code_use_case.dart';
+import 'package:dongsoop/domain/mypage/use_case/blind_date_open_use_case.dart';
+import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_state.dart';
+import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_view_model.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_state.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_view_model.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
+import 'package:dongsoop/providers/activity_providers.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/providers/device_providers.dart';
@@ -108,6 +112,11 @@ final passwordSendEmailCodeUseCaseProvider = Provider<PasswordSendEmailCodeUseCa
   return PasswordSendEmailCodeUseCase(repository);
 });
 
+final blindDateOpenUseCaseProvider = Provider<BlindDateOpenUseCase>((ref) {
+  final repository = ref.watch(mypageRepositoryProvider);
+  return BlindDateOpenUseCase(repository);
+});
+
 // View Model
 final signInViewModelProvider = StateNotifierProvider<SignInViewModel, AsyncValue<void>>((ref) {
   final loginUseCase = ref.watch(SignInUseCaseProvider);
@@ -139,6 +148,13 @@ StateNotifierProvider<MyPageViewModel, AsyncValue<User?>>((ref) {
   final loadUserUseCase = ref.watch(loadUserUseCaseProvider);
 
   return MyPageViewModel(loadUserUseCase, ref);
+});
+
+final blindAdminViewModelProvider =
+StateNotifierProvider.autoDispose<BlindAdminViewModel, BlindAdminState>((ref) {
+  final blindDateOpenUseCase = ref.watch(blindDateOpenUseCaseProvider);
+
+  return BlindAdminViewModel(blindDateOpenUseCase);
 });
 
 

@@ -1,4 +1,8 @@
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
@@ -96,6 +100,11 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<bool> getBlindDateOpen() async {
+    return await _chatDataSource.getBlindDateOpen();
+  }
+
+  @override
   Future<void> connect(String roomId) => _chatDataSource.connect(roomId);
 
   @override
@@ -109,4 +118,59 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<String> subscribeBlock() => _chatDataSource.subscribeBlock();
+
+  // blind
+  @override
+  Future<void> blindConnect(int userId, String? sessionId) async {
+    await _chatDataSource.blindConnect(userId, sessionId);
+  }
+  @override
+  Future<void> blindDisconnect() => _chatDataSource.blindDisconnect();
+
+  @override
+  Future<String?> getBlindDateSessionId() async {
+    return await _chatDataSource.getBlindDateSessionId();
+  }
+
+  @override
+  Future<void> saveBlindDateSessionId(String sessionId) async {
+    await _chatDataSource.saveBlindDateSessionId(sessionId);
+  }
+
+  @override
+  void blindSendMessage(BlindDateRequest message) => _chatDataSource.blindSendMessage(message);
+
+  @override
+  void choice(BlindChoice data) => _chatDataSource.userChoice(data);
+
+  // Streams
+  @override
+  Stream<int> get joinedStream => _chatDataSource.joinedStream;
+
+  @override
+  Stream<String> get startStream => _chatDataSource.startStream;
+
+  @override
+  Stream<BlindDateMessage> get systemStream => _chatDataSource.systemStream;
+
+  @override
+  Stream<bool> get freezeStream => _chatDataSource.freezeStream;
+
+  @override
+  Stream<BlindDateMessage> get broadcastStream => _chatDataSource.broadcastStream;
+
+  @override
+  Stream<BlindJoinInfo> get joinStream => _chatDataSource.joinStream;
+
+  @override
+  Stream<Map<int, String>> get participantsStream => _chatDataSource.participantsStream;
+
+  @override
+  Stream<String> get matchStream => _chatDataSource.matchStream;
+
+  @override
+  Stream<String> get disconnectStream => _chatDataSource.disconnectStream;
+
+  @override
+  bool get isConnected => _chatDataSource.isConnected;
 }
