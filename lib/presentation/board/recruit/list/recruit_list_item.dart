@@ -3,12 +3,14 @@ import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart'
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/presentation/board/utils/scroll_listener.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class RecruitItemListSection extends ConsumerWidget {
+class RecruitItemListSection extends HookConsumerWidget {
   final RecruitType recruitType;
   final String departmentCode;
   final Future<void> Function(int id, RecruitType type) onTapRecruitDetail;
@@ -30,6 +32,16 @@ class RecruitItemListSection extends ConsumerWidget {
     );
 
     final state = ref.watch(viewModelProvider);
+    final viewModel = ref.read(viewModelProvider.notifier);
+
+    useEffect(() {
+      return setupScrollListener(
+        scrollController: scrollController,
+        getState: () => ref.read(viewModelProvider),
+        canFetchMore: (s) => !s.isLoading && s.hasMore,
+        fetchMore: () => viewModel.loadNextPage(),
+      );
+    }, [recruitType, departmentCode, scrollController]);
 
     if (state.error != null) {
       return Padding(
@@ -56,17 +68,18 @@ class RecruitItemListSection extends ConsumerWidget {
 
     return RefreshIndicator(
       color: ColorStyles.primaryColor,
-      onRefresh: () async {
-        await ref.read(viewModelProvider.notifier).refresh();
-      },
+      onRefresh: viewModel.refresh,
       child: ListView.builder(
         key: PageStorageKey(recruitType.name),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: state.posts.length + (state.hasMore ? 1 : 0),
+        itemCount: state.posts.length + ((state.hasMore && state.isLoading) ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == state.posts.length && state.hasMore) {
+          final showLoading =
+              index == state.posts.length && state.hasMore && state.isLoading;
+
+          if (showLoading) {
             return const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(
@@ -81,9 +94,7 @@ class RecruitItemListSection extends ConsumerWidget {
           return RecruitListItem(
             recruit: recruit,
             isLastItem: isLast,
-            onTap: () async {
-              await onTapRecruitDetail(recruit.id, recruitType);
-            },
+            onTap: () async => onTapRecruitDetail(recruit.id, recruitType),
           );
         },
       ),
