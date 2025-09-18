@@ -133,29 +133,6 @@ class BlindDateDetailScreen extends HookConsumerWidget {
       return null;
     }, [state.match]);
 
-    // useEffect(() {
-    //   if (state.errorMessage != null) {
-    //     WidgetsBinding.instance.addPostFrameCallback((_) {
-    //       showDialog(
-    //         context: context,
-    //         barrierDismissible: false,
-    //         builder: (_) => CustomConfirmDialog(
-    //           title: '과팅 오류',
-    //           content: state.errorMessage!,
-    //           onConfirm: () {
-    //             context.pop();
-    //             context.pop();
-    //           },
-    //           confirmText: '확인',
-    //           dismissOnConfirm: false,
-    //           isSingleAction: true,
-    //         ),
-    //       );
-    //     });
-    //   }
-    //   return null;
-    // }, [state.errorMessage]);
-
     if (state.isLoading) {
       return Scaffold(
         backgroundColor: ColorStyles.white,

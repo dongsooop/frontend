@@ -64,9 +64,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   bool _didPersistSessionToday = false;
 
   Future<String?> connectWithDailySession() async {
-    // 1) 오늘자 저장된 sessionId 있는지 확인 / 없으면 null return
     String? sessionId = await _getBlindSessionUseCase.execute();
-    print('🎯 local save session id: $sessionId');
 
     return sessionId;
   }
@@ -75,22 +73,17 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     if (state.isConnecting) return;
     state = state.copyWith(isConnecting: true, isLoading: true);
 
-    // 구독 설정
     _subs.add(_joined$().listen((data) {
-      print('🚪 joined: $data');
       state = state.copyWith(volunteer: data);
     }));
 
     _subs.add(_start$().listen((sid) async {
-      print('🚗 start: $sid');
       state = state.copyWith(sessionId: sid, isLoading: false);
 
       if (_didPersistSessionToday) return;
       final saved = await _getBlindSessionUseCase.execute();
       if (saved == null || saved.isEmpty) {
         await _saveBlindSessionUseCase.execute(sid);
-        // (선택) 어제 기록 등 정리하고 싶으면:
-        // await _hive.keepOnlyToday();
       }
       _didPersistSessionToday = true;
     }));
@@ -112,23 +105,17 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_participants$().listen((map) {
-      print('👤 participants: $map');
       state = state.copyWith(participants: map, isVoteTime: true);
     }));
 
     _subs.add(_match$().listen((data) {
-      print('🥰🥲 match result: $data');
       state = state.copyWith(match: data);
     }));
 
     _subs.add(_disconnect$().listen((reason) async {
-      print('🔌 socket.io disconnected: $reason');
       state = state.copyWith(disconnectReason: reason);
-      // 테스트용
-      // await _hive.clearAllBlindDailySessions();
     }));
 
-    // 로컬에 저장된 오늘날짜 sessionId가 있는지
     final sessionId = await connectWithDailySession();
     if (sessionId != null) state = state.copyWith(isLoading: false, sessionId: sessionId);
 
