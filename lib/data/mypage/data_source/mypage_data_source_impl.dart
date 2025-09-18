@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
+import 'package:dongsoop/domain/mypage/model/blind_date_open_request.dart';
 import 'package:dongsoop/domain/mypage/model/blocked_user.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
@@ -75,6 +76,21 @@ class MypageDataSourceImpl implements MypageDataSource {
 
     try {
       await _authDio.delete(endpoint, data: requestBody);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> blindDateOpen(BlindDateOpenRequest request) async {
+    final endpoint = dotenv.get('BLIND_DATE_OPEN_ENDPOINT');
+
+    try {
+      final response = await _authDio.post(endpoint, data: request.toJson());
+      if (response.statusCode == HttpStatusCode.created.code) {
+        return true;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
       rethrow;
     }
