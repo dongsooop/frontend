@@ -245,10 +245,38 @@ class BlindDateDetailScreen extends HookConsumerWidget {
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: Container(
-            margin: EdgeInsets.only(top: 24),
+            margin: EdgeInsets.only(top: 16),
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: ColorStyles.warning10,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      Text(
+                        '안내',
+                        style: TextStyles.smallTextBold.copyWith(
+                          color: ColorStyles.warning100,
+                        ),
+                      ),
+                      Text(
+                        '과팅은 실시간으로 진행돼요.\n채팅방을 떠나는 동안 도착한 메시지는 볼 수 없어요.',
+                        style: TextStyles.smallTextRegular.copyWith(
+                          color: ColorStyles.warning100,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: Align(
                     alignment: Alignment.topCenter,
