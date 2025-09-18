@@ -89,12 +89,10 @@ class SocketIoService {
         final info = BlindJoinInfo.fromJson(data);
         _joinCtrl.add(info);
       })
-      ..on('failed', (data) {
-        print('🥲 failed: $data');
+      ..on('failed', (_) {
         _matchCtrl.add('failed');
       })
       ..on('create_chat', (data) {
-        print('🥰 roomId: $data');
         _matchCtrl.add(data);
       })
       ..on('participants', (data) {
