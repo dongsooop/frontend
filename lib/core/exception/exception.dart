@@ -494,3 +494,11 @@ class HomeException implements Exception {
   @override
   String toString() => message;
 }
+
+class SendEmailFailed implements Exception {
+  final String message;
+  SendEmailFailed([this.message = "입력하신 이메일을 찾을 수 없어요.\n이메일을 다시 확인해 주세요"]);
+
+  @override
+  String toString() => message;
+}
