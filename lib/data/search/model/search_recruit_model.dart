@@ -10,12 +10,12 @@ part 'search_recruit_model.g.dart';
 class SearchRecruitModel with _$SearchRecruitModel {
   final int boardId;
   final String title;
-  final String? content;
+  final String content;
   final RecruitType boardType;
   final DateTime createdAt;
   final int contactCount;
-  final DateTime? recruitmentStartAt;
-  final DateTime? recruitmentEndAt;
+  final DateTime recruitmentStartAt;
+  final DateTime recruitmentEndAt;
   final String tags;
   final String departmentName;
 

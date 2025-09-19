@@ -3,12 +3,12 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 class SearchRecruitEntity {
   final int id;
   final String title;
-  final String? content;
+  final String content;
   final RecruitType boardType;
   final DateTime createdAt;
   final int volunteer;
-  final DateTime? startAt;
-  final DateTime? endAt;
+  final DateTime startAt;
+  final DateTime endAt;
   final String tags;
   final String departmentName;
 

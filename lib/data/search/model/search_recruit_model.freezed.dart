@@ -17,12 +17,12 @@ T _$identity<T>(T value) => value;
 mixin _$SearchRecruitModel {
   int get boardId;
   String get title;
-  String? get content;
+  String get content;
   RecruitType get boardType;
   DateTime get createdAt;
   int get contactCount;
-  DateTime? get recruitmentStartAt;
-  DateTime? get recruitmentEndAt;
+  DateTime get recruitmentStartAt;
+  DateTime get recruitmentEndAt;
   String get tags;
   String get departmentName;
 
@@ -87,12 +87,12 @@ abstract mixin class $SearchRecruitModelCopyWith<$Res> {
   $Res call(
       {int boardId,
       String title,
-      String? content,
+      String content,
       RecruitType boardType,
       DateTime createdAt,
       int contactCount,
-      DateTime? recruitmentStartAt,
-      DateTime? recruitmentEndAt,
+      DateTime recruitmentStartAt,
+      DateTime recruitmentEndAt,
       String tags,
       String departmentName});
 }
@@ -112,12 +112,12 @@ class _$SearchRecruitModelCopyWithImpl<$Res>
   $Res call({
     Object? boardId = null,
     Object? title = null,
-    Object? content = freezed,
+    Object? content = null,
     Object? boardType = null,
     Object? createdAt = null,
     Object? contactCount = null,
-    Object? recruitmentStartAt = freezed,
-    Object? recruitmentEndAt = freezed,
+    Object? recruitmentStartAt = null,
+    Object? recruitmentEndAt = null,
     Object? tags = null,
     Object? departmentName = null,
   }) {
@@ -130,10 +130,10 @@ class _$SearchRecruitModelCopyWithImpl<$Res>
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
               as String,
-      content: freezed == content
+      content: null == content
           ? _self.content
           : content // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
       boardType: null == boardType
           ? _self.boardType
           : boardType // ignore: cast_nullable_to_non_nullable
@@ -146,14 +146,14 @@ class _$SearchRecruitModelCopyWithImpl<$Res>
           ? _self.contactCount
           : contactCount // ignore: cast_nullable_to_non_nullable
               as int,
-      recruitmentStartAt: freezed == recruitmentStartAt
+      recruitmentStartAt: null == recruitmentStartAt
           ? _self.recruitmentStartAt
           : recruitmentStartAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      recruitmentEndAt: freezed == recruitmentEndAt
+              as DateTime,
+      recruitmentEndAt: null == recruitmentEndAt
           ? _self.recruitmentEndAt
           : recruitmentEndAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as DateTime,
       tags: null == tags
           ? _self.tags
           : tags // ignore: cast_nullable_to_non_nullable

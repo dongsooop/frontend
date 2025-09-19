@@ -10,16 +10,12 @@ SearchRecruitModel _$SearchRecruitModelFromJson(Map<String, dynamic> json) =>
     SearchRecruitModel(
       boardId: (json['boardId'] as num).toInt(),
       title: json['title'] as String,
-      content: json['content'] as String?,
+      content: json['content'] as String,
       boardType: $enumDecode(_$RecruitTypeEnumMap, json['boardType']),
       createdAt: DateTime.parse(json['createdAt'] as String),
       contactCount: (json['contactCount'] as num).toInt(),
-      recruitmentStartAt: json['recruitmentStartAt'] == null
-          ? null
-          : DateTime.parse(json['recruitmentStartAt'] as String),
-      recruitmentEndAt: json['recruitmentEndAt'] == null
-          ? null
-          : DateTime.parse(json['recruitmentEndAt'] as String),
+      recruitmentStartAt: DateTime.parse(json['recruitmentStartAt'] as String),
+      recruitmentEndAt: DateTime.parse(json['recruitmentEndAt'] as String),
       tags: json['tags'] as String,
       departmentName: json['departmentName'] as String,
     );
@@ -32,8 +28,8 @@ Map<String, dynamic> _$SearchRecruitModelToJson(SearchRecruitModel instance) =>
       'boardType': _$RecruitTypeEnumMap[instance.boardType]!,
       'createdAt': instance.createdAt.toIso8601String(),
       'contactCount': instance.contactCount,
-      'recruitmentStartAt': instance.recruitmentStartAt?.toIso8601String(),
-      'recruitmentEndAt': instance.recruitmentEndAt?.toIso8601String(),
+      'recruitmentStartAt': instance.recruitmentStartAt.toIso8601String(),
+      'recruitmentEndAt': instance.recruitmentEndAt.toIso8601String(),
       'tags': instance.tags,
       'departmentName': instance.departmentName,
     };
