@@ -151,7 +151,7 @@ class ChatDataSourceImpl implements ChatDataSource {
       }
       throw Exception();
     } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
       rethrow;
@@ -236,7 +236,7 @@ class ChatDataSourceImpl implements ChatDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
       rethrow;
@@ -262,7 +262,7 @@ class ChatDataSourceImpl implements ChatDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
       rethrow;
@@ -299,6 +299,11 @@ class ChatDataSourceImpl implements ChatDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         await _hiveService.deleteChatMessagesByRoomId(roomId);
       } else ChatLeaveException();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw ChatLeaveManagerException();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }
