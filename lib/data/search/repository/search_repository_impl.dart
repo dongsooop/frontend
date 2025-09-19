@@ -12,11 +12,15 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<List<SearchNoticeEntity>> searchOfficialNotice({
     required int page,
     required String keyword,
+    required int size,
+    required String sort,
   }) async {
     return _handle(() async {
       final models = await _dataSource.searchOfficialNotice(
           page: page,
           keyword: keyword,
+          size: size,
+          sort: sort,
       );
       return models.map((m) => m.toEntity(isDepartment: false)).toList();
     }, SearchException());
@@ -27,12 +31,16 @@ class SearchRepositoryImpl implements SearchRepository {
     required int page,
     required String keyword,
     required String departmentName,
+    required int size,
+    required String sort,
   }) async {
     return _handle(() async {
       final models = await _dataSource.searchDeptNotice(
           page: page,
           keyword: keyword,
-          departmentName: departmentName
+          departmentName: departmentName,
+          size: size,
+          sort: sort,
       );
       return models.map((m) => m.toEntity(isDepartment: true)).toList();
     }, SearchException());

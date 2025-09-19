@@ -12,8 +12,8 @@ class SearchDataSourceImpl implements SearchDataSource {
   Future<List<SearchNoticeModel>> searchOfficialNotice({
     required int page,
     required String keyword,
-    String sort = 'createdAt,desc',
-    int size = 20,
+    required int size,
+    required String sort,
   }) async {
     final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
 
@@ -44,8 +44,8 @@ class SearchDataSourceImpl implements SearchDataSource {
     required int page,
     required String keyword,
     required String departmentName,
-    String sort = 'createdAt,desc',
-    int size = 20,
+    required int size,
+    required String sort,
   }) async {
     final base = dotenv.get('NOTICE_SEARCH_ENDPOINT');
 

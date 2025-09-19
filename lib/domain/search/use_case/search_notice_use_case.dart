@@ -1,9 +1,14 @@
+import 'package:dongsoop/domain/search/config/search_config.dart';
 import 'package:dongsoop/domain/search/entity/search_notice_entity.dart';
 import 'package:dongsoop/domain/search/repository/search_repository.dart';
 
 class SearchNoticeUseCase {
   final SearchRepository _repository;
-  const SearchNoticeUseCase(this._repository);
+  final SearchConfig _config;
+  const SearchNoticeUseCase(this._repository, this._config);
+
+  int get pageSize => _config.pageSize;
+  String get defaultSort => _config.defaultSort;
 
   Future<List<SearchNoticeEntity>> searchOfficial({
     required int page,
@@ -12,6 +17,8 @@ class SearchNoticeUseCase {
     return _repository.searchOfficialNotice(
       page: page,
       keyword: keyword.trim(),
+      size: _config.pageSize,
+      sort: _config.defaultSort,
     );
   }
 
@@ -24,6 +31,8 @@ class SearchNoticeUseCase {
       page: page,
       keyword: keyword.trim(),
       departmentName: departmentName,
+      size: _config.pageSize,
+      sort: _config.defaultSort,
     );
   }
 
@@ -43,11 +52,6 @@ class SearchNoticeUseCase {
 
     merged.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-    final seen = <int>{};
-    final deduped = <SearchNoticeEntity>[];
-    for (final e in merged) {
-      if (seen.add(e.id)) deduped.add(e);
-    }
-    return deduped;
+    return merged;
   }
 }
