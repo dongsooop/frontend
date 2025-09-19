@@ -60,6 +60,10 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     this._ref,
   ) : super(ChatDetailState(isLoading: false, roomDetail: null));
 
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
+
   Future<void> fetchOfflineMessages(String roomId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -273,7 +277,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     }
   }
 
-  Future<void> leaveChatRoom(String roomId) async {
+  Future<bool> leaveChatRoom(String roomId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       _hasLeaved = true;
@@ -287,16 +291,25 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
 
       _ref.read(chatMessagesProvider.notifier).clear();
       state = state.copyWith(isLoading: false);
+      return true;
     } on ChatLeaveException catch (e) {
       state = state.copyWith(
         errorMessage: e.message,
         isLoading: false,
       );
+      return false;
+    } on ChatLeaveManagerException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
+      return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: '채팅방을 나가는 중\n오류가 발생했습니다.',
       );
+      return false;
     }
   }
 

@@ -509,3 +509,11 @@ class BlindDateOpenException implements Exception {
   @override
   String toString() => message;
 }
+
+class ChatLeaveManagerException implements Exception {
+  final String message;
+  ChatLeaveManagerException([this.message = "모집자 혼자 있는 채팅방은\n나갈 수 없어요."]);
+
+  @override
+  String toString() => message;
+}
