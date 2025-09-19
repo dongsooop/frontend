@@ -1,7 +1,10 @@
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/data/search/data_source/search_data_source.dart';
 import 'package:dongsoop/data/search/model/search_notice_model.dart';
+import 'package:dongsoop/data/search/model/search_recruit_model.dart';
+import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/search/entity/search_notice_entity.dart';
+import 'package:dongsoop/domain/search/entity/search_recruit_entity.dart';
 import 'package:dongsoop/domain/search/repository/search_repository.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
@@ -43,6 +46,28 @@ class SearchRepositoryImpl implements SearchRepository {
           sort: sort,
       );
       return models.map((m) => m.toEntity(isDepartment: true)).toList();
+    }, SearchException());
+  }
+
+  @override
+  Future<List<SearchRecruitEntity>> searchRecruit({
+    required int page,
+    required String keyword,
+    required RecruitType type,
+    required String departmentName,
+    required int size,
+    required String sort,
+  }) async {
+    return _handle(() async {
+      final models = await _dataSource.searchRecruit(
+          page: page,
+          keyword: keyword,
+          type: type,
+          departmentName: departmentName,
+          size: size,
+          sort: sort,
+      );
+      return models.map((model) => model.toEntity()).toList();
     }, SearchException());
   }
 
