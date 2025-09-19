@@ -12,13 +12,16 @@ class SearchDataSourceImpl implements SearchDataSource {
   Future<List<SearchNoticeModel>> searchOfficialNotice({
     required int page,
     required String keyword,
+    String sort = 'createdAt,desc',
+    int size = 20,
   }) async {
     final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
 
     final params = <String, dynamic>{
       'page': page,
-      if (keyword.trim().isNotEmpty)
-      'keyword': keyword.trim(),
+      'size': size,
+      'sort': sort,
+      if (keyword.trim().isNotEmpty) 'keyword': keyword.trim(),
       'boardType': 'NOTICE',
       'departmentName': '학교공지'
     };
@@ -41,13 +44,16 @@ class SearchDataSourceImpl implements SearchDataSource {
     required int page,
     required String keyword,
     required String departmentName,
+    String sort = 'createdAt,desc',
+    int size = 20,
   }) async {
     final base = dotenv.get('NOTICE_SEARCH_ENDPOINT');
 
     final params = <String, dynamic>{
       'page': page,
-      if (keyword.trim().isNotEmpty)
-      'keyword': keyword.trim(),
+      'size': size,
+      'sort': sort,
+      if (keyword.trim().isNotEmpty) 'keyword': keyword.trim(),
       'authorName': departmentName,
     };
 
