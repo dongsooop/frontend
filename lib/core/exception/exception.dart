@@ -494,3 +494,12 @@ class HomeException implements Exception {
   @override
   String toString() => message;
 }
+
+class SearchException implements Exception {
+  final String message;
+  SearchException(
+      [this.message = "검색 도중 오류가 발생했어요\n잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
