@@ -46,8 +46,25 @@ extension SearchRecruitModelMapper on SearchRecruitModel {
       volunteer: contactCount,
       startAt: recruitmentStartAt,
       endAt: recruitmentEndAt,
-      tags: tags,
+      tags: _sanitizeTags(tags),
       departmentName: departmentName,
     );
   }
+}
+
+String _sanitizeTags(String raw) {
+  if (raw.trim().isEmpty) return '';
+  const blocked = {
+    '_tagsparsefailure',
+    '_dateparsefailure',
+  };
+
+  final tokens = raw
+      .split(',')
+      .map((t) => t.trim())
+      .where((t) => t.isNotEmpty)
+      .where((t) => !blocked.contains(t.toLowerCase()))
+      .toList();
+
+  return tokens.join(',');
 }
