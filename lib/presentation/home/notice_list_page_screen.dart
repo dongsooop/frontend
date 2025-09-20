@@ -88,6 +88,7 @@ class NoticeListPageScreen extends HookConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
             children: [
+              const SizedBox(height: 16),
               SearchBarWithCancel(
                 controller: keywordCtrl,
                 isSearching: isSearching,
@@ -113,8 +114,7 @@ class NoticeListPageScreen extends HookConsumerWidget {
                   }
                 },
               ),
-
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Row(
