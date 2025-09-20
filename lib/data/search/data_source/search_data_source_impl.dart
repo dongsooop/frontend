@@ -83,8 +83,7 @@ class SearchDataSourceImpl implements SearchDataSource {
     required int size,
     required String sort,
   }) async {
-    final base = dotenv.get('RECRUIT_SEARCH_ENDPOINT');
-
+    final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
     final params = <String, dynamic>{
       'page': page,
       'size': size,
@@ -128,7 +127,7 @@ class SearchDataSourceImpl implements SearchDataSource {
       'sort': sort,
       if (keyword.trim().isNotEmpty)
       'keyword': keyword.trim(),
-      'marketplaceType': type,
+      'marketplaceType': type.name,
     };
 
     final response = await _plainDio.get(
