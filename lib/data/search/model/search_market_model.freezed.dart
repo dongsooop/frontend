@@ -20,7 +20,7 @@ mixin _$SearchMarketModel {
   String get content;
   DateTime get createdAt;
   int get price;
-  int get contactCount;
+  int? get contactCount;
 
   /// Create a copy of SearchMarketModel
   /// with the given fields replaced by the non-null parameter values.
@@ -68,7 +68,7 @@ abstract mixin class $SearchMarketModelCopyWith<$Res> {
       String content,
       DateTime createdAt,
       int price,
-      int contactCount});
+      int? contactCount});
 }
 
 /// @nodoc
@@ -89,7 +89,7 @@ class _$SearchMarketModelCopyWithImpl<$Res>
     Object? content = null,
     Object? createdAt = null,
     Object? price = null,
-    Object? contactCount = null,
+    Object? contactCount = freezed,
   }) {
     return _then(SearchMarketModel(
       boardId: null == boardId
@@ -112,10 +112,10 @@ class _$SearchMarketModelCopyWithImpl<$Res>
           ? _self.price
           : price // ignore: cast_nullable_to_non_nullable
               as int,
-      contactCount: null == contactCount
+      contactCount: freezed == contactCount
           ? _self.contactCount
           : contactCount // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ));
   }
 }

@@ -12,7 +12,7 @@ class SearchMarketModel with _$SearchMarketModel {
   final String content;
   final DateTime createdAt;
   final int price;
-  final int contactCount;
+  final int? contactCount;
 
   SearchMarketModel({
     required this.boardId,
@@ -20,7 +20,7 @@ class SearchMarketModel with _$SearchMarketModel {
     required this.content,
     required this.createdAt,
     required this.price,
-    required this.contactCount,
+    this.contactCount,
   });
 
   factory SearchMarketModel.fromJson(Map<String, dynamic> json) => _$SearchMarketModelFromJson(json);

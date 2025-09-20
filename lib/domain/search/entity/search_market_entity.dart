@@ -4,7 +4,7 @@ class SearchMarketEntity {
   final String content;
   final DateTime createdAt;
   final int price;
-  final int contactCount;
+  final int? contactCount;
 
   const SearchMarketEntity({
     required this.id,
@@ -12,6 +12,6 @@ class SearchMarketEntity {
     required this.content,
     required this.createdAt,
     required this.price,
-    required this.contactCount,
+    this.contactCount,
   });
 }

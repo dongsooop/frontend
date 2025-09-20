@@ -13,7 +13,7 @@ SearchMarketModel _$SearchMarketModelFromJson(Map<String, dynamic> json) =>
       content: json['content'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       price: (json['price'] as num).toInt(),
-      contactCount: (json['contactCount'] as num).toInt(),
+      contactCount: (json['contactCount'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SearchMarketModelToJson(SearchMarketModel instance) =>
