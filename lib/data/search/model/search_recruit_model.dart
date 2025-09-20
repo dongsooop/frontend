@@ -63,7 +63,17 @@ String _sanitizeTags(String raw) {
       .split(',')
       .map((t) => t.trim())
       .where((t) => t.isNotEmpty)
-      .where((t) => !blocked.contains(t.toLowerCase()))
+      .where((t) {
+    final lower = t.toLowerCase();
+
+    // 기본 차단 목록
+    if (blocked.contains(lower)) return false;
+
+    // "학과"로 끝나는 태그 제거
+    if (t.endsWith('학과')) return false;
+
+    return true;
+  })
       .toList();
 
   return tokens.join(',');
