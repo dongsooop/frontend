@@ -1,4 +1,5 @@
 import 'package:dongsoop/domain/search/config/search_config.dart';
+import 'package:dongsoop/domain/search/use_case/search_market_use_case.dart';
 import 'package:dongsoop/domain/search/use_case/search_notice_use_case.dart';
 import 'package:dongsoop/domain/search/use_case/search_recruit_use_case.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
@@ -26,4 +27,9 @@ final searchNoticeUseCaseProvider = Provider<SearchNoticeUseCase>((ref) {
 final searchRecruitUseCaseProvider = Provider<SearchRecruitUseCase>((ref) {
   final repository = ref.watch(searchRepositoryProvider);
   return SearchRecruitUseCase(repository, const SearchConfig());
+});
+
+final searchMarketUseCaseProvider = Provider<SearchMarketUseCase>((ref) {
+  final repository = ref.watch(searchRepositoryProvider);
+  return SearchMarketUseCase(repository, const SearchConfig());
 });
