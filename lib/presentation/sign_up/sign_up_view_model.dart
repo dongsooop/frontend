@@ -151,6 +151,14 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
     try {
       await _sendEmailCodeUseCase.execute(userEmail + '@dongyang.ac.kr');
       startTimer();
+    } on SendEmailFailed catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.message,
+        emailCode: state.emailCode.copyWith(
+          isCodeLoading: false,
+        ),
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

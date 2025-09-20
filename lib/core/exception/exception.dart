@@ -495,6 +495,29 @@ class HomeException implements Exception {
   String toString() => message;
 }
 
+class SendEmailFailed implements Exception {
+  final String message;
+  SendEmailFailed([this.message = "입력하신 이메일을 찾을 수 없어요.\n이메일을 다시 확인해 주세요"]);
+
+  @override
+  String toString() => message;
+}
+class BlindDateOpenException implements Exception {
+  final String message;
+  BlindDateOpenException([this.message = "과팅 오픈 기간이 아니에요.\n다음에 다시 만나요!"]);
+
+  @override
+  String toString() => message;
+}
+
+class ChatLeaveManagerException implements Exception {
+  final String message;
+  ChatLeaveManagerException([this.message = "모집자 혼자 있는 채팅방은\n나갈 수 없어요."]);
+
+  @override
+  String toString() => message;
+}
+
 class SearchException implements Exception {
   final String message;
   SearchException(

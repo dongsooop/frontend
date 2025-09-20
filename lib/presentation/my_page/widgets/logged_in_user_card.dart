@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class LoggedInUserCard extends HookConsumerWidget {
   final User user;
   final VoidCallback onTapAdminReport;
+  final VoidCallback onTapAdminBlindDate;
   final VoidCallback onTapMarket;
   final VoidCallback onTapCalendar;
   final VoidCallback onTapTimetable;
@@ -17,6 +18,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     super.key,
     required this.user,
     required this.onTapAdminReport,
+    required this.onTapAdminBlindDate,
     required this.onTapMarket,
     required this.onTapCalendar,
     required this.onTapTimetable,
@@ -141,11 +143,16 @@ class LoggedInUserCard extends HookConsumerWidget {
                     onTap: onTapBlockedUser,
                   ),
                   // 관리자
-                  if (user.role == 'ADMIN')
+                  if (user.role == 'ADMIN') ...[
                     _myActivityItem(
                       label: '신고 관리',
                       onTap: onTapAdminReport,
                     ),
+                    _myActivityItem(
+                      label: '과팅 오픈',
+                      onTap: onTapAdminBlindDate,
+                    ),
+                  ],
                 ],
               )
             ],

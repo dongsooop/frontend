@@ -1,7 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/core/network/socket_io_service.dart';
 import 'package:dongsoop/core/network/stomp_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
@@ -15,11 +20,13 @@ import 'chat_data_source.dart';
 class ChatDataSourceImpl implements ChatDataSource {
   final Dio _authDio;
   final StompService _stompService;
+  final SocketIoService _socketIoService;
   final HiveService _hiveService;
 
   ChatDataSourceImpl(
     this._authDio,
     this._stompService,
+    this._socketIoService,
     this._hiveService,
   );
 
@@ -144,7 +151,7 @@ class ChatDataSourceImpl implements ChatDataSource {
       }
       throw Exception();
     } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
       rethrow;
@@ -229,7 +236,7 @@ class ChatDataSourceImpl implements ChatDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
       rethrow;
@@ -255,7 +262,7 @@ class ChatDataSourceImpl implements ChatDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
       rethrow;
@@ -292,6 +299,11 @@ class ChatDataSourceImpl implements ChatDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         await _hiveService.deleteChatMessagesByRoomId(roomId);
       } else ChatLeaveException();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw ChatLeaveManagerException();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -314,6 +326,23 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
+  Future<bool> getBlindDateOpen() async {
+    final endpoint = dotenv.get('BLIND_DATE_OPEN_ENDPOINT');
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        if (response.data == 'true') {
+          return true;
+        }
+        else throw BlindDateOpenException();
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> connect(String roomId) => _stompService.connect(roomId);
 
   @override
@@ -328,4 +357,65 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Stream<String> subscribeBlock() => _stompService.blockStream;
+
+  // blind
+  @override
+  Future<void> blindConnect(int userId, String? sessionId) async {
+    final String url = dotenv.get('BLIND_URL');
+    final connectSessionId;
+
+    if (sessionId == null) connectSessionId = dotenv.get('BLIND_SESSION');
+    else connectSessionId = sessionId;
+
+    await _socketIoService.connect(url: url, sessionId: connectSessionId, memberId: userId);
+  }
+
+  @override
+  Future<void> blindDisconnect() => _socketIoService.disconnect();
+
+  @override
+  Future<String?> getBlindDateSessionId() async {
+    return await _hiveService.getTodayBlindSessionId();
+  }
+
+  @override
+  Future<void> saveBlindDateSessionId(String sessionId) async {
+    await _hiveService.saveTodayBlindSessionId(sessionId);
+  }
+
+  @override
+  void blindSendMessage(BlindDateRequest message) => _socketIoService.sendUserMessage(message);
+
+  @override
+  void userChoice(BlindChoice data) => _socketIoService.userChoice(data);
+
+  @override
+  Stream<int> get joinedStream => _socketIoService.joinedStream;
+
+  @override
+  Stream<String> get startStream => _socketIoService.startStream;
+
+  @override
+  Stream<BlindDateMessage> get systemStream => _socketIoService.systemStream;
+
+  @override
+  Stream<bool> get freezeStream => _socketIoService.freezeStream;
+
+  @override
+  Stream<BlindDateMessage> get broadcastStream => _socketIoService.broadcastStream;
+
+  @override
+  Stream<BlindJoinInfo> get joinStream => _socketIoService.joinStream;
+
+  @override
+  Stream<Map<int, String>> get participantsStream => _socketIoService.participantsStream;
+
+  @override
+  Stream<String> get matchStream => _socketIoService.matchStream;
+
+  @override
+  Stream<String> get disconnectStream => _socketIoService.disconnectStream;
+
+  @override
+  bool get isConnected => _socketIoService.isConnected;
 }
