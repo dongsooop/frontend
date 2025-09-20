@@ -10,6 +10,9 @@ import 'package:dongsoop/presentation/board/recruit/apply/list/recruit_applicant
 import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
+import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_screen.dart';
+import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
+import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_detail_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
@@ -169,7 +172,6 @@ final router = GoRouter(
       path: RoutePaths.passwordReset,
       builder: (context, state) => PasswordResetScreen(),
     ),
-
     GoRoute(
       path: RoutePaths.chatDetail,
       builder: (context, state) {
@@ -181,12 +183,27 @@ final router = GoRouter(
       }
     ),
     GoRoute(
+      path: RoutePaths.blindDateDetail,
+      builder: (context, state) => BlindDateDetailScreen(
+        onTapChatDetail: (roomId) {
+          context.push (
+            RoutePaths.chatDetail,
+            extra: roomId,
+          );
+        },
+      ),
+    ),
+    GoRoute(
       path: RoutePaths.mypageWebView,
       builder: (context, state) {
         final url = state.uri.queryParameters['url'] ?? '';
         final title = state.uri.queryParameters['title'] ?? '';
         return MypageWebView(url: url, title: title);
       },
+    ),
+    GoRoute(
+      path: RoutePaths.adminBlindDate,
+      builder: (context, state) => BlindAdminScreen()
     ),
     GoRoute(
       path: RoutePaths.adminReport,
@@ -532,23 +549,44 @@ final router = GoRouter(
             ),
           ],
         ),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: RoutePaths.chat,
-            builder: (context, state) => ChatScreen(
-              onTapChatDetail: (roomId) async {
-                final isLeaved = await context.push<bool>(
-                  RoutePaths.chatDetail,
-                  extra: roomId,
-                );
-                return isLeaved ?? false;
-              },
-              onTapSignIn: () {
-                context.push(RoutePaths.signIn);
-              },
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RoutePaths.chat,
+              builder: (context, state) => ChatScreen(
+                onTapChatDetail: (roomId) async {
+                  final isLeaved = await context.push<bool>(
+                    RoutePaths.chatDetail,
+                    extra: roomId,
+                  );
+                  return isLeaved ?? false;
+                },
+                onTapSignIn: () { context.push(RoutePaths.signIn); },
+                onTapBlindDate: () {
+                  context.push('${RoutePaths.chat}/${RoutePaths.blindDate}');
+                },
+              ),
+              routes: [
+                GoRoute(
+                  path: RoutePaths.blindDate,
+                  name: 'blindDate',
+                  builder: (context, state) => BlindDateScreen(
+                    onTapChat: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go(RoutePaths.chat);
+                      }
+                    },
+                    onTapBlindDateDetail: () {
+                      context.push(RoutePaths.blindDateDetail);
+                    },
+                  ),
+                ),
+              ],
             ),
-          ),
-        ]),
+          ]
+        ),
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.mypage,
@@ -569,6 +607,9 @@ final router = GoRouter(
               },
               onTapAdminReport: () {
                 context.push(RoutePaths.adminReport);
+              },
+              onTapAdminBlindDate: () {
+                context.push(RoutePaths.adminBlindDate);
               },
               onTapCalendar: () {
                 context.push(RoutePaths.schedule);

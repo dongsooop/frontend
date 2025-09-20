@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/presentation/chat/chat_bubble_screen.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -56,11 +57,14 @@ class ChatDetailScreen extends HookConsumerWidget {
         if (!isGroup && userId != null && participantsLength > 1) viewModel.getOtherUserId(userId);
         // 채팅방 연결
         viewModel.enterRoom(roomId);
+        FirebaseMessagingService.instance().setActiveChat(roomId);
       });
 
       return () {
         Future.microtask(() {
+          FirebaseMessagingService.instance().clearActiveChat();
           viewModel.closeChatRoom(roomId);
+          viewModel.clearError();
         });
       };
     }, []);
@@ -168,8 +172,8 @@ class ChatDetailScreen extends HookConsumerWidget {
                         confirmText: '나가기',
                         cancelText: '취소',
                         onConfirm: () async {
-                          await viewModel.leaveChatRoom(roomId);
-                          context.pop(true);
+                          final result = await viewModel.leaveChatRoom(roomId);
+                          if (result) context.pop(true);
                         },
                       ),
                     );
