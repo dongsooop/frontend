@@ -7,13 +7,13 @@ extension SearchRecruitAdapter on SearchRecruitEntity {
 
     return RecruitListEntity(
         id: id,
-        volunteer: volunteer,          // 검색 응답의 contactCount → volunteer 로 매핑
-        startAt: startAt,              // recruitmentStartAt
-        endAt: endAt,                  // recruitmentEndAt
+        volunteer: volunteer,
+        startAt: startAt,
+        endAt: endAt,
         title: title,
         content: content,
-        tags: tags,                    // 이미 모델에서 정제했다면 그대로 전달
-        state: nowTime.isBefore(endAt) // 모집 중 여부 계산
+        tags: tags,
+        state: nowTime.isBefore(endAt)
     );
   }
 }
