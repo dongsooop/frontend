@@ -84,14 +84,17 @@ class SearchDataSourceImpl implements SearchDataSource {
     required String sort,
   }) async {
     final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
+
+    final key = keyword.trim();
+    final dep = departmentName.trim();
+
     final params = <String, dynamic>{
       'page': page,
       'size': size,
       'sort': sort,
-      if (keyword.trim().isNotEmpty)
-      'keyword': keyword.trim(),
-      'boardType' : type.name,
-      'departmentName': departmentName.trim(),
+      if (key.isNotEmpty) 'keyword': key,
+      'boardType': type.name,
+      if (dep.isNotEmpty) 'departmentName': dep,
     };
 
     final response = await _plainDio.get(
