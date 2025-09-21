@@ -211,7 +211,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                 .toSet();
 
             return Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

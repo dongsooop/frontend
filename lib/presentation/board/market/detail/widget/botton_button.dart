@@ -26,8 +26,16 @@ class _BottomButtonState extends State<BottomButton> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        color: ColorStyles.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        decoration: const BoxDecoration(
+          color: ColorStyles.white,
+          border: Border(
+            top: BorderSide(
+              color: ColorStyles.gray2, // 원하는 색상
+              width: 1,                 // 선 두께
+            ),
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

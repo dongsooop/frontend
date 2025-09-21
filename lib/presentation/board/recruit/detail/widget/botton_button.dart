@@ -22,8 +22,16 @@ class RecruitBottomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        color: ColorStyles.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        decoration: const BoxDecoration(
+          color: ColorStyles.white,
+          border: Border(
+            top: BorderSide(
+              color: ColorStyles.gray2, // 원하는 색상
+              width: 1,                 // 선 두께
+            ),
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         child: Row(
           children: [
             Container(
@@ -34,16 +42,16 @@ class RecruitBottomButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: IconButton(
-                onPressed: isInquiryEnabled
-                    ? onIconPressed
-                    : null,
+                onPressed: isInquiryEnabled ? onIconPressed : null,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                iconSize: 24,
                 style: IconButton.styleFrom(
                   foregroundColor: ColorStyles.gray4,
                   disabledForegroundColor: ColorStyles.gray4,
                   highlightColor: Colors.transparent,
                 ),
-                icon: const Icon(Icons.chat_bubble_outline,
-                    size: 24, color: ColorStyles.gray4),
+                icon: const Icon(Icons.chat_bubble_outline, size: 24, color: ColorStyles.gray4),
               ),
             ),
             const SizedBox(width: 16),
@@ -53,6 +61,7 @@ class RecruitBottomButton extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: isApplyEnabled ? onPressed : null,
                   style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.zero,
                     backgroundColor:
                         isApplyEnabled ? ColorStyles.primary100 : ColorStyles.gray1,
                     textStyle: TextStyles.largeTextBold,
