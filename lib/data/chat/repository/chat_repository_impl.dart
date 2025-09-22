@@ -18,11 +18,6 @@ class ChatRepositoryImpl implements ChatRepository {
   );
 
   @override
-  Future<String> createOneToOneChatRoom(String title, int targetUserId) async {
-    return await _chatDataSource.createOneToOneChatRoom(title, targetUserId);
-  }
-
-  @override
   Future<String> createQNAChatRoom(ChatRoomRequest request) async {
     return await _chatDataSource.createQNAChatRoom(request);
   }

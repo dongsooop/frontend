@@ -44,7 +44,6 @@ import 'package:dongsoop/core/network/stomp_service.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/use_case/connect_chat_room_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/disconnect_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/subscribe_messages_use_case.dart';
@@ -79,11 +78,6 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 });
 
 // Use Case
-final createOneToOneChatRoomUseCaseProvider = Provider<CreateOneToOneChatRoomUseCase>((ref) {
-  final repository = ref.read(chatRepositoryProvider);
-  return CreateOneToOneChatRoomUseCase(repository);
-});
-
 final createQNAChatRoomUseCaseProvider = Provider<CreateQnaChatRoomUseCase>((ref) {
   final repository = ref.read(chatRepositoryProvider);
   return CreateQnaChatRoomUseCase(repository);

@@ -210,7 +210,7 @@ class MarketDataSourceImpl implements MarketDataSource {
   }
 
   @override
-  Future<void> contactMarket({required int marketId}) async {
+  Future<String> contactMarket({required int marketId}) async {
     final url = dotenv.get('MARKET_CONTACT_ENDPOINT');
 
     try {
@@ -222,6 +222,8 @@ class MarketDataSourceImpl implements MarketDataSource {
       if (response.statusCode != HttpStatusCode.created.code) {
         throw Exception('status: ${response.statusCode}');
       }
+
+      return response.data['roomId'];
     } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw MarketAlreadyContactException();

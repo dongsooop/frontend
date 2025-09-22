@@ -19,7 +19,6 @@ abstract class ChatRepository {
   Future<ChatMessage?> getLatestMessage(String roomId);
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
-  Future<String> createOneToOneChatRoom(String title, int targetUserId);
   Future<String> createQNAChatRoom(ChatRoomRequest request);
   Future<bool> getBlindDateOpen();
 

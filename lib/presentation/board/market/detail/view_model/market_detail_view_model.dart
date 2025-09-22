@@ -8,7 +8,6 @@ import 'package:dongsoop/presentation/board/providers/market/market_contact_use_
 import 'package:dongsoop/presentation/board/providers/market/market_delete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_detail_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:dongsoop/domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -42,8 +41,6 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
       ref.watch(marketCompleteUseCaseProvider);
   MarketContactUseCase get _contactUseCase =>
       ref.watch(marketContactUseCaseProvider);
-  CreateOneToOneChatRoomUseCase get _createOneToOneChatRoomUseCase =>
-      ref.watch(createOneToOneChatRoomUseCaseProvider);
   UserBlockUseCase get _userBlockUseCase => ref.watch(userBlockUseCaseProvider);
 
   @override
@@ -84,18 +81,9 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
     }
   }
 
-  Future<void> contactMarket(int marketId) async {
+  Future<String> contactMarket(int marketId) async {
     try {
-      await _contactUseCase.execute(marketId: marketId);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<String> createChatRoom(String title, int targetUserId) async {
-    try {
-      final roomId = await _createOneToOneChatRoomUseCase.execute(title, targetUserId);
-      return roomId;
+      return await _contactUseCase.execute(marketId: marketId);
     } catch (e) {
       rethrow;
     }
