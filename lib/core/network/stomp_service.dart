@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'package:dongsoop/core/exception/exception.dart';
@@ -11,6 +12,8 @@ class StompService {
   late StompClient _client;
   final _chatController = StreamController<ChatMessage>.broadcast();
   final _blockController = StreamController<String>.broadcast();
+  final _chatRoomController = StreamController<ChatRoomWs>.broadcast();
+
   final SecureStorageService _secureStorageService;
 
   StompService(this._secureStorageService);
@@ -59,7 +62,9 @@ class StompService {
       callback: (frame) {
         if (frame.body != null) {
           final jsonData = json.decode(frame.body!);
-          print('chat room message: $jsonData');
+          final data = ChatRoomWs.fromJson(jsonData);
+          print('chat room ws: $data');
+          _chatRoomController.add(data);
         }
       },
     );
