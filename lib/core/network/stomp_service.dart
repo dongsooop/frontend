@@ -15,6 +15,57 @@ class StompService {
 
   StompService(this._secureStorageService);
 
+  // chat room list
+  Future<void> connectRoomList(int userId) async {
+    try {
+      final baseUrl = dotenv.get('BASE_URL');
+      final endpoint = dotenv.get('WEBSOCKET_ENDPOINT');
+      final url = '$baseUrl$endpoint';
+      final accessToken = await _secureStorageService.read('accessToken');
+
+      _client = StompClient(
+        config: StompConfig.sockJS(
+          url: url,
+          onConnect: (frame) => _onConnectRoomList(frame, userId),
+          stompConnectHeaders: {
+            'Authorization': 'Bearer $accessToken',
+          },
+          webSocketConnectHeaders: {
+            'Authorization': 'Bearer $accessToken',
+          },
+          onWebSocketError: (error) {
+            if (error.toString().contains('403')) {
+              throw ChatForbiddenException();
+            } else if (error.toString().contains('401')) {
+              throw LoginRequiredException();
+            } else {
+              throw Exception('WebSocket Error: $error');
+            }
+          },
+        ),
+      );
+
+      _client.activate();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  void _onConnectRoomList(StompFrame frame, int userId) {
+    final chatRoomDestination = dotenv.get('CHAT_ROOM_DESTINATION');
+
+    _client.subscribe(
+      destination: '$chatRoomDestination/$userId',
+      callback: (frame) {
+        if (frame.body != null) {
+          final jsonData = json.decode(frame.body!);
+          print('chat room message: $jsonData');
+        }
+      },
+    );
+  }
+
+  // chat detail
   Future<void> connect(String roomId) async {
     try {
       final baseUrl = dotenv.get('BASE_URL');
