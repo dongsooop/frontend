@@ -9,8 +9,5 @@ final guestMarketDataSourceProvider = Provider(
 );
 
 final marketDataSourceProvider = Provider(
-  (ref) => MarketDataSourceImpl(
-    ref.watch(authDioProvider),
-    createAuthDio(ref: ref, useAi: true),
-  ),
+  (ref) => MarketDataSourceImpl(ref.watch(authDioProvider)),
 );
