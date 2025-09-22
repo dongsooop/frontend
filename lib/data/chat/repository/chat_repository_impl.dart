@@ -80,11 +80,6 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<void> updateReadStatus(String roomId) async {
-    await _chatDataSource.updateReadStatus(roomId);
-  }
-
-  @override
   Future<void> deleteChatBox() async {
     await _chatDataSource.deleteChatBox();
   }

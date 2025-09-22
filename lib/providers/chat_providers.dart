@@ -31,7 +31,6 @@ import 'package:dongsoop/domain/chat/use_case/stream/blind_match_stream_use_case
 import 'package:dongsoop/domain/chat/use_case/stream/blind_participants_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_start_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_system_stream_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_state.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_view_model.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_state.dart';
@@ -151,11 +150,6 @@ final getOfflineMessagesUseCaseProvider = Provider<GetOfflineMessagesUseCase>((r
   return GetOfflineMessagesUseCase(repository);
 });
 
-final updateReadStatusUseCaseProvider = Provider<UpdateReadStatusUseCase>((ref) {
-  final repository = ref.watch(chatRepositoryProvider);
-  return UpdateReadStatusUseCase(repository);
-});
-
 final leaveChatRoomUseCaseProvider = Provider<LeaveChatRoomUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return LeaveChatRoomUseCase(repository);
@@ -267,7 +261,6 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final saveChatMessageUseCase = ref.watch(saveChatMessageUseCaseProvider);
   final getPagedMessagesUseCase = ref.watch(getPagedMessagesUseCaseProvider);
   final getOfflineMessagesUseCase = ref.watch(getOfflineMessagesUseCaseProvider);
-  final updateReadStatusUseCase = ref.watch(updateReadStatusUseCaseProvider);
   final leaveChatRoomUseCase = ref.watch(leaveChatRoomUseCaseProvider);
   final kickUserUseCase = ref.watch(kickUserUseCaseProvider);
   final userBlockUseCase = ref.watch(userBlockUseCaseProvider);
@@ -283,7 +276,6 @@ StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
     saveChatMessageUseCase,
     getPagedMessagesUseCase,
     getOfflineMessagesUseCase,
-    updateReadStatusUseCase,
     leaveChatRoomUseCase,
     kickUserUseCase,
     userBlockUseCase,

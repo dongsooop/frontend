@@ -17,7 +17,6 @@ abstract class ChatRepository {
   Future<void> deleteChatBox();
   Future<List<ChatMessage>?> getOfflineMessages(String roomId);
   Future<ChatMessage?> getLatestMessage(String roomId);
-  Future<void> updateReadStatus(String roomId);
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
   Future<String> createOneToOneChatRoom(String title, int targetUserId);

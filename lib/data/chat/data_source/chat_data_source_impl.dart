@@ -272,23 +272,6 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<void> updateReadStatus(String roomId) async {
-    final chat = dotenv.get('CHAT');
-    final readStatus = dotenv.get('READ_STATUS_ENDPOINT');
-    final endpoint = '$chat/$roomId$readStatus';
-
-    try {
-      await _authDio.post(endpoint, data: {});
-    } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
-        throw ChatForbiddenException();
-      }
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
   Future<void> leaveChatRoom(String roomId) async {
     final chat = dotenv.get('CHAT');
     final leave = dotenv.get('LEAVE_ENDPOINT');

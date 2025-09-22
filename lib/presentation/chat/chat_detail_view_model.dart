@@ -11,7 +11,6 @@ import 'package:dongsoop/domain/chat/use_case/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/subscribe_messages_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
@@ -31,7 +30,6 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   final SaveChatMessageUseCase _saveChatMessageUseCase;
   final GetPagedMessagesUseCase _getPagedMessages;
   final GetOfflineMessagesUseCase _getOfflineMessagesUseCase;
-  final UpdateReadStatusUseCase _updateReadStatusUseCase;
   final LeaveChatRoomUseCase _leaveChatRoomUseCase;
   final KickUserUseCase _kickUserUseCase;
   final UserBlockUseCase _userBlockUseCase;
@@ -53,7 +51,6 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     this._saveChatMessageUseCase,
     this._getPagedMessages,
     this._getOfflineMessagesUseCase,
-    this._updateReadStatusUseCase,
     this._leaveChatRoomUseCase,
     this._kickUserUseCase,
     this._userBlockUseCase,
@@ -164,7 +161,6 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      await _updateReadStatusUseCase.execute(roomId); // 읽음 상태 업데이트
       _chatRoomDisconnectUseCase.execute();
 
       _messagesSubscription?.cancel();  // 구독 해제
