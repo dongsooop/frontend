@@ -304,7 +304,6 @@ class MarketDetailPageScreen extends ConsumerWidget {
 
           try {
             await viewModel.deleteMarket(id);
-            ref.invalidate(MarketListViewModelProvider(type: type));
             context.pop(true);
           } catch (e) {
             showDialog(
