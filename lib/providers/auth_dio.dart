@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Dio createAuthDio({required Ref ref, bool useAi = false}) {
-  final baseUrl = useAi ? dotenv.get('AI_URL') : dotenv.get('BASE_URL');
+  final baseUrl = dotenv.get('BASE_URL');
 
   final dio = Dio(BaseOptions(baseUrl: baseUrl));
 
