@@ -12,6 +12,7 @@ import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
@@ -321,6 +322,15 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Stream<String> subscribeBlock() => _stompService.blockStream;
+
+  @override
+  Future<void> connectChatList(int userId) => _stompService.connectRoomList(userId);
+
+  @override
+  void disconnectChatList() => _stompService.disconnectChatRoom();
+
+  @override
+  Stream<ChatRoomWs> subscribeChatList() => _stompService.chatRoomStream;
 
   // blind
   @override

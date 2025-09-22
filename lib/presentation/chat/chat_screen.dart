@@ -87,6 +87,8 @@ class ChatScreen extends HookConsumerWidget {
       if (user != null) {
         Future.microtask(() async {
           await viewModel.loadChatRooms();
+          // 웹소켓 연결
+          viewModel.connectChatRoom(user.id);
         });
       }
       return null;

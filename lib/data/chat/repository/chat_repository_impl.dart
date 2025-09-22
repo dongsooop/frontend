@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
@@ -108,6 +109,14 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<String> subscribeBlock() => _chatDataSource.subscribeBlock();
+
+  @override
+  Future<void> connectChatList(int userId) => _chatDataSource.connectChatList(userId);
+
+  @override
+  void disconnectChatList() => _chatDataSource.disconnectChatList();
+  @override
+  Stream<ChatRoomWs> subscribeChatList() => _chatDataSource.subscribeChatList();
 
   // blind
   @override

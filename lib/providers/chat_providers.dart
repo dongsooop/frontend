@@ -4,6 +4,7 @@ import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/blind_choice_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/blind_connect_use_case.dart';
@@ -11,9 +12,11 @@ import 'package:dongsoop/domain/chat/use_case/blind_date/blind_disconnect_use_ca
 import 'package:dongsoop/domain/chat/use_case/blind_date/blind_send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/get_blind_session_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/save_blind_session_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/connect_chat_list_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/delete_chat_data_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/get_blind_date_open_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/disconnect_chat_list_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/get_paged_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/get_room_detail_use_case.dart';
@@ -32,6 +35,7 @@ import 'package:dongsoop/domain/chat/use_case/stream/blind_match_stream_use_case
 import 'package:dongsoop/domain/chat/use_case/stream/blind_participants_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_start_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_system_stream_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/stream/subscribe_chat_list_use_case.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_state.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_view_model.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_state.dart';
@@ -234,17 +238,39 @@ final saveBlindSessionUseCaseProvider = Provider<SaveBlindSessionUseCase>((ref) 
   return SaveBlindSessionUseCase(repository);
 });
 
-// View Model
-final chatViewModelProvider =
-StateNotifierProvider.autoDispose<ChatViewModel, ChatState>((ref) {
-  final loadChatRoomsUseCase = ref.watch(loadChatRoomsUseCaseProvider);
-  final getBlindDateOpenUseCase = ref.watch(getBlindDateOpenUseCaseProvider);
-
-  return ChatViewModel(loadChatRoomsUseCase, getBlindDateOpenUseCase);
+final connectChatListUseCaseProvider = Provider<ConnectChatListUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return ConnectChatListUseCase(repository);
 });
 
-final chatDetailViewModelProvider =
-StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
+final disconnectChatListUseCaseProvider = Provider<DisconnectChatListUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return DisconnectChatListUseCase(repository);
+});
+
+final subscribeChatListUseCaseProvider = Provider<SubscribeChatListUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return SubscribeChatListUseCase(repository);
+});
+
+
+// View Model
+final chatViewModelProvider = StateNotifierProvider<ChatViewModel, ChatState>((ref) {
+  final loadChatRoomsUseCase = ref.watch(loadChatRoomsUseCaseProvider);
+  final getBlindDateOpenUseCase = ref.watch(getBlindDateOpenUseCaseProvider);
+  final connectChatListUseCase = ref.watch(connectChatListUseCaseProvider);
+  final disconnectChatListUseCase = ref.watch(disconnectChatListUseCaseProvider);
+  final subscribeChatListUseCase = ref.watch(subscribeChatListUseCaseProvider);
+
+  return ChatViewModel(ref, loadChatRoomsUseCase, getBlindDateOpenUseCase, connectChatListUseCase, disconnectChatListUseCase, subscribeChatListUseCase);
+});
+
+final chatRoomListProvider = StateNotifierProvider<ChatRoomListNotifier, ChatRoomWs?>((ref) {
+    return ChatRoomListNotifier();
+  },
+);
+
+final chatDetailViewModelProvider = StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final connectUseCase = ref.watch(connectChatRoomUseCaseProvider);
   final disconnectUseCase = ref.watch(disconnectChatRoomUseCaseProvider);
   final sendMessageUseCase = ref.watch(sendMessageUseCaseProvider);

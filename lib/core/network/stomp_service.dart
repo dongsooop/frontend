@@ -9,7 +9,9 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 
 class StompService {
-  late StompClient _client;
+  late StompClient _chatDetailClient;
+  late StompClient _chatRoomClient;
+
   final _chatController = StreamController<ChatMessage>.broadcast();
   final _blockController = StreamController<String>.broadcast();
   final _chatRoomController = StreamController<ChatRoomWs>.broadcast();
@@ -26,7 +28,7 @@ class StompService {
       final url = '$baseUrl$endpoint';
       final accessToken = await _secureStorageService.read('accessToken');
 
-      _client = StompClient(
+      _chatRoomClient = StompClient(
         config: StompConfig.sockJS(
           url: url,
           onConnect: (frame) => _onConnectRoomList(frame, userId),
@@ -48,7 +50,7 @@ class StompService {
         ),
       );
 
-      _client.activate();
+      _chatRoomClient.activate();
     } catch (e) {
       rethrow;
     }
@@ -57,18 +59,23 @@ class StompService {
   void _onConnectRoomList(StompFrame frame, int userId) {
     final chatRoomDestination = dotenv.get('CHAT_ROOM_DESTINATION');
 
-    _client.subscribe(
+    _chatRoomClient.subscribe(
       destination: '$chatRoomDestination/$userId',
       callback: (frame) {
         if (frame.body != null) {
           final jsonData = json.decode(frame.body!);
           final data = ChatRoomWs.fromJson(jsonData);
-          print('chat room ws: $data');
           _chatRoomController.add(data);
         }
       },
     );
   }
+
+  void disconnectChatRoom() {
+    _chatRoomClient.deactivate();
+  }
+
+  Stream<ChatRoomWs> get chatRoomStream => _chatRoomController.stream;
 
   // chat detail
   Future<void> connect(String roomId) async {
@@ -78,7 +85,7 @@ class StompService {
       final url = '$baseUrl$endpoint';
       final accessToken = await _secureStorageService.read('accessToken');
 
-      _client = StompClient(
+      _chatDetailClient = StompClient(
         config: StompConfig.sockJS(
           url: url,
           onConnect: (frame) => _onConnect(frame, roomId),
@@ -100,7 +107,7 @@ class StompService {
         ),
       );
 
-      _client.activate();
+      _chatDetailClient.activate();
     } catch (e) {
       rethrow;
     }
@@ -111,7 +118,7 @@ class StompService {
     final chatDestination = dotenv.get('CHAT_DESTINATION');
     final blockDestination = dotenv.get('BLOCK_DESTINATION');
 
-    _client.subscribe(
+    _chatDetailClient.subscribe(
       destination: '$blockDestination/$roomId',
       callback: (frame) {
         if (frame.body != null) {
@@ -122,7 +129,7 @@ class StompService {
       },
     );
 
-    _client.subscribe(
+    _chatDetailClient.subscribe(
       destination: '$chatDestination/$roomId',
       callback: (frame) {
         if (frame.body != null) {
@@ -133,7 +140,7 @@ class StompService {
       },
     );
 
-    _client.send(
+    _chatDetailClient.send(
       destination: '$enterDestination/$roomId',
     );
   }
@@ -147,14 +154,14 @@ class StompService {
       "type": message.type,
     });
 
-    _client.send(
+    _chatDetailClient.send(
       destination: destination,
       body: bodyData,
     );
   }
 
   void disconnect() {
-    _client.deactivate();
+    _chatDetailClient.deactivate();
   }
 
   Stream<ChatMessage> get messageStream => _chatController.stream;
