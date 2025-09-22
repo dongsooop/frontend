@@ -1,5 +1,5 @@
-import 'package:dongsoop/core/presentation/components/single_action_dialog.dart';
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
+import 'package:dongsoop/core/presentation/components/single_action_dialog.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
@@ -7,10 +7,12 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/timezone/providers/check_time_zone_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
+import 'package:dongsoop/presentation/board/market/list/search_market_list.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
 import 'package:dongsoop/presentation/board/providers/board_taps_provider.dart';
 import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_item.dart';
+import 'package:dongsoop/presentation/board/recruit/list/search_recruit_list.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -41,71 +43,58 @@ class BoardPageScreen extends HookConsumerWidget {
 
     final scrollControllers =
         useMemoized(() => List.generate(5, (_) => ScrollController()));
-    final pageController = usePageController();
+    final recruitController = useMemoized(
+          () => PageController(initialPage: ref.read(boardTabProvider).recruitTabIndex),
+    );
+    final marketController = useMemoized(
+          () => PageController(initialPage: ref.read(boardTabProvider).marketTabIndex),
+    );
+
+    final searchCtrl = useTextEditingController();
+    final keyword = useState('');
+    final isSearching = useState(false);
+
+    useEffect(() {
+      isSearching.value = false;
+      keyword.value = '';
+      return null;
+    }, const []);
 
     final isRecruit = tabState.categoryIndex == 0;
     final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
     final selectedSubIndex =
-        isRecruit ? tabState.recruitTabIndex : tabState.marketTabIndex;
+    isRecruit ? tabState.recruitTabIndex : tabState.marketTabIndex;
+
+    final pageController = isRecruit ? recruitController : marketController;
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final currentPage =
-        pageController.hasClients ? pageController.page?.round() : null;
-        if (currentPage != selectedSubIndex) {
-          pageController.jumpToPage(selectedSubIndex);
+        if (!pageController.hasClients) return;
+        final target = selectedSubIndex;
+        final current = pageController.page?.round();
+        if (current != target) {
+          pageController.jumpToPage(target);
         }
       });
       return null;
-    }, [tabState.categoryIndex]);
+    }, [isRecruit, selectedSubIndex]);
 
     final user = ref.watch(userSessionProvider);
-    final departmentCode = user != null
-        ? DepartmentTypeExtension.fromDisplayName(user.departmentType).code
-        : '';
+    String departmentCode = '';
+    String departmentName = '';
+    if (user != null) {
+      final dept = DepartmentTypeExtension.fromDisplayName(user.departmentType);
+      departmentCode = dept.code;
+      departmentName = dept.displayName;
+    }
 
     final safeIndex = selectedSubIndex.clamp(0, currentSubTabs.length - 1);
 
-    final recruitType = isRecruit && safeIndex < RecruitType.values.length
-        ? RecruitType.values[safeIndex]
-        : null;
+    final recruitType =
+    isRecruit && safeIndex < RecruitType.values.length ? RecruitType.values[safeIndex] : null;
 
-    final deletedRecruitIds = ref.watch(deletedRecruitIdsProvider);
-
-    useEffect(() {
-      if (deletedRecruitIds.isNotEmpty && isRecruit && recruitType != null) {
-        Future.microtask(() async {
-          await ref.read(
-            recruitListViewModelProvider(
-              type: recruitType,
-              departmentCode: departmentCode,
-            ).notifier,
-          ).refresh();
-          ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
-        });
-      }
-      return null;
-    }, [deletedRecruitIds, isRecruit, recruitType, departmentCode]);
-
-
-    final marketType = !isRecruit && safeIndex < MarketType.values.length
-        ? MarketType.values[safeIndex]
-        : null;
-
-    final editedMarketIds = ref.watch(editedMarketIdsProvider);
-
-    useEffect(() {
-      if (editedMarketIds.isNotEmpty && !isRecruit && marketType != null) {
-        Future.microtask(() async {
-          await ref.read(
-            marketListViewModelProvider(type: marketType).notifier,
-          ).refresh();
-
-          ref.read(editedMarketIdsProvider.notifier).update((_) => {});
-        });
-      }
-      return null;
-    }, [editedMarketIds, isRecruit, marketType]);
+    final marketType =
+    !isRecruit && safeIndex < MarketType.values.length ? MarketType.values[safeIndex] : null;
 
     Future<void> handleWriteAction() async {
       final user = ref.watch(userSessionProvider);
@@ -131,7 +120,7 @@ class BoardPageScreen extends HookConsumerWidget {
 
       if (result == true) {
         if (isRecruit && recruitType != null) {
-          await ref
+          ref
               .read(
                 recruitListViewModelProvider(
                   type: recruitType,
@@ -140,7 +129,7 @@ class BoardPageScreen extends HookConsumerWidget {
               )
               .refresh();
         } else if (marketType != null) {
-          await ref
+          ref
               .read(
                 marketListViewModelProvider(type: marketType).notifier,
               )
@@ -150,31 +139,62 @@ class BoardPageScreen extends HookConsumerWidget {
     }
 
     Future<void> handleRecruitDetail(int id, RecruitType type) async {
+      final wasSearching = isSearching.value;
       final didApply = await onTapRecruitDetail(id, type);
 
       final deletedIds = ref.read(deletedRecruitIdsProvider);
       final isDeleted = deletedIds.contains(id);
 
       if ((didApply || isDeleted) && recruitType != null) {
-        // 삭제된 항목 목록을 반영해서 refresh
-        await ref.read(
-          recruitListViewModelProvider(
-            type: recruitType,
-            departmentCode: departmentCode,
-          ).notifier,
-        ).refresh();
-      }
+        if (wasSearching) {
+          await ref
+              .read(
+            recruitListViewModelProvider(
+              type: recruitType,
+              departmentCode: departmentCode,
+            ).notifier,
+          )
+              .refresh();
 
-      if (isDeleted) {
-        // 삭제 처리 후, 전역 상태 초기화
-        ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
+          final controller = scrollControllers[safeIndex];
+          if (controller.hasClients) controller.jumpTo(0);
+          searchCtrl.clear();
+          keyword.value = '';
+          isSearching.value = false;
+          FocusManager.instance.primaryFocus?.unfocus();
+
+          if (isDeleted) {
+            ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
+          }
+          return;
+        } else {
+          await ref
+              .read(
+            recruitListViewModelProvider(
+              type: recruitType,
+              departmentCode: departmentCode,
+            ).notifier,
+          )
+              .refresh();
+
+          final controller = scrollControllers[safeIndex];
+          if (controller.hasClients) controller.jumpTo(0);
+
+          if (isDeleted) {
+            ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
+          }
+        }
+      } else {
+        if (isDeleted) {
+          ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
+        }
       }
     }
 
     Future<void> handleMarketDetail(int id, MarketType type) async {
       final didComplete = await onTapMarketDetail(id, type);
       if (didComplete && marketType != null) {
-        await ref
+        ref
             .read(
               marketListViewModelProvider(type: marketType).notifier,
             )
@@ -182,7 +202,19 @@ class BoardPageScreen extends HookConsumerWidget {
       }
     }
 
-    final lastRetapAt = useRef<DateTime?>(null);
+    Future<void> performSearch(String kw) async {
+      final q = kw.trim();
+      if (q.isEmpty) return;
+      keyword.value = q;
+      isSearching.value = true;
+    }
+
+    void cancelSearch() {
+      searchCtrl.clear();
+      keyword.value = '';
+      isSearching.value = false;
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
@@ -200,77 +232,17 @@ class BoardPageScreen extends HookConsumerWidget {
                 selectedSubTabIndex: safeIndex,
                 subTabs: currentSubTabs,
                 onCategorySelected: (newIndex) {
+                  if (isSearching.value) cancelSearch();
                   tabNotifier.setCategoryIndex(newIndex);
                 },
                 onSubTabSelected: (newSubIndex) {
-                  final currentIndex = isRecruit
-                      ? tabState.recruitTabIndex
-                      : tabState.marketTabIndex;
-                  final isSameIndex = newSubIndex == currentIndex;
-
+                  if (isSearching.value) cancelSearch();
                   if (isRecruit) {
                     tabNotifier.setRecruitTabIndex(newSubIndex);
+                    recruitController.jumpToPage(newSubIndex);
                   } else {
                     tabNotifier.setMarketTabIndex(newSubIndex);
-                  }
-
-                  final delta = (newSubIndex - currentIndex).abs();
-                  if (delta > 1) {
-                    pageController.jumpToPage(newSubIndex);
-                  } else {
-                    pageController.animateToPage(
-                      newSubIndex,
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-
-                  if (!isSameIndex) return;
-
-                  final controller = scrollControllers[newSubIndex];
-                  final now = DateTime.now();
-                  if (lastRetapAt.value == null ||
-                      now.difference(lastRetapAt.value!) >
-                          const Duration(milliseconds: 800)) {
-                    lastRetapAt.value = now;
-
-                    Future.microtask(() async {
-                      if (isRecruit && newSubIndex < RecruitType.values.length) {
-                        final type = RecruitType.values[newSubIndex];
-                        final deletedIds = ref.read(deletedRecruitIdsProvider);
-
-                        // 삭제된 게시글 ID가 있는 경우 무조건 refresh
-                        if (deletedIds.isNotEmpty) {
-                          await ref.read(recruitListViewModelProvider(
-                            type: type,
-                            departmentCode: departmentCode,
-                          ).notifier).refresh();
-
-                          // 삭제 ID 초기화
-                          ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
-                        } else {
-                          await ref
-                              .read(recruitListViewModelProvider(
-                            type: type,
-                            departmentCode: departmentCode,
-                          ).notifier)
-                              .refresh();
-                        }
-                      } else if (!isRecruit && newSubIndex < MarketType.values.length) {
-                        final type = MarketType.values[newSubIndex];
-                        await ref.read(marketListViewModelProvider(type: type).notifier).refresh();
-                      }
-
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (controller.hasClients) {
-                          controller.animateTo(
-                            0,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
-                      });
-                    });
+                    marketController.jumpToPage(newSubIndex);
                   }
                 },
                 showHelpIcon: isRecruit,
@@ -289,10 +261,15 @@ class BoardPageScreen extends HookConsumerWidget {
                     ),
                   );
                 },
+                searchController: searchCtrl,
+                isSearching: isSearching.value,
+                onSearch: performSearch,
+                onCancel: cancelSearch,
               ),
             ),
             Expanded(
               child: PageView.builder(
+                key: ValueKey(isRecruit ? 'pv-recruit' : 'pv-market'),
                 controller: pageController,
                 itemCount: currentSubTabs.length,
                 onPageChanged: (index) {
@@ -304,29 +281,53 @@ class BoardPageScreen extends HookConsumerWidget {
                 },
                 itemBuilder: (context, index) {
                   final isActive = index == safeIndex;
-                  final scrollController = scrollControllers[index];
+                  final controller = scrollControllers[index];
+                  if (!isActive) return const SizedBox.shrink();
 
-                  if (isRecruit && index < RecruitType.values.length) {
-                    return isActive
-                        ? RecruitItemListSection(
-                      recruitType: RecruitType.values[index],
-                      departmentCode: departmentCode,
-                      onTapRecruitDetail: handleRecruitDetail,
-                      scrollController: scrollController,
-                    )
-                        : const SizedBox.expand();
-                  } else if (!isRecruit &&
-                      index < MarketType.values.length) {
-                    return isActive
-                        ? MarketItemListSection(
-                      marketType: MarketType.values[index],
-                      onTapMarketDetail: handleMarketDetail,
-                      scrollController: scrollController,
-                    )
-                        : const SizedBox.expand();
+                  if (isSearching.value) {
+                    if (isRecruit && index < RecruitType.values.length) {
+                      return SearchRecruitItemListSection(
+                        key: ValueKey(
+                          'search-recruit-${RecruitType.values[index].name}-${keyword.value}',
+                        ),
+                        recruitType: RecruitType.values[index],
+                        departmentName: departmentName,
+                        scrollController: controller,
+                        onTapRecruitDetail: handleRecruitDetail,
+                        query: keyword.value,
+                      );
+                    } else if (!isRecruit && index < MarketType.values.length) {
+                      return SearchMarketItemListSection(
+                        key: ValueKey(
+                          'search-market-${MarketType.values[index].name}-${keyword.value}',
+                        ),
+                        marketType: MarketType.values[index],
+                        scrollController: controller,
+                        onTapMarketDetail: handleMarketDetail,
+                        query: keyword.value,
+                      );
+                    }
                   } else {
-                    return const SizedBox.shrink();
+                    if (isRecruit && index < RecruitType.values.length) {
+                      return RecruitItemListSection(
+                        key: ValueKey(
+                          'recruit-${RecruitType.values[index].name}-$departmentCode',
+                        ),
+                        recruitType: RecruitType.values[index],
+                        departmentCode: departmentCode,
+                        onTapRecruitDetail: handleRecruitDetail,
+                        scrollController: controller,
+                      );
+                    } else if (!isRecruit && index < MarketType.values.length) {
+                      return MarketItemListSection(
+                        key: ValueKey('market-${MarketType.values[index].name}'),
+                        marketType: MarketType.values[index],
+                        onTapMarketDetail: handleMarketDetail,
+                        scrollController: controller,
+                      );
+                    }
                   }
+                  return const SizedBox.shrink();
                 },
               ),
             ),

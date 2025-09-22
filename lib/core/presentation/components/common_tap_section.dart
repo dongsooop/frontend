@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/search_bar_with_cancel.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,10 @@ class BoardTabSection extends StatelessWidget {
   final void Function(int) onSubTabSelected;
   final bool showHelpIcon;
   final VoidCallback? onHelpPressed;
+  final TextEditingController searchController;
+  final bool isSearching;
+  final Future<void> Function(String) onSearch;
+  final VoidCallback onCancel;
 
   const BoardTabSection({
     super.key,
@@ -22,6 +27,10 @@ class BoardTabSection extends StatelessWidget {
     required this.onSubTabSelected,
     this.showHelpIcon = false,
     this.onHelpPressed,
+    required this.searchController,
+    required this.isSearching,
+    required this.onSearch,
+    required this.onCancel,
   });
 
   @override
@@ -44,11 +53,15 @@ class BoardTabSection extends StatelessWidget {
           ),
         ),
 
-        /// 추후 개발 기능
-        // const Padding(
-        //   padding: EdgeInsets.symmetric(vertical: 16),
-        //   child: SearchBarComponent(),
-        // ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: SearchBarWithCancel(
+            controller: searchController,
+            isSearching: isSearching,
+            onSearch: onSearch,
+            onCancel: onCancel,
+          ),
+        ),
 
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
