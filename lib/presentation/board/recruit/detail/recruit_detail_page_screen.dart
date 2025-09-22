@@ -11,7 +11,6 @@ import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/view_models/recruit_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/widget/botton_button.dart';
-import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
 import 'package:dongsoop/presentation/home/providers/home_update_provider.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -211,7 +210,7 @@ class RecruitDetailPageScreen extends ConsumerWidget {
                 .toSet();
 
             return Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,10 +390,6 @@ class RecruitDetailPageScreen extends ConsumerWidget {
             ref.read(deletedRecruitIdsProvider.notifier).update(
                   (prev) => {...prev, id},
             );
-            ref.read(RecruitListViewModelProvider(
-              type: type,
-              departmentCode: user.departmentType,
-            ).notifier).refresh();
             ref.read(homeNeedsRefreshProvider.notifier).state = true;
             context.pop(true);
           } catch (e) {

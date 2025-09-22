@@ -22,8 +22,24 @@ class RecruitBottomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        color: ColorStyles.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        decoration: BoxDecoration(
+          color: ColorStyles.white,
+          boxShadow: [
+            BoxShadow(
+              color: ColorStyles.gray1,
+              offset: const Offset(0, -4),
+              blurRadius: 5,
+              spreadRadius: -5,
+            ),
+            BoxShadow(
+              color: ColorStyles.gray1,
+              offset: const Offset(0, -8),
+              blurRadius: 15,
+              spreadRadius: -10,
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         child: Row(
           children: [
             Container(
@@ -34,16 +50,16 @@ class RecruitBottomButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: IconButton(
-                onPressed: isInquiryEnabled
-                    ? onIconPressed
-                    : null,
+                onPressed: isInquiryEnabled ? onIconPressed : null,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                iconSize: 24,
                 style: IconButton.styleFrom(
                   foregroundColor: ColorStyles.gray4,
                   disabledForegroundColor: ColorStyles.gray4,
                   highlightColor: Colors.transparent,
                 ),
-                icon: const Icon(Icons.chat_bubble_outline,
-                    size: 24, color: ColorStyles.gray4),
+                icon: const Icon(Icons.chat_bubble_outline, size: 24, color: ColorStyles.gray4),
               ),
             ),
             const SizedBox(width: 16),
@@ -53,6 +69,7 @@ class RecruitBottomButton extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: isApplyEnabled ? onPressed : null,
                   style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.zero,
                     backgroundColor:
                         isApplyEnabled ? ColorStyles.primary100 : ColorStyles.gray1,
                     textStyle: TextStyles.largeTextBold,

@@ -15,9 +15,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MarketDataSourceImpl implements MarketDataSource {
   final Dio _authDio;
-  final Dio _aiDio;
 
-  MarketDataSourceImpl(this._authDio, this._aiDio);
+  MarketDataSourceImpl(this._authDio);
 
   @override
   Future<List<MarketListModel>> fetchMarketList({
@@ -78,7 +77,7 @@ class MarketDataSourceImpl implements MarketDataSource {
     final url = dotenv.get("MARKET_FILTER_ENDPOINT");
 
     try {
-      final response = await _aiDio.post(url, data: model.toJson());
+      final response = await _authDio.post(url, data: model.toJson());
 
       if (response.statusCode == HttpStatusCode.ok.code) {
         return;
