@@ -38,7 +38,7 @@ class MainScreen extends StatelessWidget {
               ),
             ],
           ),
-          padding: const EdgeInsets.only(top: 24),
+          padding: const EdgeInsets.only(top: 24, bottom: 8),
           child: Theme(
             data: Theme.of(context).copyWith(
               splashFactory: NoSplash.splashFactory,
