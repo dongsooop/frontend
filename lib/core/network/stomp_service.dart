@@ -57,6 +57,7 @@ class StompService {
   }
 
   void _onConnectRoomList(StompFrame frame, int userId) {
+    if (!_chatRoomClient.connected) return;
     final chatRoomDestination = dotenv.get('CHAT_ROOM_DESTINATION');
 
     _chatRoomClient.subscribe(

@@ -8,7 +8,7 @@ part 'chat_room_ws.g.dart';
 class ChatRoomWs with _$ChatRoomWs {
   final String roomId;
   final String? lastMessage;
-  final int unreadCount;
+  @JsonKey(defaultValue: 0)final int unreadCount;
   final DateTime timestamp;
 
   ChatRoomWs({

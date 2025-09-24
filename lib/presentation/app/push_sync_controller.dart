@@ -11,7 +11,6 @@ import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_ap
 import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_applicant_detail_view_model.dart';
 import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/providers/activity_context_providers.dart';
-import 'package:dongsoop/providers/chat_providers.dart';
 
 final pushSyncControllerProvider = Provider<PushSyncController>((ref) {
   final controller = PushSyncController(ref);
@@ -58,7 +57,6 @@ class PushSyncController {
           if (_lastChatListRefreshedAt == null ||
               now.difference(_lastChatListRefreshedAt!) > _chatListDebounceDuration) {
             _lastChatListRefreshedAt = now;
-            await ref.read(chatViewModelProvider.notifier).loadChatRooms();
           }
         }
         return;

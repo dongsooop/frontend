@@ -145,7 +145,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     _sendMessageUseCase.execute(request);
   }
 
-  Future<void> closeChatRoom(String roomId) async {
+  Future<void> closeChatRoom() async {
     if (_hasLeaved) {
       _chatRoomDisconnectUseCase.execute();
 

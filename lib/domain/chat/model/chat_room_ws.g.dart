@@ -9,7 +9,7 @@ part of 'chat_room_ws.dart';
 ChatRoomWs _$ChatRoomWsFromJson(Map<String, dynamic> json) => ChatRoomWs(
       roomId: json['roomId'] as String,
       lastMessage: json['lastMessage'] as String?,
-      unreadCount: (json['unreadCount'] as num).toInt(),
+      unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
       timestamp: DateTime.parse(json['timestamp'] as String),
     );
 

@@ -30,6 +30,22 @@ class ChatViewModel extends StateNotifier<ChatState> {
 
   StreamSubscription<ChatRoomWs>? _chatRoomListSubscription;
 
+  Future<void> closeChatList() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      _disconnectChatListUseCase.execute();
+      _chatRoomListSubscription?.cancel();
+
+      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요.',
+      );
+    }
+  }
+
   Future<void> connectChatRoom(int userId) async {
     try {
       await _connectChatListUseCase.execute(userId);
@@ -38,14 +54,42 @@ class ChatViewModel extends StateNotifier<ChatState> {
 
       // block
       _chatRoomListSubscription = _subscribeChatListUseCase.execute().listen((chatRoomData) async {
-        _ref.read(chatRoomListProvider.notifier).chatRoomUpdate(chatRoomData);
+        updateChatRoomFromWs(chatRoomData);
       });
     } catch (e) {
       state = state.copyWith(
-        errorMessage: '채팅 중 오류가 발생했습니다.',
+        errorMessage: '채팅방을 불러오는 중\n오류가 발생했습니다.',
         isLoading: false,
       );
     }
+  }
+
+  void updateChatRoomFromWs(ChatRoomWs wsRoom) {
+    final currentRooms = state.chatRooms;
+    if (currentRooms == null) return;
+
+    bool found = false;
+    final updatedRooms = currentRooms.map((room) {
+      if (room.roomId == wsRoom.roomId) {
+        found = true;
+        return room.copyWith(
+          lastMessage: wsRoom.lastMessage,
+          unreadCount: wsRoom.unreadCount,
+          lastActivityAt: wsRoom.timestamp,
+        );
+      }
+      return room;
+    }).toList();
+
+    if (!found) {
+      loadChatRooms();
+      return;
+    }
+
+    final sortedRooms = updatedRooms
+      ..sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
+
+    state = state.copyWith(chatRooms: sortedRooms);
   }
 
   Future<void> loadChatRooms() async {
@@ -63,28 +107,23 @@ class ChatViewModel extends StateNotifier<ChatState> {
   }
 
   Future<bool> isOpened() async {
-    state = state.copyWith(errorMessage: null);
+    state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
+      state = state.copyWith(isLoading: false);
       return await _getBlindDateOpenUseCase.execute();
     } on BlindDateOpenException catch (e) {
       state = state.copyWith(
+        isLoading: false,
         isBlindDateOpened: e.message,
       );
       return false;
     } catch (e) {
       state = state.copyWith(
+        isLoading: false,
         errorMessage: '과팅 오픈 확인 중 오류가 발생했습니다.',
       );
       return false;
     }
-  }
-}
-
-class ChatRoomListNotifier extends StateNotifier<ChatRoomWs?> {
-  ChatRoomListNotifier() : super(null);
-
-  void chatRoomUpdate(ChatRoomWs room) {
-    print('vm chat room web socket: $room');
   }
 }
