@@ -1,6 +1,6 @@
 import 'package:dongsoop/domain/auth/use_case/delete_user_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/logout_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/delete_chat_data_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/delete_chat_data_use_case.dart';
 import 'package:dongsoop/presentation/setting/setting_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';

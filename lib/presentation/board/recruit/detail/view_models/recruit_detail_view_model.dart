@@ -2,7 +2,7 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_delete_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_detail_use_case.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
-import 'package:dongsoop/domain/chat/use_case/create_QNA_chat_room_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_delete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_detail_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/states/recruit_detail_state.dart';

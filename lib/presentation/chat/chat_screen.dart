@@ -87,10 +87,26 @@ class ChatScreen extends HookConsumerWidget {
       if (user != null) {
         Future.microtask(() async {
           await viewModel.loadChatRooms();
+          // 웹소켓 연결
+          viewModel.connectChatRoom(user.id);
         });
       }
       return null;
     }, [selectedCategory.value]);
+
+    useEffect(() {
+      if (user != null) {
+        Future.microtask(() async {
+          // 웹소켓 연결
+          viewModel.connectChatRoom(user.id);
+        });
+      }
+      return () {
+        Future.microtask(() {
+          viewModel.closeChatList();
+        });
+      };
+    }, [user]);
 
     // 로딩 상태 표시
     if (chatState.isLoading) {
