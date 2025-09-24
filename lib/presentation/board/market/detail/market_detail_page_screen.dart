@@ -129,8 +129,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
                                   MarketDetailArgs(id: id))
                               .notifier,
                         );
-                        await viewModel.contactMarket(id);
-                        final chatRoom = await viewModel.createChatRoom(market.title, market.authorId);
+                        final chatRoom = await viewModel.contactMarket(id);
                         onTapChatDetail(chatRoom);
                       } catch (e) {
                         showDialog(

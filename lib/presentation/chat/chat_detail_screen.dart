@@ -63,7 +63,7 @@ class ChatDetailScreen extends HookConsumerWidget {
       return () {
         Future.microtask(() {
           FirebaseMessagingService.instance().clearActiveChat();
-          viewModel.closeChatRoom(roomId);
+          viewModel.closeChatRoom();
           viewModel.clearError();
         });
       };
