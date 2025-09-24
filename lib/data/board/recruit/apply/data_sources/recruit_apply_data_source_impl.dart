@@ -14,9 +14,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
   final Dio _authDio;
-  final Dio _aiDio;
 
-  RecruitApplyDataSourceImpl(this._authDio, this._aiDio);
+  RecruitApplyDataSourceImpl(this._authDio);
 
   @override
   Future<void> filterApply({
@@ -26,7 +25,7 @@ class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
     final url = dotenv.get("RECRUIT_APPLY_FILTER_ENDPOINT");
 
     try {
-      final response = await _aiDio.post(url, data: model.toJson());
+      final response = await _authDio.post(url, data: model.toJson());
 
       if (response.statusCode == HttpStatusCode.ok.code) {
         return;

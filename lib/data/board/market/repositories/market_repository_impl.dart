@@ -82,11 +82,11 @@ class MarketRepositoryImpl implements MarketRepository {
   }
 
   @override
-  Future<void> contactMarket({
+  Future<String> contactMarket({
     required int marketId,
   }) async {
     return _handle(() async {
-      await _dataSource.contactMarket(marketId: marketId);
+      return await _dataSource.contactMarket(marketId: marketId);
     }, MarketContactException());
   }
 

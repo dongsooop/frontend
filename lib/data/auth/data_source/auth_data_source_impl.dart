@@ -243,6 +243,11 @@ class AuthDataSourceImpl implements AuthDataSource {
         return true;
       }
       return false;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw SendEmailFailed();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }

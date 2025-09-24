@@ -2,10 +2,8 @@ import 'package:dongsoop/data/board/recruit/apply/data_sources/recruit_apply_dat
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final recruitApplyDataSourceProvider =
-    Provider<RecruitApplyDataSourceImpl>((ref) {
+final recruitApplyDataSourceProvider = Provider<RecruitApplyDataSourceImpl>((ref) {
   final dio = ref.watch(authDioProvider);
-  final aiDio = createAuthDio(ref: ref, useAi: true);
 
-  return RecruitApplyDataSourceImpl(dio, aiDio);
+  return RecruitApplyDataSourceImpl(dio);
 });

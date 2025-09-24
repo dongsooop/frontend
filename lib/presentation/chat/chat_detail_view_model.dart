@@ -1,24 +1,23 @@
 import 'dart:async';
 import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
-import 'package:dongsoop/domain/chat/use_case/connect_chat_room_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/disconnect_chat_room_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/get_offline_messages_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/get_paged_messages.dart';
-import 'package:dongsoop/domain/chat/use_case/get_room_detail_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/kick_user_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/leave_chat_room_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/save_chat_message_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/send_message_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/subscribe_messages_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/update_read_status_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/connect_chat_room_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/disconnect_chat_room_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/get_offline_messages_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/get_paged_messages.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/get_room_detail_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/get_user_nicknames_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/kick_user_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/leave_chat_room_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/save_chat_message_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/send_message_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/stream/subscribe_messages_use_case.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
-import 'package:dongsoop/domain/chat/use_case/get_user_nicknames_use_case.dart';
 import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/domain/chat/use_case/subscribe_block_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/stream/subscribe_block_use_case.dart';
 
 class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   final ConnectChatRoomUseCase _chatRoomConnectUseCase;
@@ -31,7 +30,6 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   final SaveChatMessageUseCase _saveChatMessageUseCase;
   final GetPagedMessagesUseCase _getPagedMessages;
   final GetOfflineMessagesUseCase _getOfflineMessagesUseCase;
-  final UpdateReadStatusUseCase _updateReadStatusUseCase;
   final LeaveChatRoomUseCase _leaveChatRoomUseCase;
   final KickUserUseCase _kickUserUseCase;
   final UserBlockUseCase _userBlockUseCase;
@@ -53,12 +51,15 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     this._saveChatMessageUseCase,
     this._getPagedMessages,
     this._getOfflineMessagesUseCase,
-    this._updateReadStatusUseCase,
     this._leaveChatRoomUseCase,
     this._kickUserUseCase,
     this._userBlockUseCase,
     this._ref,
   ) : super(ChatDetailState(isLoading: false, roomDetail: null));
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
 
   Future<void> fetchOfflineMessages(String roomId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -144,7 +145,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     _sendMessageUseCase.execute(request);
   }
 
-  Future<void> closeChatRoom(String roomId) async {
+  Future<void> closeChatRoom() async {
     if (_hasLeaved) {
       _chatRoomDisconnectUseCase.execute();
 
@@ -160,7 +161,6 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      await _updateReadStatusUseCase.execute(roomId); // 읽음 상태 업데이트
       _chatRoomDisconnectUseCase.execute();
 
       _messagesSubscription?.cancel();  // 구독 해제
@@ -273,7 +273,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     }
   }
 
-  Future<void> leaveChatRoom(String roomId) async {
+  Future<bool> leaveChatRoom(String roomId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       _hasLeaved = true;
@@ -287,16 +287,25 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
 
       _ref.read(chatMessagesProvider.notifier).clear();
       state = state.copyWith(isLoading: false);
+      return true;
     } on ChatLeaveException catch (e) {
       state = state.copyWith(
         errorMessage: e.message,
         isLoading: false,
       );
+      return false;
+    } on ChatLeaveManagerException catch (e) {
+      state = state.copyWith(
+        errorMessage: e.message,
+        isLoading: false,
+      );
+      return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: '채팅방을 나가는 중\n오류가 발생했습니다.',
       );
+      return false;
     }
   }
 

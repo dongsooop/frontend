@@ -14,59 +14,93 @@ class MainScreen extends StatelessWidget {
     required this.onChangeIndex,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: body,
       bottomNavigationBar: SafeArea(
         top: false,
-        minimum: const EdgeInsets.only(top: 24, bottom: 24),
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            splashFactory: NoSplash.splashFactory,
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            navigationBarTheme: NavigationBarThemeData(
-              labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return TextStyles.smallTextRegular.copyWith(
-                    color: ColorStyles.primaryColor,
-                  );
-                }
-                return TextStyles.smallTextRegular.copyWith(
-                  color: ColorStyles.gray4,
-                );
-              }),
-            ),
-          ),
-          child: NavigationBar(
-            height: 24,
-            indicatorColor: Colors.transparent,
-            onDestinationSelected: onChangeIndex,
-            selectedIndex: currentPageIndex,
-            destinations: [
-              const NavigationDestination(
-                icon: Icon(Icons.home_filled, color: ColorStyles.gray4,),
-                selectedIcon: Icon(Icons.home_filled, color: ColorStyles.primaryColor,),
-                label: '홈',
+        child: Container(
+          decoration: BoxDecoration(
+            color: ColorStyles.white,
+            boxShadow: [
+              BoxShadow(
+                color: ColorStyles.gray1,
+                offset: const Offset(0, -4),
+                blurRadius: 5,
+                spreadRadius: -5,
               ),
-              const NavigationDestination(
-                icon: Icon(Icons.grid_view_outlined, color: ColorStyles.gray4,),
-                selectedIcon: Icon(Icons.grid_view_outlined, color: ColorStyles.primaryColor,),
-                label: '모여봐요',
-              ),
-              const NavigationDestination(
-                icon: Icon(Icons.chat_bubble_outline, color: ColorStyles.gray4,),
-                selectedIcon: Icon(Icons.chat_bubble_outline, color: ColorStyles.primaryColor,),
-                label: '채팅',
-              ),
-              const NavigationDestination(
-                icon: Icon(Icons.person, color: ColorStyles.gray4,),
-                selectedIcon: Icon(Icons.person, color: ColorStyles.primaryColor,),
-                label: '마이페이지',
+              BoxShadow(
+                color: ColorStyles.gray1,
+                offset: const Offset(0, -8),
+                blurRadius: 15,
+                spreadRadius: -10,
               ),
             ],
+          ),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              navigationBarTheme: NavigationBarThemeData(
+                labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return TextStyles.smallTextRegular.copyWith(
+                      color: ColorStyles.primaryColor,
+                    );
+                  }
+                  return TextStyles.smallTextRegular.copyWith(
+                    color: ColorStyles.gray4,
+                  );
+                }),
+              ),
+            ),
+            child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  NavigationBar(
+                    height: 28,
+                    indicatorColor: Colors.transparent,
+                    onDestinationSelected: onChangeIndex,
+                    selectedIndex: currentPageIndex,
+                    destinations: [
+                      const NavigationDestination(
+                        icon: Icon(Icons.home_filled, color: ColorStyles.gray4,),
+                        selectedIcon: Icon(Icons.home_filled, color: ColorStyles.primaryColor,),
+                        label: '홈',
+                      ),
+                      const NavigationDestination(
+                        icon: Icon(Icons.grid_view_outlined, color: ColorStyles.gray4,),
+                        selectedIcon: Icon(Icons.grid_view_outlined, color: ColorStyles.primaryColor,),
+                        label: '모여봐요',
+                      ),
+                      const NavigationDestination(
+                        icon: Icon(Icons.chat_bubble_outline, color: ColorStyles.gray4,),
+                        selectedIcon: Icon(Icons.chat_bubble_outline, color: ColorStyles.primaryColor,),
+                        label: '채팅',
+                      ),
+                      const NavigationDestination(
+                        icon: Icon(Icons.person, color: ColorStyles.gray4,),
+                        selectedIcon: Icon(Icons.person, color: ColorStyles.primaryColor,),
+                        label: '마이페이지',
+                      )],
+                  ),
+
+                  SizedBox(
+                    height: 44,
+                    child: Row(
+                      children: List.generate(4, (i) {
+                        return Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () => onChangeIndex(i),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ]),
           ),
         ),
       ),
