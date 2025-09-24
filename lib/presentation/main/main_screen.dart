@@ -60,7 +60,7 @@ class MainScreen extends StatelessWidget {
                 alignment: Alignment.bottomCenter,
                 children: [
                   NavigationBar(
-                    height: 24,
+                    height: 28,
                     indicatorColor: Colors.transparent,
                     onDestinationSelected: onChangeIndex,
                     selectedIndex: currentPageIndex,
