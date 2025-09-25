@@ -1,0 +1,89 @@
+name: Google Play Console Deploy - Android
+
+on:
+  push:
+    branches: [ deploy/android ]
+
+jobs:
+  build-android:
+    timeout-minutes: 30
+    name: Google Play Console Deploy - Android
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Decode and create .env file
+        run: |
+          echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
+
+      # Flutter SDK (subosito) 이전에 pub 캐시 복원
+      - name: Cache Flutter pub packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: pubcache-${{ runner.os }}-stable-3.27.1-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pubcache-${{ runner.os }}-stable-3.27.1-
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          architecture: x64
+          cache: true
+
+      - name: Decode google-services.json
+        run: |
+          mkdir -p android/app
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > ./android/app/google-services.json
+
+      - name: Decode and install signing key
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+          echo "storeFile=upload-keystore.jks" > android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
+
+      - name: Install dependencies
+        run: |
+          flutter clean
+          flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
+        continue-on-error: false
+
+      - name: Auto-increment build number
+        run: |
+          BUILD_NO=$(date +%s)
+          echo "BUILD_NO=$BUILD_NO" >> $GITHUB_ENV
+
+      - name: Build Flutter Android App Bundle
+        run: flutter build appbundle --release --build-number=$BUILD_NO
+
+      - name: Upload app to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.dongsoop.site.dongsoop
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
+
+      - name: Build Success Summary
+        run: |
+          echo "🎉 Flutter Android app bundle built and uploaded successfully!"
+          echo "📦 App Bundle uploaded to Google Play Internal track"
+          echo "🔗 Build #${{ github.run_number }}"
+
+      - name: Send Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.APPLE_BUILD_DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\": \"🚀 Android 빌드가 성공적으로 완료되었습니다!\"}" \
+            $DISCORD_WEBHOOK
