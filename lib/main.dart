@@ -8,6 +8,7 @@ import 'package:dongsoop/firebase_options.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -26,6 +27,23 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity,
+    // appleProvider: AppleProvider.debug,
+  );
+
+  FirebaseAppCheck.instance.onTokenChange.listen((t) {
+    print('[AppCheck] onTokenChange: ${t != null}');
+  });
+
+  try {
+    final token = await FirebaseAppCheck.instance.getToken();
+    print('[AppCheck] token=$token');
+  } catch (e) {
+    print('[AppCheck] getToken error at boot: $e');
+  }
+
 
   final localNotificationsService = LocalNotificationsService.instance();
   await localNotificationsService.init();
