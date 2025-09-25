@@ -7,11 +7,9 @@ import 'package:dongsoop/domain/chat/use_case/chat/disconnect_chat_list_use_case
 import 'package:dongsoop/domain/chat/use_case/chat/get_chat_rooms_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/subscribe_chat_list_use_case.dart';
 import 'package:dongsoop/presentation/chat/chat_state.dart';
-import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatViewModel extends StateNotifier<ChatState> {
-  final Ref _ref;
   final GetChatRoomsUseCase _loadChatRoomsUseCase;
   final GetBlindDateOpenUseCase _getBlindDateOpenUseCase;
 
@@ -20,7 +18,6 @@ class ChatViewModel extends StateNotifier<ChatState> {
   final SubscribeChatListUseCase _subscribeChatListUseCase;
 
   ChatViewModel(
-    this._ref,
     this._loadChatRoomsUseCase,
     this._getBlindDateOpenUseCase,
     this._connectChatListUseCase,
