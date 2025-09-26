@@ -212,7 +212,7 @@ SPEC CHECKSUMS:
   SDWebImage: f29024626962457f3470184232766516dee8dfea
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
+  webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4
 
 PODFILE CHECKSUM: fc823d745c024a00fba17ba2acf44d197e028de6
 
