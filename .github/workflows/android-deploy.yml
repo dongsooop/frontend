@@ -71,7 +71,8 @@ jobs:
           packageName: com.dongsoop.site.dongsoop
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
           track: internal
-          status: completed
+          status: draft
+      #          status: completed
 
       - name: Build Success Summary
         run: |
