@@ -102,9 +102,11 @@ class ChatScreen extends HookConsumerWidget {
         });
       }
       return () {
-        Future.microtask(() {
-          viewModel.closeChatList();
-        });
+        if (user != null) {
+          Future.microtask(() {
+            viewModel.closeChatList();
+          });
+        }
       };
     }, [user]);
 
