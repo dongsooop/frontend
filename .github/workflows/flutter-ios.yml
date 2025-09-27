@@ -47,9 +47,27 @@ jobs:
           mkdir -p lib
           echo "${{ secrets.FIREBASE_OPTIONS_B64 }}" | base64 --decode > lib/firebase_options.dart
 
-      - name: Verify firebase_options.dart exists
+      # 테스트용
+      - name: Guard – verify decoded files & plists
         run: |
-          test -f lib/firebase_options.dart && head -n 5 lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)
+          set -euxo pipefail
+
+          echo "::group::Check existence"
+          ls -la ios/Runner || true
+          test -s ios/Runner/GoogleService-Info.plist
+          test -s lib/firebase_options.dart
+          test -s .env
+          echo "::endgroup::"
+
+          echo "::group::plutil lint"
+          plutil -lint ios/Runner/Info.plist
+          plutil -lint ios/Runner/GoogleService-Info.plist
+          echo "::endgroup::"
+
+          echo "::group::Preview decoded contents"
+          head -n 5 lib/firebase_options.dart || true
+          plutil -p ios/Runner/GoogleService-Info.plist | sed -n '1,25p' || true
+          echo "::endgroup::"
 
       # iOS Pods 캐시 복원
       - name: Cache iOS Pods
