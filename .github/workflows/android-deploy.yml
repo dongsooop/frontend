@@ -56,7 +56,7 @@ jobs:
 
       - name: Decode and install signing key
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore/upload-keystore.jks
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore/my-release-keystore.jks
           echo "storeFile=upload-keystore.jks" > android/app/keystore/key.properties
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/app/keystore/key.properties
           echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/app/keystore/key.properties
