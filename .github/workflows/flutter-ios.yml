@@ -27,7 +27,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
+          flutter-version: '3.35.4'
           channel: 'stable'
           architecture: x64
           cache: true
@@ -41,10 +41,12 @@ jobs:
           mkdir -p ios/Runner
           echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 --decode > ./ios/Runner/GoogleService-Info.plist
 
+      # firebase_options.dart 복원
       - name: Decode firebase_options.dart
         run: |
           mkdir -p lib
           echo "${{ secrets.FIREBASE_OPTIONS_B64 }}" | base64 --decode > lib/firebase_options.dart
+
       - name: Verify firebase_options.dart exists
         run: |
           test -f lib/firebase_options.dart && head -n 5 lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)

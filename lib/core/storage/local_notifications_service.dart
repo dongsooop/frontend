@@ -11,7 +11,7 @@ class LocalNotificationsService {
 
   factory LocalNotificationsService.instance() => _instance;
 
-  late FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
+  late final FlutterLocalNotificationsPlugin _fln = FlutterLocalNotificationsPlugin();
 
   void Function(String payloadJson)? onTap;
 
@@ -20,10 +20,24 @@ class LocalNotificationsService {
   int _notificationIdCounter = 0;
 
   // ios 알림 초기화 설정
-  final _iosInitializationSettings = const DarwinInitializationSettings(
+  static const DarwinInitializationSettings _iosInit = DarwinInitializationSettings(
     requestAlertPermission: true,
     requestBadgePermission: true,
     requestSoundPermission: true,
+  );
+
+  static const AndroidInitializationSettings _androidInit =
+  AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  static const String kAndroidChannelId   = 'channel_id';
+  static const String kAndroidChannelName = 'Channel name';
+  static const String kAndroidChannelDesc = 'Android push notification channel';
+
+  static const AndroidNotificationChannel _androidChannel = AndroidNotificationChannel(
+    kAndroidChannelId,
+    kAndroidChannelName,
+    description: kAndroidChannelDesc,
+    importance: Importance.max,
   );
 
   static const MethodChannel _channel = MethodChannel('app/push');
@@ -31,13 +45,12 @@ class LocalNotificationsService {
   Future<void> init() async {
     if (_isFlutterLocalNotificationInitialized) return;
 
-    _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-    final initializationSettings = InitializationSettings(
-      iOS: _iosInitializationSettings,
+    final initSettings = InitializationSettings(
+      android: Platform.isAndroid ? _androidInit : null,
+      iOS: _iosInit,
     );
 
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
+    await _fln.initialize(initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         final payload = response.payload;
         if (payload != null) {
@@ -46,6 +59,15 @@ class LocalNotificationsService {
       },
       onDidReceiveBackgroundNotificationResponse: _notificationTapBackground,
     );
+
+    if (Platform.isAndroid) {
+      final androidFln = _fln
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+      await androidFln?.requestNotificationsPermission();
+
+      await androidFln?.createNotificationChannel(_androidChannel);
+    }
 
     _isFlutterLocalNotificationInitialized = true;
   }
@@ -56,19 +78,30 @@ class LocalNotificationsService {
       String? body,
       String? payload,
       ) async {
-    const iosDetails = DarwinNotificationDetails(
+    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
 
-    const notificationDetails = NotificationDetails(iOS: iosDetails);
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      kAndroidChannelId,
+      kAndroidChannelName,
+      channelDescription: kAndroidChannelDesc,
+      importance: Importance.max,
+      priority: Priority.high,
+    );
 
-    await _flutterLocalNotificationsPlugin.show(
+    final NotificationDetails details = NotificationDetails(
+      iOS: iosDetails,
+      android: androidDetails,
+    );
+
+    await _fln.show(
       _notificationIdCounter++, // 고유 알림 id,
       title,
       body,
-      notificationDetails,
+      details,
       payload: payload,
     );
   }
