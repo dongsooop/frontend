@@ -74,6 +74,19 @@ class FirebaseMessagingService {
     }
   }
 
+  bool _isAndroidBadgeReset(RemoteMessage m) {
+    if (!Platform.isAndroid) return false;
+    final b = m.data['badge'];
+    return m.notification == null && (b == '0' || b == 0);
+  }
+
+  bool _isAndroidEmptyTitleBody(RemoteMessage m) {
+    if (!Platform.isAndroid) return false;
+    final t = (m.notification?.title ?? '').trim();
+    final b = (m.notification?.body ?? '').trim();
+    return t.isEmpty && b.isEmpty;
+  }
+
   Future<void> init({required LocalNotificationsService localNotificationsService}) async {
     if (_initialized) return;
     _initialized = true;
@@ -138,22 +151,48 @@ class FirebaseMessagingService {
   Stream<String> onTokenRefresh() =>
       FirebaseMessaging.instance.onTokenRefresh.distinct();
 
+  bool _isBadgeWithDataOnly(RemoteMessage m) {
+    if (m.notification != null) return false;
+    return m.data.containsKey('badge');
+  }
+
   // 포그라운드 상태에서 메시지 수신 시
   void _onForegroundMessage(RemoteMessage message) {
+    if (_isBadgeWithDataOnly(message)) {
+      _applyBadgeOrRefresh(message);
+      return;
+    }
+
     final type = message.data['type']?.toString();
     final value = (message.data['value'] ?? message.data['roomId'])?.toString();
 
     final isSameChat = (type != null && type == 'CHAT') &&
         (_activeChatRoomId != null && value == _activeChatRoomId);
 
-    if (isSameChat) {
-      _applyBadgeOrRefresh(message);
-      return;
-    }
     _applyBadgeOrRefresh(message);
+    if (isSameChat) return;
+
+    if (_isAndroidBadgeReset(message)) return;
+    if (_isAndroidEmptyTitleBody(message)) return;
+
+    _localNotificationsService?.showNotification(
+      message.notification?.title ?? '',
+      message.notification?.body ?? '',
+      jsonEncode({
+        'type': type,
+        'value': value,
+        'id': message.data['id'],
+        'badge': message.data['badge'],
+      }),
+    );
   }
   // 백그라운드 or 종료 상태에서 알림 클릭으로 앱이 열렸을 떄
   Future<void> _onMessageOpenedApp(RemoteMessage message) async {
+    if (_isBadgeWithDataOnly(message)) {
+      _applyBadgeOrRefresh(message);
+      return;
+    }
+
     final type = message.data['type']?.toString();
     final value = message.data['value']?.toString();
     final id = _extractValidId(message.data['id']);
@@ -185,5 +224,8 @@ class FirebaseMessagingService {
 // 백그라운드 상태에서 메시지를 수신했을 때 실행되는 핸들러
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (message.notification == null && message.data.containsKey('badge')) {
+  return;
+  }
   print('Background message received: ${message.data.toString()}');
 }
