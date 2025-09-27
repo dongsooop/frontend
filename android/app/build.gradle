@@ -12,7 +12,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.dongsoop.site.dongsoop"
+    namespace = "com.dongsoop.dongsoop"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
