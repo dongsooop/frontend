@@ -39,6 +39,14 @@ jobs:
           mkdir -p android/app
           echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > ./android/app/google-services.json
 
+      - name: Decode firebase_options.dart
+        run: |
+          mkdir -p lib
+          echo "${{ secrets.FIREBASE_OPTIONS_B64 }}" | base64 --decode > lib/firebase_options.dart
+      - name: Verify firebase_options.dart exists
+        run: |
+          test -f lib/firebase_options.dart && head -n 5 lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)
+
       - name: Decode and install signing key
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
