@@ -58,7 +58,7 @@ jobs:
         run: |
           mkdir -p android/app/keystore
           echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 --decode > android/app/keystore/my-release-key.jks
-          echo "storeFile=my-release-key.jks" > android/app/keystore/key.properties
+          echo "storeFile=keystore/my-release-key.jks" > android/app/keystore/key.properties
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/app/keystore/key.properties
           echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/app/keystore/key.properties
           echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/app/keystore/key.properties
