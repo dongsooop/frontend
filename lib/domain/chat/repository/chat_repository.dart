@@ -7,6 +7,7 @@ import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 
 abstract class ChatRepository {
   Future<List<ChatRoom>?> getChatRooms();
@@ -17,10 +18,8 @@ abstract class ChatRepository {
   Future<void> deleteChatBox();
   Future<List<ChatMessage>?> getOfflineMessages(String roomId);
   Future<ChatMessage?> getLatestMessage(String roomId);
-  Future<void> updateReadStatus(String roomId);
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
-  Future<String> createOneToOneChatRoom(String title, int targetUserId);
   Future<String> createQNAChatRoom(ChatRoomRequest request);
   Future<String> sendChatbot(String text);
   Future<bool> getBlindDateOpen();
@@ -31,6 +30,9 @@ abstract class ChatRepository {
   void disconnect();
   Stream<ChatMessage> subscribeMessages();
   Stream<String> subscribeBlock();
+  Future<void> connectChatList(int userId);
+  void disconnectChatList();
+  Stream<ChatRoomWs> subscribeChatList();
 
   // blind
   Future<void> blindConnect(int userId, String? sessionId);

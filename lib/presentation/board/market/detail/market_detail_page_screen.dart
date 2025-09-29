@@ -129,8 +129,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
                                   MarketDetailArgs(id: id))
                               .notifier,
                         );
-                        await viewModel.contactMarket(id);
-                        final chatRoom = await viewModel.createChatRoom(market.title, market.authorId);
+                        final chatRoom = await viewModel.contactMarket(id);
                         onTapChatDetail(chatRoom);
                       } catch (e) {
                         showDialog(
@@ -163,7 +162,7 @@ class MarketDetailPageScreen extends ConsumerWidget {
                     : data.isComplete;
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -304,7 +303,6 @@ class MarketDetailPageScreen extends ConsumerWidget {
 
           try {
             await viewModel.deleteMarket(id);
-            ref.invalidate(MarketListViewModelProvider(type: type));
             context.pop(true);
           } catch (e) {
             showDialog(

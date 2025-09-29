@@ -12,6 +12,7 @@ import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
@@ -29,25 +30,6 @@ class ChatDataSourceImpl implements ChatDataSource {
     this._socketIoService,
     this._hiveService,
   );
-
-  @override
-  Future<String> createOneToOneChatRoom(String title, int targetUserId) async {
-    final endpoint = dotenv.get('ONE_TO_ONE_CHAT');
-    final requestBody = {'title': title, 'targetUserId': targetUserId};
-
-    try {
-      final response = await _authDio.post(endpoint, data: requestBody);
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        final data = response.data;
-        final roomId = data['roomId'];
-
-        return roomId;
-      }
-      throw Exception('Unexpected status code: ${response.statusCode}');
-    } catch (e) {
-      rethrow;
-    }
-  }
 
   @override
   Future<String> createQNAChatRoom(ChatRoomRequest request) async {
@@ -151,7 +133,7 @@ class ChatDataSourceImpl implements ChatDataSource {
       }
       throw Exception();
     } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
       rethrow;
@@ -236,7 +218,7 @@ class ChatDataSourceImpl implements ChatDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
       rethrow;
@@ -262,27 +244,10 @@ class ChatDataSourceImpl implements ChatDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.forbidden) {
-        throw ChatForbiddenException();
-      }
-      rethrow;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> updateReadStatus(String roomId) async {
-    final chat = dotenv.get('CHAT');
-    final readStatus = dotenv.get('READ_STATUS_ENDPOINT');
-    final endpoint = '$chat/$roomId$readStatus';
-
-    try {
-      await _authDio.post(endpoint, data: {});
-    } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw ChatForbiddenException();
       }
+      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -299,6 +264,11 @@ class ChatDataSourceImpl implements ChatDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         await _hiveService.deleteChatMessagesByRoomId(roomId);
       } else ChatLeaveException();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw ChatLeaveManagerException();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -372,6 +342,15 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Stream<String> subscribeBlock() => _stompService.blockStream;
+
+  @override
+  Future<void> connectChatList(int userId) => _stompService.connectRoomList(userId);
+
+  @override
+  void disconnectChatList() => _stompService.disconnectChatRoom();
+
+  @override
+  Stream<ChatRoomWs> subscribeChatList() => _stompService.chatRoomStream;
 
   // blind
   @override

@@ -72,7 +72,7 @@ class GuestMarketRepositoryImpl implements MarketRepository {
   }
 
   @override
-  Future<void> contactMarket({
+  Future<String> contactMarket({
     required int marketId,
   }) {
     throw LoginRequiredException();

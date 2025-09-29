@@ -8,9 +8,10 @@ class CommonMarketListItem extends StatelessWidget {
   final String title;
   final String relativeTime;
   final String priceText;
-  final int contactCount;
+  final int? contactCount;
   final VoidCallback onTap;
   final bool isLastItem;
+  final bool hideImage;
 
   const CommonMarketListItem({
     super.key,
@@ -18,9 +19,10 @@ class CommonMarketListItem extends StatelessWidget {
     required this.title,
     required this.relativeTime,
     required this.priceText,
-    required this.contactCount,
+    this.contactCount,
     required this.onTap,
     required this.isLastItem,
+    this.hideImage = false,
   });
 
   @override
@@ -38,8 +40,10 @@ class CommonMarketListItem extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CommonImgStyle(imagePath: imagePath),
-                const SizedBox(width: 16),
+                if (!hideImage) ...[
+                  CommonImgStyle(imagePath: imagePath),
+                  const SizedBox(width: 16),
+                ],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +60,7 @@ class CommonMarketListItem extends StatelessWidget {
                           style: TextStyles.largeTextBold
                               .copyWith(color: ColorStyles.black)),
                       const SizedBox(width: 16),
-                      if (contactCount > 0)
+                      if ((contactCount ?? 0) > 0)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [

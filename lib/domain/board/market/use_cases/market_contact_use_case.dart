@@ -5,7 +5,7 @@ class MarketContactUseCase {
 
   MarketContactUseCase(this._repo);
 
-  Future<void> execute({
+  Future<String> execute({
     required int marketId,
   }) async {
     return _repo.contactMarket(marketId: marketId);

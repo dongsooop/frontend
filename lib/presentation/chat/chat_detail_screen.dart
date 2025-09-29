@@ -63,7 +63,8 @@ class ChatDetailScreen extends HookConsumerWidget {
       return () {
         Future.microtask(() {
           FirebaseMessagingService.instance().clearActiveChat();
-          viewModel.closeChatRoom(roomId);
+          viewModel.closeChatRoom();
+          viewModel.clearError();
         });
       };
     }, []);
@@ -171,8 +172,8 @@ class ChatDetailScreen extends HookConsumerWidget {
                         confirmText: '나가기',
                         cancelText: '취소',
                         onConfirm: () async {
-                          await viewModel.leaveChatRoom(roomId);
-                          context.pop(true);
+                          final result = await viewModel.leaveChatRoom(roomId);
+                          if (result) context.pop(true);
                         },
                       ),
                     );
