@@ -261,7 +261,7 @@ final chatViewModelProvider = StateNotifierProvider<ChatViewModel, ChatState>((r
   final disconnectChatListUseCase = ref.watch(disconnectChatListUseCaseProvider);
   final subscribeChatListUseCase = ref.watch(subscribeChatListUseCaseProvider);
 
-  return ChatViewModel(ref, loadChatRoomsUseCase, getBlindDateOpenUseCase, connectChatListUseCase, disconnectChatListUseCase, subscribeChatListUseCase);
+  return ChatViewModel(loadChatRoomsUseCase, getBlindDateOpenUseCase, connectChatListUseCase, disconnectChatListUseCase, subscribeChatListUseCase);
 });
 
 final chatDetailViewModelProvider = StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
