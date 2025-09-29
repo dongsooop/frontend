@@ -2,7 +2,7 @@ name: Google Play Console Deploy - Android
 
 on:
   push:
-    branches: [ deploy/android ]
+    branches: [ main ]
 
 jobs:
   build-android:
@@ -87,14 +87,24 @@ jobs:
           packageName: com.dongsoop.site.dongsoop
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
           track: internal
-          status: draft
-#          status: completed
+          status: completed
+
+      - name: Extract build date (KST)
+        run: |
+          TZ=Asia/Seoul date +"%Y-%m-%d %H:%M" > .build_date
+          echo "BUILD_DATE=$(cat .build_date)" >> $GITHUB_ENV
+
+      - name: Extract app version
+        run: |
+          APP_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
 
       - name: Build Success Summary
         run: |
           echo "🎉 Flutter Android app bundle built and uploaded successfully!"
           echo "📦 App Bundle uploaded to Google Play Internal track"
           echo "🔗 Build #${{ github.run_number }}"
+          echo "🗓️ Date (KST): $BUILD_DATE"
 
       - name: Send Discord Notification
         env:
@@ -102,5 +112,5 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
             -X POST \
-            -d "{\"content\": \"🚀 Android 빌드가 성공적으로 완료되었습니다!\"}" \
+            -d "{\"content\": \"🚀 Android 빌드가 성공적으로 완료되었습니다! 🗓️ 날짜(KST): $BUILD_DATE${APP_VERSION:+\\n🏷️ 버전: $APP_VERSION}\"}" \
             $DISCORD_WEBHOOK
