@@ -17,6 +17,16 @@ class SearchBarWithCancel extends StatelessWidget {
   final Future<void> Function(String keyword) onSearch;
   final VoidCallback onCancel;
 
+  Future<void> _runSearch(BuildContext context, String raw) async {
+    if (isSearching) return;
+    final kw = raw.trim();
+    if (kw.isEmpty) return;
+
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    await onSearch(kw);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -24,14 +34,11 @@ class SearchBarWithCancel extends StatelessWidget {
         Expanded(
           child: SearchBarComponent(
             controller: controller,
-            onTap: () async {
-              final kw = controller.text.trim();
-              if (kw.isEmpty) return;
-              await onSearch(kw);
-            },
+            onTap: () => _runSearch(context, controller.text),
+            onSubmitted: (value) => _runSearch(context, value),
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         if (isSearching)
           GestureDetector(
             behavior: HitTestBehavior.opaque,
