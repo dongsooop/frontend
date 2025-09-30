@@ -2,7 +2,7 @@ name: Apple Connect Deploy
 
 on:
   push:
-    branches: [ fix/ios-build ]
+    branches: [ main ]
     
 jobs:
   build-ios:
