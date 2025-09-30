@@ -150,7 +150,7 @@ jobs:
           echo "📦 Artifacts uploaded to GitHub Actions"
           echo "⬇️ Download from: Actions tab > Artifacts"
           echo "Build #${{ github.run_number }}  IPA: ${{ env.IPA_PATH }}"
-         echo "📁 Artifact name: dongsoop-ios-app-${{ github.run_number }}"
+          echo "📁 Artifact name: dongsoop-ios-app-${{ github.run_number }}"
           echo "🍎 App name: Dongsoop (dongyang mirae university service)"
 
       # 빌드 성공 디스코드 알림
