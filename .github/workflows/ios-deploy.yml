@@ -101,8 +101,6 @@ jobs:
       - name: Build Flutter iOS
         run: flutter build ipa --release --build-number=$BUILD_NO --export-options-plist=ios/ExportOptions_AppStore.plist
 
-      - run: find build -name "*.ipa" -print
-
       # TestFlight 업로드
       - name: Upload app to TestFlight
         uses: apple-actions/upload-testflight-build@v3
