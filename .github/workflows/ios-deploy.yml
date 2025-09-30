@@ -2,7 +2,7 @@ name: Apple Connect Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [ fix/ios-build ]
     
 jobs:
   build-ios:
@@ -65,6 +65,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -e
           flutter clean
           flutter pub get
           cd ios && pod install --repo-update
@@ -101,24 +102,55 @@ jobs:
       - name: Build Flutter iOS
         run: flutter build ipa --release --build-number=$BUILD_NO --export-options-plist=ios/ExportOptions_AppStore.plist
 
+      # 실제 생성된 .ipa를 탐색 → dongsoop.ipa 로 고정
+      - name: Locate & rename IPA
+        id: ipa
+        run: |
+          set -euo pipefail
+          ROOT="${{ github.workspace }}"
+          ls -lah "$ROOT/build/ios/ipa" || true
+          IPA=$(find "$ROOT/build/ios/ipa" -maxdepth 1 -name "*.ipa" -print -quit)
+          if [ -z "$IPA" ]; then
+            echo "::error::.ipa not found. Did 'flutter build ipa' succeed and is ExportOptions valid?"
+            exit 1
+          fi
+          DEST="$ROOT/build/ios/ipa/dongsoop.ipa"
+          mv "$IPA" "$DEST"
+          echo "IPA_PATH=$DEST" >> $GITHUB_ENV
+          echo "ipa=$DEST" >> $GITHUB_OUTPUT
+          echo "Found and renamed: $DEST"
+
+      - name: Debug paths before upload
+        if: always()
+        run: |
+          echo "workspace=${{ github.workspace }}"
+          ls -lah build/ios/ipa || true
+          find "${{ github.workspace }}" -maxdepth 4 -name "*.ipa" -print
+
       # TestFlight 업로드
       - name: Upload app to TestFlight
         uses: apple-actions/upload-testflight-build@v3
         with:
-          app-path: ${{ github.workspace }}/build/ios/ipa/dongsoop.ipa
+          app-path: ${{ steps.ipa.outputs.ipa }}
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
 
-      # 빌드 성공 알림
+      # 산출물 확인용 아티팩트 업로드
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dongsoop-ipa
+          path: ${{ env.IPA_PATH }}
+
       - name: Build Success Summary
         run: |
           echo "🎉 Flutter iOS build completed successfully!"
           echo "📱 iOS app built and signed"
           echo "📦 Artifacts uploaded to GitHub Actions"
           echo "⬇️ Download from: Actions tab > Artifacts"
-          echo "🔗 Build #${{ github.run_number }}"
-          echo "📁 Artifact name: dongsoop-ios-app-${{ github.run_number }}"
+          echo "Build #${{ github.run_number }}  IPA: ${{ env.IPA_PATH }}"
+         echo "📁 Artifact name: dongsoop-ios-app-${{ github.run_number }}"
           echo "🍎 App name: Dongsoop (dongyang mirae university service)"
 
       # 빌드 성공 디스코드 알림
