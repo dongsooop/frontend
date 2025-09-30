@@ -99,26 +99,8 @@ jobs:
           BUILD_NO=$(date +%s)  # 타임스탬프를 빌드 번호로 사용
           echo "BUILD_NO=$BUILD_NO" >> $GITHUB_ENV
 
-      - name: Build Flutter iOS
+      - name: Build Flutter iOS (IPA)
         run: flutter build ipa --release --build-number=$BUILD_NO --export-options-plist=ios/ExportOptions_AppStore.plist
-
-      # 실제 생성된 .ipa를 탐색 → dongsoop.ipa 로 고정
-      - name: Locate & rename IPA
-        id: ipa
-        run: |
-          set -euo pipefail
-          ROOT="${{ github.workspace }}"
-          ls -lah "$ROOT/build/ios/ipa" || true
-          IPA=$(find "$ROOT/build/ios/ipa" -maxdepth 1 -name "*.ipa" -print -quit)
-          if [ -z "$IPA" ]; then
-            echo "::error::.ipa not found. Did 'flutter build ipa' succeed and is ExportOptions valid?"
-            exit 1
-          fi
-          DEST="$ROOT/build/ios/ipa/dongsoop.ipa"
-          mv "$IPA" "$DEST"
-          echo "IPA_PATH=$DEST" >> $GITHUB_ENV
-          echo "ipa=$DEST" >> $GITHUB_OUTPUT
-          echo "Found and renamed: $DEST"
 
       - name: Debug paths before upload
         if: always()
@@ -126,6 +108,27 @@ jobs:
           echo "workspace=${{ github.workspace }}"
           ls -lah build/ios/ipa || true
           find "${{ github.workspace }}" -maxdepth 4 -name "*.ipa" -print
+
+        # .ipa 찾아서 표준 위치로 복사/이름 고정
+      - name: Locate & rename IPA (robust)
+        id: ipa
+        run: |
+          set -euo pipefail
+          ROOT="${{ github.workspace }}"
+          echo "Searching for IPA under: $ROOT"
+          FOUND=$(find "$ROOT" -type f -name "*.ipa" -print -quit)
+          if [ -z "$FOUND" ]; then
+            echo "::error::IPA not found. Check 'flutter build ipa' logs and ExportOptions."
+            find "$ROOT" -maxdepth 5 -type d -name "build" -print || true
+            exit 1
+          fi
+          echo "Found IPA: $FOUND"
+          mkdir -p "$ROOT/build/ios/ipa"
+          DEST="$ROOT/build/ios/ipa/dongsoop.ipa"
+          cp "$FOUND" "$DEST"
+          echo "IPA_PATH=$DEST" >> $GITHUB_ENV
+          echo "ipa=$DEST" >> $GITHUB_OUTPUT
+          echo "Copied to: $DEST"
 
       # TestFlight 업로드
       - name: Upload app to TestFlight
