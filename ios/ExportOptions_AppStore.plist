@@ -14,7 +14,7 @@
         <key>provisioningProfiles</key>
         <dict>
             <key>com.dongsoop.site.dongsoop</key>
-            <string>동숲</string>
+            <string>dongsoop app store</string>
         </dict>
 
         <key>teamID</key>
