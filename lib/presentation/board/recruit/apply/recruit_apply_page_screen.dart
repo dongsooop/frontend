@@ -4,6 +4,7 @@ import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_apply_view_model.dart';
+import 'package:dongsoop/presentation/board/common/components/board_filtering_overlay.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -43,6 +44,11 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
     final isSubmitting = ref.watch(
       recruitApplyViewModelProvider.select((s) => s.isLoading),
     );
+    final isFiltering = ref.watch(
+      recruitApplyViewModelProvider.select((s) => s.isFiltering),
+    );
+
+    final filteringOverlayRef = useRef<OverlayEntry?>(null);
 
     final isFormValid = useState(false);
 
@@ -81,8 +87,30 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
       return null;
     }, [state.profanityMessageTriggerKey]);
 
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        if (isFiltering && filteringOverlayRef.value == null) {
+          filteringOverlayRef.value = showBoardFilteringOverlay(
+            context,
+            useRootOverlay: true,
+          );
+        } else if (!isFiltering && filteringOverlayRef.value != null) {
+          hideBoardFilteringOverlay(filteringOverlayRef.value);
+          filteringOverlayRef.value = null;
+        }
+      });
+
+      return () {
+        if (filteringOverlayRef.value != null) {
+          hideBoardFilteringOverlay(filteringOverlayRef.value);
+          filteringOverlayRef.value = null;
+        }
+      };
+    }, [isFiltering]);
+
     Future<void> _guardedSubmit() async {
-      if (isSubmitting || submittingRef.value) return;
+      if (isSubmitting || submittingRef.value || isFiltering) return;
       submittingRef.value = true;
       try {
         final success = await viewModel.submitRecruitApply(
@@ -116,9 +144,11 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
       ),
       bottomNavigationBar: PrimaryBottomButton(
         label: '지원하기',
-        isEnabled: isFormValid.value && !isSubmitting && !submittingRef.value,
+        isEnabled: isFormValid.value && !isSubmitting && !submittingRef.value && !isFiltering,
         onPressed: () {
-          if (!isFormValid.value || isSubmitting || submittingRef.value) return;
+          if (!isFormValid.value || isSubmitting || submittingRef.value || isFiltering) {
+            return;
+          }
           showDialog(
             context: context,
             builder: (_) => CustomConfirmDialog(
@@ -138,7 +168,7 @@ class RecruitApplyPageScreen extends HookConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: AbsorbPointer(
-            absorbing: isSubmitting || submittingRef.value,
+            absorbing: isSubmitting || submittingRef.value || isFiltering,
             child: SingleChildScrollView(
               child: Form(
                 key: formKey,
