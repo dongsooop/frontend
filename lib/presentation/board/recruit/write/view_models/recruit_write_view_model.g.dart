@@ -7,7 +7,7 @@ part of 'recruit_write_view_model.dart';
 // **************************************************************************
 
 String _$recruitWriteViewModelHash() =>
-    r'136bed4573d77c0e11af3b8574549f872a623b21';
+    r'acf0adf26c7d3773f87de57e1d5aeff0d38153bc';
 
 /// See also [RecruitWriteViewModel].
 @ProviderFor(RecruitWriteViewModel)
