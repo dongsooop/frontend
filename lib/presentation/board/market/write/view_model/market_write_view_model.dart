@@ -15,6 +15,7 @@ import 'package:dongsoop/presentation/board/providers/market/market_update_use_c
 import 'package:dongsoop/presentation/board/providers/market/market_write_use_case_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -178,6 +179,7 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
 
     state = state.copyWith(
       isSubmitting: true,
+      isFiltering: true,
       errorMessage: null,
       profanityMessage: null,
     );
@@ -189,6 +191,8 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       await _aiFilterUseCase.execute(
         entity: MarketAIFilterEntity(title: filteredTitle, content: filteredContent),
       );
+
+      state = state.copyWith(isFiltering: false);
 
       final newImages = state.images.where((xfile) {
         final basename = path.basename(xfile.path);
@@ -217,10 +221,11 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
 
       return true;
     } on ProfanityDetectedException catch (e) {
+      state = state.copyWith(isFiltering: false);
       _setProfanityMessage(e);
       return false;
     } catch (e) {
-      state = state.copyWith(errorMessage: e.toString());
+      state = state.copyWith(isFiltering: false, errorMessage: e.toString());
       rethrow;
     } finally {
       _submitting = false;

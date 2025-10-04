@@ -10,6 +10,7 @@ import 'package:dongsoop/presentation/board/common/components/board_text_form_fi
 import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/price_formatter.dart';
 import 'package:dongsoop/presentation/board/market/write/view_model/market_write_view_model.dart';
+import 'package:dongsoop/presentation/board/common/components/board_filtering_overlay.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,9 @@ class MarketWritePageScreen extends HookConsumerWidget {
     final submittingRef = useRef<bool>(false);
     final isSubmitting = ref.watch(vmProv.select((s) => s.isSubmitting));
     final isValid = ref.watch(vmProv.select((s) => s.isValid));
+    final isFiltering = ref.watch(vmProv.select((s) => s.isFiltering));
+
+    final overlayRef = useRef<OverlayEntry?>(null);
 
     final titleController = useTextEditingController();
     final contentController = useTextEditingController();
@@ -79,8 +83,27 @@ class MarketWritePageScreen extends HookConsumerWidget {
       return null;
     }, [isInitialized.value]);
 
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        if (isFiltering && overlayRef.value == null) {
+          overlayRef.value = showBoardFilteringOverlay(
+            context,
+            useRootOverlay: true,
+          );
+        } else if (!isFiltering && overlayRef.value != null) {
+          hideBoardFilteringOverlay(overlayRef.value);
+          overlayRef.value = null;
+        }
+      });
+      return () {
+        hideBoardFilteringOverlay(overlayRef.value);
+        overlayRef.value = null;
+      };
+    }, [isFiltering]);
+
     Future<void> _pickImage() async {
-      if (isSubmitting || submittingRef.value) return;
+      if (isSubmitting || submittingRef.value || isFiltering) return;
       final pickedFile =
       await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
@@ -89,7 +112,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
     }
 
     Future<void> _showDeleteImageActionSheet(int index) async {
-      if (isSubmitting || submittingRef.value) return;
+      if (isSubmitting || submittingRef.value || isFiltering) return;
       customActionSheet(
         context,
         onDelete: () => viewModel.removeImageAt(index),
@@ -125,9 +148,9 @@ class MarketWritePageScreen extends HookConsumerWidget {
           ? null
           : PrimaryBottomButton(
         label: isEditing ? '수정하기' : '등록하기',
-        isEnabled: isValid && !isSubmitting && !submittingRef.value,
+        isEnabled: isValid && !isSubmitting && !submittingRef.value && !isFiltering,
         onPressed: () async {
-          if (isSubmitting || submittingRef.value) return;
+          if (isSubmitting || submittingRef.value || isFiltering) return;
           submittingRef.value = true;
           try {
             final success = await viewModel.submitMarket(context);
@@ -166,9 +189,9 @@ class MarketWritePageScreen extends HookConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: AbsorbPointer(
-            absorbing: isSubmitting || submittingRef.value,
+            absorbing: isSubmitting || submittingRef.value || isFiltering,
             child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: 40),
+              padding: const EdgeInsets.only(bottom: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -181,7 +204,9 @@ class MarketWritePageScreen extends HookConsumerWidget {
                       final isSelected = state.type?.index == index;
                       return GestureDetector(
                         onTap: () {
-                          if (isSubmitting || submittingRef.value) return;
+                          if (isSubmitting || submittingRef.value || isFiltering) {
+                            return;
+                          }
                           viewModel.updateType(
                             index == 0 ? MarketType.SELL : MarketType.BUY,
                           );
