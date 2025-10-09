@@ -1,18 +1,25 @@
 import 'package:dio/dio.dart';
+import 'package:dongsoop/core/network/app_check_interceptor.dart';
 
 class PlainInterceptor extends Interceptor {
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    super.onRequest(options, handler);
-  }
+  final AppCheckInterceptor _appCheckInterceptor = AppCheckInterceptor();
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    super.onResponse(response, handler);
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    _appCheckInterceptor.onRequest(options, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    super.onError(err, handler);
+    _appCheckInterceptor.onError(err, handler);
+  }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    handler.next(response);
+  }
+
+  void dispose() {
+    _appCheckInterceptor.dispose();
   }
 }

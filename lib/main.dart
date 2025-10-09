@@ -25,7 +25,7 @@ import 'domain/chat/model/chat_room_member.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await dotenv.load(); // .env 파일 로드
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await FirebaseAppCheck.instance.activate(
@@ -56,8 +56,6 @@ Future<void> main() async {
   Hive.registerAdapter(ChatRoomMemberAdapter());
   Hive.registerAdapter(ChatRoomDetailAdapter());
   Hive.registerAdapter(ChatMessageAdapter());
-
-  await dotenv.load(); // .env 파일 로드
 
   if (Platform.isIOS) {
     WebViewPlatform.instance = WebKitWebViewPlatform();
