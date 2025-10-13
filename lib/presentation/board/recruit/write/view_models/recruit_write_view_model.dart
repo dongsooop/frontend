@@ -66,9 +66,9 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
     required int userId,
   }) async {
     if (_submitting) return false;
-    _submitting = true;
-
     if (state.isLoading) return false;
+
+    _submitting = true;
 
     String? prevProfanityMessage;
 
@@ -84,6 +84,7 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
           state.tags.map((e) => e.replaceAll('|', '')).join(' ');
       final filteredContent = state.content.replaceAll('|', '');
 
+      state = state.copyWith(isFiltering: true);
       await _textFilterUseCase.execute(
         entity: RecruitTextFilterEntity(
           title: filteredTitle,
@@ -91,17 +92,20 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
           content: filteredContent,
         ),
       );
+      state = state.copyWith(isFiltering: false);
 
       await _useCase.execute(type: type, entity: entity);
       return true;
     } on ProfanityDetectedException catch (e) {
+      state = state.copyWith(isFiltering: false);
       _setProfanityMessage(e);
       prevProfanityMessage = state.profanityMessage;
       return false;
     } on LoginRequiredException catch (e) {
-      state = state.copyWith(errMessage: e.message);
+      state = state.copyWith(isFiltering: false, errMessage: e.message);
       return false;
     } catch (e) {
+      state = state.copyWith(isFiltering: false);
       rethrow;
     } finally {
       _submitting = false;
@@ -116,14 +120,12 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
     final badSentences = <String>[];
     final Map<String, dynamic> data = e.responseData;
 
-    // 서버 → 클라이언트 키 변환 맵
     final fieldNameMap = {
       '제목': '제목',
       '태그': '태그',
       '본문': '내용',
     };
 
-    // 사용자에게 보여줄 필드 순서
     final displayOrder = ['제목', '내용', '태그'];
 
     for (final field in displayOrder) {

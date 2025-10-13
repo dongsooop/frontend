@@ -50,12 +50,16 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
       final filteredIntroduction = introduction.replaceAll('|', '');
       final filteredMotivation = motivation.replaceAll('|', '');
 
+      state = state.copyWith(isFiltering: true);
+
       await _textFilterUseCase.execute(
         entity: RecruitApplyTextFilterEntity(
           introduction: filteredIntroduction,
           motivation: filteredMotivation,
         ),
       );
+
+      state = state.copyWith(isFiltering: false);
 
       await _useCase.execute(
         entity: RecruitApplyEntity(
@@ -99,12 +103,16 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
 
       state = state.copyWith(
         isLoading: false,
+        isFiltering: false,
         profanityMessage: badSentences.join('\n'),
         profanityMessageTriggerKey: state.profanityMessageTriggerKey + 1,
       );
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(
+        isLoading: false,
+        isFiltering: false,
+      );
       return false;
     } finally {
       _submitting = false;
