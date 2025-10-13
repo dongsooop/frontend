@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dongsoop/core/routing/router.dart';
@@ -22,7 +23,6 @@ import 'domain/chat/model/chat_message.dart';
 import 'domain/chat/model/chat_room_detail.dart';
 import 'domain/chat/model/chat_room_member.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(); // .env 파일 로드
@@ -32,40 +32,47 @@ Future<void> main() async {
     androidProvider: AndroidProvider.playIntegrity,
     appleProvider: AppleProvider.appAttest,
   );
-
-  FirebaseAppCheck.instance.onTokenChange.listen((t) {
-    print('[AppCheck] onTokenChange: ${t != null}');
-  });
-
-  try {
-    final token = await FirebaseAppCheck.instance.getToken();
-    print('[AppCheck] token=$token');
-  } catch (e) {
-    print('[AppCheck] getToken error at boot: $e');
-  }
-
-
-  final localNotificationsService = LocalNotificationsService.instance();
-  await localNotificationsService.init();
-
-  final firebaseMessagingService = FirebaseMessagingService.instance();
-  await firebaseMessagingService.init(localNotificationsService: localNotificationsService);
-
-  await Hive.initFlutter();
-  Hive.registerAdapter(LocalTimetableInfoAdapter());
-  Hive.registerAdapter(ChatRoomMemberAdapter());
-  Hive.registerAdapter(ChatRoomDetailAdapter());
-  Hive.registerAdapter(ChatMessageAdapter());
-
-  if (Platform.isIOS) {
-    WebViewPlatform.instance = WebKitWebViewPlatform();
-  }
+  unawaited(FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true));
 
   runApp(
     const ProviderScope(
       child: MyApp(),
     ),
   );
+
+  // 백그라운드에서 App Check 토큰 확보 (UI 블로킹 방지)
+  unawaited(() async {
+    try {
+      final token = await FirebaseAppCheck.instance
+          .getToken(true)
+          .timeout(const Duration(seconds: 3));
+      debugPrint('[AppCheck] token acquired: ${token != null}');
+    } catch (e) {
+      debugPrint('[AppCheck] getToken error (background): $e');
+    }
+  }());
+
+  unawaited(_postBootInit());
+}
+
+Future<void> _postBootInit() async {
+  try {
+    final localNotificationsService = LocalNotificationsService.instance();
+    await localNotificationsService.init();
+
+    final firebaseMessagingService = FirebaseMessagingService.instance();
+    await firebaseMessagingService.init(
+      localNotificationsService: localNotificationsService,
+    );
+
+    await Hive.initFlutter();
+    Hive.registerAdapter(LocalTimetableInfoAdapter());
+    Hive.registerAdapter(ChatRoomMemberAdapter());
+    Hive.registerAdapter(ChatRoomDetailAdapter());
+    Hive.registerAdapter(ChatMessageAdapter());
+  } catch (e, st) {
+    debugPrint('[Init] Error: $e\n$st');
+  }
 }
 
 class MyApp extends ConsumerStatefulWidget {
@@ -128,6 +135,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      WebViewPlatform.instance = WebKitWebViewPlatform();
+    }
+
     return MaterialApp.router(
       theme: ThemeData(
         colorScheme: ColorScheme.light(),
