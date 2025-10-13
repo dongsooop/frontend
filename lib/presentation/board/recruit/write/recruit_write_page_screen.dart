@@ -6,6 +6,7 @@ import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_write_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
+import 'package:dongsoop/presentation/board/common/components/board_filtering_overlay.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
 import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
@@ -33,8 +34,13 @@ class RecruitWritePageScreen extends HookConsumerWidget {
     final isSaving = ref.watch(
       recruitWriteViewModelProvider.select((s) => s.isLoading),
     );
+    final isFiltering = ref.watch(
+      recruitWriteViewModelProvider.select((s) => s.isFiltering),
+    );
+
     final submittingRef = useRef<bool>(false);
     final confirmingRef = useRef<bool>(false);
+    final filteringOverlayRef = useRef<OverlayEntry?>(null);
 
     final titleController = useTextEditingController(text: state.title);
     final contentController = useTextEditingController(text: state.content);
@@ -63,6 +69,30 @@ class RecruitWritePageScreen extends HookConsumerWidget {
       }
       return null;
     }, [state.profanityMessageTriggerKey]);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+
+        if (isFiltering && filteringOverlayRef.value == null) {
+          filteringOverlayRef.value = showBoardFilteringOverlay(
+            context,
+            useRootOverlay: true,
+          );
+        } else if (!isFiltering && filteringOverlayRef.value != null) {
+          hideBoardFilteringOverlay(filteringOverlayRef.value);
+          filteringOverlayRef.value = null;
+        }
+      });
+      return null;
+    }, [isFiltering]);
+
+    useEffect(() {
+      return () {
+        hideBoardFilteringOverlay(filteringOverlayRef.value);
+        filteringOverlayRef.value = null;
+      };
+    }, const []);
 
     void updateField(RecruitFormState Function(RecruitFormState) update) {
       viewModel.updateForm(update(state));
@@ -99,7 +129,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
     }
 
     Future<void> onSubmit() async {
-      if (isSaving || submittingRef.value) return;
+      if (isSaving || submittingRef.value || isFiltering) return;
       submittingRef.value = true;
 
     try {
@@ -253,7 +283,10 @@ class RecruitWritePageScreen extends HookConsumerWidget {
           ? null
           : PrimaryBottomButton(
         label: '모집 시작하기',
-        isEnabled: viewModel.isFormValid && !isSaving && !submittingRef.value,
+        isEnabled: viewModel.isFormValid &&
+            !isSaving &&
+            !submittingRef.value &&
+            !isFiltering,
         onPressed: () => showDialog(
           context: context,
           builder: (_) => CustomConfirmDialog(
@@ -280,7 +313,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: AbsorbPointer(
-            absorbing: isSaving || submittingRef.value,
+            absorbing: isSaving || submittingRef.value || isFiltering,
             child: SingleChildScrollView(
               padding: const EdgeInsets.only(bottom: 40),
               child: Column(
@@ -429,11 +462,11 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 80),
                 ],
-              ),
+              )),
             ),
           ),
         ),
       ),
-    ));
+    );
   }
 }

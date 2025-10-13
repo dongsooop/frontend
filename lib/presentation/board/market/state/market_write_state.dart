@@ -15,6 +15,7 @@ class MarketFormState {
   final int? marketId;
   final List<String> initialImageUrls;
   final String? priceErrorText;
+  final bool isFiltering;
 
   static const int maxPrice = 9999999;
 
@@ -32,6 +33,7 @@ class MarketFormState {
     this.marketId,
     this.initialImageUrls = const [],
     this.priceErrorText,
+    this.isFiltering = false,
   });
 
   MarketFormState copyWith({
@@ -48,6 +50,7 @@ class MarketFormState {
     int? marketId,
     List<String>? initialImageUrls,
     String? priceErrorText,
+    bool? isFiltering,
   }) {
     return MarketFormState(
       title: title ?? this.title,
@@ -64,6 +67,7 @@ class MarketFormState {
       marketId: marketId ?? this.marketId,
       initialImageUrls: initialImageUrls ?? this.initialImageUrls,
       priceErrorText: priceErrorText,
+      isFiltering: isFiltering ?? this.isFiltering,
     );
   }
 
