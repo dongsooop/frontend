@@ -30,7 +30,7 @@ Future<void> main() async {
 
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.appAttestWithDeviceCheckFallback,
+    appleProvider: AppleProvider.appAttest,
   );
 
   FirebaseAppCheck.instance.onTokenChange.listen((t) {
