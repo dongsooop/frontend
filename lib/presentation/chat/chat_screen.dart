@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
+import 'package:dongsoop/presentation/chat/widgets/chatbot_button.dart';
 import 'package:dongsoop/providers/activity_context_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -16,12 +17,14 @@ class ChatScreen extends HookConsumerWidget {
   final Future<bool> Function(String roomId) onTapChatDetail;
   final VoidCallback onTapBlindDate;
   final VoidCallback onTapSignIn;
+  final VoidCallback onTapChatbot;
 
   const ChatScreen({
     super.key,
     required this.onTapChatDetail,
     required this.onTapBlindDate,
     required this.onTapSignIn,
+    required this.onTapChatbot,
   });
 
   @override
@@ -129,6 +132,11 @@ class ChatScreen extends HookConsumerWidget {
       children: [
         Scaffold(
           backgroundColor: ColorStyles.white,
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          floatingActionButton: Padding(
+            padding: EdgeInsets.only(bottom: 24,),
+            child: ChatbotButton(onTap: onTapChatbot),
+          ),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),

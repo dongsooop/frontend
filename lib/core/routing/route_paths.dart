@@ -28,6 +28,7 @@ abstract class RoutePaths {
   static const String recruitApplicantList = '/recruitApplicantList';
   static const String recruitApplicantDetail = '/recruitApplicantDetail';
   static const String chatDetail = '/chat/detail';
+  static const String chatbot = '/chatbot';
   static const String marketWrite = '/marketWrite';
   static const String marketDetail = '/marketDetail';
   static const String report = '/report';

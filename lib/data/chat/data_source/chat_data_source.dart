@@ -23,6 +23,7 @@ abstract class ChatDataSource {
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
   Future<String> createQNAChatRoom(ChatRoomRequest request);
+  Future<String> sendChatbot(String text);
   Future<bool> getBlindDateOpen();
 
   // stomp

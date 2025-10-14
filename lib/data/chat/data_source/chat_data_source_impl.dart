@@ -291,6 +291,24 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
+  Future<String> sendChatbot(String text) async {
+    final endpoint = dotenv.get('CHATBOT_ENDPOINT');
+    final requestBody = {'text': text};
+
+    try {
+      final response = await _authDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        final result = data['text'];
+
+        return result;
+      }
+      throw ChatbotException();
+    } catch (e) {
+      throw ChatbotException();
+    }
+  }
+
   Future<bool> getBlindDateOpen() async {
     final endpoint = dotenv.get('BLIND_DATE_OPEN_ENDPOINT');
     try {
