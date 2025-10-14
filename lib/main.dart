@@ -32,10 +32,7 @@ Future<void> main() async {
     androidProvider: AndroidProvider.playIntegrity,
     appleProvider: AppleProvider.appAttestWithDeviceCheckFallback,
   );
-
-  FirebaseAppCheck.instance.onTokenChange.listen((t) {
-    print('[AppCheck] onTokenChange: ${t != null}');
-  });
+  await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
 
   try {
     final token = await FirebaseAppCheck.instance.getToken();

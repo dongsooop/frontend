@@ -2,7 +2,7 @@ name: Google Play Console Deploy - Android
 
 on:
   push:
-    branches: [ main ]
+    branches: [ fix/app-check-error ]
 
 jobs:
   build-android:
