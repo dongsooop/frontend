@@ -21,6 +21,11 @@ class SettingScreen extends HookConsumerWidget {
         'https://zircon-football-529.notion.site/Dongsoop-2333ee6f2561800cb85fdc87fbe9b4c2';
     const privacyPolicy =
         'https://zircon-football-529.notion.site/Dongsoop-2333ee6f256180a0821fdbf087345a1d';
+    const faqPage =
+        'https://zircon-football-529.notion.site/Q-A-2803ee6f2561804cb106c6cceedd57ac';
+    const licenseInfo =
+        'https://zircon-football-529.notion.site/2883ee6f256180a49d5edf214bc61003?pvs=74';
+
 
     if (settingState.errorMessage != null) {
       // error dialog
@@ -53,7 +58,7 @@ class SettingScreen extends HookConsumerWidget {
               title: '이용 안내',
               children: [
                 buildSettingsItem(
-                  label: '버전  1.1.1',
+                  label: '버전  1.2.1',
                   onTap: () {},
                 ),
                 buildSettingsItem(
@@ -66,6 +71,18 @@ class SettingScreen extends HookConsumerWidget {
                   label: '개인정보 처리방침',
                   onTap: () {
                     context.push('/mypageWebView?url=$privacyPolicy&title=개인정보처리방침');
+                  },
+                ),
+                buildSettingsItem(
+                  label: '자주 묻는 질문',
+                  onTap: () {
+                    context.push('/mypageWebView?url=$faqPage&title=자주 묻는 질문');
+                  },
+                ),
+                buildSettingsItem(
+                  label: '오픈소스 라이선스',
+                  onTap: () {
+                    context.push('/mypageWebView?url=$licenseInfo&title=오픈소스 라이선스');
                   },
                 ),
               ],
