@@ -79,6 +79,12 @@ class SettingScreen extends HookConsumerWidget {
                     context.push('/mypageWebView?url=$faqPage&title=자주 묻는 질문');
                   },
                 ),
+                buildSettingsItem(
+                  label: '오픈소스 라이선스',
+                  onTap: () {
+                    context.push('/mypageWebView?url=$licenseInfo&title=오픈소스 라이선스');
+                  },
+                ),
               ],
             ),
             SizedBox(
@@ -145,20 +151,6 @@ class SettingScreen extends HookConsumerWidget {
                           },
                         ),
                       );
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 40,
-              ),
-              buildSettingsSection(
-                title: '오픈소스 정보',
-                children: [
-                  buildSettingsItem(
-                    label: '오픈소스 라이선스',
-                    onTap: () {
-                      context.push('/mypageWebView?url=$licenseInfo&title=오픈소스 라이선스');
                     },
                   ),
                 ],
