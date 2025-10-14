@@ -17,6 +17,7 @@ import 'package:dongsoop/presentation/schedule/schedule_detail_page_screen.dart'
 import 'package:dongsoop/presentation/schedule/schedule_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_screen.dart';
+import 'package:dongsoop/presentation/chat/chatbot/chatbot_screen.dart';
 import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/home/notification_list_page_screen.dart';
@@ -171,6 +172,10 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.passwordReset,
       builder: (context, state) => PasswordResetScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.chatbot,
+      builder: (context, state) => ChatbotScreen(),
     ),
     GoRoute(
       path: RoutePaths.chatDetail,
@@ -564,6 +569,9 @@ final router = GoRouter(
                 onTapSignIn: () { context.push(RoutePaths.signIn); },
                 onTapBlindDate: () {
                   context.push('${RoutePaths.chat}/${RoutePaths.blindDate}');
+                },
+                onTapChatbot: () {
+                  context.push(RoutePaths.chatbot);
                 },
               ),
               routes: [
