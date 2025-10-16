@@ -54,18 +54,30 @@ class SplashScreen extends HookConsumerWidget {
           if (message != null && context.mounted) {
             final m = ScaffoldMessenger.of(context);
             m.removeCurrentSnackBar();
-            final ctrl = m.showSnackBar(
+            m.showSnackBar(
               SnackBar(
-                content: Text(message),
+                content: Text(
+                  message,
+                  style: TextStyles.normalTextRegular.copyWith(
+                    color: ColorStyles.white
+                  ),
+                ),
+                backgroundColor: Color(0xFFAC0903),
                 behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                elevation: 4,
                 duration: const Duration(seconds: 2),
               ),
             );
-            await ctrl.closed;
           }
           if (!context.mounted) return;
           context.go(RoutePaths.home);
-          return;
         }
       });
       return null;
@@ -103,7 +115,7 @@ class SplashScreen extends HookConsumerWidget {
                 width: 24,
                 child: splashState.isLoading
                   ? CircularProgressIndicator(color: ColorStyles.primaryColor)
-                  : SizedBox(height: 0,),
+                  : SizedBox(height: 0),
               ),
             ],
           ),
