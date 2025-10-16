@@ -5,6 +5,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 
 class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
   const MainHeader({
@@ -34,13 +35,20 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SvgPicture.asset('assets/icons/logo.svg', width: 28, height: 28),
-
-            if (user != null)
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: onTapAlarm,
                   borderRadius: BorderRadius.circular(64),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  onTap: () async {
+                    if (user != null) {
+                      onTapAlarm();
+                      return;
+                    }
+                    await LoginRequiredDialog(context);
+                  },
                   child: SizedBox(
                     width: 44,
                     height: 44,
@@ -50,7 +58,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                         children: [
                           SvgPicture.asset('assets/icons/alarm.svg',
                               width: 28, height: 28),
-                          if (unreadCount > 0)
+                          if (user != null && unreadCount > 0)
                             Positioned(
                               top: -4,
                               right: -6,
