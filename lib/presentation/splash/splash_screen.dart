@@ -9,6 +9,8 @@ import 'package:dongsoop/providers/splash_providers.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/app_scaffold_messenger.dart';
+import 'package:flutter/scheduler.dart';
 
 class SplashScreen extends HookConsumerWidget {
   @override
@@ -49,12 +51,10 @@ class SplashScreen extends HookConsumerWidget {
         }
         if (user == null) {
           final message = await viewModel.requestDeviceTokenPreAuthOnce(
-            tokenTimeout: const Duration(seconds: 2),
+            tokenTimeout: const Duration(seconds: 3),
           );
           if (message != null && context.mounted) {
-            final m = ScaffoldMessenger.of(context);
-            m.removeCurrentSnackBar();
-            m.showSnackBar(
+            rootScaffoldMessengerKey.currentState?.showSnackBar(
               SnackBar(
                 content: Text(
                   message,
@@ -62,7 +62,7 @@ class SplashScreen extends HookConsumerWidget {
                     color: ColorStyles.white
                   ),
                 ),
-                backgroundColor: Color(0xFFAC0903),
+                backgroundColor: ColorStyles.gray3,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
@@ -72,9 +72,11 @@ class SplashScreen extends HookConsumerWidget {
                   vertical: 12,
                 ),
                 elevation: 4,
-                duration: const Duration(seconds: 2),
+                duration: const Duration(seconds: 3),
               ),
             );
+            await SchedulerBinding.instance.endOfFrame;
+            await Future.delayed(const Duration(milliseconds: 200));
           }
           if (!context.mounted) return;
           context.go(RoutePaths.home);
@@ -114,8 +116,8 @@ class SplashScreen extends HookConsumerWidget {
                 height: 24,
                 width: 24,
                 child: splashState.isLoading
-                  ? CircularProgressIndicator(color: ColorStyles.primaryColor)
-                  : SizedBox(height: 0),
+                    ? const CircularProgressIndicator(color: ColorStyles.primaryColor)
+                    : const SizedBox(height: 0),
               ),
             ],
           ),

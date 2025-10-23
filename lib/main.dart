@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dongsoop/core/app_scaffold_messenger.dart';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
@@ -129,6 +130,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       theme: ThemeData(
         colorScheme: ColorScheme.light(),
         scaffoldBackgroundColor: ColorStyles.white,
