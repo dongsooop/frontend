@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dongsoop/core/app_scaffold_messenger.dart';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
@@ -30,12 +31,9 @@ Future<void> main() async {
 
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.appAttestWithDeviceCheckFallback,
+    appleProvider: AppleProvider.appAttest,
   );
-
-  FirebaseAppCheck.instance.onTokenChange.listen((t) {
-    print('[AppCheck] onTokenChange: ${t != null}');
-  });
+  await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
 
   try {
     final token = await FirebaseAppCheck.instance.getToken();
@@ -129,6 +127,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       theme: ThemeData(
         colorScheme: ColorScheme.light(),
         scaffoldBackgroundColor: ColorStyles.white,
