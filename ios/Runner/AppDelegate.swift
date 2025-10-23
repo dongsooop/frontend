@@ -5,6 +5,16 @@ import flutter_local_notifications
 import FirebaseAppCheck
 import FirebaseCore
 
+class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
+  func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+    if #available(iOS 14.0, *) {
+      return AppAttestProvider(app: app)
+    } else {
+      return DeviceCheckProvider(app: app)
+    }
+  }
+}
+
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private var pushChannel: FlutterMethodChannel?
@@ -15,6 +25,7 @@ import FirebaseCore
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    AppCheck.setAppCheckProviderFactory(MyAppCheckProviderFactory())
     FirebaseApp.configure()
 
     FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { registry in
