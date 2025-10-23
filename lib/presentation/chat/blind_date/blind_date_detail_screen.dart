@@ -182,7 +182,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                 style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
               ),
               Text(
-                state.volunteer.toString(),
+                '7',
                 style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
               ),
             ],

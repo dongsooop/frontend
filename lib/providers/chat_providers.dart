@@ -4,7 +4,6 @@ import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
 import 'package:dongsoop/data/chat/repository/chat_repository_impl.dart';
-import 'package:dongsoop/domain/chat/model/chatbot.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/blind_choice_use_case.dart';
@@ -25,7 +24,6 @@ import 'package:dongsoop/domain/chat/use_case/chat/get_chat_rooms_use_case.dart'
 import 'package:dongsoop/domain/chat/use_case/chat/kick_user_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/save_chat_message_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/send_chatbot_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/disconnect_chat_list_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_broadcast_stream_use_case.dart';
@@ -44,8 +42,6 @@ import 'package:dongsoop/presentation/chat/blind_date/blind_date_state.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_view_model.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:dongsoop/presentation/chat/chat_view_model.dart';
-import 'package:dongsoop/presentation/chat/chatbot/chatbot_state.dart';
-import 'package:dongsoop/presentation/chat/chatbot/chatbot_view_model.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -160,12 +156,6 @@ final leaveChatRoomUseCaseProvider = Provider<LeaveChatRoomUseCase>((ref) {
 final kickUserUseCaseProvider = Provider<KickUserUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return KickUserUseCase(repository);
-});
-
-
-final sendChatbotMessageUseCaseProvider = Provider<SendChatbotMessageUseCase>((ref) {
-  final repository = ref.watch(chatRepositoryProvider);
-  return SendChatbotMessageUseCase(repository);
 });
 
 final blindConnectUseCaseProvider = Provider<BlindConnectUseCase>((ref) {
@@ -319,17 +309,6 @@ final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref)
     return ChatBlockNotifier();
   },
 );
-
-final chatbotViewModelProvider =
-StateNotifierProvider.autoDispose<ChatbotViewModel, ChatbotState>((ref) {
-  final sendChatbotMessageUseCase = ref.watch(sendChatbotMessageUseCaseProvider);
-
-  return ChatbotViewModel(ref, sendChatbotMessageUseCase);
-});
-
-final chatbotMessagesProvider = StateNotifierProvider<ChatbotMessagesNotifier, List<Chatbot>>((ref) {
-  return ChatbotMessagesNotifier();
-});
 
 // blind date
 final socketIoServiceProvider = Provider<SocketIoService>((ref) {

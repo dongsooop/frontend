@@ -1,9 +1,10 @@
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/chat/model/chatbot.dart';
 import 'package:dongsoop/domain/chat/use_case/send_chatbot_message_use_case.dart';
-import 'package:dongsoop/presentation/chat/chatbot/chatbot_state.dart';
-import 'package:dongsoop/providers/chat_providers.dart';
+import 'package:dongsoop/presentation/home/providers/chatbot_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'chatbot_state.dart';
 
 class ChatbotViewModel extends StateNotifier<ChatbotState> {
   final Ref _ref;

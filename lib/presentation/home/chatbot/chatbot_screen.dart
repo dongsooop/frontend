@@ -1,12 +1,12 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
-import 'package:dongsoop/presentation/chat/chatbot/chatbot_bubble.dart';
-import 'package:dongsoop/providers/chat_providers.dart';
+import 'package:dongsoop/presentation/home/providers/chatbot_provider.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'chatbot_bubble.dart';
 
 class ChatbotScreen extends HookConsumerWidget{
   const ChatbotScreen({

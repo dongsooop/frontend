@@ -1,3 +1,5 @@
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
+import 'package:dongsoop/presentation/home/widgets/chatbot_button.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
 import 'package:dongsoop/presentation/home/widgets/home_new_notice.dart';
 import 'package:dongsoop/presentation/home/widgets/home_popular_recruits.dart';
@@ -14,8 +16,9 @@ import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/presentation/home/providers/home_update_provider.dart';
 
 class HomePageScreen extends HookConsumerWidget {
-  const HomePageScreen({super.key, required this.onTapAlarm});
+  const HomePageScreen({super.key, required this.onTapAlarm, required this.onTapChatbot});
   final Future<bool> Function() onTapAlarm;
+  final VoidCallback onTapChatbot;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -48,6 +51,19 @@ class HomePageScreen extends HookConsumerWidget {
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: ColorStyles.white,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: Padding(
+          padding: EdgeInsets.only(bottom: 24,),
+          child: ChatbotButton(
+            onTap: () async {
+              if (user == null) {
+                await LoginRequiredDialog(context);
+              } else {
+                onTapChatbot(); // 기존 이동/동작
+              }
+            },
+          ),
+        ),
         appBar: MainHeader(
           onTapAlarm: () async {
             final changed = await onTapAlarm();
