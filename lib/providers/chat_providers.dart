@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:dongsoop/core/network/socket_io_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
@@ -15,15 +16,15 @@ import 'package:dongsoop/domain/chat/use_case/chat/connect_chat_list_use_case.da
 import 'package:dongsoop/domain/chat/use_case/chat/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/delete_chat_data_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/get_blind_date_open_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/chat/disconnect_chat_list_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/get_offline_messages_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/get_paged_messages.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/get_room_detail_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/chat/get_chat_rooms_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/get_user_nicknames_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/get_chat_rooms_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/kick_user_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/leave_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/save_chat_message_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/disconnect_chat_list_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_broadcast_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_disconnect_stream_use_case.dart';
@@ -55,7 +56,7 @@ import 'package:dongsoop/presentation/chat/chat_state.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/subscribe_block_use_case.dart';
 
 
-// 추후 기능, 책임 별로 providers 분리
+final aiDioProvider = Provider<Dio>((ref) => createAuthDio(ref: ref, useAi: true));
 
 // stomp
 final stompServiceProvider = Provider<StompService>((ref) {
@@ -309,7 +310,6 @@ final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref)
   },
 );
 
-
 // blind date
 final socketIoServiceProvider = Provider<SocketIoService>((ref) {
   return SocketIoService();
@@ -361,7 +361,7 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
 });
 
 final blindDateMessagesProvider = StateNotifierProvider<BlindDateMessagesNotifier, List<BlindDateMessage>>((ref) {
-    // final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
     return BlindDateMessagesNotifier();
   },
 );
+
