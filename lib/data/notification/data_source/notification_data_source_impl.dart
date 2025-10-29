@@ -17,7 +17,7 @@ class NotificationDataSourceImpl implements NotificationDataSource {
     final query = <String, dynamic>{
       'page': page,
       'size': size,
-      'sort': ['id,desc'],
+      'sort': ['createdAt,desc', 'id,desc'],
     };
 
     final response = await _authDio.get(url, queryParameters: query);
