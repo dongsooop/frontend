@@ -62,6 +62,7 @@ class ChatbotScreen extends HookConsumerWidget{
                         final msg = messages[index];
                         return ChatbotBubble(
                           text: msg.text,
+                          url: msg.url,
                           isMe: msg.isMe,
                           isLoading: msg.typing,
                           isSystem: msg.isSystem,

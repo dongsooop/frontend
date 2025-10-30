@@ -291,17 +291,18 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<String> sendChatbot(String text) async {
+  Future<Map<String, String?>> sendChatbot(String text) async {
     final endpoint = dotenv.get('CHATBOT_ENDPOINT');
-    final requestBody = {'text': text};
+    final requestBody = {'text': text, };
 
     try {
       final response = await _authDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
         final data = response.data;
-        final result = data['text'];
+        final answer = data['text'];
+        final url = data['url'];
 
-        return result;
+        return {'text': answer, 'url': url};
       }
       throw ChatbotException();
     } catch (e) {
