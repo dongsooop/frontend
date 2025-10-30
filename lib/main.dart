@@ -133,7 +133,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         scaffoldBackgroundColor: ColorStyles.white,
         useMaterial3: true,
         textSelectionTheme: TextSelectionThemeData(
-          selectionColor: ColorStyles.gray2, // 선택된 영역 배경색
+          selectionColor: ColorStyles.gray2.withValues(alpha: 0.4), // 선택된 영역 배경색
           cursorColor: ColorStyles.gray4,               // 커서 색상
           selectionHandleColor: ColorStyles.gray4 // 핸들 색상 (양 끝 점)
         ),

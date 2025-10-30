@@ -75,7 +75,7 @@ class ChatBubbleScreen extends StatelessWidget {
       ),
       constraints: BoxConstraints(maxWidth: bubbleMaxWidth),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      child: Text(
+      child: SelectableText(
         message,
         style: TextStyles.normalTextRegular.copyWith(
           color: isMe ? ColorStyles.black : ColorStyles.white,
