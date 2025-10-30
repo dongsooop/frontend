@@ -35,11 +35,13 @@ class ChatbotViewModel extends StateNotifier<ChatbotState> {
     try {
       // AI 통신
       final result = await _sendChatbotMessageUseCase.execute(text);
-      await Future.delayed(const Duration(seconds: 5));
-      messages.resolveBot(pendingId, result);
+      final String answerText = result['text'] ?? '';
+      final String? url = result['url'];
+
+      messages.resolveBot(pendingId, answerText, url);
 
     } on ChatbotException catch (e) {
-      messages.resolveBot(pendingId, e.message);
+      messages.resolveBot(pendingId, e.message, null);
 
     } finally {
       state = state.copyWith(isLoading: false);
@@ -84,10 +86,10 @@ class ChatbotMessagesNotifier extends StateNotifier<List<Chatbot>> {
     return id;
   }
 
-  void resolveBot(String id, String text) {
+  void resolveBot(String id, String text, String? url) {
     state = [
       for (final m in state)
-        if (m.id == id) m.copyWith(text: text, typing: false) else m,
+        if (m.id == id) m.copyWith(text: text, url: url, typing: false) else m,
     ];
   }
 }

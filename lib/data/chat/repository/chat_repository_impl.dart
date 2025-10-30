@@ -91,7 +91,7 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<String> sendChatbot(String text) async {
+  Future<Map<String, String?>> sendChatbot(String text) async {
     return await _chatDataSource.sendChatbot(text);
   }
 

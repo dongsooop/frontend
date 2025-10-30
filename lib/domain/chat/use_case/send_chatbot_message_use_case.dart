@@ -5,7 +5,7 @@ class SendChatbotMessageUseCase {
 
   SendChatbotMessageUseCase(this._chatRepository,);
 
-  Future<String> execute(String text) async {
+  Future<Map<String, String?>> execute(String text) async {
     return await _chatRepository.sendChatbot(text);
   }
 }
