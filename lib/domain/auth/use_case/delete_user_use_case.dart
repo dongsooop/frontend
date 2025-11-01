@@ -11,9 +11,7 @@ class DeleteUserUseCase {
   );
 
   Future<void> execute() async {
-    // 탈퇴 + 로그인 후 로컬 저장 정보 삭제
     await _authRepository.deleteUser();
     await _chatRepository.deleteChatBox();
-    await _authRepository.logout();
   }
 }
