@@ -570,10 +570,8 @@ class SignUpScreen extends HookConsumerWidget {
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (context) => AgreementBottomSheet(
-                  initialValues: {
-                    AgreementType.termsOfService: false,
-                    AgreementType.privacyPolicy: false,
-                  },
+                  initialValues: Map<AgreementType, bool>.of(agreement.value),
+
                   onViewDetail: (type) {
                     if (type == AgreementType.termsOfService) {
                       context.push(
@@ -586,7 +584,7 @@ class SignUpScreen extends HookConsumerWidget {
                     }
                   },
                   onChanged: (state) {
-                    agreement.value = state;
+                    agreement.value = Map<AgreementType, bool>.of(state);
                   },
                 ),
               );
