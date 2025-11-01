@@ -122,7 +122,20 @@ class SignUpScreen extends HookConsumerWidget {
           }
           // 회원가입
           final isSuccessed = await viewModel.signUp();
-          if (isSuccessed) context.pop();
+
+          if (!isSuccessed || !context.mounted) return;
+
+          final messenger = ScaffoldMessenger.of(context);
+          final snackBar = SnackBar(
+            content: Text('회원가입에 성공했습니다.', style: TextStyles.smallTextRegular,),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          );
+
+          // 2초 보여준 뒤 자동으로 닫히면 pop
+          await messenger.showSnackBar(snackBar).closed;
+          if (context.mounted) context.pop();
         },
         label: '가입하기',
         isLoading: signUpState.isLoading,
