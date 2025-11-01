@@ -64,7 +64,8 @@ class AuthDataSourceImpl implements AuthDataSource {
       await _plainDio.post(endpoint, data: request.toJson());
     } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
-        throw SignUpException();
+        final detail = (e.response?.data as Map<String, dynamic>?)?['detail'] as String?;
+        throw SignUpException(detail ?? "입력 정보를 다시 확인해 주세요");
       }
       rethrow;
     } catch (e) {
@@ -187,10 +188,13 @@ class AuthDataSourceImpl implements AuthDataSource {
     final endpoint = dotenv.get('DELETE_USER_ENDPOINT');
     try {
       await _authDio.delete(endpoint);
-      await _secureStorageService.deleteFcmToken(); // 회원 탈퇴시 fcm 토큰 삭제
       return true;
     } catch (e) {
       rethrow;
+    } finally {
+      await _preferencesService.clearUser();
+      await _secureStorageService.deleteFcmToken(); // 회원 탈퇴시 fcm 토큰 삭제
+      await _secureStorageService.delete();
     }
   }
 

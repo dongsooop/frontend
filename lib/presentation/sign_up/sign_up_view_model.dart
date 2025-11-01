@@ -495,17 +495,18 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
     } on SignUpException catch (e) {
       state = state.copyWith(
         isLoading: false,
+        errorMessage: e.message,
         email: state.email.copyWith(
           isError: true,
-          message: e.message,
+          message: '입력 정보를 다시 확인해 주세요',
         ),
         password: state.password.copyWith(
           isError: true,
-          message: e.message,
+          message: '입력 정보를 다시 확인해 주세요',
         ),
         nickname: state.nickname.copyWith(
           isError: true,
-          message: e.message,
+          message: '입력 정보를 다시 확인해 주세요',
         ),
       );
       return false;

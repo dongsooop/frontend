@@ -58,7 +58,7 @@ class SettingScreen extends HookConsumerWidget {
               title: '이용 안내',
               children: [
                 buildSettingsItem(
-                  label: '버전  1.2.2',
+                  label: '버전  1.2.3',
                   onTap: () {},
                 ),
                 buildSettingsItem(
@@ -147,7 +147,7 @@ class SettingScreen extends HookConsumerWidget {
                           onConfirm: () async {
                             // 회원탈퇴
                             await viewModel.deleteUser();
-                            Navigator.of(context).pop(); // 다이얼로그 닫기
+                            Navigator.of(context).pop();
                           },
                         ),
                       );
