@@ -14,7 +14,7 @@ class HomeNewNotice extends StatelessWidget {
     return Container(
       color: ColorStyles.gray1,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
