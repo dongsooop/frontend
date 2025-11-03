@@ -10,45 +10,32 @@ class ApplicantStatusBar extends StatelessWidget {
   String _statusLabel(String string) {
     switch (string) {
       case 'PASS':
-        return '합격';
+        return '축하합니다! 합격하셨습니다.';
       case 'FAIL':
-        return '불합격';
+        return '아쉽게도 불합격하셨습니다.';
       default:
-        return '결과 대기';
-    }
-  }
-
-  (Color background, Color foreground) _colorsOf(String string) {
-    switch (string) {
-      case 'PASS':
-        return (ColorStyles.primaryColor, ColorStyles.white);
-      case 'FAIL':
-        return (ColorStyles.warning10, ColorStyles.warning100);
-      default:
-        return (ColorStyles.gray1, ColorStyles.gray4);
+        return '결과를 기다리는 중입니다.';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final (background, foreground) = _colorsOf(status);
     final label = _statusLabel(status);
 
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        padding: const EdgeInsets.only(bottom: 12),
         color: ColorStyles.white,
         width: double.infinity,
         child: Container(
           height: 48,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(8.0),
+            color: ColorStyles.gray1,
           ),
           child: Text(
             label,
-            style: TextStyles.largeTextBold.copyWith(color: foreground),
+            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.gray4),
           ),
         ),
       ),
