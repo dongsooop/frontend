@@ -34,7 +34,7 @@ class HomeToday extends HookConsumerWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 64, top: 32),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: const BoxDecoration(
         color: ColorStyles.gray1,
         gradient: LinearGradient(
