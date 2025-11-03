@@ -119,7 +119,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
             barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
               title: '사랑의 작대기 실패',
-              content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봤요!',
+              content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봐요!',
               onConfirm: () {
                 context.pop();
                 context.pop();
