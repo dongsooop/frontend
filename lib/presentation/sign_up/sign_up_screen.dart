@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/app_scaffold_messenger.dart';
+import 'package:dongsoop/core/utils/upper_case_text_formatter.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/presentation/sign_up/widgets/agreement_bottom_sheet.dart';
 import 'package:dongsoop/presentation/sign_up/widgets/check_duplication_button.dart';
@@ -121,7 +122,6 @@ class SignUpScreen extends HookConsumerWidget {
               !agreement.value.values.every((v) => v)) {
             return;
           }
-          // 회원가입
           final isSuccessed = await viewModel.signUp();
 
           if (!isSuccessed || !context.mounted) return;
@@ -170,7 +170,6 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -211,7 +210,6 @@ class SignUpScreen extends HookConsumerWidget {
               ),
             ],
           ),
-          // 텍스트 필드 & 버튼
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,7 +262,6 @@ class SignUpScreen extends HookConsumerWidget {
               ),
             ],
           ),
-          // 이메일 인증
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +289,7 @@ class SignUpScreen extends HookConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(child: _customTextFormField(emailCodeController, '인증 코드 입력')),
+                      Expanded(child: _customTextFormField(emailCodeController, '인증 코드 입력', forceUppercase: true)),
                     ],
                   ),
                 ),
@@ -336,7 +333,6 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -375,7 +371,6 @@ class SignUpScreen extends HookConsumerWidget {
               ),
             ],
           ),
-          // 텍스트 필드 & 버튼
           Container(
             height: 44,
             alignment: Alignment.center,
@@ -428,7 +423,6 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -467,7 +461,6 @@ class SignUpScreen extends HookConsumerWidget {
               ),
             ],
           ),
-          // 텍스트 필드 & 버튼
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -518,9 +511,7 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           _sectionLabel('학과', ''),
-          // 텍스트 필드 & 버튼
           GestureDetector(
             onTap: () {
               showModalBottomSheet(
@@ -585,9 +576,7 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           _sectionLabel('이용약관 동의', ''),
-          // 텍스트 필드 & 버튼
           GestureDetector(
             onTap: () {
               showModalBottomSheet(
@@ -693,8 +682,12 @@ class SignUpScreen extends HookConsumerWidget {
     );
   }
 
-  // 텍스트 폼 필드
-  Widget _customTextFormField(textController, String hintText, {bool obscureText = false}) {
+  Widget _customTextFormField(
+    TextEditingController textController,
+    String hintText, {
+      bool obscureText = false,
+      bool forceUppercase = false,
+    }) {
     return TextFormField(
       maxLines: 1,
       keyboardType: TextInputType.emailAddress,
@@ -702,6 +695,12 @@ class SignUpScreen extends HookConsumerWidget {
       obscureText: obscureText,
       textInputAction: TextInputAction.done,
       textAlignVertical: TextAlignVertical.center,
+      textCapitalization: forceUppercase
+          ? TextCapitalization.characters
+          : TextCapitalization.none,
+      inputFormatters: forceUppercase
+          ? [UpperCaseTextFormatter()]
+          : const [],
       style: TextStyles.normalTextRegular.copyWith(
         color: ColorStyles.black,
       ),
@@ -710,7 +709,7 @@ class SignUpScreen extends HookConsumerWidget {
         border: InputBorder.none,
         hintText: hintText,
         hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-        contentPadding: EdgeInsets.symmetric(vertical: 0),
+        contentPadding: const EdgeInsets.symmetric(vertical: 0),
       ),
     );
   }
