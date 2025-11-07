@@ -90,9 +90,11 @@ class ChatScreen extends HookConsumerWidget {
           // 웹소켓 연결
           viewModel.connectChatRoom(user.id);
         });
+      } else {
+        viewModel.resetChatRooms();
       }
       return null;
-    }, [selectedCategory.value]);
+    }, [selectedCategory.value, user]);
 
     useEffect(() {
       if (user != null) {
@@ -271,6 +273,7 @@ class ChatScreen extends HookConsumerWidget {
           ),
         ),
         SizedBox(height: 16),
+
         // 채팅방
         Expanded(
           child: RefreshIndicator(
@@ -279,7 +282,12 @@ class ChatScreen extends HookConsumerWidget {
               await viewModel.loadChatRooms();
             },
             child: rooms.isEmpty
-              ? ListView()
+              ? Center(
+                  child: Text(
+                    '참여 중인 채팅방이 없어요',
+                    style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+                  ),
+                )
               : ListView.builder(
                   itemCount: rooms.length,
                   itemBuilder: (context, index) {

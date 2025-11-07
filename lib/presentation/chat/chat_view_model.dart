@@ -103,6 +103,10 @@ class ChatViewModel extends StateNotifier<ChatState> {
     }
   }
 
+  void resetChatRooms() async {
+    state = state.copyWith(chatRooms: []);
+  }
+
   Future<bool> isOpened() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
