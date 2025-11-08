@@ -38,7 +38,6 @@ import 'package:dongsoop/presentation/timetable/list/timetable_list_screen.dart'
 import 'package:dongsoop/presentation/timetable/timetable_screen.dart';
 import 'package:dongsoop/presentation/timetable/write/lecture_write_screen.dart';
 import 'package:dongsoop/presentation/timetable/write/timetable_write_screen.dart';
-import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
@@ -510,12 +509,6 @@ final router = GoRouter(
                   name: 'libraryWebView',
                   builder: (context, state) =>
                       const LibraryBannerWebViewScreen(),
-                ),
-                GoRoute(
-                  path: RoutePaths.cafeteriaWebView,
-                  name: 'cafeteriaWebView',
-                  builder: (context, state) =>
-                      const CafeteriaWebViewPageScreen(),
                 ),
               ]),
         ]),
