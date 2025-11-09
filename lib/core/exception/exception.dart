@@ -165,7 +165,7 @@ class CalendarActionException implements Exception {
 class CafeteriaException implements Exception {
   final String message;
   CafeteriaException(
-      [this.message = "학식을 조회하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+      [this.message = "학식을 조회하는 과정에서 문제가 발생했어요.\n잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;

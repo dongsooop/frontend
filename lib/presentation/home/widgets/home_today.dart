@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
+import 'package:dongsoop/presentation/home/widgets/cafeteria_card.dart';
 
 class HomeToday extends HookConsumerWidget {
   const HomeToday({
@@ -23,14 +24,9 @@ class HomeToday extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cafeteriaState = ref.watch(cafeteriaViewModelProvider);
     final now = DateTime.now();
-    final weekday = ['월', '화', '수', '목', '금', '토', '일'][now.weekday - 1];
-    final todayString = '${now.month}월 ${now.day}일 ($weekday)';
-
-    final cafeteriaText = cafeteriaState.when(
-      data: (state) => state.todayMeal?.koreanMenu ?? '오늘은 학식이 제공되지 않아요!',
-      loading: () => '불러오는 중...',
-      error: (err, _) => err.toString(),
-    );
+    final weekdayNames = ['월', '화', '수', '목', '금', '토', '일'];
+    final weekdayIndex = (now.weekday - 1).clamp(0, 6);
+    final todayString = '${now.month}월 ${now.day}일 (${weekdayNames[weekdayIndex]})';
 
     return Container(
       width: double.infinity,
@@ -83,12 +79,31 @@ class HomeToday extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          _buildCard(
-            title: '오늘의 학식',
-            type: _CardType.cafeteria,
-            context: context,
-            cafeteriaText: cafeteriaText,
-            isLoggedOut: isLoggedOut,
+          cafeteriaState.when(
+            data: (state) {
+              final menus = state.weekMeals.map((m) => m.koreanMenu).toList(growable: false);
+              final todayIndex = weekdayIndex;
+              return CafeteriaCard(
+                initialDayIndex: todayIndex,
+                todayIndex: todayIndex,
+                dayLabels: const ['월', '화', '수', '목', '금', '토', '일'],
+                menuByDay: menus,
+              );
+            },
+            loading: () => const CafeteriaCard(
+              initialDayIndex: 0,
+              todayIndex: 0,
+              dayLabels: ['월','화','수','목','금','토','일'],
+              menuByDay: [],
+              isLoading: true,
+            ),
+            error: (err, _) => CafeteriaCard(
+              initialDayIndex: 0,
+              todayIndex: 0,
+              dayLabels: const ['월','화','수','목','금','토','일'],
+              menuByDay: [],
+              errorText: err.toString(),
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -124,7 +139,6 @@ class HomeToday extends HookConsumerWidget {
     required BuildContext context,
     List<Slot> slots = const [],
     List<Schedule> schedule = const [],
-    String? cafeteriaText,
     bool isLoggedOut = false,
   }) {
     List<Widget> content = [];
@@ -172,14 +186,6 @@ class HomeToday extends HookConsumerWidget {
             .map((c) => _buildRow(_displayTimeForSchedule(c), c.title))
             .toList();
       }
-
-    } else if (type == _CardType.cafeteria) {
-      content = [
-        Text(
-          cafeteriaText ?? '',
-          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
-        ),
-      ];
     }
 
     if (type == _CardType.banner) {
@@ -256,9 +262,6 @@ class HomeToday extends HookConsumerWidget {
           case _CardType.schedule:
             context.push('/schedule');
             break;
-          case _CardType.cafeteria:
-            context.goNamed('cafeteriaWebView');
-            break;
           case _CardType.banner:
             break;
         }
@@ -282,7 +285,6 @@ class HomeToday extends HookConsumerWidget {
                 ],
               ),
             ),
-            SizedBox(height: (type == _CardType.cafeteria) ? 8 : 16),
             ...content,
           ],
         ),
@@ -314,4 +316,4 @@ class HomeToday extends HookConsumerWidget {
   }
 }
 
-enum _CardType { timetable, schedule, cafeteria, banner }
+enum _CardType { timetable, schedule, banner }
