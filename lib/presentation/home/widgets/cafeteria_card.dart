@@ -27,8 +27,10 @@ class CafeteriaCard extends StatefulWidget {
 class _CafeteriaCardState extends State<CafeteriaCard> {
   PageController? _controller;
   int _index = 0;
+  int _virtualIndex = 0;
 
-  bool get _hasPages => widget.menuByDay.isNotEmpty;
+  int get _len => widget.menuByDay.length;
+  bool get _hasPages => _len > 0;
   bool get _isInteractive => _hasPages && !widget.isLoading && widget.errorText == null;
 
   @override
@@ -48,13 +50,18 @@ class _CafeteriaCardState extends State<CafeteriaCard> {
 
   void _setupController() {
     if (_hasPages) {
-      final upper = widget.menuByDay.length - 1;
+      final upper = _len - 1;
       final safeInitial = widget.initialDayIndex.clamp(0, upper);
       _index = safeInitial;
+
+      final base = 1000 * _len;
+      _virtualIndex = base + safeInitial;
+
       _controller?.dispose();
-      _controller = PageController(initialPage: _index);
+      _controller = PageController(initialPage: _virtualIndex);
     } else {
       _index = 0;
+      _virtualIndex = 0;
       _controller?.dispose();
       _controller = null;
     }
@@ -62,36 +69,35 @@ class _CafeteriaCardState extends State<CafeteriaCard> {
   }
 
   void _prev() {
-    if (!_isInteractive || _index <= 0) return;
+    if (!_isInteractive) return;
     if (_controller?.hasClients != true) return;
-    _index--;
+    _virtualIndex--;
     _controller!.animateToPage(
-      _index,
+      _virtualIndex,
       duration: const Duration(milliseconds: 220),
       curve: Curves.easeOut,
     );
+
+    _index = ((_virtualIndex % _len) + _len) % _len;
     setState(() {});
   }
 
   void _next() {
     if (!_isInteractive) return;
-    final upper = widget.menuByDay.length - 1;
-    if (_index >= upper) return;
     if (_controller?.hasClients != true) return;
-    _index++;
+    _virtualIndex++;
     _controller!.animateToPage(
-      _index,
+      _virtualIndex,
       duration: const Duration(milliseconds: 220),
       curve: Curves.easeOut,
     );
+
+    _index = _virtualIndex % _len;
     setState(() {});
   }
 
   String _titleFor(int page) {
-    final diff = page - widget.todayIndex;
-    if (diff == 0) return '오늘의 학식';
-    if (diff == -1) return '어제의 학식';
-    if (diff == 1) return '내일의 학식';
+    if (page == widget.todayIndex) return '오늘의 학식';
     final label = (page >= 0 && page < widget.dayLabels.length)
         ? widget.dayLabels[page]
         : '';
@@ -100,8 +106,8 @@ class _CafeteriaCardState extends State<CafeteriaCard> {
 
   @override
   Widget build(BuildContext context) {
-    final leftEnabled = _isInteractive && _index > 0;
-    final rightEnabled = _isInteractive && _index < (widget.menuByDay.length - 1);
+    final leftEnabled = _isInteractive;
+    final rightEnabled = _isInteractive;
 
     String bodyText;
     if (widget.isLoading) {
@@ -153,17 +159,23 @@ class _CafeteriaCardState extends State<CafeteriaCard> {
               child: PageView.builder(
                 controller: _controller,
                 physics: const BouncingScrollPhysics(),
-                onPageChanged: (i) => setState(() => _index = i),
-                itemCount: widget.menuByDay.length,
-                itemBuilder: (_, i) => Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    widget.menuByDay[i],
-                    style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+                onPageChanged: (i) {
+                  _virtualIndex = i;
+                  _index = i % _len;
+                  setState(() {});
+                },
+                itemBuilder: (_, i) {
+                  final real = i % _len;
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      widget.menuByDay[real],
+                      style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  );
+                },
               ),
             )
           else
