@@ -58,7 +58,7 @@ class SettingScreen extends HookConsumerWidget {
               title: '이용 안내',
               children: [
                 buildSettingsItem(
-                  label: '버전  1.2.6',
+                  label: '버전  1.2.7',
                   onTap: () {},
                 ),
                 buildSettingsItem(
