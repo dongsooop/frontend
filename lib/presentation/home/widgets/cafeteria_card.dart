@@ -130,7 +130,7 @@ class _CafeteriaCardState extends State<CafeteriaCard> {
                 _ArrowButton(
                   alignment: Alignment.centerLeft,
                   onTap: leftEnabled ? _prev : null,
-                  icon: Icons.arrow_back_ios,
+                  icon: Icons.chevron_left,
                 ),
                  Text(
                     _titleFor(_index),
@@ -140,7 +140,7 @@ class _CafeteriaCardState extends State<CafeteriaCard> {
                 _ArrowButton(
                   alignment: Alignment.centerRight,
                   onTap: rightEnabled ? _next : null,
-                  icon: Icons.arrow_forward_ios,
+                  icon: Icons.chevron_right,
                 ),
               ],
             ),
@@ -215,7 +215,6 @@ class _ArrowButton extends StatelessWidget {
       onTap: enabled ? onTap : null,
       child: SizedBox(
         width: 44,
-        height: 44,
         child: IgnorePointer(
           ignoring: !enabled,
           child: Align(
@@ -223,7 +222,7 @@ class _ArrowButton extends StatelessWidget {
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 150),
               opacity: enabled ? 1.0 : 0.8,
-              child: Icon(icon, size: 16, color: color),
+              child: Icon(icon, size: 24, color: color),
             ),
           ),
         ),

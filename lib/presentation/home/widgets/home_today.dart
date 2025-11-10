@@ -242,8 +242,8 @@ class HomeToday extends HookConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 24),
                 child: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
+                  Icons.chevron_right,
+                  size: 24,
                   color: ColorStyles.gray3,
                 ),
               ),
@@ -281,10 +281,11 @@ class HomeToday extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(title, style: TextStyles.normalTextBold.copyWith(color: ColorStyles.black)),
-                  const Icon(Icons.arrow_forward_ios, size: 16, color: ColorStyles.gray3),
+                  const Icon(Icons.chevron_right, size: 24, color: ColorStyles.gray3),
                 ],
               ),
             ),
+            SizedBox(height: 8),
             ...content,
           ],
         ),
