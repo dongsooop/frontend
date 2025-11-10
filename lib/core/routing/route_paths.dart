@@ -12,7 +12,6 @@ abstract class RoutePaths {
   static const String noticeList = '/noticeList';
   static const String noticeWebView = '/noticeWebView';
   static const String libraryWebView = '/libraryWebView';
-  static const String cafeteriaWebView = 'cafeteriaWebView';
   static const String mypageWebView = '/mypageWebView';
   static const String setting = '/setting';
   static const String timetable = '/timetable';
