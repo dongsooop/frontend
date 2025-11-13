@@ -25,6 +25,8 @@ class SocketIoService {
   final _participantsCtrl = StreamController<Map<int, String>>.broadcast();
   // 매칭 성공
   final _matchCtrl = StreamController<String>.broadcast();
+  // 중복 참여
+  final _endedCtrl = StreamController<String>.broadcast();
   // 연결 해제
   final _disconnectCtrl= StreamController<String>.broadcast();
 
@@ -35,8 +37,9 @@ class SocketIoService {
   Stream<BlindDateMessage> get broadcastStream => _broadcastCtrl.stream;
   Stream<BlindJoinInfo> get joinStream => _joinCtrl.stream;
   Stream<Map<int, String>> get participantsStream => _participantsCtrl.stream;
-  Stream<String> get disconnectStream=> _disconnectCtrl.stream;
   Stream<String> get matchStream => _matchCtrl.stream;
+  Stream<String> get endedStream => _endedCtrl.stream;
+  Stream<String> get disconnectStream=> _disconnectCtrl.stream;
 
   bool get isConnected => _socket?.connected ?? false;
 
@@ -110,6 +113,9 @@ class SocketIoService {
          print('❗ invalid participants payload: $data');
         }
       })
+      ..on('ended', (_) {
+        _endedCtrl.add('ended');
+      })
       ..onDisconnect((reason) {
         _disconnectCtrl.add(reason?.toString() ?? 'unknown');
       })
@@ -151,6 +157,7 @@ class SocketIoService {
     await _joinCtrl.close();
     await _participantsCtrl.close();
     await _matchCtrl.close();
+    await _endedCtrl.close();
     _socket?.dispose();
     _socket = null;
   }
