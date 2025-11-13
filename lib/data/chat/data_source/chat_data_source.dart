@@ -39,8 +39,6 @@ abstract class ChatDataSource {
   // blind
   Future<void> blindConnect(int userId, String? sessionId);
   Future<void> blindDisconnect();
-  Future<String?> getBlindDateSessionId();
-  Future<void> saveBlindDateSessionId(String sessionId);
 
   void blindSendMessage(BlindDateRequest message);
   void userChoice(BlindChoice data);
@@ -54,6 +52,7 @@ abstract class ChatDataSource {
   Stream<BlindJoinInfo> get joinStream;
   Stream<Map<int, String>> get participantsStream;
   Stream<String> get matchStream;
+  Stream<String> get endedStream;
   Stream<String> get disconnectStream;
   bool get isConnected;
 }

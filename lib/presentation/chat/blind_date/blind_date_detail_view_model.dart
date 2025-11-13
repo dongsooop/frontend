@@ -6,10 +6,9 @@ import 'package:dongsoop/domain/chat/use_case/blind_date/blind_choice_use_case.d
 import 'package:dongsoop/domain/chat/use_case/blind_date/blind_connect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/blind_disconnect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/blind_send_message_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_date/get_blind_session_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/blind_date/save_blind_session_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_broadcast_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_disconnect_stream_use_case.dart';
+import 'package:dongsoop/domain/chat/use_case/stream/blind_ended_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_freeze_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_join_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_joined_stream_use_case.dart';
@@ -26,8 +25,6 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
   final BlindConnectUseCase _connectUseCase;
   final BlindDisconnectUseCase _disconnectUseCase;
-  final GetBlindSessionUseCase _getBlindSessionUseCase;
-  final SaveBlindSessionUseCase _saveBlindSessionUseCase;
   final BlindSendMessageUseCase _blindSendMessageUseCase;
   final BlindChoiceUseCase _blindChoiceUseCase;
 
@@ -39,14 +36,13 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   final BlindJoinStreamUseCase _join$;
   final BlindParticipantsStreamUseCase _participants$;
   final BlindMatchStreamUseCase _match$;
+  final BlindEndedStreamUseCase _ended$;
   final BlindDisconnectStreamUseCase _disconnect$;
 
   BlindDateDetailViewModel(
     this._ref,
     this._connectUseCase,
     this._disconnectUseCase,
-    this._getBlindSessionUseCase,
-    this._saveBlindSessionUseCase,
     this._blindSendMessageUseCase,
     this._blindChoiceUseCase,
     this._joined$,
@@ -57,17 +53,11 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     this._join$,
     this._participants$,
     this._match$,
+    this._ended$,
     this._disconnect$,
   ) : super(BlindDateDetailState());
 
   final _subs = <StreamSubscription>[];
-  bool _didPersistSessionToday = false;
-
-  Future<String?> connectWithDailySession() async {
-    String? sessionId = await _getBlindSessionUseCase.execute();
-
-    return sessionId;
-  }
 
   Future<void> connect(int userId) async {
     if (state.isConnecting) return;
@@ -79,13 +69,6 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
     _subs.add(_start$().listen((sid) async {
       state = state.copyWith(sessionId: sid, isLoading: false);
-
-      if (_didPersistSessionToday) return;
-      final saved = await _getBlindSessionUseCase.execute();
-      if (saved == null || saved.isEmpty) {
-        await _saveBlindSessionUseCase.execute(sid);
-      }
-      _didPersistSessionToday = true;
     }));
 
     _subs.add(_system$().listen((msg) {
@@ -112,12 +95,15 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
       state = state.copyWith(match: data);
     }));
 
+    _subs.add(_ended$().listen((data) {
+      state = state.copyWith(ended: data);
+    }));
+
     _subs.add(_disconnect$().listen((reason) async {
       state = state.copyWith(disconnectReason: reason);
     }));
 
-    final sessionId = await connectWithDailySession();
-    if (sessionId != null) state = state.copyWith(isLoading: false, sessionId: sessionId);
+    final sessionId = state.sessionId;
 
     // 웹소켓 연결
     await _connectUseCase.execute(userId, sessionId);

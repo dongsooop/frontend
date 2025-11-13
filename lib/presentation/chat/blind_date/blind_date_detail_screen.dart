@@ -76,7 +76,6 @@ class BlindDateDetailScreen extends HookConsumerWidget {
             participants: state.participants,
             currentUserId: userId!,
             onSubmit: (selected) async {
-              print('selected: $selected');
               viewModel.choice(BlindChoice(
                 sessionId: state.sessionId,
                 choicerId: userId,
@@ -132,6 +131,28 @@ class BlindDateDetailScreen extends HookConsumerWidget {
       }
       return null;
     }, [state.match]);
+
+    useEffect(() {
+      if (state.ended == 'ended') {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '과팅 참여',
+              content: '과팅은 하루에 한 번만 참여 가능해요.\n다음 기회를 노려봐요!',
+              onConfirm: () {
+                context.pop();
+                context.pop();
+              },
+              confirmText: '확인',
+              isSingleAction: true,
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.ended]);
 
     if (state.isLoading) {
       return Scaffold(
