@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
@@ -14,27 +13,6 @@ class HiveService {
 
   // timetable
   static const String _timetableBoxName = 'local_timetables';
-
-  // blind date
-  static const String _blindDailyBox = 'blinddate_daily_session';
-
-  // blind date
-  Future<void> saveTodayBlindSessionId(String sessionId) async {
-    final box = await Hive.openBox<String>(_blindDailyBox);
-    final key = formatYmd(DateTime.now());
-    await box.put(key, sessionId);
-  }
-
-  Future<String?> getTodayBlindSessionId() async {
-    final box = await Hive.openBox<String>(_blindDailyBox);
-    final key = formatYmd(DateTime.now());
-    return box.get(key);
-  }
-
-  Future<void> clearAllBlindDailySessions() async {
-    final box = await Hive.openBox<String>(_blindDailyBox);
-    await box.clear();
-  }
 
   // timetable
   Future<void> saveTimetableInfo(int year, Semester semester) async {

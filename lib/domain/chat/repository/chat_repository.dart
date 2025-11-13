@@ -37,8 +37,6 @@ abstract class ChatRepository {
   // blind
   Future<void> blindConnect(int userId, String? sessionId);
   Future<void> blindDisconnect();
-  Future<String?> getBlindDateSessionId();
-  Future<void> saveBlindDateSessionId(String sessionId);
 
   void blindSendMessage(BlindDateRequest message);
   void choice(BlindChoice data);
@@ -52,6 +50,7 @@ abstract class ChatRepository {
   Stream<BlindJoinInfo> get joinStream;
   Stream<Map<int, String>> get participantsStream;
   Stream<String> get matchStream;
+  Stream<String> get endedStream;
   Stream<String> get disconnectStream;
 
   bool get isConnected;
