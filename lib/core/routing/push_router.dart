@@ -223,15 +223,21 @@ class PushRouter {
       final recruitType = _parseRecruitTypeSafe(type);
       if (recruitType == null) return false;
 
-      router.push(
-        RoutePaths.recruitDetail,
-        extra: {'id': id, 'type': recruitType},
-      );
+      router.go(RoutePaths.board);
 
-      router.push(
-        RoutePaths.recruitApplicantList,
-        extra: {'id': id, 'type': recruitType},
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        router.push(
+          RoutePaths.recruitDetail,
+          extra: {'id': id, 'type': recruitType},
+        );
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        router.push(
+          RoutePaths.recruitApplicantList,
+          extra: {'id': id, 'type': recruitType},
+        );
+      });
+    });
 
       return true;
     }
@@ -247,11 +253,15 @@ class PushRouter {
       final recruitType = _parseRecruitTypeSafe(type);
       if (recruitType == null) return false;
 
+      router.go(RoutePaths.board);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       router.push(
         RoutePaths.recruitDetail,
         extra: {'id': id, 'type': recruitType},
       );
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       router.push(
         RoutePaths.recruitApplicantDetail,
         extra: {
@@ -260,6 +270,8 @@ class PushRouter {
           'type': recruitType,
         },
       );
+    });
+  });
 
       return true;
     }
