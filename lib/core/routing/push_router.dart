@@ -28,6 +28,8 @@ class PushRouter {
 
   static NextRoute? _nextRoute;
 
+  static bool get hasPendingRoute => _nextRoute != null;
+
   static NextRoute? takeNextRoute() {
     final route = _nextRoute;
     _nextRoute = null;
@@ -66,6 +68,7 @@ class PushRouter {
     required String type,
     required String value,
     bool fromNotificationList = false,
+    bool isColdStart = false,
   }) {
     final completer = Completer<bool>();
 
@@ -75,6 +78,7 @@ class PushRouter {
           type: type,
           value: value,
           fromNotificationList: fromNotificationList,
+          isColdStart: isColdStart,
         );
         if (!completer.isCompleted) {
           completer.complete(result);
@@ -92,6 +96,7 @@ class PushRouter {
   static Future<bool> _routeFromTypeValueInternal({
     required String type,
     required String value,
+    required bool isColdStart,
     bool fromNotificationList = false,
   }) async {
     if (_isRouting) return false;
@@ -109,10 +114,11 @@ class PushRouter {
 
       final needsValue = _requiresValue(type);
       if (type.isEmpty || (needsValue && value.isEmpty)) {
-        return await _fallbackToNotificationList();
+        return await _fallbackToNotificationList(isColdStart: isColdStart);
       }
 
-      if (!_isColdStart) {
+      // warm
+      if (!isColdStart) {
         return await _routeWarmByType(type, value, fromNotificationList);
       }
 
@@ -141,10 +147,10 @@ class PushRouter {
           return await _routeRecruitResultCold(type, value);
 
         default:
-          return await _fallbackToNotificationList();
+          return await _fallbackToNotificationList(isColdStart: isColdStart);
         }
       } catch (_) {
-        return await _fallbackToNotificationList();
+        return await _fallbackToNotificationList(isColdStart: isColdStart);
       } finally {
         _isRouting = false;
       }
@@ -158,17 +164,26 @@ class PushRouter {
         ) async {
       switch (type) {
         case 'CHAT':
-          router.push(RoutePaths.chat);
+          router.go(RoutePaths.chat);
           router.push(RoutePaths.chatDetail, extra: value);
           return true;
 
       case 'NOTICE':
-        router.pushNamed(
-          'noticeWebView',
-          queryParameters: fromNotificationList
-              ? {'path': value, 'from': 'notificationList'}
-              : {'path': value},
-        );
+        if (fromNotificationList) {
+          router.pushNamed(
+            'noticeWebView',
+            queryParameters: {
+              'path': value,
+              'from': 'notificationList',
+            },
+          );
+        } else {
+          // 푸시 알림 등 외부 진입
+          router.goNamed(
+            'noticeWebView',
+            queryParameters: {'path': value},
+          );
+        }
         return true;
 
       // 캘린더 (value 불필요)
@@ -192,7 +207,7 @@ class PushRouter {
           return await _routeRecruitResultWarm(type, value);
 
         default:
-          router.push(RoutePaths.notificationList);
+          router.goNamed('notificationList');
           return false;
       }
     }
@@ -277,10 +292,14 @@ class PushRouter {
     // cold
     static Future<bool> _routeRecruitApplyCold(String type, String value) async {
       final id = int.tryParse(value);
-      if (id == null || id <= 0) return _fallbackToNotificationList();
+      if (id == null || id <= 0) {
+        return _fallbackToNotificationList(isColdStart: true);
+      }
 
       final recruitType = _parseRecruitTypeSafe(type);
-      if (recruitType == null) return _fallbackToNotificationList();
+      if (recruitType == null) {
+        return _fallbackToNotificationList(isColdStart: true);
+      }
 
       _setNextRoute(
         RoutePaths.recruitDetail,
@@ -301,10 +320,14 @@ class PushRouter {
     // cold
     static Future<bool> _routeRecruitResultCold(String type, String value) async {
       final id = int.tryParse(value);
-      if (id == null || id <= 0) return _fallbackToNotificationList();
+      if (id == null || id <= 0) {
+        return _fallbackToNotificationList(isColdStart: true);
+      }
 
       final recruitType = _parseRecruitTypeSafe(type);
-      if (recruitType == null) return _fallbackToNotificationList();
+      if (recruitType == null) {
+        return _fallbackToNotificationList(isColdStart: true);
+      }
 
       _setNextRoute(
         RoutePaths.recruitDetail,
@@ -355,9 +378,15 @@ class PushRouter {
     return null;
   }
 
-  static Future<bool> _fallbackToNotificationList() async {
-    _setNextRoute(RoutePaths.notificationList);
-    router.go(RoutePaths.splash);
+  static Future<bool> _fallbackToNotificationList({
+    required bool isColdStart,
+  }) async {
+    if (isColdStart) {
+      _setNextNamedRoute('notificationList');
+      router.go(RoutePaths.splash);
+    } else {
+      router.goNamed('notificationList');
+    }
     return false;
   }
 }

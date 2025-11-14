@@ -1,6 +1,8 @@
 import 'package:dongsoop/core/routing/utils/push_router_helper.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -10,12 +12,21 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/core/app_scaffold_messenger.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:dongsoop/core/routing/push_router.dart';
 
 class SplashScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final splashState = ref.watch(splashViewModelProvider);
     final viewModel = ref.read(splashViewModelProvider.notifier);
+
+    void _goNext() {
+      if (PushRouter.hasPendingRoute) {
+        PushRouterHelper.goNextOrHome(context);
+      } else {
+        context.go(RoutePaths.home);
+      }
+    }
 
     useEffect(() {
       final container = ProviderScope.containerOf(context, listen: false);
@@ -51,14 +62,14 @@ class SplashScreen extends HookConsumerWidget {
                   confirmText: '확인',
                   onConfirm: () {
                     if (cancelled || !context.mounted) return;
-                    PushRouterHelper.goNextOrHome(context);
+                    _goNext();
                   },
                 ),
               );
             });
           } else {
             if (cancelled || !context.mounted) return;
-            PushRouterHelper.goNextOrHome(context);
+            _goNext();
           }
           return;
         }
@@ -94,7 +105,7 @@ class SplashScreen extends HookConsumerWidget {
             await Future.delayed(const Duration(milliseconds: 200));
           }
         if (cancelled || !context.mounted) return;
-        PushRouterHelper.goNextOrHome(context);
+        _goNext();
       });
 
       return () {

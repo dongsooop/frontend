@@ -8,7 +8,13 @@ class PushRouterHelper {
     final pending = PushRouter.takeNextRoute();
 
     if (pending == null) {
-      context.go(RoutePaths.home);
+      final router = GoRouter.of(context);
+      final currentPath =
+      router.routeInformationProvider.value.uri.toString();
+
+      if (currentPath == RoutePaths.splash) {
+        context.go(RoutePaths.home);
+      }
       return;
     }
 
@@ -39,6 +45,17 @@ class PushRouterHelper {
           queryParameters: qp,
           extra: pending.extra,
         );
+      });
+
+      return;
+    }
+
+    if (pending.name == 'notificationList' ||
+        pending.path == RoutePaths.notificationList) {
+      context.go(RoutePaths.home);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        context.push(RoutePaths.notificationList);
       });
 
       return;
@@ -104,6 +121,5 @@ class PushRouterHelper {
       return;
     }
 
-    context.go(RoutePaths.home);
   }
 }
