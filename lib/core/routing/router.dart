@@ -41,6 +41,7 @@ import 'package:dongsoop/presentation/timetable/write/timetable_write_screen.dar
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(
@@ -460,10 +461,6 @@ final router = GoRouter(
             targetId: targetId,
           );
         }),
-    GoRoute(
-      path: RoutePaths.notificationList,
-      builder: (context, state) => const NotificationPageScreen(),
-    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainScreen(
@@ -483,7 +480,8 @@ final router = GoRouter(
               path: RoutePaths.home,
               builder: (context, state) => HomePageScreen(
                 onTapAlarm: () async {
-                  final ok = await context.push<bool>(RoutePaths.notificationList);
+                  // 이름 기반으로 알림 목록 진입
+                  final ok = await context.pushNamed<bool>('notificationList');
                   return ok ?? true;
                 },
                 onTapChatbot: () {
@@ -492,23 +490,45 @@ final router = GoRouter(
               ),
               routes: [
                 GoRoute(
+                  path: RoutePaths.notificationList,
+                  name: 'notificationList',
+                  pageBuilder: (context, state) {
+                    return MaterialPage(
+                      key: state.pageKey,
+                      child: const NotificationPageScreen(),
+                    );
+                  },
+                ),
+                GoRoute(
                   path: RoutePaths.noticeList,
                   name: 'noticeList',
-                  builder: (context, state) => const NoticeListPageScreen(),
+                  pageBuilder: (context, state) {
+                    return MaterialPage(
+                      key: state.pageKey,
+                      child: const NoticeListPageScreen(),
+                    );
+                  },
                 ),
                 GoRoute(
                   path: RoutePaths.noticeWebView,
                   name: 'noticeWebView',
-                  builder: (context, state) {
+                  pageBuilder: (context, state) {
                     final path = state.uri.queryParameters['path'];
-                    return NoticeWebViewScreen(path: path ?? '');
+                    return MaterialPage(
+                      key: state.pageKey,
+                      child: NoticeWebViewScreen(path: path ?? ''),
+                    );
                   },
                 ),
                 GoRoute(
                   path: RoutePaths.libraryWebView,
                   name: 'libraryWebView',
-                  builder: (context, state) =>
-                      const LibraryBannerWebViewScreen(),
+                  pageBuilder: (context, state) {
+                    return MaterialPage(
+                      key: state.pageKey,
+                      child: const LibraryBannerWebViewScreen(),
+                    );
+                  },
                 ),
               ]),
         ]),

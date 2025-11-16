@@ -104,7 +104,12 @@ class FirebaseMessagingService {
 
         if (type != null && value != null) {
           try {
-            await PushRouter.routeFromTypeValue(type: type, value: value);
+            await PushRouter.routeFromTypeValue(
+              type: type,
+              value: value,
+              fromNotificationList: false,
+              isColdStart: false,
+            );
           } catch (_) {}
         }
         if (id != null) {
@@ -137,13 +142,18 @@ class FirebaseMessagingService {
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
 
     // 백그라운드 -> 앱 진입 시 알림 클릭 이벤트 리스너
-    FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedApp);
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      _onMessageOpenedApp(message);
+    });
 
     // 앱이 완전히 종료된 상태에서 알림 클릭하여 실행된 경우 처리
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _onMessageOpenedApp(initialMessage);
+        _onMessageOpenedApp(
+          initialMessage,
+          isColdStart: true,
+        );
       });
     }
   }
@@ -187,7 +197,10 @@ class FirebaseMessagingService {
     );
   }
   // 백그라운드 or 종료 상태에서 알림 클릭으로 앱이 열렸을 떄
-  Future<void> _onMessageOpenedApp(RemoteMessage message) async {
+  Future<void> _onMessageOpenedApp(
+      RemoteMessage message, {
+        bool isColdStart = true,
+      }) async {
     if (_isBadgeWithDataOnly(message)) {
       _applyBadgeOrRefresh(message);
       return;
@@ -199,7 +212,12 @@ class FirebaseMessagingService {
 
     if (type != null && value != null) {
       try {
-        await PushRouter.routeFromTypeValue(type: type, value: value);
+        await PushRouter.routeFromTypeValue(
+          type: type,
+          value: value,
+          fromNotificationList: true,
+          isColdStart: isColdStart,
+        );
       } catch (_) {}
     }
 
