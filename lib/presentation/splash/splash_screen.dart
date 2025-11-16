@@ -1,3 +1,5 @@
+import 'package:dongsoop/core/routing/utils/push_router_helper.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -6,11 +8,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/providers/splash_providers.dart';
-import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/core/app_scaffold_messenger.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:dongsoop/core/routing/push_router.dart';
 
 class SplashScreen extends HookConsumerWidget {
   @override
@@ -18,18 +20,37 @@ class SplashScreen extends HookConsumerWidget {
     final splashState = ref.watch(splashViewModelProvider);
     final viewModel = ref.read(splashViewModelProvider.notifier);
 
+    void _goNext() {
+      if (PushRouter.hasPendingRoute) {
+        PushRouterHelper.goNextOrHome(context);
+      } else {
+        context.go(RoutePaths.home);
+      }
+    }
+
     useEffect(() {
+      final container = ProviderScope.containerOf(context, listen: false);
+      bool cancelled = false;
+
       Future(() async {
-        await Future.delayed(Duration(seconds: 2));
+        await Future.delayed(const Duration(seconds: 2));
         // 자동 로그인
+        if (cancelled || !context.mounted) return;
+
         await viewModel.autoLogin();
+        if (cancelled || !context.mounted) return;
 
         // 제재 대상 확인
-        final user = ref.watch(userSessionProvider);
+        final user = container.read(userSessionProvider);
+        if (cancelled || !context.mounted) return;
+
         if (user != null) {
           final reportSanction = await viewModel.checkSanction();
+          if (cancelled || !context.mounted) return;
+
           if (reportSanction != null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (cancelled || !context.mounted) return;
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -39,21 +60,26 @@ class SplashScreen extends HookConsumerWidget {
                     '${reportSanction.startDate} ~ ${reportSanction.endDate}',
                   isSingleAction: true,
                   confirmText: '확인',
-                  onConfirm: () async {
-                    Future.microtask(() => context.go(RoutePaths.home));
+                  onConfirm: () {
+                    if (cancelled || !context.mounted) return;
+                    _goNext();
                   },
                 ),
               );
             });
           } else {
-            Future.microtask(() => context.go(RoutePaths.home));
+            if (cancelled || !context.mounted) return;
+            _goNext();
           }
+          return;
         }
-        if (user == null) {
+
           final message = await viewModel.requestDeviceTokenPreAuthOnce(
             tokenTimeout: const Duration(seconds: 3),
           );
-          if (message != null && context.mounted) {
+          if (cancelled || !context.mounted) return;
+
+          if (message != null) {
             rootScaffoldMessengerKey.currentState?.showSnackBar(
               SnackBar(
                 content: Text(
@@ -78,12 +104,14 @@ class SplashScreen extends HookConsumerWidget {
             await SchedulerBinding.instance.endOfFrame;
             await Future.delayed(const Duration(milliseconds: 200));
           }
-          if (!context.mounted) return;
-          context.go(RoutePaths.home);
-        }
+        if (cancelled || !context.mounted) return;
+        _goNext();
       });
-      return null;
-    }, []);
+
+      return () {
+        cancelled = true;
+      };
+    }, const []);
 
     if (splashState.errorMessage != null) {
       return Center(

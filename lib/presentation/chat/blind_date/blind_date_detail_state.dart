@@ -6,6 +6,7 @@ class BlindDateDetailState {
   final String nickname;
   final Map<int, String> participants;
   final String? match;
+  final String? ended;
   final String? disconnectReason;
   final bool isLoading;
   final bool isVoteTime;
@@ -18,6 +19,7 @@ class BlindDateDetailState {
     this.nickname = '',
     this.participants = const {},
     this.match,
+    this.ended,
     this.disconnectReason,
     this.isLoading = false,
     this.isVoteTime = false,
@@ -31,6 +33,7 @@ class BlindDateDetailState {
     String? nickname,
     Map<int, String>? participants,
     String? match,
+    String? ended,
     String? disconnectReason,
     bool? isLoading,
     bool? isVoteTime,
@@ -43,6 +46,7 @@ class BlindDateDetailState {
       nickname: nickname ?? this.nickname,
       participants: participants ?? this.participants,
       match: match ?? this.match,
+      ended: ended ?? this.ended,
       disconnectReason: disconnectReason ?? this.disconnectReason,
       isLoading: isLoading ?? this.isLoading,
       isVoteTime: isVoteTime ?? this.isVoteTime,

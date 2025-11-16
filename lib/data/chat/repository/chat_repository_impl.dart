@@ -131,16 +131,6 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<void> blindDisconnect() => _chatDataSource.blindDisconnect();
 
   @override
-  Future<String?> getBlindDateSessionId() async {
-    return await _chatDataSource.getBlindDateSessionId();
-  }
-
-  @override
-  Future<void> saveBlindDateSessionId(String sessionId) async {
-    await _chatDataSource.saveBlindDateSessionId(sessionId);
-  }
-
-  @override
   void blindSendMessage(BlindDateRequest message) => _chatDataSource.blindSendMessage(message);
 
   @override
@@ -170,6 +160,8 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<String> get matchStream => _chatDataSource.matchStream;
+  @override
+  Stream<String> get endedStream => _chatDataSource.endedStream;
 
   @override
   Stream<String> get disconnectStream => _chatDataSource.disconnectStream;

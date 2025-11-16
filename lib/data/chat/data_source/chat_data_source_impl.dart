@@ -367,16 +367,6 @@ class ChatDataSourceImpl implements ChatDataSource {
   Future<void> blindDisconnect() => _socketIoService.disconnect();
 
   @override
-  Future<String?> getBlindDateSessionId() async {
-    return await _hiveService.getTodayBlindSessionId();
-  }
-
-  @override
-  Future<void> saveBlindDateSessionId(String sessionId) async {
-    await _hiveService.saveTodayBlindSessionId(sessionId);
-  }
-
-  @override
   void blindSendMessage(BlindDateRequest message) => _socketIoService.sendUserMessage(message);
 
   @override
@@ -405,6 +395,9 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Stream<String> get matchStream => _socketIoService.matchStream;
+
+  @override
+  Stream<String> get endedStream => _socketIoService.endedStream;
 
   @override
   Stream<String> get disconnectStream => _socketIoService.disconnectStream;
