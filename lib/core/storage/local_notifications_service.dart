@@ -21,9 +21,9 @@ class LocalNotificationsService {
 
   // ios 알림 초기화 설정
   static const DarwinInitializationSettings _iosInit = DarwinInitializationSettings(
-    requestAlertPermission: true,
-    requestBadgePermission: true,
-    requestSoundPermission: true,
+    requestAlertPermission: false,
+    requestBadgePermission: false,
+    requestSoundPermission: false,
   );
 
   static const AndroidInitializationSettings _androidInit =
@@ -63,9 +63,6 @@ class LocalNotificationsService {
     if (Platform.isAndroid) {
       final androidFln = _fln
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-
-      await androidFln?.requestNotificationsPermission();
-
       await androidFln?.createNotificationChannel(_androidChannel);
     }
 
