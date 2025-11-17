@@ -91,7 +91,9 @@ class ChatScreen extends HookConsumerWidget {
           viewModel.connectChatRoom(user.id);
         });
       } else {
-        viewModel.resetChatRooms();
+        Future.microtask(() {
+          viewModel.resetChatRooms();
+        });
       }
       return null;
     }, [selectedCategory.value, user]);
