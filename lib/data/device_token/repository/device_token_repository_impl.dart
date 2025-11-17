@@ -29,7 +29,7 @@ class DeviceTokenRepositoryImpl implements DeviceTokenRepository {
 
     try {
       await _remote.registerDeviceToken(request);
-      return allowed ? null : FailureType.permissionDenied;
+      return null;
     } catch (_) {
       return FailureType.registerFailed;
     }

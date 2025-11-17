@@ -7,6 +7,7 @@ class PreferencesService {
   static const _nicknameKey = 'nickname';
   static const _departmentKey = 'departmentType';
   static const _roleKey = 'role';
+  static const _notificationPermissionRequestedKey = 'notification_permission_requested';
 
   Future<void> saveUser(User user) async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
@@ -34,6 +35,16 @@ class PreferencesService {
     await _prefs.remove(_idKey);
     await _prefs.remove(_nicknameKey);
     await _prefs.remove(_departmentKey);
+  }
+
+  Future<bool> isNotificationPermissionRequested() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_notificationPermissionRequestedKey) ?? false;
+  }
+
+  Future<void> setNotificationPermissionRequested() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_notificationPermissionRequestedKey, true);
   }
 }
 

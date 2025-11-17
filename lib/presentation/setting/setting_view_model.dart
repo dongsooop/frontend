@@ -2,6 +2,7 @@ import 'package:dongsoop/domain/auth/use_case/delete_user_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/logout_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/delete_chat_data_use_case.dart';
 import 'package:dongsoop/presentation/setting/setting_state.dart';
+import 'package:dongsoop/providers/os_notification_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 
@@ -11,12 +12,20 @@ class SettingViewModel extends StateNotifier<SettingState> {
   final DeleteChatDataUseCase _deleteChatDataUseCase;
   final Ref _ref;
 
+  bool _shouldReturnToSettingAfterOsSettings = false;
+
   SettingViewModel(
     this._logoutUseCase,
     this._deleteUserUseCase,
     this._deleteChatDataUseCase,
     this._ref,
   ) : super(SettingState(isLoading: false));
+
+  bool consumeShouldReturnToSetting() {
+    final current = _shouldReturnToSettingAfterOsSettings;
+    _shouldReturnToSettingAfterOsSettings = false;
+    return current;
+  }
 
   // 채팅 캐시 삭제
   Future<void> localDataDelete() async {
@@ -60,5 +69,19 @@ class SettingViewModel extends StateNotifier<SettingState> {
     } catch (e) {
       state.copyWith(isLoading: false, errorMessage: '탈퇴 중 오류가 발생했습니다.');
     }
+  }
+
+  // 알림 설정
+  Future<void> refreshNotificationPermission() async {
+    await _ref.read(osNotificationViewModelProvider.notifier).loadPermissionStatus();
+  }
+
+  Future<void> enableNotification() async {
+    await _ref.read(osNotificationViewModelProvider.notifier).turnOn();
+  }
+
+  Future<void> openNotificationSettings() async {
+    _shouldReturnToSettingAfterOsSettings = true;
+    await _ref.read(osNotificationViewModelProvider.notifier).openSettings();
   }
 }
