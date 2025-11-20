@@ -1,9 +1,12 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
+import 'package:share_plus/share_plus.dart';
+import 'notice_web_view_view_model.dart';
 
 class NoticeWebViewScreen extends ConsumerStatefulWidget {
   final String path;
@@ -29,7 +32,55 @@ class _NoticeWebViewScreenState extends ConsumerState<NoticeWebViewScreen> {
     if (uri != null) {
       _controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
-        ..setNavigationDelegate(NavigationDelegate())
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onNavigationRequest:
+                (NavigationRequest request) async {
+              final viewmodel = ref.read(
+                noticeWebViewViewModelProvider.notifier,
+              );
+
+              if (viewmodel.isDownloadUrl(request.url)) {
+                final file =
+                await viewmodel.downloadFile(request.url);
+
+                if (!mounted) {
+                  return NavigationDecision.prevent;
+                }
+
+                if (file != null) {
+                  await Share.shareXFiles(
+                    [file],
+                    text: '첨부파일',
+                  );
+
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${file.name} 다운로드를 완료했습니다.',
+                        ),
+                      ),
+                    );
+                  }
+                } else {
+                  final state = ref.read(
+                    noticeWebViewViewModelProvider,
+                  );
+                  final msg = state.errorMessage ??
+                      '파일을 다운로드하는 중 오류가 발생했습니다.';
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(msg)),
+                  );
+                }
+
+                return NavigationDecision.prevent;
+              }
+
+              return NavigationDecision.navigate;
+            },
+          ),
+        )
         ..loadRequest(uri);
     }
 
@@ -78,14 +129,32 @@ class _NoticeWebViewScreenState extends ConsumerState<NoticeWebViewScreen> {
   @override
   Widget build(BuildContext context) {
     _maybeRefreshBadgeFromQuery();
+
+    final downloadState = ref.watch(noticeWebViewViewModelProvider);
+
     return Scaffold(
       appBar: DetailHeader(),
       body: SafeArea(
-        child: _controller == null
-            ? const Center(child: Text('잘못된 URL입니다.'))
-            : WebViewWidget(
-          key: ValueKey(widget.path),
-          controller: _controller!,
+        child: Stack(
+          children: [
+            if (_controller == null)
+              const Center(child: Text('잘못된 URL입니다.'))
+            else
+              WebViewWidget(
+                key: ValueKey(widget.path),
+                controller: _controller!,
+              ),
+            if (downloadState.isDownloading)
+              const Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: LinearProgressIndicator(
+                    color: ColorStyles.primaryColor,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
