@@ -15,6 +15,7 @@ import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
 import 'package:dongsoop/presentation/home/chatbot/chatbot_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_screen.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_screen.dart';
+import 'package:dongsoop/presentation/restaurants/write/restaurants_write_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_detail_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
@@ -51,6 +52,10 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.splash,
       builder: (context, state) => SplashScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.restaurantsWrite,
+      builder: (context, state) => RestaurantsWriteScreen(),
     ),
     GoRoute(
       path: RoutePaths.timetable,
@@ -527,7 +532,11 @@ final router = GoRouter(
                   pageBuilder: (context, state) {
                     return MaterialPage(
                       key: state.pageKey,
-                      child: const RestaurantScreen(),
+                      child: RestaurantScreen(
+                        onTapRestaurantsWrite: () {
+                          context.push(RoutePaths.restaurantsWrite);
+                        },
+                      ),
                     );
                   },
                 ),
