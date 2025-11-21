@@ -16,6 +16,7 @@ import 'package:dongsoop/presentation/home/chatbot/chatbot_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_screen.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_screen.dart';
 import 'package:dongsoop/presentation/restaurants/write/restaurants_write_screen.dart';
+import 'package:dongsoop/presentation/restaurants/write/search_kakao_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_detail_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
@@ -52,10 +53,6 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.splash,
       builder: (context, state) => SplashScreen(),
-    ),
-    GoRoute(
-      path: RoutePaths.restaurantsWrite,
-      builder: (context, state) => RestaurantsWriteScreen(),
     ),
     GoRoute(
       path: RoutePaths.timetable,
@@ -456,17 +453,30 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-        path: RoutePaths.report,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final reportType = extra?['reportType'] as String? ?? '';
-          final targetId = extra?['targetId'] as int? ?? 0;
+      path: RoutePaths.report,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final reportType = extra?['reportType'] as String? ?? '';
+        final targetId = extra?['targetId'] as int? ?? 0;
 
-          return ReportScreen(
-            reportType: reportType,
-            targetId: targetId,
-          );
-        }),
+        return ReportScreen(
+          reportType: reportType,
+          targetId: targetId,
+        );
+      }
+    ),
+    GoRoute(
+      path: RoutePaths.restaurantsWrite,
+      builder: (context, state) => RestaurantsWriteScreen(
+        onTapSearch: () {
+          context.push(RoutePaths.restaurantsWriteSearch);
+        },
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.restaurantsWriteSearch,
+      builder: (context, state) => SearchKakaoScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainScreen(

@@ -13,6 +13,7 @@ abstract class RoutePaths {
   static const String noticeWebView = '/noticeWebView';
   static const String restaurants = '/restaurants';
   static const String restaurantsWrite = '/restaurantsWrite';
+  static const String restaurantsWriteSearch = '/restaurantsWriteSearch';
   static const String libraryWebView = '/libraryWebView';
   static const String mypageWebView = '/mypageWebView';
   static const String setting = '/setting';
