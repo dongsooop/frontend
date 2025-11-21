@@ -141,7 +141,7 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
               ),
               child: Text(
                 category,
-                style: TextStyles.smallTextRegular.copyWith(
+                style: TextStyles.normalTextRegular.copyWith(
                   color: ColorStyles.gray4,
                 ),
               ),
@@ -244,7 +244,7 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
               ),
               child: Text(
                 tag,
-                style: TextStyles.smallTextRegular.copyWith(
+                style: TextStyles.normalTextRegular.copyWith(
                   color: ColorStyles.gray4,
                 ),
               ),

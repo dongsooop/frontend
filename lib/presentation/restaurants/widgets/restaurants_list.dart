@@ -133,7 +133,7 @@ class RestaurantCard extends StatelessWidget {
                 '${distance}m',
                 style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 4),
               SvgPicture.asset(
                 'assets/icons/favorite.svg',
                 width: 16,
