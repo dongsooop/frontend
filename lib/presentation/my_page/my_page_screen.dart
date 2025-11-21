@@ -54,8 +54,7 @@ class MyPageScreen extends HookConsumerWidget {
         title: '마이페이지',
         backgroundColor: ColorStyles.gray1,
         showBackButton: false,
-        trailing: user != null
-          ? IconButton(
+        trailing: IconButton(
             onPressed: onTapSetting,
             icon: SvgPicture.asset(
               'assets/icons/setting.svg',
@@ -67,7 +66,6 @@ class MyPageScreen extends HookConsumerWidget {
               ),
             ),
           )
-          : null,
       ),
       body: SafeArea(
         child: Column(
