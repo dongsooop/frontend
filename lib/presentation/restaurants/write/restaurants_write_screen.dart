@@ -1,13 +1,19 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
+import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
+import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
+import 'package:dongsoop/providers/restaurants_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class RestaurantsWriteScreen extends HookConsumerWidget {
-  final VoidCallback onTapSearch;
+  final Future<RestaurantsKakaoInfo?> Function() onTapSearch;
 
   const RestaurantsWriteScreen({
     super.key,
@@ -16,6 +22,48 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final viewModel = ref.read(restaurantsWriteViewModelProvider.notifier);
+    final state = ref.watch(restaurantsWriteViewModelProvider);
+
+    final selectedRestaurant = useState<RestaurantsKakaoInfo?>(null);
+    final categories = RestaurantsCategory.values;
+    final selectedCategory = useState<RestaurantsCategory?>(null);
+    final selectedTags = useState<List<String>>([]);
+
+    useEffect(() {
+      if (state.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '맛집 추천 오류',
+              content: state.errorMessage!,
+              onConfirm: () async {
+                context.pop();
+              },
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.errorMessage]);
+
+    useEffect(() {
+      if (state.checkDuplication == true) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '중복 등록',
+              content: '해당 가게는 이미 등록되어 있어요\n다른 가게를 추천해 주세요',
+              onConfirm: () {},
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.checkDuplication]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
@@ -24,11 +72,24 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
       ),
       bottomNavigationBar: PrimaryBottomButton(
         onPressed: () async {
-          // TODO: 등록 API 연결
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '맛집 추천',
+              content: '등록 후 정보를 수정할 수 없어요\n이대로 추천할까요?',
+              onConfirm: () async {
+                final result = await viewModel.submit(selectedRestaurant.value!, selectedCategory.value!, selectedTags.value);
+                print('post result: $result');
+                context.pop();
+              },
+            ),
+          );
         },
-        label: '신고하기',
-        isLoading: false,
-        isEnabled: true,
+        label: '추천하기',
+        isLoading: state.isLoading,
+        isEnabled: selectedRestaurant.value != null &&
+            selectedCategory.value != null
       ),
       body: SafeArea(
         child: Padding(
@@ -38,16 +99,47 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
             children: [
               // 가게 검색(카카오 API 사용)
               _inputSection('가게', true, '학교 주변(1km) 가게만 등록 가능해요'),
-              _restaurantsSearchButton(onTab: onTapSearch),
+              _restaurantsSearchButton(
+                label: selectedRestaurant.value?.place_name ?? '가게 검색',
+                onTab: () async {
+                  final result = await onTapSearch();
+                  if (result != null) {
+                    await viewModel.checkDuplication(result.id);
+                    selectedRestaurant.value = result;
+                  }
+                },
+              ),
 
               // 카테고리 입력
               _inputSection('카테고리', true),
-              _selectCategory(),
+              _selectCategory(
+                categories: categories,
+                selected: selectedCategory.value,
+                onChanged: (value) => selectedCategory.value = value,
+              ),
               SizedBox(height: 24,),
 
               // 태그 입력
               _inputSection('태그', false, '최대 3개까지 선택 가능해요'),
-              _selectTag(),
+              _selectTag(
+                selectedTags: selectedTags.value,
+                onTagTap: (tag) {
+                  final current = List<String>.from(selectedTags.value);
+                  if (current.contains(tag)) {
+                    // 이미 선택되어 있으면 해제
+                    current.remove(tag);
+                  } else {
+                    // 새로 선택
+                    if (current.length >= 3) {
+                      // 3개 꽉 차있으면 가장 먼저 선택한 태그 제거
+                      current.removeAt(0);
+                    }
+                    current.add(tag);
+                  }
+
+                  selectedTags.value = current;
+                },
+              ),
               SizedBox(height: 24,),
             ],
           ),
@@ -58,7 +150,8 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
 
   // 가게 검색 버튼
   Widget _restaurantsSearchButton({
-    required VoidCallback onTab
+    required String label,
+    required VoidCallback onTab,
   }) {
     return GestureDetector(
       onTap: onTab,
@@ -74,7 +167,9 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
           shape: RoundedRectangleBorder(
             side: BorderSide(
               width: 1,
-              color: ColorStyles.gray2,
+              color: label == '가게 검색'
+                ? ColorStyles.gray2
+                : ColorStyles.primaryColor,
             ),
             borderRadius: BorderRadius.circular(8),
           ),
@@ -84,8 +179,12 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
           children: [
             Expanded(
               child: Text(
-                '가게 검색',
-                style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+                label,
+                style: TextStyles.normalTextRegular.copyWith(
+                  color: label == '가게 검색'
+                      ? ColorStyles.gray4
+                      : ColorStyles.black,
+                ),
               ),
             ),
             SvgPicture.asset(
@@ -104,26 +203,20 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
   }
 
   // 카테고리 버튼
-  Widget _selectCategory() {
-    final categories = [
-      '한식',
-      '중식',
-      '일식',
-      '양식',
-      '분식',
-      '패스트푸드',
-      '카페/디저트',
-    ];
-
+  Widget _selectCategory({
+    required List<RestaurantsCategory> categories,
+    required RestaurantsCategory? selected,
+    required void Function(RestaurantsCategory) onChanged,
+  }) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: categories.map((category) {
+          final isSelected = category == selected;
+
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () {
-              // TODO: 카테고리 선택
-            },
+            onTap: () => onChanged(category),
             child: Container(
               constraints: const BoxConstraints(
                 minHeight: 34,
@@ -132,17 +225,21 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               decoration: ShapeDecoration(
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(
+                  side: BorderSide(
                     width: 1,
-                    color: ColorStyles.gray2,
+                    color: isSelected
+                      ? ColorStyles.primaryColor
+                      : ColorStyles.gray2,
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
               child: Text(
-                category,
+                category.label,
                 style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.gray4,
+                  color: isSelected
+                    ? ColorStyles.primaryColor
+                    : ColorStyles.gray4,
                 ),
               ),
             ),
@@ -153,7 +250,10 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
   }
 
   // 태그 버튼
-  Widget _selectTag() {
+  Widget _selectTag({
+    required List<String> selectedTags,
+    required void Function(String tag) onTagTap,
+  }) {
     final tags1 = [
       '양이 많아요',
       '음식이 맛있어요',
@@ -170,8 +270,8 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
     return Column(
       spacing: 8,
       children: [
-        _tagRow(tags1),
-        _tagRow(tags2),
+        _tagRow(tags1, selectedTags, onTagTap),
+        _tagRow(tags2, selectedTags, onTagTap),
       ],
     );
   }
@@ -217,16 +317,20 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _tagRow(List<String> tags) {
+  Widget _tagRow(
+    List<String> tags,
+    List<String> selectedTags,
+    void Function(String tag) onTagTap,
+  ) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: tags.map((tag) {
+          final isSelected = selectedTags.contains(tag);
+
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () {
-              // TODO: 태그 선택
-            },
+            onTap: () => onTagTap(tag),
             child: Container(
               constraints: const BoxConstraints(
                 minHeight: 34,
@@ -235,9 +339,11 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               decoration: ShapeDecoration(
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(
+                  side: BorderSide(
                     width: 1,
-                    color: ColorStyles.gray2,
+                    color: isSelected
+                      ? ColorStyles.primaryColor
+                      : ColorStyles.gray2,
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -245,7 +351,9 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
               child: Text(
                 tag,
                 style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.gray4,
+                  color: isSelected
+                    ? ColorStyles.primaryColor
+                    : ColorStyles.gray4,
                 ),
               ),
             ),

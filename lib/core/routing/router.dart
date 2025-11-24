@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
@@ -468,8 +469,11 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.restaurantsWrite,
       builder: (context, state) => RestaurantsWriteScreen(
-        onTapSearch: () {
-          context.push(RoutePaths.restaurantsWriteSearch);
+        onTapSearch: () async {
+          final result = await context.push<RestaurantsKakaoInfo> (
+            RoutePaths.restaurantsWriteSearch,
+          );
+          return result;
         },
       ),
     ),

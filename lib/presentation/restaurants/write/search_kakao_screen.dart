@@ -1,9 +1,12 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/providers/restaurants_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SearchKakaoScreen extends HookConsumerWidget {
@@ -13,18 +16,37 @@ class SearchKakaoScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final data = [
-      {
-        'title': '고척돈까스',
-        'address': '서울 구로구 경인로 47길 72',
-      },
-      {
-        'title': '고척칼국수',
-        'address': '서울 구로구 경인로47가길 5 1층',
-      },
-    ];
+    final viewModel = ref.read(searchKakaoViewModelProvider.notifier);
+    final state = ref.watch(searchKakaoViewModelProvider);
 
     final restaurantsController = useTextEditingController();
+
+    useEffect(() {
+      restaurantsController.addListener(() {
+        viewModel.searchByKakao(restaurantsController.text.trim());
+      });
+
+      return null;
+    }, [restaurantsController]);
+
+    useEffect(() {
+      if (state.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '맛집 추천 오류',
+              content: state.errorMessage!,
+              onConfirm: () async {
+                context.pop();
+              },
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.errorMessage]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
@@ -39,25 +61,26 @@ class SearchKakaoScreen extends HookConsumerWidget {
             children: [
               // 가게 검색(카카오 API 사용)
               _searchField(
-                onTab: () {  },
                 textController: restaurantsController,
               ),
 
               // 가게 리스트
               Expanded(
-                child: ListView.builder(
-                  itemCount: data.length,
+                child: state.result == null || state.result!.isEmpty
+                ? SizedBox()
+                : ListView.builder(
+                  itemCount: state.result!.length,
                   itemBuilder: (context, index) {
-                    final card = data[index];
+                    final restaurant = state.result![index];
 
                     return GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        // TODO: 가게 선택 시 restaurantWriteScreen으로 정보 전달
+                      onTap: () async {
+                        context.pop(restaurant);
                       },
                       child: _searchInfoCard(
-                        title: card['title'] as String,
-                        address: card['address'] as String,
+                        title: restaurant.place_name,
+                        address: restaurant.road_address_name,
                       ),
                     );
                   },
@@ -71,7 +94,6 @@ class SearchKakaoScreen extends HookConsumerWidget {
   }
 
   Widget _searchField({
-    required VoidCallback onTab,
     required TextEditingController textController,
   }) {
     return Container(
