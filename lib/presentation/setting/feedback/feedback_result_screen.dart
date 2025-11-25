@@ -1,50 +1,55 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/domain/feedback/entity/feature_count_entity.dart';
+import 'package:dongsoop/presentation/setting/feedback/view_model/feedback_view_model.dart';
 import 'package:dongsoop/presentation/setting/feedback/widget/feedback_bar_chart.dart';
 import 'package:dongsoop/presentation/setting/feedback/widget/feedback_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FeedbackResultScreen extends StatefulWidget {
+class FeedbackResultScreen extends ConsumerStatefulWidget {
   const FeedbackResultScreen({super.key});
 
   @override
-  State<FeedbackResultScreen> createState() => _FeedbackResultScreenState();
+  ConsumerState<FeedbackResultScreen> createState() =>
+      _FeedbackResultScreenState();
 }
 
-class _FeedbackResultScreenState extends State<FeedbackResultScreen> {
-  static const int _totalRespondents = 65;
-
-  static const List<ServiceStat> _serviceStats = [
-    ServiceStat('교내 공지 알림 서비스', 37),
-    ServiceStat('학식 정보 확인 서비스', 27),
-    ServiceStat('학사 일정 확인 및\n개인 일정 관리', 22),
-    ServiceStat('시간표 자동 입력 및 관리', 29),
-    ServiceStat('팀원 모집(스터디/\n튜터링/프로젝트)', 16),
-    ServiceStat('장터(교재 등 중고 거래)', 20),
-    ServiceStat('챗봇을 통한 교내 정보 확인', 33),
-  ];
-
-  static const List<String> _filterOptions = [
-    '전체',
-    '최근 7일',
-    '최근 30일',
-  ];
-
-  String _selectedFilter = _filterOptions.first;
+class _FeedbackResultScreenState extends ConsumerState<FeedbackResultScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+          () => ref.read(feedbackResultViewModelProvider.notifier).load(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(feedbackResultViewModelProvider);
+
+    final List<ServiceStat> serviceStats =
+    _buildServiceStats(state.serviceFeatures);
+
+    final int totalRespondents = state.improvementSuggestions.isNotEmpty
+        ? state.improvementSuggestions.length
+        : state.featureRequests.length;
+
     return Scaffold(
-      appBar: DetailHeader(title: '피드백 결과 확인'),
+      appBar: DetailHeader(title: '피드백 결과 조회'),
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: state.isLoading && !state.hasData
+            ? const Center(
+            child:
+            CircularProgressIndicator(color: ColorStyles.primaryColor))
+            : SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton(
                     onPressed: () {
@@ -68,16 +73,8 @@ class _FeedbackResultScreenState extends State<FeedbackResultScreen> {
                       ],
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 4),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildFilterDropdown(),
                   Text(
-                    '총 $_totalRespondents명 응답',
+                    '총 $totalRespondents명 응답',
                     style: TextStyles.smallTextRegular.copyWith(
                       color: ColorStyles.black,
                     ),
@@ -99,7 +96,11 @@ class _FeedbackResultScreenState extends State<FeedbackResultScreen> {
                   color: ColorStyles.white,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: FeedbackBarChart(stats: _serviceStats),
+                child: serviceStats.isEmpty
+                    ? const _EmptySection(
+                  message: '아직 집계된 데이터가 없습니다.',
+                )
+                    : FeedbackBarChart(stats: serviceStats),
               ),
 
               const SizedBox(height: 48),
@@ -111,15 +112,25 @@ class _FeedbackResultScreenState extends State<FeedbackResultScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              Column(
-                children: [
-                  for (int i = 0; i < _mockImproveFeedbacks.length; i++) ...[
-                    FeedbackCard(content: _mockImproveFeedbacks[i]),
-                    if (i != _mockImproveFeedbacks.length - 1)
-                      const SizedBox(height: 16),
+              if (state.improvementSuggestions.isEmpty)
+                const _EmptySection(
+                  message: '등록된 개선 의견이 없습니다.',
+                )
+              else
+                Column(
+                  children: [
+                    for (int i = 0;
+                    i < state.improvementSuggestions.length;
+                    i++) ...[
+                      FeedbackCard(
+                        content: state.improvementSuggestions[i],
+                      ),
+                      if (i != state.improvementSuggestions.length - 1)
+                        const SizedBox(height: 16),
+                    ],
                   ],
-                ],
-              ),
+                ),
+
               const SizedBox(height: 48),
 
               _SectionHeader(
@@ -129,15 +140,34 @@ class _FeedbackResultScreenState extends State<FeedbackResultScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              Column(
-                children: [
-                  for (int i = 0; i < _mockAdditionalFeedbacks.length; i++) ...[
-                    FeedbackCard(content: _mockAdditionalFeedbacks[i]),
-                    if (i != _mockAdditionalFeedbacks.length - 1)
-                      const SizedBox(height: 16),
+              if (state.featureRequests.isEmpty)
+                const _EmptySection(
+                  message: '등록된 추가 기능 의견이 없습니다.',
+                )
+              else
+                Column(
+                  children: [
+                    for (int i = 0;
+                    i < state.featureRequests.length;
+                    i++) ...[
+                      FeedbackCard(
+                        content: state.featureRequests[i],
+                      ),
+                      if (i != state.featureRequests.length - 1)
+                        const SizedBox(height: 16),
+                    ],
                   ],
-                ],
-              ),
+                ),
+
+              if (state.errMessage != null) ...[
+                const SizedBox(height: 24),
+                Text(
+                  state.errMessage!,
+                  style: TextStyles.smallTextRegular.copyWith(
+                    color: ColorStyles.warning100,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -145,41 +175,15 @@ class _FeedbackResultScreenState extends State<FeedbackResultScreen> {
     );
   }
 
-  Widget _buildFilterDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      height: 36,
-      decoration: BoxDecoration(
-        color: ColorStyles.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: ColorStyles.gray3),
+  List<ServiceStat> _buildServiceStats(List<FeedbackCountEntity> entities) {
+    return entities
+        .map(
+          (e) => ServiceStat(
+        e.serviceFeatureName,
+        e.count,
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _selectedFilter,
-          isDense: true,
-          items: _filterOptions
-              .map(
-                (option) => DropdownMenuItem<String>(
-              value: option,
-              child: Text(
-                option,
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: ColorStyles.black,
-                ),
-              ),
-            ),
-          )
-              .toList(),
-          onChanged: (value) {
-            if (value == null) return;
-            setState(() {
-              _selectedFilter = value;
-            });
-          },
-        ),
-      ),
-    );
+    )
+        .toList();
   }
 }
 
@@ -227,14 +231,24 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-const List<String> _mockImproveFeedbacks = [
-  '앱의 주요 기능이 더 잘 보이도록 화면 구조가 정리되면 좋겠습니다. 메뉴 이동 과정을 직관적으로 개선하면 원하는 정보를 더 빠르게 찾을 수 있을 것 같습니다.',
-  '알림 기능이 가끔 늦게 오거나 중복으로 오는 경우가 있습니다. 알림 설정을 좀 더 세분화할 수 있으면 좋겠습니다.',
-  '시간표 자동 입력 기능이 간헐적으로 실패하는 경우가 있어요. 입력 전 미리보기나 오류 메시지가 더 명확했으면 합니다.',
-];
+class _EmptySection extends StatelessWidget {
+  const _EmptySection({required this.message});
 
-const List<String> _mockAdditionalFeedbacks = [
-  '학생들이 학교 생활에 필요한 정보를 한곳에서 확인할 수 있는 통합 서비스가 추가되면 좋겠습니다. 교내 행사 일정, 장학금 안내, 주변 맛집 정보 등이 함께 제공되면 더 활용도가 높아질 것 같습니다.',
-  '강의별 과제 마감일과 시험 일정을 한눈에 볼 수 있는 캘린더 기능이 있었으면 합니다.',
-  '선호도 기반으로 스터디/프로젝트 팀원을 추천해주는 기능이 있으면 좋겠습니다.',
-];
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Center(
+        child: Text(
+          message,
+          style: TextStyles.smallTextRegular.copyWith(
+            color: ColorStyles.gray4,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}

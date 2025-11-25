@@ -28,6 +28,16 @@ class FeedbackBarChart extends StatelessWidget {
     const double labelWidth = 140;
     const double barHeight = 20;
 
+    const List<Color> barColors = [
+      Color(0xFFFF6B6B),
+      Color(0xFF4ECDC4),
+      Color(0xFF5567FF),
+      Color(0xFFFFA41B),
+      Color(0xFF8E44AD),
+      Color(0xFF2ECC71),
+      Color(0xFF3498DB),
+    ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final double axisWidth = constraints.maxWidth - labelWidth - 8;
@@ -35,9 +45,14 @@ class FeedbackBarChart extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ...stats.map((stat) {
+            ...stats.asMap().entries.map((entry) {
+              final index = entry.key;
+              final stat = entry.value;
+
               final ratio = stat.count / maxTick;
               final barWidth = axisWidth * ratio;
+
+              final Color barColor = barColors[index % barColors.length];
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -70,7 +85,7 @@ class FeedbackBarChart extends StatelessWidget {
                             height: barHeight,
                             width: barWidth,
                             decoration: BoxDecoration(
-                              color: ColorStyles.primaryColor,
+                              color: barColor,
                               borderRadius:
                               BorderRadius.circular(barHeight / 2),
                             ),

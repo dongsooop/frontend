@@ -544,3 +544,12 @@ class FeedbackSubmitException implements Exception {
   @override
   String toString() => message;
 }
+
+class FeedbackException implements Exception {
+  final String message;
+  FeedbackException(
+      [this.message = "피드백 확인 중 서버 오류가 발생했어요."]);
+
+  @override
+  String toString() => message;
+}
