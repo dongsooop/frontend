@@ -91,7 +91,8 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
         label: '추천하기',
         isLoading: state.isLoading,
         isEnabled: selectedRestaurant.value != null &&
-            selectedCategory.value != null
+            selectedCategory.value != null &&
+            state.checkDuplication == false
       ),
       body: SafeArea(
         child: Padding(
@@ -110,6 +111,7 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
                     selectedRestaurant.value = result;
                   }
                 },
+                duplication: state.checkDuplication
               ),
 
               // 카테고리 입력
@@ -155,6 +157,7 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
   Widget _restaurantsSearchButton({
     required String label,
     required VoidCallback onTab,
+    required bool? duplication,
   }) {
     return GestureDetector(
       onTap: onTab,
@@ -172,7 +175,9 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
               width: 1,
               color: label == '가게 검색'
                 ? ColorStyles.gray2
-                : ColorStyles.primaryColor,
+                : duplication == true
+                  ? ColorStyles.warning100
+                  : ColorStyles.primaryColor,
             ),
             borderRadius: BorderRadius.circular(8),
           ),
