@@ -29,8 +29,9 @@ import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
+import 'package:dongsoop/presentation/setting/feedback/feedback_result_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
-import 'package:dongsoop/presentation/setting/user_feedback_screen.dart';
+import 'package:dongsoop/presentation/setting/feedback/user_feedback_screen.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
@@ -299,6 +300,10 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.userFeedback,
       builder: (context, state) => UserFeedbackScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.feedbackResult,
+      builder: (context, state) => FeedbackResultScreen(),
     ),
     GoRoute(
       path: RoutePaths.mypageBlock,
