@@ -1,31 +1,57 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
+import 'package:dongsoop/domain/feedback/enum/service_feature.dart';
+import 'package:dongsoop/presentation/setting/feedback/view_model/feedback_write_view_model.dart';
 import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UserFeedbackScreen extends StatefulWidget {
+const Map<ServiceFeature, String> _serviceFeatureOptions = {
+  ServiceFeature.noticeAlert: '교내 공지 알림 서비스',
+  ServiceFeature.mealInformation: '학식 정보 확인 서비스',
+  ServiceFeature.academicSchedule: '학사 일정 확인 및 개인 일정 관리',
+  ServiceFeature.timetableAutoManage: '시간표 자동 입력 및 관리',
+  ServiceFeature.teamRecruitment: '팀원 모집(스터디/튜터링/프로젝트)',
+  ServiceFeature.marketplace: '장터(교재 등 중고 거래)',
+  ServiceFeature.chatbotCampusInfo: '챗봇을 통한 교내 정보 확인',
+};
+
+class UserFeedbackScreen extends ConsumerStatefulWidget {
   const UserFeedbackScreen({super.key});
 
   @override
-  State<UserFeedbackScreen> createState() => _UserFeedbackScreenState();
+  ConsumerState<UserFeedbackScreen> createState() =>
+      _UserFeedbackScreenState();
 }
 
-class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
-  static const List<String> _serviceOptions = [
-    '교내 공지 알림 서비스',
-    '학식 정보 확인 서비스',
-    '학사 일정 확인 및 개인 일정 관리',
-    '시간표 자동 입력 및 관리',
-    '팀원 모집(스터디/튜터링/프로젝트)',
-    '장터(교재 등 중고 거래)',
-    '챗봇을 통한 교내 정보 확인',
-  ];
+class _UserFeedbackScreenState extends ConsumerState<UserFeedbackScreen> {
+  late final TextEditingController _improveController;
+  late final TextEditingController _additionalController;
 
-  final Set<String> _selectedServices = {};
-  final TextEditingController _improveController = TextEditingController();
-  final TextEditingController _additionalController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    final state = ref.read(feedbackWriteViewModelProvider);
+
+    _improveController =
+        TextEditingController(text: state.improvementSuggestions);
+    _additionalController =
+        TextEditingController(text: state.featureRequests);
+
+    _improveController.addListener(() {
+      ref
+          .read(feedbackWriteViewModelProvider.notifier)
+          .updateImprovementSuggestions(_improveController.text);
+    });
+
+    _additionalController.addListener(() {
+      ref
+          .read(feedbackWriteViewModelProvider.notifier)
+          .updateFeatureRequests(_additionalController.text);
+    });
+  }
 
   @override
   void dispose() {
@@ -34,24 +60,13 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
     super.dispose();
   }
 
-  bool get _isSubmitEnabled =>
-      _selectedServices.isNotEmpty &&
-          _improveController.text.trim().isNotEmpty &&
-          _additionalController.text.trim().isNotEmpty;
-
-  void _toggleService(String label) {
-    setState(() {
-      if (_selectedServices.contains(label)) {
-        _selectedServices.remove(label);
-      } else {
-        if (_selectedServices.length >= 3) return;
-        _selectedServices.add(label);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(feedbackWriteViewModelProvider);
+    final viewmodel = ref.read(feedbackWriteViewModelProvider.notifier);
+
+    final isSubmitEnabled = viewmodel.isFormValid && !state.isLoading;
+
     return Scaffold(
       appBar: DetailHeader(title: '사용자 피드백'),
       body: SafeArea(
@@ -75,13 +90,16 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
               Wrap(
                 spacing: 8,
                 runSpacing: 16,
-                children: _serviceOptions.map((label) {
-                  final isSelected = _selectedServices.contains(label);
+                children: ServiceFeature.values.map((feature) {
+                  final label = _serviceFeatureOptions[feature]!;
+                  final isSelected =
+                  state.serviceFeatureList.contains(feature);
+
                   return _selectServiceChip(
                     label: label,
                     value: isSelected,
-                    loading: false,
-                    onChanged: (_) => _toggleService(label),
+                    loading: state.isLoading,
+                    onChanged: (_) => viewmodel.toggleFeature(feature),
                   );
                 }).toList(),
               ),
@@ -96,8 +114,15 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
                 maxLines: 4,
                 maxLength: 150,
                 keyboardType: TextInputType.multiline,
-                onChanged: (_) => setState(() {}),
               ),
+              if (state.improvementError != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  state.improvementError!,
+                  style: TextStyles.smallTextRegular
+                      .copyWith(color: ColorStyles.warning100),
+                ),
+              ],
 
               const SizedBox(height: 32),
 
@@ -114,19 +139,43 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
                 maxLines: 4,
                 maxLength: 150,
                 keyboardType: TextInputType.multiline,
-                onChanged: (_) => setState(() {}),
               ),
+              if (state.featureError != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  state.featureError!,
+                  style: TextStyles.smallTextRegular
+                      .copyWith(color: ColorStyles.warning100),
+                ),
+              ],
+
+              if (state.errMessage != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  state.errMessage!,
+                  style: TextStyles.smallTextRegular
+                      .copyWith(color: ColorStyles.warning100),
+                ),
+              ],
             ],
           ),
         ),
       ),
       bottomNavigationBar: PrimaryBottomButton(
         label: '제출하기',
-        isEnabled: _isSubmitEnabled,
-        isLoading: false,
-        onPressed: _isSubmitEnabled
-            ? () {
-          // TODO: 제출 로직 추가
+        isEnabled: isSubmitEnabled,
+        isLoading: state.isLoading,
+        onPressed: isSubmitEnabled
+            ? () async {
+          final success = await viewmodel.submit();
+          if (!context.mounted) return;
+
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('피드백이 제출되었습니다. 감사합니다.')),
+            );
+            Navigator.of(context).pop();
+          }
         }
             : null,
       ),

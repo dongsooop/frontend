@@ -535,3 +535,12 @@ class SearchException implements Exception {
   @override
   String toString() => message;
 }
+
+class FeedbackSubmitException implements Exception {
+  final String message;
+  FeedbackSubmitException(
+      [this.message = "피드백 전송 중 오류가 발생했어요. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
