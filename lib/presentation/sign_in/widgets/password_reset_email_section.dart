@@ -116,7 +116,7 @@ class PasswordResetEmailSection extends ConsumerWidget {
                 ),
               ),
               CheckDuplicationButton(
-                onTab: () {
+                onTap: () {
                   if (emailController.text.isEmpty) return;
                   ref.read(passwordResetViewModelProvider.notifier).checkEmailDuplication(emailController.text.trim());
                 },
@@ -168,7 +168,7 @@ class PasswordResetEmailSection extends ConsumerWidget {
                 ),
               ),
               CheckDuplicationButton(
-                onTab: () async {
+                onTap: () async {
                   await ref.read(passwordResetViewModelProvider.notifier).sendEmailVerificationCode(emailController.text.trim());
                 },
                 isEnabled: emailState.isDuplicate == false &&
@@ -179,7 +179,7 @@ class PasswordResetEmailSection extends ConsumerWidget {
                 isLoading: emailCodeState.isCodeLoading,
               ),
               CheckDuplicationButton(
-                onTab: () async {
+                onTap: () async {
                   if (emailCodeController.text.isEmpty) return;
                   await ref.read(passwordResetViewModelProvider.notifier).checkEmailVerificationCode(emailController.text.trim(), emailCodeController.text.trim());
                 },

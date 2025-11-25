@@ -3,7 +3,7 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
 class CheckDuplicationButton extends StatelessWidget {
-  final VoidCallback onTab;
+  final VoidCallback onTap;
   final bool isEnabled;
   final bool isLoading;
   final String enabledText;
@@ -11,7 +11,7 @@ class CheckDuplicationButton extends StatelessWidget {
 
   const CheckDuplicationButton({
     super.key,
-    required this.onTab,
+    required this.onTap,
     required this.isEnabled,
     this.isLoading = false,
     required this.enabledText,
@@ -21,7 +21,7 @@ class CheckDuplicationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: isEnabled ? onTab : null,
+      onTap: isEnabled ? onTap : null,
       child: Container(
         height: 44,
         constraints: BoxConstraints(

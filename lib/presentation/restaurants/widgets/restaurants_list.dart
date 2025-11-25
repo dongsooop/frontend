@@ -6,10 +6,12 @@ import 'package:go_router/go_router.dart';
 
 class RestaurantList extends StatelessWidget {
   final List<Map<String, dynamic>> data;
+  final VoidCallback onTap;
 
   const RestaurantList({
     super.key,
     required this.data,
+    required this.onTap,
   });
 
   @override
@@ -33,7 +35,7 @@ class RestaurantList extends StatelessWidget {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
-            // 웹뷰 카카오 url 이동
+            // TODO: 웹뷰 카카오 url 이동
             context.push('/mypageWebView?url=$kakaoUrl&title=서비스 이용약관');
           },
           child: RestaurantCard(
@@ -42,6 +44,7 @@ class RestaurantList extends StatelessWidget {
             likeCount: card['likeCount'] as int,
             category: card['category'] as String,
             tags: List<String>.from(card['tag'] as List),
+            onTap: onTap,
           ),
         );
       },
@@ -55,6 +58,7 @@ class RestaurantCard extends StatelessWidget {
   final int likeCount;
   final String category;
   final List<String>? tags;
+  final VoidCallback onTap;
 
   const RestaurantCard({
     super.key,
@@ -63,6 +67,7 @@ class RestaurantCard extends StatelessWidget {
     required this.likeCount,
     required this.category,
     this.tags,
+    required this.onTap,
   });
 
   @override
@@ -100,9 +105,7 @@ class RestaurantCard extends StatelessWidget {
               ),
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () async {
-                  // TODO: 좋아요 / 취소
-                },
+                onTap: onTap,
                 child: SvgPicture.asset(
                   'assets/icons/favorite_outline.svg',
                   width: 20,

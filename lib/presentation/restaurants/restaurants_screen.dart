@@ -1,9 +1,11 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
 import 'package:dongsoop/presentation/restaurants/widgets/category_tab.dart';
 import 'package:dongsoop/presentation/restaurants/widgets/restaurants_list.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/providers/restaurants_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -86,25 +88,32 @@ class RestaurantScreen extends HookConsumerWidget {
     final pageController = usePageController(initialPage: 0);
 
     final user = ref.watch(userSessionProvider);
-    // final viewModel = ref.read(restaurantViewModelProvider.notifier);
-    // final restaurantsState = ref.watch(restaurantViewModelProvider);
+    final viewModel = ref.read(restaurantsViewModelProvider.notifier);
+    final state = ref.watch(restaurantsViewModelProvider);
 
-    // useEffect(() {
-    //   if (restaurantsState.errorMessage != null) {
-    //     WidgetsBinding.instance.addPostFrameCallback((_) {
-    //       showDialog(
-    //         context: context,
-    //         barrierDismissible: false,
-    //         builder: (_) => CustomConfirmDialog(
-    //           title: '맛집 추천 오류',
-    //           content: restaurantsState.errorMessage!,
-    //           onConfirm: () {},
-    //         ),
-    //       );
-    //     });
-    //   }
-    //   return null;
-    // }, [restaurantsState.errorMessage]);
+    useEffect(() {
+      Future.microtask(() async {
+        await viewModel.loadRestaurants();
+      });
+      return null;
+    }, []);
+
+    useEffect(() {
+      if (state.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => CustomConfirmDialog(
+              title: '맛집 추천 오류',
+              content: state.errorMessage!,
+              onConfirm: () {},
+            ),
+          );
+        });
+      }
+      return null;
+    }, [state.errorMessage]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
@@ -175,7 +184,12 @@ class RestaurantScreen extends HookConsumerWidget {
                       ? data
                       : data.where((e) => e['category'] == category).toList();
 
-                    return RestaurantList(data: filtered);
+                    return RestaurantList(
+                      data: filtered,
+                      onTap: () async {
+                        await viewModel.like();
+                      },
+                    );
                   },
                 ),
               ),

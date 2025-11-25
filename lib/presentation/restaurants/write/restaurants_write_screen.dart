@@ -104,7 +104,7 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
               _inputSection('가게', true, '학교 주변(1km) 가게만 등록 가능해요'),
               _restaurantsSearchButton(
                 label: selectedRestaurant.value?.place_name ?? '가게 검색',
-                onTab: () async {
+                  onTap: () async {
                   final result = await onTapSearch();
                   if (result != null) {
                     await viewModel.checkDuplication(result.id);
@@ -156,11 +156,11 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
   // 가게 검색 버튼
   Widget _restaurantsSearchButton({
     required String label,
-    required VoidCallback onTab,
+    required VoidCallback onTap,
     required bool? duplication,
   }) {
     return GestureDetector(
-      onTap: onTab,
+      onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
         constraints: const BoxConstraints(
@@ -265,18 +265,6 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
   }) {
     final tags1 = tags.sublist(0, 3);
     final tags2 = tags.sublist(4, 7);
-    // final tags1 = [
-    //   '양이 많아요',
-    //   '음식이 맛있어요',
-    //   '점심으로 괜찮아요',
-    //   '혼밥하기 좋아요'
-    // ];
-    // final tags2 = [
-    //   '가성비가 좋아요',
-    //   '회식하기 좋아요',
-    //   '대화하기 괜찮아요',
-    //   '메뉴가 다양해요'
-    // ];
 
     return Column(
       spacing: 8,

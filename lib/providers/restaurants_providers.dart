@@ -4,19 +4,24 @@ import 'package:dongsoop/data/restaurants/repository/restaurants_repository_impl
 import 'package:dongsoop/domain/restaurants/repository/restaurants_repository.dart';
 import 'package:dongsoop/domain/restaurants/use_case/check_restaurants_duplication_use_case.dart';
 import 'package:dongsoop/domain/restaurants/use_case/create_restaurants_use_case.dart';
+import 'package:dongsoop/domain/restaurants/use_case/get_restaurants_use_case.dart';
 import 'package:dongsoop/domain/restaurants/use_case/search_kakao_use_case.dart';
+import 'package:dongsoop/presentation/restaurants/restaurants_state.dart';
+import 'package:dongsoop/presentation/restaurants/restaurants_view_model.dart';
 import 'package:dongsoop/presentation/restaurants/write/restaurants_write_state.dart';
 import 'package:dongsoop/presentation/restaurants/write/restaurants_write_view_model.dart';
 import 'package:dongsoop/presentation/restaurants/write/search_kakao_state.dart';
 import 'package:dongsoop/presentation/restaurants/write/search_kakao_view_model.dart';
+import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'auth_dio.dart';
 
 // Data Source
 final restaurantsDataSourceProvider = Provider<RestaurantsDataSource>((ref) {
+  final plainDio = ref.watch(plainDioProvider);
   final authDio = ref.watch(authDioProvider);
 
-  return RestaurantsDataSourceImpl(authDio);
+  return RestaurantsDataSourceImpl(plainDio, authDio);
 });
 
 // Repository
@@ -42,7 +47,19 @@ final createRestaurantsUseCaseProvider = Provider<CreateRestaurantsUseCase>((ref
   return CreateRestaurantsUseCase(repository);
 });
 
+final getRestaurantsUseCaseProvider = Provider<GetRestaurantsUseCase>((ref) {
+  final repository = ref.watch(restaurantsRepositoryProvider);
+  return GetRestaurantsUseCase(repository);
+});
+
 // View Model
+final restaurantsViewModelProvider =
+StateNotifierProvider.autoDispose<RestaurantsViewModel, RestaurantsState>((ref) {
+  final getRestaurantsUseCase = ref.watch(getRestaurantsUseCaseProvider);
+
+  return RestaurantsViewModel(getRestaurantsUseCase);
+});
+
 final restaurantsWriteViewModelProvider =
 StateNotifierProvider.autoDispose<RestaurantsWriteViewModel, RestaurantsWriteState>((ref) {
   final checkRestaurantsDuplicationUseCase = ref.watch(checkRestaurantsDuplicationUseCaseProvider);

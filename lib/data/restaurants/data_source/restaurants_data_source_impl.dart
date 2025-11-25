@@ -2,14 +2,19 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/restaurants/data_source/restaurants_data_source.dart';
 import 'package:dio/dio.dart';
+import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RestaurantsDataSourceImpl implements RestaurantsDataSource{
+  final Dio _plainDio;
   final Dio _authDio;
 
-  RestaurantsDataSourceImpl(this._authDio,);
+  RestaurantsDataSourceImpl(
+    this._plainDio,
+    this._authDio,
+  );
 
   // 카카오 키워드 검색
   @override
@@ -82,6 +87,26 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
       }
       rethrow;
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<Restaurant>?> getRestaurants() async {
+    final endpoint = dotenv.get('RESTAURANTS');
+
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<dynamic> data = response.data;
+
+        final List<Restaurant> reports = data.map((e) => Restaurant.fromJson(e as Map<String, dynamic>)).toList();
+
+        return reports;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      print('error: $e');
       rethrow;
     }
   }
