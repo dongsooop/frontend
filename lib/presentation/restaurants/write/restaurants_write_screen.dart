@@ -2,6 +2,7 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
+import 'package:dongsoop/domain/restaurants/enum/restaurants_tag.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/providers/restaurants_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -28,7 +29,8 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
     final selectedRestaurant = useState<RestaurantsKakaoInfo?>(null);
     final categories = RestaurantsCategory.values;
     final selectedCategory = useState<RestaurantsCategory?>(null);
-    final selectedTags = useState<List<String>>([]);
+    final tags = RestaurantsTag.values;
+    final selectedTags = useState<List<RestaurantsTag>>([]);
 
     useEffect(() {
       if (state.errorMessage != null) {
@@ -122,9 +124,10 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
               // 태그 입력
               _inputSection('태그', false, '최대 3개까지 선택 가능해요'),
               _selectTag(
+                tags: tags,
                 selectedTags: selectedTags.value,
                 onTagTap: (tag) {
-                  final current = List<String>.from(selectedTags.value);
+                  final current = List<RestaurantsTag>.from(selectedTags.value);
                   if (current.contains(tag)) {
                     // 이미 선택되어 있으면 해제
                     current.remove(tag);
@@ -251,21 +254,24 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
 
   // 태그 버튼
   Widget _selectTag({
-    required List<String> selectedTags,
-    required void Function(String tag) onTagTap,
+    required List<RestaurantsTag> tags,
+    required List<RestaurantsTag> selectedTags,
+    required void Function(RestaurantsTag tag) onTagTap,
   }) {
-    final tags1 = [
-      '양이 많아요',
-      '음식이 맛있어요',
-      '점심으로 괜찮아요',
-      '혼밥하기 좋아요'
-    ];
-    final tags2 = [
-      '가성비가 좋아요',
-      '회식하기 좋아요',
-      '대화하기 괜찮아요',
-      '메뉴가 다양해요'
-    ];
+    final tags1 = tags.sublist(0, 3);
+    final tags2 = tags.sublist(4, 7);
+    // final tags1 = [
+    //   '양이 많아요',
+    //   '음식이 맛있어요',
+    //   '점심으로 괜찮아요',
+    //   '혼밥하기 좋아요'
+    // ];
+    // final tags2 = [
+    //   '가성비가 좋아요',
+    //   '회식하기 좋아요',
+    //   '대화하기 괜찮아요',
+    //   '메뉴가 다양해요'
+    // ];
 
     return Column(
       spacing: 8,
@@ -318,9 +324,9 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
   }
 
   Widget _tagRow(
-    List<String> tags,
-    List<String> selectedTags,
-    void Function(String tag) onTagTap,
+    List<RestaurantsTag> tags,
+    List<RestaurantsTag> selectedTags,
+    void Function(RestaurantsTag tag) onTagTap,
   ) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -349,7 +355,7 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
                 ),
               ),
               child: Text(
-                tag,
+                tag.label,
                 style: TextStyles.normalTextRegular.copyWith(
                   color: isSelected
                     ? ColorStyles.primaryColor

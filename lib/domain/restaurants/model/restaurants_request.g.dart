@@ -13,7 +13,9 @@ RestaurantsRequest _$RestaurantsRequestFromJson(Map<String, dynamic> json) =>
       placeUrl: json['placeUrl'] as String,
       distance: json['distance'] as String,
       category: $enumDecode(_$RestaurantsCategoryEnumMap, json['category']),
-      tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      tags: (json['tags'] as List<dynamic>?)
+          ?.map((e) => $enumDecode(_$RestaurantsTagEnumMap, e))
+          .toList(),
     );
 
 Map<String, dynamic> _$RestaurantsRequestToJson(RestaurantsRequest instance) =>
@@ -23,7 +25,7 @@ Map<String, dynamic> _$RestaurantsRequestToJson(RestaurantsRequest instance) =>
       'placeUrl': instance.placeUrl,
       'distance': instance.distance,
       'category': _$RestaurantsCategoryEnumMap[instance.category]!,
-      'tags': instance.tags,
+      'tags': instance.tags?.map((e) => _$RestaurantsTagEnumMap[e]!).toList(),
     };
 
 const _$RestaurantsCategoryEnumMap = {
@@ -34,4 +36,15 @@ const _$RestaurantsCategoryEnumMap = {
   RestaurantsCategory.BUNSIK: 'BUNSIK',
   RestaurantsCategory.FAST_FOOD: 'FAST_FOOD',
   RestaurantsCategory.CAFE_DESSERT: 'CAFE_DESSERT',
+};
+
+const _$RestaurantsTagEnumMap = {
+  RestaurantsTag.LARGE_PORTION: 'LARGE_PORTION',
+  RestaurantsTag.DELICIOUS: 'DELICIOUS',
+  RestaurantsTag.GOOD_FOR_LUNCH: 'GOOD_FOR_LUNCH',
+  RestaurantsTag.GOOD_FOR_SOLO: 'GOOD_FOR_SOLO',
+  RestaurantsTag.GOOD_VALUE: 'GOOD_VALUE',
+  RestaurantsTag.GOOD_FOR_GATHERING: 'GOOD_FOR_GATHERING',
+  RestaurantsTag.GOOD_FOR_CONVERSATION: 'GOOD_FOR_CONVERSATION',
+  RestaurantsTag.VARIOUS_MENU: 'VARIOUS_MENU',
 };

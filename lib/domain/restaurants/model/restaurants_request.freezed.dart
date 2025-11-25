@@ -19,7 +19,7 @@ mixin _$RestaurantsRequest {
   String get placeUrl;
   String get distance;
   RestaurantsCategory get category;
-  List<String>? get tags;
+  List<RestaurantsTag>? get tags;
 
   /// Create a copy of RestaurantsRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -69,7 +69,7 @@ abstract mixin class $RestaurantsRequestCopyWith<$Res> {
       String placeUrl,
       String distance,
       RestaurantsCategory category,
-      List<String>? tags});
+      List<RestaurantsTag>? tags});
 }
 
 /// @nodoc
@@ -116,7 +116,7 @@ class _$RestaurantsRequestCopyWithImpl<$Res>
       tags: freezed == tags
           ? _self.tags
           : tags // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+              as List<RestaurantsTag>?,
     ));
   }
 }

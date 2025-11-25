@@ -1,5 +1,6 @@
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
+import 'package:dongsoop/domain/restaurants/enum/restaurants_tag.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_request.dart';
 import 'package:dongsoop/domain/restaurants/use_case/check_restaurants_duplication_use_case.dart';
@@ -33,7 +34,7 @@ class RestaurantsWriteViewModel extends StateNotifier<RestaurantsWriteState>{
     }
   }
 
-  Future<bool> submit(RestaurantsKakaoInfo info, RestaurantsCategory category, List<String>? tags) async {
+  Future<bool> submit(RestaurantsKakaoInfo info, RestaurantsCategory category, List<RestaurantsTag>? tags) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {

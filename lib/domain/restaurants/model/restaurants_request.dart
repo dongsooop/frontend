@@ -1,4 +1,5 @@
 import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
+import 'package:dongsoop/domain/restaurants/enum/restaurants_tag.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'restaurants_request.freezed.dart';
@@ -12,7 +13,7 @@ class RestaurantsRequest with _$RestaurantsRequest {
   final String placeUrl;
   final String distance;
   final RestaurantsCategory category;
-  final List<String>? tags;
+  final List<RestaurantsTag>? tags;
 
   const RestaurantsRequest({
     required this.externalMapId,
