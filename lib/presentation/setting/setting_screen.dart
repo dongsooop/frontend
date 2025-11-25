@@ -174,12 +174,6 @@ class SettingScreen extends HookConsumerWidget {
                       context.push(RoutePaths.userFeedback);
                     },
                   ),
-                  buildSettingsItem(
-                    label: '사용자 피드백 결과',
-                    onTap: () {
-                      context.push(RoutePaths.feedbackResult);
-                    },
-                  ),
                 ],
               ),
               const SizedBox(height: 40),

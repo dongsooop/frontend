@@ -642,6 +642,9 @@ final router = GoRouter(
               onTapAdminBlindDate: () {
                 context.push(RoutePaths.adminBlindDate);
               },
+                onTapAdminFeedback: () {
+                  context.push(RoutePaths.feedbackResult);
+                },
               onTapCalendar: () {
                 context.push(RoutePaths.schedule);
               },
