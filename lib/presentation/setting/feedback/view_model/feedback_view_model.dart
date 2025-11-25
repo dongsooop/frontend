@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/feedback/entity/feedback_list_entity.dart';
 import 'package:dongsoop/domain/feedback/use_case/feedback_use_case.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/presentation/setting/feedback/providers/feedback_use_case_provider.dart';
@@ -45,5 +46,17 @@ class FeedbackResultViewModel extends _$FeedbackResultViewModel {
         errMessage: '알 수 없는 오류가 발생했어요',
       );
     }
+  }
+
+  Future<String> exportCsv() async {
+    final csvUseCase = ref.read(feedbackCsvUseCaseProvider);
+
+    final entity = FeedbackListEntity(
+      serviceFeatures: state.serviceFeatures,
+      improvementSuggestions: state.improvementSuggestions,
+      featureRequests: state.featureRequests,
+    );
+
+    return await csvUseCase.execute(entity);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/feedback/use_case/feedback_csv_use_case.dart';
 import 'package:dongsoop/domain/feedback/use_case/feedback_use_case.dart';
 import 'package:dongsoop/domain/feedback/use_case/feedback_write_use_case.dart';
 import 'package:dongsoop/presentation/setting/feedback/providers/feedback_repository_provider.dart';
@@ -11,4 +12,9 @@ final feedbackWriteUseCaseProvider = Provider<FeedbackWriteUseCase>((ref) {
 final feedbackUseCaseProvider = Provider<FeedbackUseCase>((ref) {
   final repository = ref.watch(feedbackRepositoryProvider);
   return FeedbackUseCase(repository);
+});
+
+final feedbackCsvUseCaseProvider = Provider<FeedbackCsvUseCase>((ref) {
+  final repository = ref.watch(feedbackRepositoryProvider);
+  return FeedbackCsvUseCase(repository);
 });

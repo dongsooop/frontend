@@ -7,7 +7,7 @@ part of 'feedback_view_model.dart';
 // **************************************************************************
 
 String _$feedbackResultViewModelHash() =>
-    r'a678d114bef9dfbb11c57699d11538e1d0d1120a';
+    r'39f5b2e119d36c84c0f1cb244f6591b62ac06401';
 
 /// See also [FeedbackResultViewModel].
 @ProviderFor(FeedbackResultViewModel)

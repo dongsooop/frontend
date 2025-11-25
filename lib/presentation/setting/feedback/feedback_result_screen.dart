@@ -7,6 +7,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 class FeedbackResultScreen extends ConsumerStatefulWidget {
   const FeedbackResultScreen({super.key});
@@ -41,19 +42,32 @@ class _FeedbackResultScreenState extends ConsumerState<FeedbackResultScreen> {
       body: SafeArea(
         child: state.isLoading && !state.hasData
             ? const Center(
-            child:
-            CircularProgressIndicator(color: ColorStyles.primaryColor))
+          child: CircularProgressIndicator(
+            color: ColorStyles.primaryColor,
+          ),
+        )
             : SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 상단 버튼 / 응답 수
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton(
-                    onPressed: () {
-                      // CSV 내보내기 처리
+                    onPressed: () async {
+                      final viewModel =
+                      ref.read(feedbackResultViewModelProvider.notifier);
+                      final csvPath = await viewModel.exportCsv();
+                      debugPrint('CSV 저장 위치: $csvPath');
+
+                      final params = ShareParams(
+                        files: [XFile(csvPath)],
+                        text: '피드백 내역 CSV 파일',
+                      );
+
+                      await SharePlus.instance.share(params);
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
