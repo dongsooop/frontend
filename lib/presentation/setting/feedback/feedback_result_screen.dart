@@ -10,7 +10,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 class FeedbackResultScreen extends ConsumerStatefulWidget {
-  const FeedbackResultScreen({super.key});
+  final VoidCallback onTapImprovementMore;
+  final VoidCallback onTapFeatureMore;
+
+  const FeedbackResultScreen({
+    super.key,
+    required this.onTapImprovementMore,
+    required this.onTapFeatureMore,
+  });
 
   @override
   ConsumerState<FeedbackResultScreen> createState() =>
@@ -51,14 +58,14 @@ class _FeedbackResultScreenState extends ConsumerState<FeedbackResultScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 상단 버튼 / 응답 수
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton(
                     onPressed: () async {
-                      final viewModel =
-                      ref.read(feedbackResultViewModelProvider.notifier);
+                      final viewModel = ref.read(
+                        feedbackResultViewModelProvider.notifier,
+                      );
                       final csvPath = await viewModel.exportCsv();
                       debugPrint('CSV 저장 위치: $csvPath');
 
@@ -121,9 +128,7 @@ class _FeedbackResultScreenState extends ConsumerState<FeedbackResultScreen> {
 
               _SectionHeader(
                 title: '개선 요구사항',
-                onTapMore: () {
-                  // 개선 의견 전체 보기
-                },
+                onTapMore: widget.onTapImprovementMore,
               ),
               const SizedBox(height: 16),
               if (state.improvementSuggestions.isEmpty)
@@ -149,9 +154,7 @@ class _FeedbackResultScreenState extends ConsumerState<FeedbackResultScreen> {
 
               _SectionHeader(
                 title: '추가 기능',
-                onTapMore: () {
-                  // 추가 기능 의견 전체 보기
-                },
+                onTapMore: widget.onTapFeatureMore,
               ),
               const SizedBox(height: 16),
               if (state.featureRequests.isEmpty)

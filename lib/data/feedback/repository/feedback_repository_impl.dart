@@ -27,6 +27,37 @@ class FeedbackRepositoryImpl implements FeedbackRepository {
     }, FeedbackException());
   }
 
+  Future<List<String>> improvementSuggestions({
+    required int page,
+    required int size,
+  }) async {
+    return _handle(() async {
+        final list = await _dataSource.improvementSuggestions(
+          page: page,
+          size: size,
+        );
+        return list;
+      },
+      FeedbackException(),
+    );
+  }
+
+  @override
+  Future<List<String>> featureRequests({
+    required int page,
+    required int size,
+  }) async {
+    return _handle(() async {
+        final list = await _dataSource.featureRequests(
+          page: page,
+          size: size,
+        );
+        return list;
+      },
+      FeedbackException(),
+    );
+  }
+
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();

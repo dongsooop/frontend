@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
@@ -29,6 +30,7 @@ import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
+import 'package:dongsoop/presentation/setting/feedback/feedback_more_screen.dart';
 import 'package:dongsoop/presentation/setting/feedback/feedback_result_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/setting/feedback/user_feedback_screen.dart';
@@ -303,7 +305,27 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.feedbackResult,
-      builder: (context, state) => FeedbackResultScreen(),
+      builder: (context, state) => FeedbackResultScreen(
+        onTapImprovementMore: () {
+          context.push(
+            RoutePaths.feedbackMore,
+            extra: FeedbackType.improvement,
+          );
+        },
+        onTapFeatureMore: () {
+          context.push(
+            RoutePaths.feedbackMore,
+            extra: FeedbackType.featureRequest,
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.feedbackMore,
+      builder: (context, state) {
+        final type = state.extra as FeedbackType? ?? FeedbackType.improvement;
+        return FeedbackMoreScreen(type: type);
+      },
     ),
     GoRoute(
       path: RoutePaths.mypageBlock,
@@ -642,9 +664,9 @@ final router = GoRouter(
               onTapAdminBlindDate: () {
                 context.push(RoutePaths.adminBlindDate);
               },
-                onTapAdminFeedback: () {
-                  context.push(RoutePaths.feedbackResult);
-                },
+              onTapAdminFeedback: () {
+                context.push(RoutePaths.feedbackResult);
+              },
               onTapCalendar: () {
                 context.push(RoutePaths.schedule);
               },

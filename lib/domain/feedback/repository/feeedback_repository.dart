@@ -7,4 +7,14 @@ abstract class FeedbackRepository {
   });
 
   Future<FeedbackListEntity> feedbackList();
+
+  Future<List<String>> improvementSuggestions({
+    required int page,
+    required int size,
+  });
+
+  Future<List<String>> featureRequests({
+    required int page,
+    required int size,
+  });
 }
