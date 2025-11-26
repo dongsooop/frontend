@@ -8,6 +8,7 @@ class LoggedInUserCard extends HookConsumerWidget {
   final User user;
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapAdminBlindDate;
+  final VoidCallback onTapAdminFeedback;
   final VoidCallback onTapMarket;
   final VoidCallback onTapCalendar;
   final VoidCallback onTapTimetable;
@@ -19,6 +20,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.user,
     required this.onTapAdminReport,
     required this.onTapAdminBlindDate,
+    required this.onTapAdminFeedback,
     required this.onTapMarket,
     required this.onTapCalendar,
     required this.onTapTimetable,
@@ -151,6 +153,10 @@ class LoggedInUserCard extends HookConsumerWidget {
                     _myActivityItem(
                       label: '과팅 오픈',
                       onTap: onTapAdminBlindDate,
+                    ),
+                    _myActivityItem(
+                      label: '사용자 피드백 결과',
+                      onTap: onTapAdminFeedback,
                     ),
                   ],
                 ],
