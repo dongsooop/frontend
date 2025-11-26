@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 class RestaurantList extends StatelessWidget {
-  final List<Map<String, dynamic>> data;
+  final List<dynamic> data;
   final VoidCallback onTap;
 
   const RestaurantList({

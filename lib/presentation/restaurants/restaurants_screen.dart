@@ -14,10 +14,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class RestaurantScreen extends HookConsumerWidget {
   final VoidCallback onTapRestaurantsWrite;
+  final VoidCallback onTapRestaurantsSearch;
 
   const RestaurantScreen({
     super.key,
     required this.onTapRestaurantsWrite,
+    required this.onTapRestaurantsSearch,
   });
 
   @override
@@ -127,11 +129,11 @@ class RestaurantScreen extends HookConsumerWidget {
       appBar: DetailHeader(
         title: '학교 근처 맛집 추천',
         trailing: IconButton(
-          onPressed: () {},
+          onPressed: onTapRestaurantsSearch,
           icon: SvgPicture.asset(
             'assets/icons/search.svg',
-            width: 24,
-            height: 24,
+            width: 20,
+            height: 20,
             colorFilter: const ColorFilter.mode(
               ColorStyles.black,
               BlendMode.srcIn,

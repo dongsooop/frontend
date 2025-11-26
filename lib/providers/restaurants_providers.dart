@@ -8,6 +8,8 @@ import 'package:dongsoop/domain/restaurants/use_case/get_restaurants_use_case.da
 import 'package:dongsoop/domain/restaurants/use_case/search_kakao_use_case.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_state.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_view_model.dart';
+import 'package:dongsoop/presentation/restaurants/search/restaurants_search_state.dart';
+import 'package:dongsoop/presentation/restaurants/search/restaurants_search_view_model.dart';
 import 'package:dongsoop/presentation/restaurants/write/restaurants_write_state.dart';
 import 'package:dongsoop/presentation/restaurants/write/restaurants_write_view_model.dart';
 import 'package:dongsoop/presentation/restaurants/write/search_kakao_state.dart';
@@ -73,4 +75,10 @@ StateNotifierProvider.autoDispose<SearchKakaoViewModel, SearchKakaoState>((ref) 
   final restaurantsSearchKaKaoUseCase = ref.watch(restaurantsSearchKaKaoUseCaseProvider);
 
   return SearchKakaoViewModel(restaurantsSearchKaKaoUseCase);
+});
+
+final restaurantsSearchViewModelProvider =
+StateNotifierProvider.autoDispose<RestaurantsSearchViewModel, RestaurantsSearchState>((ref) {
+
+  return RestaurantsSearchViewModel();
 });
