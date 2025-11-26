@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
+import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
 import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
 import 'package:dongsoop/presentation/restaurants/widgets/category_tab.dart';
 import 'package:dongsoop/presentation/restaurants/widgets/restaurants_list.dart';
@@ -13,7 +14,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class RestaurantScreen extends HookConsumerWidget {
-  final VoidCallback onTapRestaurantsWrite;
+  final Future<bool?> Function() onTapRestaurantsWrite;
   final VoidCallback onTapRestaurantsSearch;
 
   const RestaurantScreen({
@@ -24,75 +25,19 @@ class RestaurantScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final data = [
-      {
-        'title': '고척돈까스',
-        'distance': 448,
-        'likeCount': 20,
-        'category': '한식',
-        'tag': ['음식이 맛있어요', '점심으로 괜찮아요']
-      },
-      {
-        'title': '고척칼국수',
-        'distance': 458,
-        'likeCount': 8,
-        'category': '한식',
-        'tag': ['음식이 맛있어요', '점심으로 괜찮아요', '양이 많아요', '회식하기 좋아요']
-      },
-      {
-        'title': '야꾸미',
-        'distance': 45,
-        'likeCount': 2,
-        'category': '일식',
-        'tag': ['음식이 맛있어요', '회식하기 좋아요']
-      },
-      {
-        'title': '이삭 토스트',
-        'distance': 120,
-        'likeCount': 5,
-        'category': '패스트푸드',
-        'tag': ['점심으로 괜찮아요']
-      },
-      {
-        'title': '메가커피 동양미래대점',
-        'distance': 50,
-        'likeCount': 15,
-        'category': '카페/디저트',
-        'tag': []
-      },
-      {
-        'title': '마라공방',
-        'distance': 230,
-        'likeCount': 24,
-        'category': '중식',
-        'tag': ['점심으로 괜찮아요']
-      },
-      {
-        'title': '동대문 엽기 떡볶이',
-        'distance': 230,
-        'likeCount': 24,
-        'category': '분식',
-        'tag': ['점심으로 괜찮아요']
-      },
-    ];
-
     final categories = [
-      '전체',
-      '한식',
-      '중식',
-      '일식',
-      '양식',
-      '분식',
-      '패스트푸드',
-      '카페/디저트',
+      null,
+      ...RestaurantsCategory.values,
     ];
     final selectedIndex = useState<int>(0);
+    final selectedCategory = categories[selectedIndex.value];
     final pageController = usePageController(initialPage: 0);
 
     final user = ref.watch(userSessionProvider);
     final viewModel = ref.read(restaurantsViewModelProvider.notifier);
     final state = ref.watch(restaurantsViewModelProvider);
 
+    // 첫 진입 시 전체 조회
     useEffect(() {
       Future.microtask(() async {
         await viewModel.loadRestaurants();
@@ -120,10 +65,17 @@ class RestaurantScreen extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: ColorStyles.white,
       floatingActionButton: WriteButton(
-        onPressed: () {
-          user == null
-          ? LoginRequiredDialog(context)
-          : onTapRestaurantsWrite();
+        onPressed: () async {
+          if (user == null) {
+            LoginRequiredDialog(context);
+          } else {
+            final result = await onTapRestaurantsWrite();
+            if (result == true) {
+              await viewModel.loadRestaurants(
+                category: selectedCategory,
+              );
+            }
+          }
         }
       ),
       appBar: DetailHeader(
@@ -153,17 +105,24 @@ class RestaurantScreen extends HookConsumerWidget {
                 child: Row(
                   spacing: 16,
                   children: List.generate(categories.length, (index) {
-                    final c = categories[index];
+                    final category = categories[index];
                     final isSelected = index == selectedIndex.value;
 
+                    final label = category == null
+                        ? '전체'
+                        : category.label;
+
                     return CategoryTab(
-                      label: c,
+                      label: label,
                       isSelected: isSelected,
-                      onTap: () {
+                      onTap: () async {
                         selectedIndex.value = index;
+                        final category = categories[index];
+                        // 카테고리별 조회
+                        await viewModel.loadRestaurants(category: category);
                         pageController.animateToPage(
                           index,
-                          duration: const Duration(milliseconds: 250),
+                          duration: const Duration(milliseconds: 200),
                           curve: Curves.easeOut,
                         );
                       },
@@ -177,19 +136,28 @@ class RestaurantScreen extends HookConsumerWidget {
                 child: PageView.builder(
                   controller: pageController,
                   itemCount: categories.length,
-                  onPageChanged: (index) {
+                  onPageChanged: (index) async {
                     selectedIndex.value = index;
+                    final category = categories[index];
+                    await viewModel.loadRestaurants(category: category);
                   },
                   itemBuilder: (context, index) {
                     final category = categories[index];
-                    final filtered = category == '전체'
-                      ? data
-                      : data.where((e) => e['category'] == category).toList();
+                    final restaurants = state.restaurants ?? [];
+
+                    if (state.isLoading && restaurants.isEmpty) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: ColorStyles.primaryColor),
+                      );
+                    }
 
                     return RestaurantList(
-                      data: filtered,
+                      data: restaurants,
                       onTap: () async {
                         await viewModel.like();
+                      },
+                      onLoadMore: () async {
+                        await viewModel.loadNextPage(category: category);
                       },
                     );
                   },

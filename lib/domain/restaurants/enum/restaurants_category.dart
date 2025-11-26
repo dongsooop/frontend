@@ -27,4 +27,6 @@ extension RestaurantCategoryLabel on RestaurantsCategory {
         return '카페/디저트';
     }
   }
+
+  String get apiValue => name;
 }

@@ -1,4 +1,5 @@
 import 'package:dongsoop/data/restaurants/data_source/restaurants_data_source.dart';
+import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_request.dart';
@@ -25,7 +26,15 @@ class RestaurantsRepositoryImpl implements RestaurantsRepository{
   }
 
   @override
-  Future<List<Restaurant>?> getRestaurants() async {
-    return await _reportDataSource.getRestaurants();
+  Future<List<Restaurant>?> getRestaurants({
+    RestaurantsCategory? category,
+    required int page,
+    int size = 20,
+  }) async {
+    return await _reportDataSource.getRestaurants(
+      category: category,
+      page: page,
+      size: size,
+    );
   }
 }

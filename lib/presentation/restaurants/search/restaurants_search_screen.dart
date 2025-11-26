@@ -19,22 +19,6 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final data = [
-      {
-        'title': '고척돈까스',
-        'distance': 448,
-        'likeCount': 20,
-        'category': '한식',
-        'tag': ['음식이 맛있어요', '점심으로 괜찮아요']
-      },
-      {
-        'title': '고척칼국수',
-        'distance': 458,
-        'likeCount': 8,
-        'category': '한식',
-        'tag': ['음식이 맛있어요', '점심으로 괜찮아요', '양이 많아요', '회식하기 좋아요']
-      },
-    ];
 
     final user = ref.watch(userSessionProvider);
     final viewModel = ref.read(restaurantsSearchViewModelProvider.notifier);
@@ -43,6 +27,8 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
     final searchTextController = useTextEditingController();
     final tags = RestaurantsTag.values;
     final selectedTag = useState<RestaurantsTag?>(null);
+
+    final hasRestaurants = state.restaurants?.isNotEmpty == true;
 
     useEffect(() {
       if (state.errorMessage != null) {
@@ -79,7 +65,7 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 16,
             children: [
-              if (data.isEmpty) ...[
+              if (!hasRestaurants) ...[
                 SizedBox(height: 16,),
                 Text(
                   '어떤 가게를 찾고 있나요?',
@@ -100,10 +86,10 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
               ],
 
               // 카드 리스트
-              if (data.isNotEmpty)
+              if (hasRestaurants)
               Expanded(
                 child:  RestaurantList(
-                  data: data,
+                  data: state.restaurants ?? [],
                   onTap: () async {
                     // TODO: 좋아요
                     await viewModel.like();
@@ -122,8 +108,8 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
     required RestaurantsTag? selectedTag,
     required Future<void> Function(RestaurantsTag tag) onTagTap,
   }) {
-    final tags1 = tags.sublist(0, 3);
-    final tags2 = tags.sublist(4, 7);
+    final tags1 = tags.sublist(0, 4);
+    final tags2 = tags.sublist(4, 8);
 
     return Column(
       spacing: 8,

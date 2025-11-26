@@ -82,8 +82,7 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
               content: '등록 후 정보를 수정할 수 없어요\n이대로 추천할까요?',
               onConfirm: () async {
                 final result = await viewModel.submit(selectedRestaurant.value!, selectedCategory.value!, selectedTags.value);
-                print('post result: $result');
-                context.pop();
+                context.pop(result);
               },
             ),
           );
@@ -263,8 +262,8 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
     required List<RestaurantsTag> selectedTags,
     required void Function(RestaurantsTag tag) onTagTap,
   }) {
-    final tags1 = tags.sublist(0, 3);
-    final tags2 = tags.sublist(4, 7);
+    final tags1 = tags.sublist(0, 4);
+    final tags2 = tags.sublist(4, 8);
 
     return Column(
       spacing: 8,

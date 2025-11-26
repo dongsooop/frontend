@@ -2,6 +2,7 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/restaurants/data_source/restaurants_data_source.dart';
 import 'package:dio/dio.dart';
+import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_request.dart';
@@ -92,11 +93,23 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
   }
 
   @override
-  Future<List<Restaurant>?> getRestaurants() async {
+  Future<List<Restaurant>?> getRestaurants({
+    RestaurantsCategory? category,
+    required int page,
+    int size = 20,
+  }) async {
     final endpoint = dotenv.get('RESTAURANTS');
+    final queryParams = {
+      'page': page,
+      'size': size,
+      if (category != null) 'category': category.apiValue,
+    };
 
     try {
-      final response = await _authDio.get(endpoint);
+      final response = await _plainDio.get(
+        endpoint,
+        queryParameters: queryParams,
+      );
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
 

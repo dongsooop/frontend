@@ -552,8 +552,11 @@ final router = GoRouter(
                     return MaterialPage(
                       key: state.pageKey,
                       child: RestaurantScreen(
-                        onTapRestaurantsWrite: () {
-                          context.push(RoutePaths.restaurantsWrite);
+                        onTapRestaurantsWrite: () async {
+                          final result = await context.push<bool>(
+                            RoutePaths.restaurantsWrite,
+                          );
+                          return result;
                         },
                         onTapRestaurantsSearch: () {
                           context.push(RoutePaths.restaurantsSearch);
