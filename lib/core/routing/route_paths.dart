@@ -14,6 +14,9 @@ abstract class RoutePaths {
   static const String libraryWebView = '/libraryWebView';
   static const String mypageWebView = '/mypageWebView';
   static const String setting = '/setting';
+  static const String userFeedback = '/setting/userFeedback';
+  static const String feedbackResult = '/setting/feedbackResult';
+  static const String feedbackMore = '/setting/feedbackResult/more';
   static const String timetable = '/timetable';
   static const String timetableDetail = '/timetableDetail';
   static const String timetableWrite = '/timetableWrite';
