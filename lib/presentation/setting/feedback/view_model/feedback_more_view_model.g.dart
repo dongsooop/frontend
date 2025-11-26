@@ -7,7 +7,7 @@ part of 'feedback_more_view_model.dart';
 // **************************************************************************
 
 String _$feedbackMoreViewModelHash() =>
-    r'e691427106f9572a8777ad0b50f8ce7adfce2522';
+    r'fe1a85b6e93c619866a717c44e56ab2be74f475c';
 
 /// Copied from Dart SDK
 class _SystemHash {
