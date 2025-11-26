@@ -544,9 +544,27 @@ class KaKaoSearchException implements Exception {
   String toString() => message;
 }
 
+class FeedbackSubmitException implements Exception {
+  final String message;
+  FeedbackSubmitException(
+      [this.message = "피드백 전송 중 오류가 발생했어요. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
 class RestaurantsDuplicationException implements Exception {
   final String message;
   RestaurantsDuplicationException([this.message = "이미 등록된 가게예요"]);
+
+  @override
+  String toString() => message;
+}
+
+class FeedbackException implements Exception {
+  final String message;
+  FeedbackException(
+      [this.message = "피드백 확인 중 서버 오류가 발생했어요."]);
 
   @override
   String toString() => message;
