@@ -15,53 +15,25 @@ class FeedbackMoreViewModel extends _$FeedbackMoreViewModel {
     return const FeedbackMoreState();
   }
 
-  Future<void> load({int size = 20}) async {
+  Future<void> load() async {
     if (state.isLoading) return;
-    await _loadInternal(page: 0, size: size, append: false);
-  }
 
-  Future<void> loadMore({int size = 20}) async {
-    if (state.isLoadingMore || !state.hasMore) return;
-
-    final nextPage = state.page + 1;
-    await _loadInternal(page: nextPage, size: size, append: true);
-  }
-
-  Future<void> _loadInternal({
-    required int page,
-    required int size,
-    required bool append,
-  }) async {
-    if (append) {
-      state = state.copyWith(
-        isLoadingMore: true,
-        errMessage: null,
-      );
-    } else {
-      state = state.copyWith(
-        isLoading: true,
-        errMessage: null,
-      );
-    }
+    state = state.copyWith(
+      isLoading: true,
+      errMessage: null,
+    );
 
     try {
-      final items = await _useCase.execute(
-        type: type,
-        page: page,
-        size: size,
-      );
+      final items = await _useCase.execute(type);
 
       state = state.copyWith(
         isLoading: false,
-        isLoadingMore: false,
-        page: page,
-        hasMore: items.length == size,
-        items: append ? [...state.items, ...items] : items,
+        items: items,
+        hasMore: false, // 페이징 없음
       );
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
-        isLoadingMore: false,
         errMessage: _errorMessageByType(type),
       );
     }

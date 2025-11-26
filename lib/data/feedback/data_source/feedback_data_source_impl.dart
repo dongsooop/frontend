@@ -47,10 +47,7 @@ class FeedbackDataSourceImpl implements FeedbackDataSource {
   }
 
   @override
-  Future<List<String>> improvementSuggestions({
-    required int page,
-    required int size,
-  }) async {
+  Future<List<String>> improvementSuggestions() async {
     final url = dotenv.get('FEEDBACK_IMPROVEMENT_ENDPOINT');
     try {
       final response = await _authDio.get(url);
@@ -66,10 +63,7 @@ class FeedbackDataSourceImpl implements FeedbackDataSource {
   }
 
   @override
-  Future<List<String>> featureRequests({
-    required int page,
-    required int size,
-  }) async {
+  Future<List<String>> featureRequests() async {
     final url = dotenv.get('FEEDBACK_FEATURE_REQUEST_ENDPOINT');
     try {
       final response = await _authDio.get(url);

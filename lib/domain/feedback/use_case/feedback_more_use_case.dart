@@ -6,16 +6,13 @@ class FeedbackMoreUseCase {
 
   FeedbackMoreUseCase(this.repository);
 
-  Future<List<String>> execute({
-    required FeedbackType type,
-    required int page,
-    required int size,
-  }) {
+  Future<List<String>> execute(FeedbackType type)
+  {
     switch (type) {
       case FeedbackType.improvement:
-        return repository.improvementSuggestions(page: page, size: size);
+        return repository.improvementSuggestions();
       case FeedbackType.featureRequest:
-        return repository.featureRequests(page: page, size: size);
+        return repository.featureRequests();
     }
   }
 }

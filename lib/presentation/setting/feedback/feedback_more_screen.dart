@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
 import 'package:dongsoop/presentation/setting/feedback/view_model/feedback_more_view_model.dart';
@@ -6,6 +9,8 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class FeedbackMoreScreen extends ConsumerStatefulWidget {
   final FeedbackType type;
@@ -21,8 +26,6 @@ class FeedbackMoreScreen extends ConsumerStatefulWidget {
 }
 
 class _FeedbackMoreScreenState extends ConsumerState<FeedbackMoreScreen> {
-  final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
@@ -32,21 +35,6 @@ class _FeedbackMoreScreenState extends ConsumerState<FeedbackMoreScreen> {
           .read(feedbackMoreViewModelProvider(widget.type).notifier)
           .load();
     });
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 100) {
-        ref
-            .read(feedbackMoreViewModelProvider(widget.type).notifier)
-            .loadMore();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   String _titleByType(FeedbackType type) {
@@ -56,6 +44,56 @@ class _FeedbackMoreScreenState extends ConsumerState<FeedbackMoreScreen> {
       case FeedbackType.featureRequest:
         return '추가 기능 요청 전체 보기';
     }
+  }
+
+  String _csvHeaderByType(FeedbackType type) {
+    switch (type) {
+      case FeedbackType.improvement:
+        return '개선 의견';
+      case FeedbackType.featureRequest:
+        return '추가 기능 요청';
+    }
+  }
+
+  String _csvFileNameByType(FeedbackType type) {
+    switch (type) {
+      case FeedbackType.improvement:
+        return 'feedback_improvement.csv';
+      case FeedbackType.featureRequest:
+        return 'feedback_feature_request.csv';
+    }
+  }
+
+  Future<void> _exportCsv(List<String> items) async {
+    if (items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('내보낼 피드백이 없어요.')),
+      );
+      return;
+    }
+
+    final rows = <List<dynamic>>[];
+
+    rows.add([_csvHeaderByType(widget.type)]);
+
+    for (final item in items) {
+      rows.add([item]);
+    }
+
+    final csv = const ListToCsvConverter().convert(rows);
+
+    final dir = await getTemporaryDirectory();
+    final path = '${dir.path}/${_csvFileNameByType(widget.type)}';
+
+    final file = File(path);
+    await file.writeAsString(csv);
+
+    final params = ShareParams(
+      files: [XFile(path)],
+      text: _csvHeaderByType(widget.type),
+    );
+
+    await SharePlus.instance.share(params);
   }
 
   @override
@@ -73,13 +111,43 @@ class _FeedbackMoreScreenState extends ConsumerState<FeedbackMoreScreen> {
         )
             : Column(
           children: [
+            Padding(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton(
+                    onPressed: () => _exportCsv(state.items),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      side: BorderSide(color: ColorStyles.gray3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      textStyle: TextStyles.smallTextRegular,
+                      foregroundColor: ColorStyles.black,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.save_alt, size: 16),
+                        SizedBox(width: 4),
+                        Text('내보내기'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             Expanded(
               child: state.items.isEmpty
                   ? const _EmptySection(
                 message: '등록된 피드백이 없습니다.',
               )
                   : ListView.separated(
-                controller: _scrollController,
                 padding: const EdgeInsets.all(16),
                 itemBuilder: (context, index) {
                   final item = state.items[index];
@@ -90,36 +158,6 @@ class _FeedbackMoreScreenState extends ConsumerState<FeedbackMoreScreen> {
                 itemCount: state.items.length,
               ),
             ),
-
-            if (state.isLoadingMore) ...[
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: CircularProgressIndicator(color: ColorStyles.primaryColor,),
-              ),
-            ] else if (state.hasMore && state.items.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      ref
-                          .read(
-                        feedbackMoreViewModelProvider(widget.type)
-                            .notifier,
-                      )
-                          .loadMore();
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: ColorStyles.gray3),
-                      textStyle: TextStyles.smallTextRegular,
-                      foregroundColor: ColorStyles.black,
-                    ),
-                    child: const Text('더 보기'),
-                  ),
-                ),
-              ),
-            ],
 
             if (state.errMessage != null) ...[
               Padding(
