@@ -90,9 +90,8 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
               Expanded(
                 child:  RestaurantList(
                   data: state.restaurants ?? [],
-                  onTap: () async {
-                    // TODO: 좋아요
-                    await viewModel.like();
+                  onTapLike: (id, likedByMe) async {
+                    await viewModel.like(id, likedByMe);
                   },
                 ),
               ),

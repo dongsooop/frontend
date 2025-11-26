@@ -8,13 +8,13 @@ import 'package:go_router/go_router.dart';
 
 class RestaurantList extends StatelessWidget {
   final List<Restaurant>? data;
-  final VoidCallback onTap;
+  final Future<void> Function(int id, bool likedByMe)? onTapLike;
   final VoidCallback? onLoadMore;
 
   const RestaurantList({
     super.key,
     this.data,
-    required this.onTap,
+    this.onTapLike,
     this.onLoadMore,
   });
 
@@ -45,7 +45,7 @@ class RestaurantList extends StatelessWidget {
           final card = restaurants[index];
           return RestaurantCard(
             restaurant: card,
-            onTap: onTap,
+            onTapLike: onTapLike,
           );
         },
       ),
@@ -55,12 +55,12 @@ class RestaurantList extends StatelessWidget {
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
-  final VoidCallback onTap;
+  final Future<void> Function(int id, bool likedByMe)? onTapLike;
 
   const RestaurantCard({
     super.key,
     required this.restaurant,
-    required this.onTap,
+    this.onTapLike,
   });
 
   @override
@@ -106,8 +106,23 @@ class RestaurantCard extends StatelessWidget {
                 ),
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: onTap,
-                  child: SvgPicture.asset(
+                  onTap: () async {
+                    await onTapLike?.call(
+                      restaurant.id,
+                      restaurant.likedByMe,
+                    );
+                  },
+                  child: restaurant.likedByMe
+                  ? SvgPicture.asset(
+                    'assets/icons/favorite.svg',
+                    width: 20,
+                    height: 20,
+                    colorFilter: const ColorFilter.mode(
+                      ColorStyles.primaryColor,
+                      BlendMode.srcIn,
+                    ),
+                  )
+                  : SvgPicture.asset(
                     'assets/icons/favorite_outline.svg',
                     width: 20,
                     height: 20,

@@ -37,4 +37,9 @@ class RestaurantsRepositoryImpl implements RestaurantsRepository{
       size: size,
     );
   }
+
+  @override
+  Future<bool> like(int id, bool likedByMe) async {
+    return await _reportDataSource.like(id, likedByMe);
+  }
 }

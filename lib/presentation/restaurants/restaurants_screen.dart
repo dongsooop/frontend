@@ -120,11 +120,7 @@ class RestaurantScreen extends HookConsumerWidget {
                         final category = categories[index];
                         // 카테고리별 조회
                         await viewModel.loadRestaurants(category: category);
-                        pageController.animateToPage(
-                          index,
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOut,
-                        );
+                        pageController.jumpToPage(index);
                       },
                     );
                   }),
@@ -153,8 +149,8 @@ class RestaurantScreen extends HookConsumerWidget {
 
                     return RestaurantList(
                       data: restaurants,
-                      onTap: () async {
-                        await viewModel.like();
+                      onTapLike: (id, likedByMe) async {
+                        await viewModel.like(id, likedByMe);
                       },
                       onLoadMore: () async {
                         await viewModel.loadNextPage(category: category);

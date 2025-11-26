@@ -19,7 +19,7 @@ class RestaurantsState {
     return RestaurantsState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
-      restaurants: restaurants,
+      restaurants: restaurants ?? this.restaurants,
     );
   }
 }

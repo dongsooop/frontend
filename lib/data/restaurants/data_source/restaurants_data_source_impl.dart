@@ -82,7 +82,7 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
         return true;
       }
       return false;
-    }  on DioException catch (e) {
+    } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.conflict.code) {
         throw RestaurantsDuplicationException();
       }
@@ -120,6 +120,28 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
       print('error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> like(int id, bool likedByMe) async {
+    final restaurant = dotenv.get('RESTAURANT');
+    final like = dotenv.get('RESTAURANT_LIKE');
+    final endpoint = restaurant + '/$id' + like;
+
+    try {
+      final response = await _authDio.post(
+        endpoint,
+        queryParameters: {
+          'isAdding': !likedByMe,
+        },
+      );
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        return true;
+      }
+      return false;
+    } catch (e) {
       rethrow;
     }
   }

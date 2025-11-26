@@ -12,4 +12,5 @@ abstract class RestaurantsDataSource {
     required int page,
     int size,
   });
+  Future<bool> like(int id, bool likedByMe);
 }
