@@ -1,6 +1,6 @@
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
-import 'package:dongsoop/core/presentation/components/single_action_dialog.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
+import 'package:dongsoop/core/presentation/components/single_action_dialog.dart';
 import 'package:dongsoop/core/utils/use_search_reset.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
@@ -10,11 +10,13 @@ import 'package:dongsoop/presentation/board/common/components/board_write_button
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
 import 'package:dongsoop/presentation/board/market/list/search_market_list.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
+import 'package:dongsoop/presentation/board/market/list/view_model/search_market_view_model.dart';
 import 'package:dongsoop/presentation/board/providers/board_taps_provider.dart';
 import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_item.dart';
 import 'package:dongsoop/presentation/board/recruit/list/search_recruit_list.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
+import 'package:dongsoop/presentation/board/recruit/list/view_models/search_recruit_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
@@ -45,14 +47,16 @@ class BoardPageScreen extends HookConsumerWidget {
     final scrollControllers =
         useMemoized(() => List.generate(5, (_) => ScrollController()));
     final recruitController = useMemoized(
-          () => PageController(initialPage: ref.read(boardTabProvider).recruitTabIndex),
+          () => PageController(initialPage: tabState.recruitTabIndex),
     );
     final marketController = useMemoized(
-          () => PageController(initialPage: ref.read(boardTabProvider).marketTabIndex),
+          () => PageController(initialPage: tabState.marketTabIndex),
     );
 
     final searchCtrl = useTextEditingController();
     final keyword = useState('');
+
+    final lastSearchTimeRef = useRef<DateTime?>(null);
 
     final isRecruit = tabState.categoryIndex == 0;
     final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
@@ -189,8 +193,37 @@ class BoardPageScreen extends HookConsumerWidget {
 
     Future<void> performSearch(String kw) async {
       final q = kw.trim();
-      if (q.isEmpty) return;
+      if (q.isEmpty) {
+        keyword.value = '';
+        return;
+      }
+
+      final now = DateTime.now();
+      final last = lastSearchTimeRef.value;
+      if (last != null &&
+          now.difference(last) < const Duration(milliseconds: 500)) {
+        return;
+      }
+      lastSearchTimeRef.value = now;
+
       keyword.value = q;
+
+      if (isRecruit && recruitType != null) {
+        final provider = searchRecruitViewModelProvider(
+          type: recruitType,
+          departmentName: departmentName,
+        );
+        await ref.read(provider.notifier).search(q);
+      } else if (!isRecruit && marketType != null) {
+        final provider = searchMarketViewModelProvider(type: marketType);
+        await ref.read(provider.notifier).search(q);
+      }
+
+      final controller = scrollControllers[safeIndex];
+      if (controller.hasClients) {
+        controller.jumpTo(0);
+      }
+      FocusManager.instance.primaryFocus?.unfocus();
     }
 
     void cancelSearch() {

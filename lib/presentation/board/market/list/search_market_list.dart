@@ -34,8 +34,6 @@ class SearchMarketItemListSection extends HookConsumerWidget {
         final q = query.trim();
         if (q.isEmpty) {
           viewModel.clear();
-        } else {
-          viewModel.search(q);
         }
       });
       return null;
@@ -69,7 +67,7 @@ class SearchMarketItemListSection extends HookConsumerWidget {
     if (!state.isLoading && state.items.isEmpty) {
       return Center(child: Text(
         '검색 결과가 없어요',
-        style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+        style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
         textAlign: TextAlign.center),
       );
     }

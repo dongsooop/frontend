@@ -33,6 +33,8 @@ class NoticeListPageScreen extends HookConsumerWidget {
 
     final isResetLoading = useState(false);
 
+    final lastSearchTimeRef = useRef<DateTime?>(null);
+
     final user = ref.watch(userSessionProvider);
     final isLoggedIn = user != null;
 
@@ -122,6 +124,16 @@ class NoticeListPageScreen extends HookConsumerWidget {
                   onSubmitted: (kw) async {
                     final trimmed = kw.trim();
                     if (trimmed.isEmpty) return;
+
+                    final now = DateTime.now();
+                    final last = lastSearchTimeRef.value;
+                    if (last != null &&
+                        now.difference(last) <
+                            const Duration(milliseconds: 500)) {
+                      return;
+                    }
+                    lastSearchTimeRef.value = now;
+
                     if (tab == NoticeTab.department && !isLoggedIn) {
                       await LoginRequiredDialog(context);
                       return;
@@ -229,9 +241,12 @@ class NoticeListPageScreen extends HookConsumerWidget {
                     data: (notices) {
                       if (notices.isEmpty) {
                         return Center(
-                          child: Text('공지 리스트가 비어있어요!',
-                              style: TextStyles.largeTextRegular
-                                  .copyWith(color: ColorStyles.gray4)),
+                          child: Text(
+                            '공지 리스트가 비어있어요!',
+                            style: TextStyles.largeTextRegular
+                                .copyWith(
+                                color: ColorStyles.gray4),
+                          ),
                         );
                       }
                       return NoticeListView<NoticeEntity>(
@@ -253,7 +268,7 @@ class NoticeListPageScreen extends HookConsumerWidget {
               ],
             ),
           ),
-        )
+        ),
       ),
     );
   }
