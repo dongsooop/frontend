@@ -1,7 +1,7 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/domain/feedback/enum/service_feature.dart';
-import 'package:dongsoop/presentation/setting/feedback/view_model/feedback_write_view_model.dart';
+import 'package:dongsoop/presentation/my_page/feedback/view_model/feedback_write_view_model.dart';
 import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
