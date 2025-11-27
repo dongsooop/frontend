@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/core/presentation/components/single_action_dialog.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
+import 'package:dongsoop/core/utils/use_search_reset.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
@@ -52,13 +53,6 @@ class BoardPageScreen extends HookConsumerWidget {
 
     final searchCtrl = useTextEditingController();
     final keyword = useState('');
-    final isSearching = useState(false);
-
-    useEffect(() {
-      isSearching.value = false;
-      keyword.value = '';
-      return null;
-    }, const []);
 
     final isRecruit = tabState.categoryIndex == 0;
     final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
@@ -66,6 +60,17 @@ class BoardPageScreen extends HookConsumerWidget {
     isRecruit ? tabState.recruitTabIndex : tabState.marketTabIndex;
 
     final pageController = isRecruit ? recruitController : marketController;
+
+    final safeIndex = selectedSubIndex.clamp(0, currentSubTabs.length - 1);
+
+    final isSearching = keyword.value.trim().isNotEmpty;
+
+    useSearchReset(
+      controller: searchCtrl,
+      keyword: keyword,
+      scrollController: scrollControllers[safeIndex],
+      onReset: () {},
+    );
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -87,8 +92,6 @@ class BoardPageScreen extends HookConsumerWidget {
       departmentCode = dept.code;
       departmentName = dept.displayName;
     }
-
-    final safeIndex = selectedSubIndex.clamp(0, currentSubTabs.length - 1);
 
     final recruitType =
     isRecruit && safeIndex < RecruitType.values.length ? RecruitType.values[safeIndex] : null;
@@ -139,14 +142,13 @@ class BoardPageScreen extends HookConsumerWidget {
     }
 
     Future<void> handleRecruitDetail(int id, RecruitType type) async {
-      final wasSearching = isSearching.value;
+      final wasSearching = isSearching;
       final didApply = await onTapRecruitDetail(id, type);
 
       final deletedIds = ref.read(deletedRecruitIdsProvider);
       final isDeleted = deletedIds.contains(id);
 
       if ((didApply || isDeleted) && recruitType != null) {
-        if (wasSearching) {
           await ref
               .read(
             recruitListViewModelProvider(
@@ -158,31 +160,14 @@ class BoardPageScreen extends HookConsumerWidget {
 
           final controller = scrollControllers[safeIndex];
           if (controller.hasClients) controller.jumpTo(0);
+
+        if (wasSearching) {
           searchCtrl.clear();
           keyword.value = '';
-          isSearching.value = false;
-          FocusManager.instance.primaryFocus?.unfocus();
+        }
 
           if (isDeleted) {
             ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
-          }
-          return;
-        } else {
-          await ref
-              .read(
-            recruitListViewModelProvider(
-              type: recruitType,
-              departmentCode: departmentCode,
-            ).notifier,
-          )
-              .refresh();
-
-          final controller = scrollControllers[safeIndex];
-          if (controller.hasClients) controller.jumpTo(0);
-
-          if (isDeleted) {
-            ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
-          }
         }
       } else {
         if (isDeleted) {
@@ -196,8 +181,8 @@ class BoardPageScreen extends HookConsumerWidget {
       if (didComplete && marketType != null) {
         ref
             .read(
-              marketListViewModelProvider(type: marketType).notifier,
-            )
+          marketListViewModelProvider(type: marketType).notifier,
+        )
             .refresh();
       }
     }
@@ -206,13 +191,11 @@ class BoardPageScreen extends HookConsumerWidget {
       final q = kw.trim();
       if (q.isEmpty) return;
       keyword.value = q;
-      isSearching.value = true;
     }
 
     void cancelSearch() {
       searchCtrl.clear();
       keyword.value = '';
-      isSearching.value = false;
       FocusManager.instance.primaryFocus?.unfocus();
     }
 
@@ -222,117 +205,121 @@ class BoardPageScreen extends HookConsumerWidget {
         onPressed: handleWriteAction,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: BoardTabSection(
-                categoryTabs: categoryTabs,
-                selectedCategoryIndex: tabState.categoryIndex,
-                selectedSubTabIndex: safeIndex,
-                subTabs: currentSubTabs,
-                onCategorySelected: (newIndex) {
-                  if (isSearching.value) cancelSearch();
-                  tabNotifier.setCategoryIndex(newIndex);
-                },
-                onSubTabSelected: (newSubIndex) {
-                  if (isSearching.value) cancelSearch();
-                  if (isRecruit) {
-                    tabNotifier.setRecruitTabIndex(newSubIndex);
-                    recruitController.jumpToPage(newSubIndex);
-                  } else {
-                    tabNotifier.setMarketTabIndex(newSubIndex);
-                    marketController.jumpToPage(newSubIndex);
-                  }
-                },
-                showHelpIcon: isRecruit,
-                onHelpPressed: () {
-                  final messenger = ScaffoldMessenger.of(context);
-                  messenger.removeCurrentSnackBar();
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: const Text('현재 모집 중인 게시글만 보여져요.'),
-                      duration: const Duration(seconds: 3),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: BoardTabSection(
+                  categoryTabs: categoryTabs,
+                  selectedCategoryIndex: tabState.categoryIndex,
+                  selectedSubTabIndex: safeIndex,
+                  subTabs: currentSubTabs,
+                  onCategorySelected: (newIndex) {
+                    if (isSearching) cancelSearch();
+                    tabNotifier.setCategoryIndex(newIndex);
+                  },
+                  onSubTabSelected: (newSubIndex) {
+                    if (isSearching) cancelSearch();
+                    if (isRecruit) {
+                      tabNotifier.setRecruitTabIndex(newSubIndex);
+                      recruitController.jumpToPage(newSubIndex);
+                    } else {
+                      tabNotifier.setMarketTabIndex(newSubIndex);
+                      marketController.jumpToPage(newSubIndex);
+                    }
+                  },
+                  showHelpIcon: isRecruit,
+                  onHelpPressed: () {
+                    final messenger = ScaffoldMessenger.of(context);
+                    messenger.removeCurrentSnackBar();
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: const Text('현재 모집 중인 게시글만 보여져요.'),
+                        duration: const Duration(seconds: 3),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: ColorStyles.black,
                       ),
-                      backgroundColor: ColorStyles.black,
-                    ),
-                  );
-                },
-                searchController: searchCtrl,
-                isSearching: isSearching.value,
-                onSearch: performSearch,
-                onCancel: cancelSearch,
+                    );
+                  },
+                  searchController: searchCtrl,
+                  onSubmitted: performSearch,
+                ),
               ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                key: ValueKey(isRecruit ? 'pv-recruit' : 'pv-market'),
-                controller: pageController,
-                itemCount: currentSubTabs.length,
-                onPageChanged: (index) {
-                  if (isRecruit) {
-                    tabNotifier.setRecruitTabIndex(index);
-                  } else {
-                    tabNotifier.setMarketTabIndex(index);
-                  }
-                },
-                itemBuilder: (context, index) {
-                  final isActive = index == safeIndex;
-                  final controller = scrollControllers[index];
-                  if (!isActive) return const SizedBox.shrink();
+              Expanded(
+                child: PageView.builder(
+                  key: ValueKey(isRecruit ? 'pv-recruit' : 'pv-market'),
+                  controller: pageController,
+                  itemCount: currentSubTabs.length,
+                  onPageChanged: (index) {
+                    if (isRecruit) {
+                      tabNotifier.setRecruitTabIndex(index);
+                    } else {
+                      tabNotifier.setMarketTabIndex(index);
+                    }
+                  },
+                  itemBuilder: (context, index) {
+                    final isActive = index == safeIndex;
+                    final controller = scrollControllers[index];
+                    if (!isActive) return const SizedBox.shrink();
 
-                  if (isSearching.value) {
-                    if (isRecruit && index < RecruitType.values.length) {
-                      return SearchRecruitItemListSection(
-                        key: ValueKey(
-                          'search-recruit-${RecruitType.values[index].name}-${keyword.value}',
-                        ),
-                        recruitType: RecruitType.values[index],
-                        departmentName: departmentName,
-                        scrollController: controller,
-                        onTapRecruitDetail: handleRecruitDetail,
-                        query: keyword.value,
-                      );
-                    } else if (!isRecruit && index < MarketType.values.length) {
-                      return SearchMarketItemListSection(
-                        key: ValueKey(
-                          'search-market-${MarketType.values[index].name}-${keyword.value}',
-                        ),
-                        marketType: MarketType.values[index],
-                        scrollController: controller,
-                        onTapMarketDetail: handleMarketDetail,
-                        query: keyword.value,
-                      );
+                    if (isSearching) {
+                      if (isRecruit && index < RecruitType.values.length) {
+                        return SearchRecruitItemListSection(
+                          key: ValueKey(
+                            'search-recruit-${RecruitType.values[index].name}-${keyword.value}',
+                          ),
+                          recruitType: RecruitType.values[index],
+                          departmentName: departmentName,
+                          scrollController: controller,
+                          onTapRecruitDetail: handleRecruitDetail,
+                          query: keyword.value,
+                        );
+                      } else if (!isRecruit && index < MarketType.values.length) {
+                        return SearchMarketItemListSection(
+                          key: ValueKey(
+                            'search-market-${MarketType.values[index].name}-${keyword.value}',
+                          ),
+                          marketType: MarketType.values[index],
+                          scrollController: controller,
+                          onTapMarketDetail: handleMarketDetail,
+                          query: keyword.value,
+                        );
+                      }
+                    } else {
+                      if (isRecruit && index < RecruitType.values.length) {
+                        return RecruitItemListSection(
+                          key: ValueKey(
+                            'recruit-${RecruitType.values[index].name}-$departmentCode',
+                          ),
+                          recruitType: RecruitType.values[index],
+                          departmentCode: departmentCode,
+                          onTapRecruitDetail: handleRecruitDetail,
+                          scrollController: controller,
+                        );
+                      } else if (!isRecruit && index < MarketType.values.length) {
+                        return MarketItemListSection(
+                          key: ValueKey('market-${MarketType.values[index].name}'),
+                          marketType: MarketType.values[index],
+                          onTapMarketDetail: handleMarketDetail,
+                          scrollController: controller,
+                        );
+                      }
                     }
-                  } else {
-                    if (isRecruit && index < RecruitType.values.length) {
-                      return RecruitItemListSection(
-                        key: ValueKey(
-                          'recruit-${RecruitType.values[index].name}-$departmentCode',
-                        ),
-                        recruitType: RecruitType.values[index],
-                        departmentCode: departmentCode,
-                        onTapRecruitDetail: handleRecruitDetail,
-                        scrollController: controller,
-                      );
-                    } else if (!isRecruit && index < MarketType.values.length) {
-                      return MarketItemListSection(
-                        key: ValueKey('market-${MarketType.values[index].name}'),
-                        marketType: MarketType.values[index],
-                        onTapMarketDetail: handleMarketDetail,
-                        scrollController: controller,
-                      );
-                    }
-                  }
-                  return const SizedBox.shrink();
-                },
+                    return const SizedBox.shrink();
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        )
       ),
     );
   }
