@@ -5,12 +5,10 @@ class SearchBarComponent extends StatelessWidget {
   const SearchBarComponent({
     super.key,
     this.controller,
-    this.onTap,
     this.onSubmitted,
   });
 
   final TextEditingController? controller;
-  final VoidCallback? onTap;
   final Future<void> Function(String value)? onSubmitted;
 
   Future<void> _handleSubmitted(BuildContext context, String raw) async {
@@ -45,8 +43,7 @@ class SearchBarComponent extends StatelessWidget {
             suffixIcon: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
-                FocusManager.instance.primaryFocus?.unfocus();
-                onTap?.call();
+                _handleSubmitted(context, controller?.text ?? '');
               },
               child: const Icon(Icons.search, size: 24.0, color: ColorStyles.gray3),
             )),
