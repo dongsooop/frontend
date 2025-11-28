@@ -2,8 +2,8 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/feedback/entity/feedback_write_entity.dart';
 import 'package:dongsoop/domain/feedback/enum/service_feature.dart';
 import 'package:dongsoop/domain/feedback/use_case/feedback_write_use_case.dart';
-import 'package:dongsoop/presentation/setting/feedback/providers/feedback_use_case_provider.dart';
-import 'package:dongsoop/presentation/setting/feedback/view_model/state/feedback_write_state.dart';
+import 'package:dongsoop/presentation/my_page/feedback/providers/feedback_use_case_provider.dart';
+import 'package:dongsoop/presentation/my_page/feedback/view_model/state/feedback_write_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'feedback_write_view_model.g.dart';

@@ -1,7 +1,7 @@
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
 import 'package:dongsoop/domain/feedback/use_case/feedback_more_use_case.dart';
-import 'package:dongsoop/presentation/setting/feedback/providers/feedback_use_case_provider.dart';
-import 'package:dongsoop/presentation/setting/feedback/view_model/state/feedback_more_state.dart';
+import 'package:dongsoop/presentation/my_page/feedback/providers/feedback_use_case_provider.dart';
+import 'package:dongsoop/presentation/my_page/feedback/view_model/state/feedback_more_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'feedback_more_view_model.g.dart';

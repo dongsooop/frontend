@@ -1,3 +1,4 @@
+import 'package:dongsoop/presentation/my_page/widgets/my_activity_item.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -9,6 +10,7 @@ class LoggedInUserCard extends HookConsumerWidget {
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapAdminBlindDate;
   final VoidCallback onTapAdminFeedback;
+  final VoidCallback onTapUserFeedback;
   final VoidCallback onTapMarket;
   final VoidCallback onTapCalendar;
   final VoidCallback onTapTimetable;
@@ -21,6 +23,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.onTapAdminReport,
     required this.onTapAdminBlindDate,
     required this.onTapAdminFeedback,
+    required this.onTapUserFeedback,
     required this.onTapMarket,
     required this.onTapCalendar,
     required this.onTapTimetable,
@@ -128,33 +131,61 @@ class LoggedInUserCard extends HookConsumerWidget {
             children: [
               Column(
                 children: [
-                  _myActivityItem(
+                  MyActivityItem(
                     label: '개설한 모집글',
                     onTap: () => onTapRecruit(false),
                   ),
-                  _myActivityItem(
+                  MyActivityItem(
                     label: '지원한 모집글',
                     onTap: () => onTapRecruit(true),
                   ),
-                  _myActivityItem(
+                  MyActivityItem(
                     label: '장터 내역',
                     onTap: onTapMarket,
                   ),
-                  _myActivityItem(
+                  MyActivityItem(
                     label: '차단 관리',
                     onTap: onTapBlockedUser,
                   ),
                   // 관리자
                   if (user.role == 'ADMIN') ...[
-                    _myActivityItem(
+                    MyActivityItem(
                       label: '신고 관리',
                       onTap: onTapAdminReport,
                     ),
-                    _myActivityItem(
+                    MyActivityItem(
                       label: '과팅 오픈',
                       onTap: onTapAdminBlindDate,
                     ),
-                    _myActivityItem(
+                  ],
+                ],
+              )
+            ],
+          ),
+        ),
+        SizedBox(height: 16),
+
+        Container(
+          width: double.infinity,
+          decoration: ShapeDecoration(
+              color: ColorStyles.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  MyActivityItem(
+                    label: '피드백 하러가기',
+                    onTap: onTapUserFeedback,
+                  ),
+                  // 관리자
+                  if (user.role == 'ADMIN') ...[
+                    MyActivityItem(
                       label: '사용자 피드백 결과',
                       onTap: onTapAdminFeedback,
                     ),
@@ -164,7 +195,6 @@ class LoggedInUserCard extends HookConsumerWidget {
             ],
           ),
         ),
-        SizedBox(height: 16,),
       ],
     );
   }
@@ -199,40 +229,6 @@ class LoggedInUserCard extends HookConsumerWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _myActivityItem({
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      hoverColor: Colors.transparent,
-      focusColor: Colors.transparent,
-      child: SizedBox(
-        width: double.infinity,
-        height: 44,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              label,
-              style: TextStyles.normalTextRegular.copyWith(
-                color: ColorStyles.black,
-              ),
-            ),
-            const Icon(
-              Icons.chevron_right,
-              size: 24,
-              color: ColorStyles.black,
-            ),
-          ],
         ),
       ),
     );
