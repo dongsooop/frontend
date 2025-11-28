@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/restaurants/enum/restaurants_tag.dart';
 import 'package:dongsoop/presentation/restaurants/widgets/restaurants_list.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -21,14 +22,15 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     final user = ref.watch(userSessionProvider);
+    final isLogin = user != null ? true : false;
+
     final viewModel = ref.read(restaurantsSearchViewModelProvider.notifier);
     final state = ref.watch(restaurantsSearchViewModelProvider);
 
     final searchTextController = useTextEditingController();
+    final searchFocusNode = useFocusNode();
     final tags = RestaurantsTag.values;
     final selectedTag = useState<RestaurantsTag?>(null);
-
-    final hasRestaurants = state.restaurants?.isNotEmpty == true;
 
     useEffect(() {
       if (state.errorMessage != null) {
@@ -39,7 +41,8 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
             builder: (_) => CustomConfirmDialog(
               title: '맛집 추천 오류',
               content: state.errorMessage!,
-              onConfirm: () {},
+              onConfirm: () => context.pop(),
+              onCancel: () => context.pop(),
             ),
           );
         });
@@ -47,55 +50,112 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
       return null;
     }, [state.errorMessage]);
 
+    useEffect(() {
+      final tag = selectedTag.value;
+      if (tag != null) {
+        final text = tag.label;
+        searchTextController.value = TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: text.length),
+        );
+      }
+      return null;
+    }, [selectedTag.value]);
+
     return Scaffold(
       backgroundColor: ColorStyles.white,
       appBar: _searchBar(
         context: context,
         onTap: () async {
-          // TODO: 검색 API 연결
-          print('search API');
+          searchFocusNode.unfocus();
+          await viewModel.search(
+            isLogin: isLogin,
+            search: searchTextController.text.trim()
+          );
         },
         textController: searchTextController,
+        searchFocusNode: searchFocusNode,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16,
-            children: [
-              if (!hasRestaurants) ...[
-                SizedBox(height: 16,),
-                Text(
-                  '어떤 가게를 찾고 있나요?',
-                  style: TextStyles.normalTextRegular.copyWith(
-                    color: ColorStyles.black,
-                  ),
-                ),
-                _searchTag(
-                  tags: tags,
-                  selectedTag: selectedTag.value,
-                  onTagTap: (tag) async {
-                    selectedTag.value = tag;
-                    // TODO: 태그로 검색
-                    print('selected tag: $tag');
-                    await viewModel.search();
-                  },
-                ),
-              ],
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: state.isLoading
+            ? const Center(
+              child: CircularProgressIndicator(color: ColorStyles.primaryColor),
+            )
+            : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 16,
+              children: [
 
-              // 카드 리스트
-              if (hasRestaurants)
-              Expanded(
-                child:  RestaurantList(
-                  data: state.restaurants ?? [],
-                  onTapLike: (id, likedByMe) async {
-                    await viewModel.like(id, likedByMe);
-                  },
-                ),
-              ),
-            ],
+                if (state.isNoSearchResult == null) ...[
+                  SizedBox(height: 16,),
+                  Text(
+                    '어떤 가게를 찾고 있나요?',
+                    style: TextStyles.normalTextRegular.copyWith(
+                      color: ColorStyles.black,
+                    ),
+                  ),
+                  _searchTag(
+                    tags: tags,
+                    selectedTag: selectedTag.value,
+                    onTagTap: (tag) async {
+                      selectedTag.value = tag;
+                      searchFocusNode.unfocus();
+                      await viewModel.search(
+                        isLogin: isLogin,
+                        search: tag.label,
+                      );
+                    },
+                  ),
+                ],
+
+                if (state.isNoSearchResult == true) ...[
+                  SizedBox(height: 8,),
+                  Text(
+                    '해당 가게는 아직 등록되지 않았어요',
+                    style: TextStyles.normalTextRegular.copyWith(
+                      color: ColorStyles.black,
+                    ),
+                  ),
+                  _searchTag(
+                    tags: tags,
+                    selectedTag: selectedTag.value,
+                    onTagTap: (tag) async {
+                      selectedTag.value = tag;
+                      await viewModel.search(
+                        isLogin: isLogin,
+                        search: tag.label,
+                      );
+                    },
+                  ),
+                ],
+
+                // 카드 리스트
+                if (state.isNoSearchResult == false)
+                  Expanded(
+                    child: RestaurantList(
+                      data: state.restaurants ?? [],
+                      onTapLike: (id, likedByMe) async {
+                        if (user == null) {
+                          LoginRequiredDialog(context);
+                        } else {
+                          await viewModel.like(id, likedByMe);
+                        }
+                      },
+                      onLoadMore: () async {
+                        await viewModel.loadNextPage(
+                          isLogin: isLogin,
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -163,6 +223,7 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
     required BuildContext context,
     required VoidCallback onTap,
     required TextEditingController textController,
+    required FocusNode searchFocusNode,
   }) {
     return PreferredSize(
       preferredSize: const Size.fromHeight(96),
@@ -193,6 +254,8 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
                     alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: TextFormField(
+                      focusNode: searchFocusNode,
+                      onFieldSubmitted: (_) => onTap(),
                       maxLines: 1,
                       keyboardType: TextInputType.emailAddress,
                       controller: textController,

@@ -94,7 +94,7 @@ class RestaurantsWriteScreen extends HookConsumerWidget {
             state.checkDuplication == false
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
           child: Column(
             spacing: 16,

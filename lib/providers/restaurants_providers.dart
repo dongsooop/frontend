@@ -5,6 +5,7 @@ import 'package:dongsoop/domain/restaurants/repository/restaurants_repository.da
 import 'package:dongsoop/domain/restaurants/use_case/check_restaurants_duplication_use_case.dart';
 import 'package:dongsoop/domain/restaurants/use_case/create_restaurants_use_case.dart';
 import 'package:dongsoop/domain/restaurants/use_case/get_restaurants_use_case.dart';
+import 'package:dongsoop/domain/restaurants/use_case/get_search_restaurants_use_case.dart';
 import 'package:dongsoop/domain/restaurants/use_case/search_kakao_use_case.dart';
 import 'package:dongsoop/domain/restaurants/use_case/send_restaurant_like_use_case.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_state.dart';
@@ -60,6 +61,11 @@ final sendRestaurantLikeUseCaseProvider = Provider<SendRestaurantLikeUseCase>((r
   return SendRestaurantLikeUseCase(repository);
 });
 
+final getSearchRestaurantsUseCaseProvider = Provider<GetSearchRestaurantsUseCase>((ref) {
+  final repository = ref.watch(restaurantsRepositoryProvider);
+  return GetSearchRestaurantsUseCase(repository);
+});
+
 // View Model
 final restaurantsViewModelProvider =
 StateNotifierProvider.autoDispose<RestaurantsViewModel, RestaurantsState>((ref) {
@@ -86,7 +92,8 @@ StateNotifierProvider.autoDispose<SearchKakaoViewModel, SearchKakaoState>((ref) 
 
 final restaurantsSearchViewModelProvider =
 StateNotifierProvider.autoDispose<RestaurantsSearchViewModel, RestaurantsSearchState>((ref) {
+  final getSearchRestaurantsUseCase = ref.watch(getSearchRestaurantsUseCaseProvider);
   final sendRestaurantLikeUseCase = ref.watch(sendRestaurantLikeUseCaseProvider);
 
-  return RestaurantsSearchViewModel(sendRestaurantLikeUseCase);
+  return RestaurantsSearchViewModel(getSearchRestaurantsUseCase, sendRestaurantLikeUseCase);
 });

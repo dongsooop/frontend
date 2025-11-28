@@ -11,6 +11,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class RestaurantScreen extends HookConsumerWidget {
@@ -54,7 +55,8 @@ class RestaurantScreen extends HookConsumerWidget {
             builder: (_) => CustomConfirmDialog(
               title: '맛집 추천 오류',
               content: state.errorMessage!,
-              onConfirm: () {},
+              onConfirm: () => context.pop(),
+              onCancel: () => context.pop(),
             ),
           );
         });
@@ -150,7 +152,11 @@ class RestaurantScreen extends HookConsumerWidget {
                     return RestaurantList(
                       data: restaurants,
                       onTapLike: (id, likedByMe) async {
-                        await viewModel.like(id, likedByMe);
+                        if (user == null) {
+                          LoginRequiredDialog(context);
+                        } else {
+                          await viewModel.like(id, likedByMe);
+                        }
                       },
                       onLoadMore: () async {
                         await viewModel.loadNextPage(category: category);

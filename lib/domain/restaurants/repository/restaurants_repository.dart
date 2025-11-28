@@ -13,4 +13,10 @@ abstract class RestaurantsRepository {
     int size,
   });
   Future<bool> like(int id, bool likedByMe);
+  Future<List<Restaurant>?> search({
+    required bool isLogin,
+    required String search,
+    required int page,
+    int size,
+  });
 }

@@ -145,4 +145,42 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
       rethrow;
     }
   }
+
+  @override
+  Future<List<Restaurant>?> search({
+    required bool isLogin,
+    required String search,
+    required int page,
+    int size = 20,
+  }) async {
+    final endpoint = dotenv.get('RESTAURANTS_SEARCH');
+    final queryParams = {
+      'page': page,
+      'size': size,
+      'keyword': search,
+    };
+
+    try {
+      final response = isLogin
+        ? await _authDio.get(
+            endpoint,
+            queryParameters: queryParams,
+          )
+        : await _plainDio.get(
+            endpoint,
+            queryParameters: queryParams,
+          );
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<dynamic> data = response.data['results'];
+
+        final List<Restaurant> reports = data.map((e) => Restaurant.fromJson(e as Map<String, dynamic>)).toList();
+
+        return reports;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      print('error: $e');
+      rethrow;
+    }
+  }
 }

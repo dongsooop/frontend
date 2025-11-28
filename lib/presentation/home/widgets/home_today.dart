@@ -195,38 +195,10 @@ class HomeToday extends HookConsumerWidget {
           GestureDetector(
             onTap: () => context.goNamed('restaurants'),
             behavior: HitTestBehavior.opaque,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: ColorStyles.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '맛집 추천',
-                          style: TextStyles.smallTextRegular.copyWith(
-                            color: ColorStyles.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 24),
-                    child: Icon(
-                      Icons.chevron_right,
-                      size: 24,
-                      color: ColorStyles.gray3,
-                    ),
-                  ),
-                ],
-              ),
+            child: Image.asset(
+              'assets/images/restaurant_banner.png',
+              width: double.infinity,
+              fit: BoxFit.cover,
             ),
           ),
           GestureDetector(

@@ -42,4 +42,19 @@ class RestaurantsRepositoryImpl implements RestaurantsRepository{
   Future<bool> like(int id, bool likedByMe) async {
     return await _reportDataSource.like(id, likedByMe);
   }
+
+  @override
+  Future<List<Restaurant>?> search({
+    required bool isLogin,
+    required String search,
+    required int page,
+    int size = 20,
+  }) async {
+    return await _reportDataSource.search(
+      isLogin: isLogin,
+      search: search,
+      page: page,
+      size: size
+    );
+  }
 }

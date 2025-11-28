@@ -54,39 +54,43 @@ class SearchKakaoScreen extends HookConsumerWidget {
         title: '학교 근처 맛집 추천',
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            spacing: 24,
-            children: [
-              // 가게 검색(카카오 API 사용)
-              _searchField(
-                textController: restaurantsController,
-              ),
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              spacing: 24,
+              children: [
+                // 가게 검색(카카오 API 사용)
+                _searchField(
+                  textController: restaurantsController,
+                ),
 
-              // 가게 리스트
-              Expanded(
-                child: state.result == null || state.result!.isEmpty
-                ? SizedBox()
-                : ListView.builder(
-                  itemCount: state.result!.length,
-                  itemBuilder: (context, index) {
-                    final restaurant = state.result![index];
+                // 가게 리스트
+                Expanded(
+                  child: state.result == null || state.result!.isEmpty
+                  ? SizedBox()
+                  : ListView.builder(
+                    itemCount: state.result!.length,
+                    itemBuilder: (context, index) {
+                      final restaurant = state.result![index];
 
-                    return GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () async {
-                        context.pop(restaurant);
-                      },
-                      child: _searchInfoCard(
-                        title: restaurant.place_name,
-                        address: restaurant.road_address_name,
-                      ),
-                    );
-                  },
-                )
-              ),
-            ],
+                      return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () async {
+                          context.pop(restaurant);
+                        },
+                        child: _searchInfoCard(
+                          title: restaurant.place_name,
+                          address: restaurant.road_address_name,
+                        ),
+                      );
+                    },
+                  )
+                ),
+              ],
+            ),
           ),
         ),
       ),

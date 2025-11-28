@@ -34,10 +34,10 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
         size: 20,
       );
 
-      // print('조회 수: ${result?.length ?? 0}');
-      // (result ?? []).asMap().forEach((index, r) {
-      //   print('[$index] $r');
-      // });
+      print('조회 수: ${result?.length ?? 0}');
+      (result ?? []).asMap().forEach((index, r) {
+        print('[$index] $r');
+      });
 
       _pageByCategory[category] = 0;
       _hasNextByCategory[category] = (result?.length ?? 0) == 20;
@@ -69,6 +69,11 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
         page: nextPage,
         size: 20,
       );
+
+      print('페이징 조회 수: ${result?.length ?? 0}');
+      (result ?? []).asMap().forEach((index, r) {
+        print('[$index] $r');
+      });
 
       _pageByCategory[category] = nextPage;
       _hasNextByCategory[category] = (result?.length ?? 0) == 20;
