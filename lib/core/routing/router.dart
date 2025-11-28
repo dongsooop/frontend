@@ -20,6 +20,8 @@ import 'package:dongsoop/presentation/restaurants/restaurants_screen.dart';
 import 'package:dongsoop/presentation/restaurants/search/restaurants_search_screen.dart';
 import 'package:dongsoop/presentation/restaurants/write/restaurants_write_screen.dart';
 import 'package:dongsoop/presentation/restaurants/write/search_kakao_screen.dart';
+import 'package:dongsoop/presentation/my_page/feedback/feedback_result_screen.dart';
+import 'package:dongsoop/presentation/my_page/feedback/user_feedback_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_detail_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
@@ -35,10 +37,8 @@ import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
-import 'package:dongsoop/presentation/setting/feedback/feedback_more_screen.dart';
-import 'package:dongsoop/presentation/setting/feedback/feedback_result_screen.dart';
+import 'package:dongsoop/presentation/my_page/feedback/feedback_more_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
-import 'package:dongsoop/presentation/setting/feedback/user_feedback_screen.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_screen.dart';
@@ -702,6 +702,9 @@ final router = GoRouter(
                 context.push(RoutePaths.mypageRecruit, extra: {
                   'isApply': isApply,
                 });
+              },
+              onTapUserFeedback: () {
+                context.push(RoutePaths.userFeedback);
               },
               onTapAdminReport: () {
                 context.push(RoutePaths.adminReport);
