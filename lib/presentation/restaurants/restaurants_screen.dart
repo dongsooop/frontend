@@ -35,16 +35,16 @@ class RestaurantScreen extends HookConsumerWidget {
     final pageController = usePageController(initialPage: 0);
 
     final user = ref.watch(userSessionProvider);
+    final isLogin = user != null ? true : false;
     final viewModel = ref.read(restaurantsViewModelProvider.notifier);
     final state = ref.watch(restaurantsViewModelProvider);
 
-    // 첫 진입 시 전체 조회
     useEffect(() {
       Future.microtask(() async {
-        await viewModel.loadRestaurants();
+        await viewModel.loadRestaurants(isLogin: isLogin);
       });
       return null;
-    }, []);
+    }, [user]);
 
     useEffect(() {
       if (state.errorMessage != null) {
@@ -74,6 +74,7 @@ class RestaurantScreen extends HookConsumerWidget {
             final result = await onTapRestaurantsWrite();
             if (result == true) {
               await viewModel.loadRestaurants(
+                isLogin: isLogin,
                 category: selectedCategory,
               );
             }
@@ -121,7 +122,7 @@ class RestaurantScreen extends HookConsumerWidget {
                         selectedIndex.value = index;
                         final category = categories[index];
                         // 카테고리별 조회
-                        await viewModel.loadRestaurants(category: category);
+                        await viewModel.loadRestaurants(isLogin: isLogin, category: category);
                         pageController.jumpToPage(index);
                       },
                     );
@@ -137,7 +138,7 @@ class RestaurantScreen extends HookConsumerWidget {
                   onPageChanged: (index) async {
                     selectedIndex.value = index;
                     final category = categories[index];
-                    await viewModel.loadRestaurants(category: category);
+                    await viewModel.loadRestaurants(isLogin: isLogin, category: category);
                   },
                   itemBuilder: (context, index) {
                     final category = categories[index];
@@ -155,11 +156,14 @@ class RestaurantScreen extends HookConsumerWidget {
                         if (user == null) {
                           LoginRequiredDialog(context);
                         } else {
-                          await viewModel.like(id, likedByMe);
+                          await viewModel.like(
+                            id: id,
+                            likedByMe: likedByMe,
+                          );
                         }
                       },
                       onLoadMore: () async {
-                        await viewModel.loadNextPage(category: category);
+                        await viewModel.loadNextPage(isLogin: isLogin, category: category);
                       },
                     );
                   },

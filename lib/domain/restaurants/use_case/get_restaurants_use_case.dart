@@ -8,11 +8,13 @@ class GetRestaurantsUseCase {
   GetRestaurantsUseCase(this._restaurantsRepository,);
 
   Future<List<Restaurant>?> execute({
+    required bool isLogin,
     RestaurantsCategory? category,
     required int page,
     int size = 20,
   }) async {
     return await _restaurantsRepository.getRestaurants(
+      isLogin: isLogin,
       category: category,
       page: page,
       size: size,

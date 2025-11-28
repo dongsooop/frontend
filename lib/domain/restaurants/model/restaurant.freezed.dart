@@ -19,10 +19,9 @@ mixin _$Restaurant {
   int get distance;
   int get likeCount;
   List<RestaurantsTag>? get tags;
-  String get externalMapId;
   String get category;
   String? get placeUrl;
-  bool get likedByMe;
+  bool get isLikedByMe;
 
   /// Create a copy of Restaurant
   /// with the given fields replaced by the non-null parameter values.
@@ -43,14 +42,12 @@ mixin _$Restaurant {
             (identical(other.likeCount, likeCount) ||
                 other.likeCount == likeCount) &&
             const DeepCollectionEquality().equals(other.tags, tags) &&
-            (identical(other.externalMapId, externalMapId) ||
-                other.externalMapId == externalMapId) &&
             (identical(other.category, category) ||
                 other.category == category) &&
             (identical(other.placeUrl, placeUrl) ||
                 other.placeUrl == placeUrl) &&
-            (identical(other.likedByMe, likedByMe) ||
-                other.likedByMe == likedByMe));
+            (identical(other.isLikedByMe, isLikedByMe) ||
+                other.isLikedByMe == isLikedByMe));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -62,14 +59,13 @@ mixin _$Restaurant {
       distance,
       likeCount,
       const DeepCollectionEquality().hash(tags),
-      externalMapId,
       category,
       placeUrl,
-      likedByMe);
+      isLikedByMe);
 
   @override
   String toString() {
-    return 'Restaurant(id: $id, name: $name, distance: $distance, likeCount: $likeCount, tags: $tags, externalMapId: $externalMapId, category: $category, placeUrl: $placeUrl, likedByMe: $likedByMe)';
+    return 'Restaurant(id: $id, name: $name, distance: $distance, likeCount: $likeCount, tags: $tags, category: $category, placeUrl: $placeUrl, isLikedByMe: $isLikedByMe)';
   }
 }
 
@@ -85,10 +81,9 @@ abstract mixin class $RestaurantCopyWith<$Res> {
       int distance,
       int likeCount,
       List<RestaurantsTag>? tags,
-      String externalMapId,
       String category,
       String? placeUrl,
-      bool likedByMe});
+      bool isLikedByMe});
 }
 
 /// @nodoc
@@ -108,10 +103,9 @@ class _$RestaurantCopyWithImpl<$Res> implements $RestaurantCopyWith<$Res> {
     Object? distance = null,
     Object? likeCount = null,
     Object? tags = freezed,
-    Object? externalMapId = null,
     Object? category = null,
     Object? placeUrl = freezed,
-    Object? likedByMe = null,
+    Object? isLikedByMe = null,
   }) {
     return _then(Restaurant(
       id: null == id
@@ -134,10 +128,6 @@ class _$RestaurantCopyWithImpl<$Res> implements $RestaurantCopyWith<$Res> {
           ? _self.tags
           : tags // ignore: cast_nullable_to_non_nullable
               as List<RestaurantsTag>?,
-      externalMapId: null == externalMapId
-          ? _self.externalMapId
-          : externalMapId // ignore: cast_nullable_to_non_nullable
-              as String,
       category: null == category
           ? _self.category
           : category // ignore: cast_nullable_to_non_nullable
@@ -146,9 +136,9 @@ class _$RestaurantCopyWithImpl<$Res> implements $RestaurantCopyWith<$Res> {
           ? _self.placeUrl
           : placeUrl // ignore: cast_nullable_to_non_nullable
               as String?,
-      likedByMe: null == likedByMe
-          ? _self.likedByMe
-          : likedByMe // ignore: cast_nullable_to_non_nullable
+      isLikedByMe: null == isLikedByMe
+          ? _self.isLikedByMe
+          : isLikedByMe // ignore: cast_nullable_to_non_nullable
               as bool,
     ));
   }

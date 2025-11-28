@@ -23,21 +23,20 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
   bool _isLoadingMore = false;
 
   Future<void> loadRestaurants({
+    required bool isLogin,
     RestaurantsCategory? category,
   }) async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
       final result = await _getRestaurantsUseCase.execute(
+        isLogin: isLogin,
         category: category,
         page: 0,
         size: 20,
       );
-
-      print('조회 수: ${result?.length ?? 0}');
-      (result ?? []).asMap().forEach((index, r) {
-        print('[$index] $r');
-      });
+      if (!mounted) return;
 
       _pageByCategory[category] = 0;
       _hasNextByCategory[category] = (result?.length ?? 0) == 20;
@@ -54,7 +53,11 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
     }
   }
 
-  Future<void> loadNextPage({RestaurantsCategory? category}) async {
+  Future<void> loadNextPage({
+    required bool isLogin,
+    RestaurantsCategory? category
+  }) async {
+    if (!mounted) return;
     if (_isLoadingMore) return;
     // 더 불러올 게 없으면 종료
     if (_hasNextByCategory[category] == false) return;
@@ -65,15 +68,12 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
       final nextPage = currentPage + 1;
 
       final result = await _getRestaurantsUseCase.execute(
+        isLogin: isLogin,
         category: category,
         page: nextPage,
         size: 20,
       );
-
-      print('페이징 조회 수: ${result?.length ?? 0}');
-      (result ?? []).asMap().forEach((index, r) {
-        print('[$index] $r');
-      });
+      if (!mounted) return;
 
       _pageByCategory[category] = nextPage;
       _hasNextByCategory[category] = (result?.length ?? 0) == 20;
@@ -92,11 +92,17 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
     }
   }
 
-  Future<void> like(int id, bool likedByMe) async {
+  Future<void> like({
+    required int id,
+    required bool likedByMe,
+  }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final result = await _sendRestaurantLikeUseCase.execute(id, likedByMe);
+      final result = await _sendRestaurantLikeUseCase.execute(
+        id: id,
+        likedByMe: likedByMe,
+      );
       if (!result) return;
 
       final current = state.restaurants ?? [];
@@ -107,7 +113,7 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
         final newCount = newLiked ? r.likeCount + 1 : r.likeCount - 1;
 
         return r.copyWith(
-          likedByMe: newLiked,
+          isLikedByMe: newLiked,
           likeCount: newCount < 0 ? 0 : newCount,
         );
       }).toList();

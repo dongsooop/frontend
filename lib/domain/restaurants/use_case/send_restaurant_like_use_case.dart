@@ -5,7 +5,13 @@ class SendRestaurantLikeUseCase {
 
   SendRestaurantLikeUseCase(this._restaurantsRepository,);
 
-  Future<bool> execute(int id, bool likedByMe) async {
-    return await _restaurantsRepository.like(id, likedByMe);
+  Future<bool> execute({
+    required int id,
+    required bool likedByMe,
+  }) async {
+    return await _restaurantsRepository.like(
+      id: id,
+      likedByMe: likedByMe,
+    );
   }
 }

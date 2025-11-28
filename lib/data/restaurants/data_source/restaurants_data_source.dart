@@ -8,11 +8,15 @@ abstract class RestaurantsDataSource {
   Future<bool> checkRestaurantsDuplication(String externalMapId);
   Future<bool> restaurantsRegister(RestaurantsRequest request);
   Future<List<Restaurant>?> getRestaurants({
+    required bool isLogin,
     RestaurantsCategory? category,
     required int page,
     int size,
   });
-  Future<bool> like(int id, bool likedByMe);
+  Future<bool> like({
+    required int id,
+    required bool likedByMe,
+  });
   Future<List<Restaurant>?> search({
     required bool isLogin,
     required String search,

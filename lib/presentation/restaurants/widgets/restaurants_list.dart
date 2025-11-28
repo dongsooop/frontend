@@ -109,10 +109,10 @@ class RestaurantCard extends StatelessWidget {
                   onTap: () async {
                     await onTapLike?.call(
                       restaurant.id,
-                      restaurant.likedByMe,
+                      restaurant.isLikedByMe,
                     );
                   },
-                  child: restaurant.likedByMe
+                  child: restaurant.isLikedByMe
                   ? SvgPicture.asset(
                     'assets/icons/favorite.svg',
                     width: 20,

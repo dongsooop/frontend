@@ -14,10 +14,9 @@ Restaurant _$RestaurantFromJson(Map<String, dynamic> json) => Restaurant(
       tags: (json['tags'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$RestaurantsTagEnumMap, e))
           .toList(),
-      externalMapId: json['externalMapId'] as String,
       category: json['category'] as String,
       placeUrl: json['placeUrl'] as String?,
-      likedByMe: json['likedByMe'] as bool,
+      isLikedByMe: json['isLikedByMe'] as bool,
     );
 
 Map<String, dynamic> _$RestaurantToJson(Restaurant instance) =>
@@ -27,10 +26,9 @@ Map<String, dynamic> _$RestaurantToJson(Restaurant instance) =>
       'distance': instance.distance,
       'likeCount': instance.likeCount,
       'tags': instance.tags?.map((e) => _$RestaurantsTagEnumMap[e]!).toList(),
-      'externalMapId': instance.externalMapId,
       'category': instance.category,
       'placeUrl': instance.placeUrl,
-      'likedByMe': instance.likedByMe,
+      'isLikedByMe': instance.isLikedByMe,
     };
 
 const _$RestaurantsTagEnumMap = {

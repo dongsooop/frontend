@@ -27,11 +27,13 @@ class RestaurantsRepositoryImpl implements RestaurantsRepository{
 
   @override
   Future<List<Restaurant>?> getRestaurants({
+    required bool isLogin,
     RestaurantsCategory? category,
     required int page,
     int size = 20,
   }) async {
     return await _reportDataSource.getRestaurants(
+      isLogin: isLogin,
       category: category,
       page: page,
       size: size,
@@ -39,8 +41,14 @@ class RestaurantsRepositoryImpl implements RestaurantsRepository{
   }
 
   @override
-  Future<bool> like(int id, bool likedByMe) async {
-    return await _reportDataSource.like(id, likedByMe);
+  Future<bool> like({
+    required int id,
+    required bool likedByMe,
+  }) async {
+    return await _reportDataSource.like(
+      id: id,
+      likedByMe: likedByMe,
+    );
   }
 
   @override

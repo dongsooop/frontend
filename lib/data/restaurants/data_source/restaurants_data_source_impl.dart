@@ -3,6 +3,7 @@ import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/restaurants/data_source/restaurants_data_source.dart';
 import 'package:dio/dio.dart';
 import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
+import 'package:dongsoop/domain/restaurants/enum/restaurants_tag.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_request.dart';
@@ -94,6 +95,7 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
 
   @override
   Future<List<Restaurant>?> getRestaurants({
+    required bool isLogin,
     RestaurantsCategory? category,
     required int page,
     int size = 20,
@@ -106,10 +108,15 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
     };
 
     try {
-      final response = await _plainDio.get(
-        endpoint,
-        queryParameters: queryParams,
-      );
+      final response = isLogin
+      ? await _authDio.get(
+          endpoint,
+          queryParameters: queryParams,
+        )
+      : await _plainDio.get(
+          endpoint,
+          queryParameters: queryParams,
+        );
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
 
@@ -125,7 +132,10 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
   }
 
   @override
-  Future<bool> like(int id, bool likedByMe) async {
+  Future<bool> like({
+    required int id,
+    required bool likedByMe,
+  }) async {
     final restaurant = dotenv.get('RESTAURANT');
     final like = dotenv.get('RESTAURANT_LIKE');
     final endpoint = restaurant + '/$id' + like;
@@ -170,10 +180,23 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
             endpoint,
             queryParameters: queryParams,
           );
+
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data['results'];
 
-        final List<Restaurant> reports = data.map((e) => Restaurant.fromJson(e as Map<String, dynamic>)).toList();
+        final List<Restaurant> reports = data.map((e) {
+          final json = Map<String, dynamic>.from(e as Map<String, dynamic>);
+
+          final tagsDynamic = json['tags'] as List<dynamic>?;
+          final tags = tagsDynamic
+              ?.map((t) => _tagFromString(t as String))
+              .whereType<RestaurantsTag>()
+              .toList();
+
+          json['tags'] = tags?.map((t) => t.name).toList();
+
+          return Restaurant.fromJson(json);
+        }).toList();
 
         return reports;
       }
@@ -181,6 +204,20 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
     } catch (e) {
       print('error: $e');
       rethrow;
+    }
+  }
+
+  RestaurantsTag? _tagFromString(String value) {
+    try {
+      return RestaurantsTag.values.byName(value);
+    } catch (_) {
+      try {
+        return RestaurantsTag.values.firstWhere(
+          (tag) => tag.label == value,
+        );
+      } catch (_) {
+        return null;
+      }
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'package:dongsoop/domain/restaurants/use_case/get_search_restaurants_use_case.dart';
 import 'package:dongsoop/domain/restaurants/use_case/send_restaurant_like_use_case.dart';
 import 'package:dongsoop/presentation/restaurants/search/restaurants_search_state.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RestaurantsSearchViewModel extends StateNotifier<RestaurantsSearchState>{
@@ -35,7 +34,6 @@ class RestaurantsSearchViewModel extends StateNotifier<RestaurantsSearchState>{
         search: search,
         page: 0,
       );
-
       final list = result ?? [];
 
       state = state.copyWith(
@@ -47,7 +45,7 @@ class RestaurantsSearchViewModel extends StateNotifier<RestaurantsSearchState>{
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '가게 정보 검색 중 오류가 발생했습니다.\n$e',
+        errorMessage: '가게 정보 검색 중 오류가 발생했습니다.',
       );
     }
   }
@@ -66,7 +64,6 @@ class RestaurantsSearchViewModel extends StateNotifier<RestaurantsSearchState>{
         page: nextPage,
         size: _pageSize,
       );
-
       final list = result ?? [];
 
       _hasNextPage = list.length == _pageSize;
@@ -81,16 +78,22 @@ class RestaurantsSearchViewModel extends StateNotifier<RestaurantsSearchState>{
       );
     } catch (e) {
       state = state.copyWith(
-        errorMessage: '가게 정보 검색 중 오류가 발생했습니다.\n$e',
+        errorMessage: '가게 정보 검색 중 오류가 발생했습니다.',
       );
     }
   }
 
-  Future<void> like(int id, bool likedByMe) async {
+  Future<void> like({
+    required int id,
+    required bool likedByMe,
+  }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final result = await _sendRestaurantLikeUseCase.execute(id, likedByMe);
+      final result = await _sendRestaurantLikeUseCase.execute(
+        id: id,
+        likedByMe: likedByMe,
+      );
       if (!result) return;
 
       final current = state.restaurants ?? [];
@@ -101,7 +104,7 @@ class RestaurantsSearchViewModel extends StateNotifier<RestaurantsSearchState>{
         final newCount = newLiked ? r.likeCount + 1 : r.likeCount - 1;
 
         return r.copyWith(
-          likedByMe: newLiked,
+          isLikedByMe: newLiked,
           likeCount: newCount < 0 ? 0 : newCount,
         );
       }).toList();

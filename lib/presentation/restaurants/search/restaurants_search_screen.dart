@@ -80,82 +80,111 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: state.isLoading
-            ? const Center(
-              child: CircularProgressIndicator(color: ColorStyles.primaryColor),
-            )
-            : Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 16,
-              children: [
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 16,
+                  children: [
 
-                if (state.isNoSearchResult == null) ...[
-                  SizedBox(height: 16,),
-                  Text(
-                    '어떤 가게를 찾고 있나요?',
-                    style: TextStyles.normalTextRegular.copyWith(
-                      color: ColorStyles.black,
+                    if (state.isNoSearchResult == null) ...[
+                      SizedBox(height: 16,),
+                      Text(
+                        '어떤 가게를 찾고 있나요?',
+                        style: TextStyles.normalTextRegular.copyWith(
+                          color: ColorStyles.black,
+                        ),
+                      ),
+                      _searchTag(
+                        tags: tags,
+                        selectedTag: selectedTag.value,
+                        onTagTap: (tag) async {
+                          selectedTag.value = tag;
+                          searchFocusNode.unfocus();
+                          await viewModel.search(
+                            isLogin: isLogin,
+                            search: tag.label,
+                          );
+                        },
+                      ),
+                    ],
+
+                    if (state.isNoSearchResult == true) ...[
+                      SizedBox(height: 8,),
+                      Text(
+                        '해당 가게는 아직 등록되지 않았어요',
+                        style: TextStyles.normalTextRegular.copyWith(
+                          color: ColorStyles.black,
+                        ),
+                      ),
+                      _searchTag(
+                        tags: tags,
+                        selectedTag: selectedTag.value,
+                        onTagTap: (tag) async {
+                          selectedTag.value = tag;
+                          await viewModel.search(
+                            isLogin: isLogin,
+                            search: tag.label,
+                          );
+                        },
+                      ),
+                    ],
+
+                    // 카드 리스트
+                    if (state.isNoSearchResult == false)
+                      Expanded(
+                        child: RestaurantList(
+                          data: state.restaurants ?? [],
+                          onTapLike: (id, likedByMe) async {
+                            if (user == null) {
+                              LoginRequiredDialog(context);
+                            } else {
+                              await viewModel.like(
+                                id: id,
+                                likedByMe: likedByMe,
+                              );
+                            }
+                          },
+                          onLoadMore: () async {
+                            await viewModel.loadNextPage(
+                              isLogin: isLogin,
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              if (state.isLoading)
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: ColorStyles.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: CircularProgressIndicator(
+                        color: ColorStyles.primaryColor,
+                        strokeWidth: 3,
+                      ),
                     ),
                   ),
-                  _searchTag(
-                    tags: tags,
-                    selectedTag: selectedTag.value,
-                    onTagTap: (tag) async {
-                      selectedTag.value = tag;
-                      searchFocusNode.unfocus();
-                      await viewModel.search(
-                        isLogin: isLogin,
-                        search: tag.label,
-                      );
-                    },
-                  ),
-                ],
-
-                if (state.isNoSearchResult == true) ...[
-                  SizedBox(height: 8,),
-                  Text(
-                    '해당 가게는 아직 등록되지 않았어요',
-                    style: TextStyles.normalTextRegular.copyWith(
-                      color: ColorStyles.black,
-                    ),
-                  ),
-                  _searchTag(
-                    tags: tags,
-                    selectedTag: selectedTag.value,
-                    onTagTap: (tag) async {
-                      selectedTag.value = tag;
-                      await viewModel.search(
-                        isLogin: isLogin,
-                        search: tag.label,
-                      );
-                    },
-                  ),
-                ],
-
-                // 카드 리스트
-                if (state.isNoSearchResult == false)
-                  Expanded(
-                    child: RestaurantList(
-                      data: state.restaurants ?? [],
-                      onTapLike: (id, likedByMe) async {
-                        if (user == null) {
-                          LoginRequiredDialog(context);
-                        } else {
-                          await viewModel.like(id, likedByMe);
-                        }
-                      },
-                      onLoadMore: () async {
-                        await viewModel.loadNextPage(
-                          isLogin: isLogin,
-                        );
-                      },
-                    ),
-                  ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),

@@ -12,10 +12,9 @@ class Restaurant with _$Restaurant {
   final int distance;
   final int likeCount;
   final List<RestaurantsTag>? tags;
-  final String externalMapId;
   final String category;
   final String? placeUrl;
-  final bool likedByMe;
+  final bool isLikedByMe;
 
   const Restaurant({
     required this.id,
@@ -23,10 +22,9 @@ class Restaurant with _$Restaurant {
     required this.distance,
     required this.likeCount,
     required this.tags,
-    required this.externalMapId,
     required this.category,
     this.placeUrl,
-    required this.likedByMe,
+    required this.isLikedByMe,
   });
 
   Map<String, dynamic> toJson() => _$RestaurantToJson(this);
