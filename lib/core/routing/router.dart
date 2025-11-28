@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
@@ -15,6 +16,10 @@ import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_screen.d
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
 import 'package:dongsoop/presentation/home/chatbot/chatbot_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_screen.dart';
+import 'package:dongsoop/presentation/restaurants/restaurants_screen.dart';
+import 'package:dongsoop/presentation/restaurants/search/restaurants_search_screen.dart';
+import 'package:dongsoop/presentation/restaurants/write/restaurants_write_screen.dart';
+import 'package:dongsoop/presentation/restaurants/write/search_kakao_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_result_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/user_feedback_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_detail_page_screen.dart';
@@ -482,17 +487,37 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-        path: RoutePaths.report,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final reportType = extra?['reportType'] as String? ?? '';
-          final targetId = extra?['targetId'] as int? ?? 0;
+      path: RoutePaths.report,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final reportType = extra?['reportType'] as String? ?? '';
+        final targetId = extra?['targetId'] as int? ?? 0;
 
-          return ReportScreen(
-            reportType: reportType,
-            targetId: targetId,
+        return ReportScreen(
+          reportType: reportType,
+          targetId: targetId,
+        );
+      }
+    ),
+    GoRoute(
+      path: RoutePaths.restaurantsWrite,
+      builder: (context, state) => RestaurantsWriteScreen(
+        onTapSearch: () async {
+          final result = await context.push<RestaurantsKakaoInfo> (
+            RoutePaths.restaurantsWriteSearch,
           );
-        }),
+          return result;
+        },
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.restaurantsSearch,
+      builder: (context, state) => RestaurantsSearchScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.restaurantsWriteSearch,
+      builder: (context, state) => SearchKakaoScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return MainScreen(
@@ -549,6 +574,26 @@ final router = GoRouter(
                     return MaterialPage(
                       key: state.pageKey,
                       child: NoticeWebViewScreen(path: path ?? ''),
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: RoutePaths.restaurants,
+                  name: 'restaurants',
+                  pageBuilder: (context, state) {
+                    return MaterialPage(
+                      key: state.pageKey,
+                      child: RestaurantScreen(
+                        onTapRestaurantsWrite: () async {
+                          final result = await context.push<bool>(
+                            RoutePaths.restaurantsWrite,
+                          );
+                          return result;
+                        },
+                        onTapRestaurantsSearch: () {
+                          context.push(RoutePaths.restaurantsSearch);
+                        },
+                      ),
                     );
                   },
                 ),

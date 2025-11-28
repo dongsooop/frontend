@@ -189,67 +189,81 @@ class HomeToday extends HookConsumerWidget {
     }
 
     if (type == _CardType.banner) {
-      return GestureDetector(
-        onTap: () => context.goNamed('libraryWebView'),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: ColorStyles.white,
-            borderRadius: BorderRadius.circular(8),
+      return Column(
+        spacing: 16,
+        children: [
+          GestureDetector(
+            onTap: () => context.goNamed('restaurants'),
+            behavior: HitTestBehavior.opaque,
+            child: Image.asset(
+              'assets/images/restaurant_banner.png',
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 24),
-                child: SvgPicture.asset(
-                  'assets/icons/book.svg',
-                  width: 24,
-                  height: 24,
-                ),
+          GestureDetector(
+            onTap: () => context.goNamed('libraryWebView'),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: ColorStyles.white,
+                borderRadius: BorderRadius.circular(8),
               ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '팀원들과 시너지를 올릴 공간이 필요하신가요?',
-                      style: TextStyles.smallTextRegular.copyWith(
-                        color: ColorStyles.black,
-                      ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 24),
+                    child: SvgPicture.asset(
+                      'assets/icons/book.svg',
+                      width: 24,
+                      height: 24,
                     ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '도서관 스터디룸',
-                            style: TextStyles.smallTextBold.copyWith(
-                              color: ColorStyles.primaryColor,
-                            ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '팀원들과 시너지를 올릴 공간이 필요하신가요?',
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: ColorStyles.black,
                           ),
+                        ),
+                        Text.rich(
                           TextSpan(
-                            text: '을 예약해 보세요',
-                            style: TextStyles.smallTextRegular.copyWith(
-                              color: ColorStyles.black,
-                            ),
+                            children: [
+                              TextSpan(
+                                text: '도서관 스터디룸',
+                                style: TextStyles.smallTextBold.copyWith(
+                                  color: ColorStyles.primaryColor,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '을 예약해 보세요',
+                                style: TextStyles.smallTextRegular.copyWith(
+                                  color: ColorStyles.black,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 24),
+                    child: Icon(
+                      Icons.chevron_right,
+                      size: 24,
+                      color: ColorStyles.gray3,
+                    ),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 24),
-                child: Icon(
-                  Icons.chevron_right,
-                  size: 24,
-                  color: ColorStyles.gray3,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       );
     }
 
