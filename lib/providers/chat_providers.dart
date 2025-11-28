@@ -54,9 +54,6 @@ import 'package:dongsoop/presentation/chat/chat_detail_view_model.dart';
 import 'package:dongsoop/presentation/chat/chat_state.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/subscribe_block_use_case.dart';
 
-
-final aiDioProvider = Provider<Dio>((ref) => createAuthDio(ref: ref, useAi: true));
-
 // stomp
 final stompServiceProvider = Provider<StompService>((ref) {
   final secureStorageService = ref.watch(secureStorageProvider);
