@@ -17,6 +17,7 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapAdminBlindDate;
   final VoidCallback onTapAdminFeedback;
+  final VoidCallback onTapUserFeedback;
   final VoidCallback onTapMarket;
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
@@ -30,6 +31,7 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapAdminReport,
     required this.onTapAdminBlindDate,
     required this.onTapAdminFeedback,
+    required this.onTapUserFeedback,
     required this.onTapMarket,
     required this.onTapRecruit,
     required this.onTapBlockedUser,
@@ -70,14 +72,16 @@ class MyPageScreen extends HookConsumerWidget {
           )
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Container(
+          child: SingleChildScrollView(
+            child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               child: myPageState.when(
                 data: (user) {
                   if (user == null) {
-                    return LoggedOutPromptCard(onTapLogin: onTapSignIn);
+                    return LoggedOutPromptCard(
+                      onTapLogin: onTapSignIn,
+                      onTapUserFeedback: onTapUserFeedback,
+                    );
                   } else {
                     return LoggedInUserCard(
                       user: user,
@@ -89,6 +93,7 @@ class MyPageScreen extends HookConsumerWidget {
                       onTapBlockedUser: onTapBlockedUser,
                       onTapAdminBlindDate: onTapAdminBlindDate,
                       onTapAdminFeedback: onTapAdminFeedback,
+                      onTapUserFeedback: onTapUserFeedback,
                     );
                   }
                 },
@@ -96,7 +101,6 @@ class MyPageScreen extends HookConsumerWidget {
                 loading: () => Center(child: CircularProgressIndicator()),
               ),
             ),
-          ],
         ),
       ),
     );
