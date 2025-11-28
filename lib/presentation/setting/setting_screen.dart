@@ -1,5 +1,6 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/os_notification_providers.dart';
 import 'package:dongsoop/providers/setting_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -19,6 +20,7 @@ class SettingScreen extends HookConsumerWidget {
     final viewModel = ref.read(settingViewModelProvider.notifier);
     final settingState = ref.watch(settingViewModelProvider);
     final osNotifState = ref.watch(osNotificationViewModelProvider);
+    final user = ref.read(userSessionProvider);
 
     const termsOfService =
         'https://zircon-football-529.notion.site/Dongsoop-2333ee6f2561800cb85fdc87fbe9b4c2';
@@ -77,7 +79,7 @@ class SettingScreen extends HookConsumerWidget {
               title: '이용 안내',
               children: [
                 buildSettingsItem(
-                  label: '버전  1.3.0',
+                  label: '버전  1.4.1',
                   onTap: () {},
                 ),
                 buildSettingsItem(
@@ -147,6 +149,7 @@ class SettingScreen extends HookConsumerWidget {
                       }
                     },
                   ),
+                  if (user != null)
                   buildSettingsItem(
                     label: '채팅 캐시 삭제',
                     onTap: () async {
@@ -167,6 +170,7 @@ class SettingScreen extends HookConsumerWidget {
                 ],
               ),
               const SizedBox(height: 40),
+              if (user != null)
               buildSettingsSection(
                 title: '기타',
                 children: [

@@ -16,6 +16,8 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapTimetable;
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapAdminBlindDate;
+  final VoidCallback onTapAdminFeedback;
+  final VoidCallback onTapUserFeedback;
   final VoidCallback onTapMarket;
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
@@ -28,6 +30,8 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapTimetable,
     required this.onTapAdminReport,
     required this.onTapAdminBlindDate,
+    required this.onTapAdminFeedback,
+    required this.onTapUserFeedback,
     required this.onTapMarket,
     required this.onTapRecruit,
     required this.onTapBlockedUser,
@@ -54,8 +58,7 @@ class MyPageScreen extends HookConsumerWidget {
         title: '마이페이지',
         backgroundColor: ColorStyles.gray1,
         showBackButton: false,
-        trailing: user != null
-          ? IconButton(
+        trailing: IconButton(
             onPressed: onTapSetting,
             icon: SvgPicture.asset(
               'assets/icons/setting.svg',
@@ -67,17 +70,18 @@ class MyPageScreen extends HookConsumerWidget {
               ),
             ),
           )
-          : null,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Container(
+          child: SingleChildScrollView(
+            child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               child: myPageState.when(
                 data: (user) {
                   if (user == null) {
-                    return LoggedOutPromptCard(onTapLogin: onTapSignIn);
+                    return LoggedOutPromptCard(
+                      onTapLogin: onTapSignIn,
+                      onTapUserFeedback: onTapUserFeedback,
+                    );
                   } else {
                     return LoggedInUserCard(
                       user: user,
@@ -88,6 +92,8 @@ class MyPageScreen extends HookConsumerWidget {
                       onTapTimetable: onTapTimetable,
                       onTapBlockedUser: onTapBlockedUser,
                       onTapAdminBlindDate: onTapAdminBlindDate,
+                      onTapAdminFeedback: onTapAdminFeedback,
+                      onTapUserFeedback: onTapUserFeedback,
                     );
                   }
                 },
@@ -95,7 +101,6 @@ class MyPageScreen extends HookConsumerWidget {
                 loading: () => Center(child: CircularProgressIndicator()),
               ),
             ),
-          ],
         ),
       ),
     );
