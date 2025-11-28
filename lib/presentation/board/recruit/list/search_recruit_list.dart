@@ -43,10 +43,6 @@ class SearchRecruitItemListSection extends HookConsumerWidget {
           if (state.items.isNotEmpty || state.keyword.isNotEmpty) {
             viewModel.clear();
           }
-        } else {
-          if (state.keyword != q) {
-            viewModel.search(q);
-          }
         }
       });
       return null;
@@ -80,7 +76,11 @@ class SearchRecruitItemListSection extends HookConsumerWidget {
     }
 
     if (!state.isLoading && state.items.isEmpty) {
-      return const Center(child: Text('검색 결과가 없어요'));
+      return Center(child: Text(
+          '검색 결과가 없어요',
+          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
+          textAlign: TextAlign.center),
+      );
     }
 
     return ListView.builder(

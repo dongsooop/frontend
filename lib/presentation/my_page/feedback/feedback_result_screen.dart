@@ -1,8 +1,8 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/feedback/entity/feature_count_entity.dart';
-import 'package:dongsoop/presentation/setting/feedback/view_model/feedback_view_model.dart';
-import 'package:dongsoop/presentation/setting/feedback/widget/feedback_bar_chart.dart';
-import 'package:dongsoop/presentation/setting/feedback/widget/feedback_card.dart';
+import 'package:dongsoop/presentation/my_page/feedback/view_model/feedback_view_model.dart';
+import 'package:dongsoop/presentation/my_page/feedback/widget/feedback_bar_chart.dart';
+import 'package:dongsoop/presentation/my_page/feedback/widget/feedback_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';

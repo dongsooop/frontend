@@ -1,4 +1,4 @@
-import 'package:dongsoop/core/presentation/components/search_bar_with_cancel.dart';
+import 'package:dongsoop/core/presentation/components/search_bar.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -13,9 +13,7 @@ class BoardTabSection extends StatelessWidget {
   final bool showHelpIcon;
   final VoidCallback? onHelpPressed;
   final TextEditingController searchController;
-  final bool isSearching;
-  final Future<void> Function(String) onSearch;
-  final VoidCallback onCancel;
+  final Future<void> Function(String) onSubmitted;
 
   const BoardTabSection({
     super.key,
@@ -28,9 +26,7 @@ class BoardTabSection extends StatelessWidget {
     this.showHelpIcon = false,
     this.onHelpPressed,
     required this.searchController,
-    required this.isSearching,
-    required this.onSearch,
-    required this.onCancel,
+    required this.onSubmitted,
   });
 
   @override
@@ -55,11 +51,9 @@ class BoardTabSection extends StatelessWidget {
 
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          child: SearchBarWithCancel(
+          child: SearchBarComponent(
             controller: searchController,
-            isSearching: isSearching,
-            onSearch: onSearch,
-            onCancel: onCancel,
+            onSubmitted: onSubmitted,
           ),
         ),
 

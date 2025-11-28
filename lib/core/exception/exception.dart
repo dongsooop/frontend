@@ -536,10 +536,26 @@ class SearchException implements Exception {
   String toString() => message;
 }
 
+class KaKaoSearchException implements Exception {
+  final String message;
+  KaKaoSearchException([this.message = "가게 검색 중 오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요"]);
+
+  @override
+  String toString() => message;
+}
+
 class FeedbackSubmitException implements Exception {
   final String message;
   FeedbackSubmitException(
       [this.message = "피드백 전송 중 오류가 발생했어요. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
+class RestaurantsDuplicationException implements Exception {
+  final String message;
+  RestaurantsDuplicationException([this.message = "이미 등록된 가게예요"]);
 
   @override
   String toString() => message;

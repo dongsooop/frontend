@@ -1,6 +1,5 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
-import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/os_notification_providers.dart';
 import 'package:dongsoop/providers/setting_providers.dart';
@@ -80,7 +79,7 @@ class SettingScreen extends HookConsumerWidget {
               title: '이용 안내',
               children: [
                 buildSettingsItem(
-                  label: '버전  1.4.0',
+                  label: '버전  1.5.0',
                   onTap: () {},
                 ),
                 buildSettingsItem(
@@ -166,12 +165,6 @@ class SettingScreen extends HookConsumerWidget {
                           },
                         ),
                       );
-                    },
-                  ),
-                  buildSettingsItem(
-                    label: '사용자 피드백',
-                    onTap: () {
-                      context.push(RoutePaths.userFeedback);
                     },
                   ),
                 ],

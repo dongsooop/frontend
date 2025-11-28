@@ -251,7 +251,7 @@ class SignUpScreen extends HookConsumerWidget {
                 ),
               ),
               CheckDuplicationButton(
-                onTab: () {
+                onTap: () {
                   if (emailController.text.isEmpty) return;
                   ref.read(signUpViewModelProvider.notifier).checkEmailDuplication(emailController.text.trim());
                 },
@@ -295,7 +295,7 @@ class SignUpScreen extends HookConsumerWidget {
                 ),
               ),
               CheckDuplicationButton(
-                onTab: () async {
+                onTap: () async {
                   await ref.read(signUpViewModelProvider.notifier).sendEmailVerificationCode(emailController.text.trim());
                 },
                 isEnabled: emailState.isDuplicate == false &&
@@ -306,7 +306,7 @@ class SignUpScreen extends HookConsumerWidget {
                 isLoading: emailCodeState.isCodeLoading,
               ),
               CheckDuplicationButton(
-                onTab: () async {
+                onTap: () async {
                   if (emailCodeController.text.isEmpty) return;
                   await ref.read(signUpViewModelProvider.notifier).checkEmailVerificationCode(emailController.text.trim(), emailCodeController.text.trim());
                 },
@@ -488,7 +488,7 @@ class SignUpScreen extends HookConsumerWidget {
                 ),
               ),
               CheckDuplicationButton(
-                onTab: () {
+                onTap: () {
                   if (nicknameController.text.isEmpty) return;
                   ref.read(signUpViewModelProvider.notifier).checkNicknameDuplication(nicknameController.text.trim());
                 },
