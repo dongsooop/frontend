@@ -73,7 +73,7 @@ class RestaurantCard extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        context.push('/mypageWebView?url=${restaurant.placeUrl}&title=서비스 이용약관');
+        context.push('/restaurantWebView?url=${restaurant.placeUrl}');
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 24),
