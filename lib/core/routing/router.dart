@@ -50,6 +50,7 @@ import 'package:dongsoop/presentation/timetable/write/timetable_write_screen.dar
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
+import 'package:dongsoop/presentation/web_view/restaurant_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -213,6 +214,13 @@ final router = GoRouter(
         final url = state.uri.queryParameters['url'] ?? '';
         final title = state.uri.queryParameters['title'] ?? '';
         return MypageWebView(url: url, title: title);
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.restaurantWebView,
+      builder: (context, state) {
+        final url = state.uri.queryParameters['url'] ?? '';
+        return RestaurantWebView(url: url);
       },
     ),
     GoRoute(
