@@ -17,7 +17,7 @@ mixin _$User {
   int get id;
   String get nickname;
   String get departmentType;
-  String get role;
+  List<String> get role;
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.
@@ -36,13 +36,13 @@ mixin _$User {
                 other.nickname == nickname) &&
             (identical(other.departmentType, departmentType) ||
                 other.departmentType == departmentType) &&
-            (identical(other.role, role) || other.role == role));
+            const DeepCollectionEquality().equals(other.role, role));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, nickname, departmentType, role);
+  int get hashCode => Object.hash(runtimeType, id, nickname, departmentType,
+      const DeepCollectionEquality().hash(role));
 
   @override
   String toString() {
@@ -55,7 +55,8 @@ abstract mixin class $UserCopyWith<$Res> {
   factory $UserCopyWith(User value, $Res Function(User) _then) =
       _$UserCopyWithImpl;
   @useResult
-  $Res call({int id, String nickname, String departmentType, String role});
+  $Res call(
+      {int id, String nickname, String departmentType, List<String> role});
 }
 
 /// @nodoc
@@ -91,7 +92,7 @@ class _$UserCopyWithImpl<$Res> implements $UserCopyWith<$Res> {
       role: null == role
           ? _self.role
           : role // ignore: cast_nullable_to_non_nullable
-              as String,
+              as List<String>,
     ));
   }
 }
