@@ -30,13 +30,26 @@ class MajorTagSection extends StatelessWidget {
     required this.writerMajor,
   });
 
-  List<String> get allTags {
+  List<String> get manualTagChips => manualTags;
+
+  List<String> get majorTagChips {
     if (selectedMajors.contains('전체 학과')) {
-      return ['전체 학과', ...manualTags];
+      return ['전체 학과'];
     }
 
-    final tagSet = <String>{...selectedMajors, writerMajor, ...manualTags};
-    return tagSet.toList();
+    final ordered = <String>[];
+
+    if (writerMajor.isNotEmpty) {
+      ordered.add(writerMajor);
+    }
+
+    for (final major in selectedMajors) {
+      if (!ordered.contains(major)) {
+        ordered.add(major);
+      }
+    }
+
+    return ordered;
   }
 
   void handleTagAdd(BuildContext context) {
@@ -198,18 +211,49 @@ class MajorTagSection extends StatelessWidget {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: allTags.map((tag) {
-              final isStaticTag = tag == writerMajor;
+            children: manualTagChips.map((tag) {
               return Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.only(right: 2),
                 child: SizedBox(
                   height: 44,
-                  child: CommonTag(
-                    label: tag,
-                    index: isStaticTag ? -1 : manualTags.indexOf(tag),
-                    isDeletable: !isStaticTag,
-                    textStyle: TextStyles.normalTextBold,
-                    onDeleted: () => onTagRemoved(tag),
+                  child: Center(
+                    child: SizedBox(
+                      height: 36,
+                      child: CommonTag(
+                        label: tag,
+                        index: manualTags.indexOf(tag),
+                        isDeletable: true,
+                        textStyle: TextStyles.normalTextBold,
+                        onDeleted: () => onTagRemoved(tag),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 4),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: majorTagChips.map((tag) {
+              final isWriterMajor = tag == writerMajor;
+              return Padding(
+                padding: const EdgeInsets.only(right: 2),
+                child: SizedBox(
+                  height: 44,
+                  child: Center(
+                    child: SizedBox(
+                    height: 36,
+                      child: CommonTag(
+                        label: tag,
+                        index: -1,
+                        isDeletable: !isWriterMajor,
+                        textStyle: TextStyles.normalTextBold,
+                        onDeleted: () => !isWriterMajor ? onTagRemoved(tag) : null,
+                      ),
+                    ),
                   ),
                 ),
               );
