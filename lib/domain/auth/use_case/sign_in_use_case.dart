@@ -27,7 +27,7 @@ class SignInUseCase {
       departmentType: response.departmentType,
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
-      role: response.role.first,
+      role: response.role,
     );
     await _authRepository.saveUser(storedUser);
   }

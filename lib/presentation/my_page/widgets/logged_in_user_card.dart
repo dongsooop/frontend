@@ -148,7 +148,7 @@ class LoggedInUserCard extends HookConsumerWidget {
                     onTap: onTapBlockedUser,
                   ),
                   // 관리자
-                  if (user.role == 'ADMIN') ...[
+                  if (user.role.contains('ADMIN')) ...[
                     MyActivityItem(
                       label: '신고 관리',
                       onTap: onTapAdminReport,
@@ -184,7 +184,7 @@ class LoggedInUserCard extends HookConsumerWidget {
                     onTap: onTapUserFeedback,
                   ),
                   // 관리자
-                  if (user.role == 'ADMIN') ...[
+                  if (user.role.contains('ADMIN')) ...[
                     MyActivityItem(
                       label: '사용자 피드백 결과',
                       onTap: onTapAdminFeedback,

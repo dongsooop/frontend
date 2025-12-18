@@ -19,7 +19,7 @@ mixin _$StoredUser {
   String get departmentType;
   String get accessToken;
   String get refreshToken;
-  String get role;
+  List<String> get role;
 
   /// Create a copy of StoredUser
   /// with the given fields replaced by the non-null parameter values.
@@ -42,12 +42,12 @@ mixin _$StoredUser {
                 other.accessToken == accessToken) &&
             (identical(other.refreshToken, refreshToken) ||
                 other.refreshToken == refreshToken) &&
-            (identical(other.role, role) || other.role == role));
+            const DeepCollectionEquality().equals(other.role, role));
   }
 
   @override
   int get hashCode => Object.hash(runtimeType, id, nickname, departmentType,
-      accessToken, refreshToken, role);
+      accessToken, refreshToken, const DeepCollectionEquality().hash(role));
 
   @override
   String toString() {
@@ -67,7 +67,7 @@ abstract mixin class $StoredUserCopyWith<$Res> {
       String departmentType,
       String accessToken,
       String refreshToken,
-      String role});
+      List<String> role});
 }
 
 /// @nodoc
@@ -113,7 +113,7 @@ class _$StoredUserCopyWithImpl<$Res> implements $StoredUserCopyWith<$Res> {
       role: null == role
           ? _self.role
           : role // ignore: cast_nullable_to_non_nullable
-              as String,
+              as List<String>,
     ));
   }
 }
