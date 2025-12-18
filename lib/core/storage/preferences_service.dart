@@ -14,7 +14,7 @@ class PreferencesService {
     await _prefs.setInt(_idKey, user.id);
     await _prefs.setString(_nicknameKey, user.nickname);
     await _prefs.setString(_departmentKey, user.departmentType);
-    await _prefs.setString(_roleKey, user.role);
+    await _prefs.setStringList(_roleKey, user.role);
   }
 
   Future<User?> getUser() async {
@@ -22,7 +22,7 @@ class PreferencesService {
     final id = _prefs.getInt(_idKey);
     final nickname = _prefs.getString(_nicknameKey);
     final departmentType = _prefs.getString(_departmentKey);
-    final role = _prefs.getString(_roleKey);
+    final role = _prefs.getStringList(_roleKey);
 
     if (id != null && nickname != null && departmentType != null && role != null) {
       return User(id: id, nickname: nickname, departmentType: departmentType, role: role);
