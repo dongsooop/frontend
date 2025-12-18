@@ -76,11 +76,12 @@ class BlindDateDetailScreen extends HookConsumerWidget {
             participants: state.participants,
             currentUserId: userId!,
             onSubmit: (selected) async {
-              viewModel.choice(BlindChoice(
-                sessionId: state.sessionId,
-                choicerId: userId,
-                targetId: selected,
-              ));
+              viewModel.choice(
+                BlindChoice(
+                  choicerId: userId,
+                  targetId: selected,
+                )
+              );
             },
             seconds: 10,
           );
@@ -333,7 +334,6 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                               final message = textController.text.trim();
                               if (message.isNotEmpty) {
                                 final send = BlindDateRequest(
-                                  sessionId: state.sessionId!,
                                   message: message,
                                   senderId: userId!,
                                 );

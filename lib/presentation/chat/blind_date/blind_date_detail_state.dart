@@ -1,7 +1,6 @@
 class BlindDateDetailState {
   final bool isConnecting;
   final bool isFrozen;
-  final String? sessionId;
   final int volunteer;
   final String nickname;
   final Map<int, String> participants;
@@ -14,7 +13,6 @@ class BlindDateDetailState {
   BlindDateDetailState({
     this.isConnecting = false,
     this.isFrozen = false,
-    this.sessionId,
     this.volunteer = 0,
     this.nickname = '',
     this.participants = const {},
@@ -28,7 +26,6 @@ class BlindDateDetailState {
   BlindDateDetailState copyWith({
     bool? isConnecting,
     bool? isFrozen,
-    String? sessionId,
     int? volunteer,
     String? nickname,
     Map<int, String>? participants,
@@ -41,7 +38,6 @@ class BlindDateDetailState {
     return BlindDateDetailState(
       isConnecting: isConnecting ?? this.isConnecting,
       isFrozen: isFrozen ?? this.isFrozen,
-      sessionId: sessionId ?? this.sessionId,
       volunteer: volunteer ?? this.volunteer,
       nickname: nickname ?? this.nickname,
       participants: participants ?? this.participants,

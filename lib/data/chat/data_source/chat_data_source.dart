@@ -37,7 +37,7 @@ abstract class ChatDataSource {
   Stream<ChatRoomWs> subscribeChatList();
 
   // blind
-  Future<void> blindConnect(int userId, String? sessionId);
+  Future<void> blindConnect(int userId);
   Future<void> blindDisconnect();
 
   void blindSendMessage(BlindDateRequest message);

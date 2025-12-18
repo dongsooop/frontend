@@ -68,7 +68,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_start$().listen((sid) async {
-      state = state.copyWith(sessionId: sid, isLoading: false);
+      state = state.copyWith(isLoading: false);
     }));
 
     _subs.add(_system$().listen((msg) {
@@ -84,7 +84,10 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_join$().listen((info) {
-      state = state.copyWith(sessionId: info.sessionId, nickname: info.name);
+      state = state.copyWith(
+        nickname: info.name,
+        isLoading: info.state == 'waiting' ? true : false,
+      );
     }));
 
     _subs.add(_participants$().listen((map) {
@@ -103,10 +106,8 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
       state = state.copyWith(disconnectReason: reason);
     }));
 
-    final sessionId = state.sessionId;
-
     // 웹소켓 연결
-    await _connectUseCase.execute(userId, sessionId);
+    await _connectUseCase.execute(userId);
 
     state = state.copyWith(isConnecting: false);
   }

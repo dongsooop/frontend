@@ -353,14 +353,10 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   // blind
   @override
-  Future<void> blindConnect(int userId, String? sessionId) async {
+  Future<void> blindConnect(int userId) async {
     final String url = dotenv.get('BLIND_URL');
-    final connectSessionId;
 
-    if (sessionId == null) connectSessionId = dotenv.get('BLIND_SESSION');
-    else connectSessionId = sessionId;
-
-    await _socketIoService.connect(url: url, sessionId: connectSessionId, memberId: userId);
+    await _socketIoService.connect(url: url, memberId: userId);
   }
 
   @override
