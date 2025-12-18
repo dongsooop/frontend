@@ -9,7 +9,7 @@ class User with _$User {
   final int id;
   final String nickname;
   final String departmentType;
-  final String role;
+  final List<String> role;
 
   const User({
     required this.id,
