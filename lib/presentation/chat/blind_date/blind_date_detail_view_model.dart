@@ -61,7 +61,17 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
   Future<void> connect(int userId) async {
     if (state.isConnecting) return;
-    state = state.copyWith(isConnecting: true, isLoading: true);
+
+    state = state.copyWith(
+      isConnecting: true,
+      isLoading: true,
+      match: null,
+      ended: null,
+      isVoteTime: false,
+      participants: const {},
+      nickname: '',
+      disconnectReason: null,
+    );
 
     _subs.add(_joined$().listen((data) {
       state = state.copyWith(volunteer: data);

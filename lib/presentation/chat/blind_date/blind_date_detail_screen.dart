@@ -38,6 +38,8 @@ class BlindDateDetailScreen extends HookConsumerWidget {
 
     final textController = useTextEditingController();
     final scrollController = useScrollController();
+    final isVoteSheetOpen = useRef(false);
+    final sheetCtxRef = useRef<BuildContext?>(null);
 
     useEffect(() {
       if (userId != null)
@@ -69,67 +71,74 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     }, [state.nickname]);
 
     useEffect(() {
-      if (state.isVoteTime) {
+      if (state.isVoteTime && !isVoteSheetOpen.value) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
+          isVoteSheetOpen.value = true;
           await MatchVoteBottomSheet.show(
             context,
             participants: state.participants,
             currentUserId: userId!,
-            onSubmit: (selected) async {
-              viewModel.choice(
-                BlindChoice(
-                  choicerId: userId,
-                  targetId: selected,
-                )
-              );
+            onSubmit: (selected) {
+              viewModel.choice(BlindChoice(choicerId: userId, targetId: selected));
             },
             seconds: 10,
+            onSheetContext: (ctx) => sheetCtxRef.value = ctx,
           );
+          sheetCtxRef.value = null;
+          isVoteSheetOpen.value = false;
         });
       }
       return null;
     }, [state.isVoteTime]);
 
     useEffect(() {
-      if (state.match != 'failed' && state.match != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => CustomConfirmDialog(
-              title: '사랑의 작대기 성공',
-              content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
-              onConfirm: () {
-                context.pop();
-                onTapChatDetail(state.match!);
-              },
-              onCancel: () {
-                context.pop();
-                context.pop();
-              },
-              confirmText: '확인',
-              isSingleAction: false,
-            ),
-          );
-        });
-      } else if (state.match != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => CustomConfirmDialog(
-              title: '사랑의 작대기 실패',
-              content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봐요!',
-              onConfirm: () {
-                context.pop();
-                context.pop();
-              },
-              confirmText: '확인',
-              isSingleAction: true,
-            ),
-          );
-        });
-      }
+      if (state.match == null) return null;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!context.mounted) return;
+
+        final sheetCtx = sheetCtxRef.value;
+        if (sheetCtx != null) {
+          if (Navigator.of(sheetCtx).canPop()) {
+            Navigator.of(sheetCtx).pop();
+          }
+          sheetCtxRef.value = null;
+          isVoteSheetOpen.value = false;
+        }
+        if (!context.mounted) return;
+
+        showDialog(
+          context: context,
+          useRootNavigator: true,
+          barrierDismissible: false,
+          builder: (_) => state.match != 'failed'
+          ? CustomConfirmDialog(
+            title: '사랑의 작대기 성공',
+            content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
+            onConfirm: () {
+              Navigator.of(context, rootNavigator: true).pop();
+              onTapChatDetail(state.match!);
+            },
+            onCancel: () {
+              Navigator.of(context, rootNavigator: true).pop();
+              context.pop();
+            },
+            confirmText: '확인',
+            isSingleAction: false,
+          )
+          : CustomConfirmDialog(
+            title: '사랑의 작대기 실패',
+            content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봐요!',
+            onConfirm: () {
+              Navigator.of(context, rootNavigator: true).pop();
+              context.pop();
+            },
+            confirmText: '확인',
+            isSingleAction: true,
+          ),
+        );
+      });
+
       return null;
     }, [state.match]);
 
