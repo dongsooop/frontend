@@ -5,7 +5,7 @@ class BlindConnectUseCase {
 
   BlindConnectUseCase(this._chatRepository,);
 
-  Future<void> execute(int userId, String? sessionId) async {
-    await _chatRepository.blindConnect(userId, sessionId);
+  Future<void> execute(int userId) async {
+    await _chatRepository.blindConnect(userId);
   }
 }

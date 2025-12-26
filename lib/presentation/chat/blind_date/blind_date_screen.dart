@@ -21,6 +21,8 @@ class BlindDateScreen extends HookConsumerWidget {
     final viewModel = ref.read(blindDateViewModelProvider.notifier);
     final chatState = ref.watch(blindDateViewModelProvider);
 
+    final isJoining = useRef(false);
+
     useEffect(() {
       if (chatState.isBlindDateOpened != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -79,9 +81,20 @@ class BlindDateScreen extends HookConsumerWidget {
                 ),
               ),
               _joinBlindDateButton(
-                onTap: () async {
-                  final result = await viewModel.isOpened();
-                  if (result) onTapBlindDateDetail();
+                onTap: (chatState.isLoading || isJoining.value)
+                  ? null
+                  : () async {
+                    if (isJoining.value) return;
+                    isJoining.value = true;
+
+                    try {
+                      final result = await viewModel.isOpened();
+                      if (result && context.mounted) {
+                        onTapBlindDateDetail();
+                      }
+                    } finally {
+                      isJoining.value = false;
+                    }
                 },
               ),
             ],
@@ -116,7 +129,7 @@ class BlindDateScreen extends HookConsumerWidget {
   }
 
   Widget _joinBlindDateButton({
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
   }) {
     return Container(
       width: double.infinity,

@@ -111,8 +111,9 @@ class ChatViewModel extends StateNotifier<ChatState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
+      final result = await _getBlindDateOpenUseCase.execute();
       state = state.copyWith(isLoading: false);
-      return await _getBlindDateOpenUseCase.execute();
+      return result;
     } on BlindDateOpenException catch (e) {
       state = state.copyWith(
         isLoading: false,

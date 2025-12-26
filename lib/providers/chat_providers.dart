@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:dongsoop/core/network/socket_io_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';

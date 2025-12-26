@@ -29,9 +29,11 @@ class MatchVoteBottomSheet extends StatefulWidget {
       int seconds = 10,
       String title = '사랑의 작대기',
       String subtitle = '마음에 드는 상대방을 골라주세요',
+      ValueChanged<BuildContext>? onSheetContext,
     }) {
     return showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       useSafeArea: true,
       isDismissible: false,
@@ -40,14 +42,17 @@ class MatchVoteBottomSheet extends StatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => MatchVoteBottomSheet(
-        participants: participants,
-        currentUserId: currentUserId,
-        onSubmit: onSubmit,
-        seconds: seconds,
-        title: title,
-        subtitle: subtitle,
-      ),
+      builder: (sheetCtx) {
+        onSheetContext?.call(sheetCtx);
+        return MatchVoteBottomSheet(
+          participants: participants,
+          currentUserId: currentUserId,
+          onSubmit: onSubmit,
+          seconds: seconds,
+          title: title,
+          subtitle: subtitle,
+        );
+      },
     );
   }
 
@@ -81,7 +86,7 @@ class _MatchVoteBottomSheetState extends State<MatchVoteBottomSheet> {
   void _finishAndClose() {
     _timer?.cancel();
     widget.onSubmit(_selected);
-    if (mounted && Navigator.of(context).canPop()) {
+    if (mounted) {
       Navigator.of(context).pop();
     }
   }
