@@ -10,6 +10,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
@@ -41,6 +42,7 @@ class SignUpScreen extends HookConsumerWidget {
       AgreementType.privacyPolicy: false,
     });
 
+    const createEmail = 'https://www.dongyang.ac.kr/dmu/4888/subview.do';
     const termsOfService = 'https://zircon-football-529.notion.site/Dongsoop-2333ee6f2561800cb85fdc87fbe9b4c2';
     const privacyPolicy = 'https://zircon-football-529.notion.site/Dongsoop-2333ee6f256180a0821fdbf087345a1d';
 
@@ -97,12 +99,13 @@ class SignUpScreen extends HookConsumerWidget {
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: 48),
+            padding: EdgeInsets.symmetric(vertical: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 48,
+              spacing: 40,
               children: [
+                _dongyangEmailInfo(context, createEmail),
                 _buildEmailSection(emailController, emailCodeController, ref),
                 _buildPasswordSection(passwordController, passwordCheckController, ref),
                 _buildNicknameSection(nicknameController, ref),
@@ -156,6 +159,50 @@ class SignUpScreen extends HookConsumerWidget {
             signUpState.isPasswordValid &&
             signUpState.isDeptValid &&
             agreement.value.values.every((v) => v),
+      ),
+    );
+  }
+
+  Widget _dongyangEmailInfo(BuildContext context, String url) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Text(
+            '동양미래대학교 Gmail(@dongyang.ac.kr)로만 회원가입이 가능합니다.\n학교 이메일이 없으시다면 아래 버튼을 통해 먼저 발급해 주세요.',
+            style: TextStyles.smallTextRegular.copyWith(
+              color: ColorStyles.gray4,
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              context.push('/mypageWebView?url=$url');
+            },
+            child: Row(
+              spacing: 4,
+              children: [
+                SvgPicture.asset(
+                  'assets/icons/add_circle.svg',
+                  width: 16,
+                  height: 16,
+                  colorFilter: const ColorFilter.mode(
+                    ColorStyles.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                Text(
+                  '학교 이메일 발급하러 가기',
+                  style: TextStyles.smallTextBold.copyWith(
+                    color: ColorStyles.black,
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
