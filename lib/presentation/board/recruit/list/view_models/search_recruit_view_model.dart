@@ -6,12 +6,12 @@ import 'package:dongsoop/domain/search/use_case/search_recruit_use_case.dart';
 
 part 'search_recruit_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class SearchRecruitViewModel extends _$SearchRecruitViewModel {
-  late final SearchRecruitUseCase _useCase;
-  late final RecruitType _type;
-  late final String _departmentName;
-  late final int _pageSize;
+  late SearchRecruitUseCase _useCase;
+  late RecruitType _type;
+  late String _departmentName;
+  late int _pageSize;
 
   int _page = 0;
   bool _fetching = false;
