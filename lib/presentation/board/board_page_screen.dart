@@ -230,6 +230,19 @@ class BoardPageScreen extends HookConsumerWidget {
       searchCtrl.clear();
       keyword.value = '';
       FocusManager.instance.primaryFocus?.unfocus();
+
+      if (isRecruit && recruitType != null) {
+        ref.invalidate(
+          searchRecruitViewModelProvider(
+            type: recruitType,
+            departmentName: departmentName,
+          ),
+        );
+      } else if (!isRecruit && marketType != null) {
+        ref.invalidate(
+          searchMarketViewModelProvider(type: marketType),
+        );
+      }
     }
 
     return Scaffold(

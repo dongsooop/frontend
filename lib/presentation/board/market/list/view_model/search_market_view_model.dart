@@ -7,11 +7,11 @@ import 'package:dongsoop/providers/search_providers.dart';
 
 part 'search_market_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class SearchMarketViewModel extends _$SearchMarketViewModel {
-  late final SearchMarketUseCase _useCase;
-  late final MarketType _type;
-  late final int _pageSize;
+  late SearchMarketUseCase _useCase;
+  late MarketType _type;
+  late int _pageSize;
 
   int _page = 0;
   bool _fetching = false;
