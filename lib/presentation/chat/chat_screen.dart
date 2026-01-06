@@ -1,5 +1,6 @@
 import 'dart:ui';
-import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
+import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
+import 'package:dongsoop/core/presentation/components/sub_tab_bar.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/providers/activity_context_providers.dart';
@@ -130,7 +131,7 @@ class ChatScreen extends HookConsumerWidget {
           backgroundColor: ColorStyles.white,
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.only(top: 16, right: 16, left: 16,),
               child: _buildChatBody(context, allRooms, viewModel),
             ),
           ),
@@ -158,68 +159,79 @@ class ChatScreen extends HookConsumerWidget {
   }
 
   Widget _buildChatBody(BuildContext context, List<ChatRoom> rooms, ChatViewModel viewModel,) {
-
     final subTabs = const ['전체', '1:1 채팅', '그룹 채팅'];
     final selectedSubIndex = useState(0);
     final pageController = usePageController(initialPage: 0);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Stack(
       children: [
-        BoardTabSection(
-          categoryTabs: const ['채팅', '과팅'],
-          selectedCategoryIndex: 0,
-          subTabs: subTabs,
-          selectedSubTabIndex: selectedSubIndex.value,
-          onCategorySelected: (i) {
-            if (i == 0) return;
-
-            Future.microtask(() async {
-              final result = await viewModel.isOpened();
-              if (result && context.mounted) {
-                onTapBlindDate();
-              }
-            });
-          },
-          onSubTabSelected: (i) {
-            if (selectedSubIndex.value == i) return;
-            selectedSubIndex.value = i;
-            pageController.animateToPage(
-              i,
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOut,
-            );
-          },
-          showSearchBar: false,
-          searchController: useTextEditingController(),
-          onSubmitted: (_) async {},
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SubTabBar(
+              tabs: subTabs,
+              selectedIndex: selectedSubIndex.value,
+              onSelected: (i) {
+                if (selectedSubIndex.value == i) return;
+                selectedSubIndex.value = i;
+                pageController.animateToPage(
+                  i,
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOut,
+                );
+              },
+              showHelpIcon: false,
+            ),
+            Expanded(
+              child: PageView(
+                controller: pageController,
+                onPageChanged: (index) {
+                  selectedSubIndex.value = index;
+                },
+                children: [
+                  _ChatRoomList(
+                    rooms: rooms,
+                    viewModel: viewModel,
+                    onTapChatDetail: onTapChatDetail,
+                    filter: (room) => true,
+                  ),
+                  _ChatRoomList(
+                    rooms: rooms,
+                    viewModel: viewModel,
+                    onTapChatDetail: onTapChatDetail,
+                    filter: (room) => room.groupChat == false,
+                  ),
+                  _ChatRoomList(
+                    rooms: rooms,
+                    viewModel: viewModel,
+                    onTapChatDetail: onTapChatDetail,
+                    filter: (room) => room.groupChat == true,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        Expanded(
-          child: PageView(
-            controller: pageController,
-            onPageChanged: (index) {
-              selectedSubIndex.value = index;
-            },
-            children: [
-              _ChatRoomList(
-                rooms: rooms,
-                viewModel: viewModel,
-                onTapChatDetail: onTapChatDetail,
-                filter: (room) => true,
-              ),
-              _ChatRoomList(
-                rooms: rooms,
-                viewModel: viewModel,
-                onTapChatDetail: onTapChatDetail,
-                filter: (room) => room.groupChat == false,
-              ),
-              _ChatRoomList(
-                rooms: rooms,
-                viewModel: viewModel,
-                onTapChatDetail: onTapChatDetail,
-                filter: (room) => room.groupChat == true,
-              ),
-            ],
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 24,
+          child: Center(
+            child: CategoryTabBar(
+              tabs: const ['채팅', '과팅'],
+              selectedIndex: 0,
+              onSelected: (i) {
+                if (i == 0) return;
+
+                Future.microtask(() async {
+                  final result = await viewModel.isOpened();
+                  if (result && context.mounted) {
+                    onTapBlindDate();
+                  }
+                });
+              },
+              isBoard: false,
+            ),
           ),
         ),
       ],

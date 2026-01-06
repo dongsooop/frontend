@@ -1,4 +1,4 @@
-import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
+import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -23,9 +23,6 @@ class BlindDateScreen extends HookConsumerWidget {
     final chatState = ref.watch(blindDateViewModelProvider);
 
     final isJoining = useRef(false);
-
-    final subTabs = const <String>[];
-    final searchController = useTextEditingController();
 
     useEffect(() {
       if (chatState.isBlindDateOpened != null) {
@@ -65,41 +62,50 @@ class BlindDateScreen extends HookConsumerWidget {
       backgroundColor: ColorStyles.white,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: EdgeInsets.only(top: 24,),
+          child: Stack(
+            fit: StackFit.expand,
             children: [
-              BoardTabSection(
-                categoryTabs: const ['채팅', '과팅'],
-                selectedCategoryIndex: 1,
-                subTabs: subTabs,
-                selectedSubTabIndex: 0,
-                onCategorySelected: (i) {
-                  if (i == 1) return;
-                  onTapChat();
-                },
-                onSubTabSelected: (_) {},
-                showSearchBar: false,
-                searchController: searchController,
-                onSubmitted: (_) async {},
-              ),
-              _joinBlindDateButton(
-                onTap: (chatState.isLoading || isJoining.value)
-                  ? null
-                  : () async {
-                    if (isJoining.value) return;
-                    isJoining.value = true;
+              Positioned(
+                top: 0,
+                left: 16,
+                right: 16,
+                child: _joinBlindDateButton(
+                  onTap: (chatState.isLoading || isJoining.value)
+                    ? null
+                    : () async {
+                      if (isJoining.value) return;
+                      isJoining.value = true;
 
-                    try {
-                      final result = await viewModel.isOpened();
-                      if (result && context.mounted) {
-                        onTapBlindDateDetail();
+                      try {
+                        final result = await viewModel.isOpened();
+                        if (result && context.mounted) {
+                          onTapBlindDateDetail();
+                        }
+                      } finally {
+                        isJoining.value = false;
                       }
-                    } finally {
-                      isJoining.value = false;
-                    }
-                },
+                  },
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 24,
+                child: Center(
+                  child: CategoryTabBar(
+                    tabs: const ['채팅', '과팅'],
+                    selectedIndex: 1,
+                    onSelected: (i) {
+                      if (i == 1) return;
+
+                      Future.microtask(() async {
+                        onTapChat();
+                      });
+                    },
+                    isBoard: false,
+                  ),
+                ),
               ),
             ],
           ),
