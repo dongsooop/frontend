@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
+import 'package:dongsoop/core/presentation/components/sub_tab_bar.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/providers/activity_context_providers.dart';
@@ -123,20 +125,14 @@ class ChatScreen extends HookConsumerWidget {
 
     final allRooms = chatState.chatRooms ?? [];
 
-    final filteredRooms = selectedCategory.value == '1:1 채팅'
-      ? allRooms.where((room) => room.groupChat == false).toList()
-      : selectedCategory.value == '그룹 채팅'
-        ? allRooms.where((room) => room.groupChat == true).toList()
-        : allRooms;
-
     return Stack(
       children: [
         Scaffold(
           backgroundColor: ColorStyles.white,
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              child: _buildChatBody(context, filteredRooms, selectedCategory, viewModel),
+              padding: const EdgeInsets.only(top: 16, right: 16, left: 16,),
+              child: _buildChatBody(context, allRooms, viewModel),
             ),
           ),
         ),
@@ -162,158 +158,130 @@ class ChatScreen extends HookConsumerWidget {
     );
   }
 
-  // 상단 탭
-  Widget _buildTopTab({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 44,
-          minHeight: 44,
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: isSelected
-              ? TextStyles.titleTextBold.copyWith(color: ColorStyles.primaryColor,)
-              : TextStyles.titleTextRegular.copyWith(color: ColorStyles.gray4),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _buildChatBody(BuildContext context, List<ChatRoom> rooms, ChatViewModel viewModel,) {
+    final subTabs = const ['전체', '1:1 채팅', '그룹 채팅'];
+    final selectedSubIndex = useState(0);
+    final pageController = usePageController(initialPage: 0);
 
-  // 채팅 카테고리 선택
-  Widget _buildCategoryTab({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 44,
-          minHeight: 44,
-        ),
-        child: Center(
-          child: isSelected
-            ? IntrinsicWidth(
-            child: Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: ColorStyles.primaryColor,
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: Text(
-                label,
-                style: TextStyles.largeTextBold.copyWith(
-                  color: ColorStyles.primaryColor,
-                ),
-              ),
-            ),
-          )
-              : Text(
-            label,
-            style: TextStyles.largeTextRegular.copyWith(
-              color: ColorStyles.gray4,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildChatBody(BuildContext context, List<ChatRoom> rooms, selectedCategory, ChatViewModel viewModel,) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Stack(
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 44,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 16,
-            children: [
-              _buildTopTab(label: '채팅', isSelected: true, onTap: () {},),
-              _buildTopTab(
-                label: '과팅',
-                isSelected: false,
-                onTap: () async {
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SubTabBar(
+              tabs: subTabs,
+              selectedIndex: selectedSubIndex.value,
+              onSelected: (i) {
+                if (selectedSubIndex.value == i) return;
+                selectedSubIndex.value = i;
+                pageController.animateToPage(
+                  i,
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOut,
+                );
+              },
+              showHelpIcon: false,
+            ),
+            Expanded(
+              child: PageView(
+                controller: pageController,
+                onPageChanged: (index) {
+                  selectedSubIndex.value = index;
+                },
+                children: [
+                  _ChatRoomList(
+                    rooms: rooms,
+                    viewModel: viewModel,
+                    onTapChatDetail: onTapChatDetail,
+                    filter: (room) => true,
+                  ),
+                  _ChatRoomList(
+                    rooms: rooms,
+                    viewModel: viewModel,
+                    onTapChatDetail: onTapChatDetail,
+                    filter: (room) => room.groupChat == false,
+                  ),
+                  _ChatRoomList(
+                    rooms: rooms,
+                    viewModel: viewModel,
+                    onTapChatDetail: onTapChatDetail,
+                    filter: (room) => room.groupChat == true,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 24,
+          child: Center(
+            child: CategoryTabBar(
+              tabs: const ['채팅', '과팅'],
+              selectedIndex: 0,
+              onSelected: (i) {
+                if (i == 0) return;
+
+                Future.microtask(() async {
                   final result = await viewModel.isOpened();
                   if (result && context.mounted) {
                     onTapBlindDate();
                   }
-                },
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 16),
-
-        // chatting category
-        SizedBox(
-          width: double.infinity,
-          height: 44,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 16,
-            children: [
-              _buildCategoryTab(label: '전체', isSelected: selectedCategory.value == '전체', onTap: () => selectedCategory.value = '전체'),
-              _buildCategoryTab(label: '1:1 채팅', isSelected: selectedCategory.value == '1:1 채팅', onTap: () => selectedCategory.value = '1:1 채팅'),
-              _buildCategoryTab(label: '그룹 채팅', isSelected: selectedCategory.value == '그룹 채팅', onTap: () => selectedCategory.value = '그룹 채팅'),
-            ],
-          ),
-        ),
-        SizedBox(height: 16),
-
-        // 채팅방
-        Expanded(
-          child: RefreshIndicator(
-            color: ColorStyles.primaryColor,
-            onRefresh: () async {
-              await viewModel.loadChatRooms();
-            },
-            child: rooms.isEmpty
-              ? Center(
-                  child: Text(
-                    '참여 중인 채팅방이 없어요',
-                    style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: rooms.length,
-                  itemBuilder: (context, index) {
-                    final room = rooms[index];
-                    return InkWell(
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      onTap: () async {
-                        final isLeaved = await onTapChatDetail(room.roomId);
-                        if (isLeaved) {
-                          await viewModel.loadChatRooms();
-                        }
-                      },
-                      child: ChatCard(chatRoom: room),
-                    );
-                  }
-                ),
+                });
+              },
+              isBoard: false,
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ChatRoomList extends StatelessWidget {
+  final List<ChatRoom> rooms;
+  final ChatViewModel viewModel;
+  final Future<bool> Function(String roomId) onTapChatDetail;
+  final bool Function(ChatRoom) filter;
+
+  const _ChatRoomList({
+    required this.rooms,
+    required this.viewModel,
+    required this.onTapChatDetail,
+    required this.filter,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = rooms.where(filter).toList();
+
+    return RefreshIndicator(
+      color: ColorStyles.primaryColor,
+      onRefresh: () async => viewModel.loadChatRooms(),
+      child: filtered.isEmpty
+        ? Center(
+          child: Text(
+            '참여 중인 채팅방이 없어요',
+            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+          ),
+        )
+        : ListView.builder(
+          padding: EdgeInsets.only(top: 24),
+          itemCount: filtered.length,
+          itemBuilder: (context, index) {
+            final room = filtered[index];
+            return InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: () async {
+                final isLeaved = await onTapChatDetail(room.roomId);
+                if (isLeaved) await viewModel.loadChatRooms();
+              },
+              child: ChatCard(chatRoom: room),
+            );
+          },
+        ),
     );
   }
 }
