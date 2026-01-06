@@ -16,7 +16,7 @@ class ChatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 24),
+      margin: EdgeInsets.only(bottom: 16),
       constraints: const BoxConstraints(minHeight: 64),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
