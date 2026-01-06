@@ -14,7 +14,6 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$BlindChoice {
-  String? get sessionId;
   int get choicerId;
   int? get targetId;
 
@@ -30,8 +29,6 @@ mixin _$BlindChoice {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is BlindChoice &&
-            (identical(other.sessionId, sessionId) ||
-                other.sessionId == sessionId) &&
             (identical(other.choicerId, choicerId) ||
                 other.choicerId == choicerId) &&
             (identical(other.targetId, targetId) ||
@@ -39,11 +36,11 @@ mixin _$BlindChoice {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, sessionId, choicerId, targetId);
+  int get hashCode => Object.hash(runtimeType, choicerId, targetId);
 
   @override
   String toString() {
-    return 'BlindChoice(sessionId: $sessionId, choicerId: $choicerId, targetId: $targetId)';
+    return 'BlindChoice(choicerId: $choicerId, targetId: $targetId)';
   }
 }
 
@@ -53,7 +50,7 @@ abstract mixin class $BlindChoiceCopyWith<$Res> {
           BlindChoice value, $Res Function(BlindChoice) _then) =
       _$BlindChoiceCopyWithImpl;
   @useResult
-  $Res call({String? sessionId, int choicerId, int? targetId});
+  $Res call({int choicerId, int? targetId});
 }
 
 /// @nodoc
@@ -68,15 +65,10 @@ class _$BlindChoiceCopyWithImpl<$Res> implements $BlindChoiceCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? sessionId = freezed,
     Object? choicerId = null,
     Object? targetId = freezed,
   }) {
     return _then(BlindChoice(
-      sessionId: freezed == sessionId
-          ? _self.sessionId
-          : sessionId // ignore: cast_nullable_to_non_nullable
-              as String?,
       choicerId: null == choicerId
           ? _self.choicerId
           : choicerId // ignore: cast_nullable_to_non_nullable

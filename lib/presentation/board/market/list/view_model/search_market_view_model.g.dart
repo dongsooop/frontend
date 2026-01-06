@@ -7,7 +7,7 @@ part of 'search_market_view_model.dart';
 // **************************************************************************
 
 String _$searchMarketViewModelHash() =>
-    r'86b0e4ab9821747914f404a8d989a3a9ada26ef7';
+    r'78b85bc936fd1455256553a3581d5de6cb480751';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,7 +31,7 @@ class _SystemHash {
 }
 
 abstract class _$SearchMarketViewModel
-    extends BuildlessAutoDisposeNotifier<SearchMarketState> {
+    extends BuildlessNotifier<SearchMarketState> {
   late final MarketType type;
 
   SearchMarketState build({
@@ -82,8 +82,8 @@ class SearchMarketViewModelFamily extends Family<SearchMarketState> {
 }
 
 /// See also [SearchMarketViewModel].
-class SearchMarketViewModelProvider extends AutoDisposeNotifierProviderImpl<
-    SearchMarketViewModel, SearchMarketState> {
+class SearchMarketViewModelProvider
+    extends NotifierProviderImpl<SearchMarketViewModel, SearchMarketState> {
   /// See also [SearchMarketViewModel].
   SearchMarketViewModelProvider({
     required MarketType type,
@@ -139,7 +139,7 @@ class SearchMarketViewModelProvider extends AutoDisposeNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeNotifierProviderElement<SearchMarketViewModel, SearchMarketState>
+  NotifierProviderElement<SearchMarketViewModel, SearchMarketState>
       createElement() {
     return _SearchMarketViewModelProviderElement(this);
   }
@@ -160,15 +160,14 @@ class SearchMarketViewModelProvider extends AutoDisposeNotifierProviderImpl<
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin SearchMarketViewModelRef
-    on AutoDisposeNotifierProviderRef<SearchMarketState> {
+mixin SearchMarketViewModelRef on NotifierProviderRef<SearchMarketState> {
   /// The parameter `type` of this provider.
   MarketType get type;
 }
 
 class _SearchMarketViewModelProviderElement
-    extends AutoDisposeNotifierProviderElement<SearchMarketViewModel,
-        SearchMarketState> with SearchMarketViewModelRef {
+    extends NotifierProviderElement<SearchMarketViewModel, SearchMarketState>
+    with SearchMarketViewModelRef {
   _SearchMarketViewModelProviderElement(super.provider);
 
   @override

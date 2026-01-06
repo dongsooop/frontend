@@ -14,8 +14,8 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$BlindJoinInfo {
-  String get sessionId;
   String get name;
+  String get state;
 
   /// Create a copy of BlindJoinInfo
   /// with the given fields replaced by the non-null parameter values.
@@ -30,18 +30,17 @@ mixin _$BlindJoinInfo {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is BlindJoinInfo &&
-            (identical(other.sessionId, sessionId) ||
-                other.sessionId == sessionId) &&
-            (identical(other.name, name) || other.name == name));
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.state, state) || other.state == state));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, sessionId, name);
+  int get hashCode => Object.hash(runtimeType, name, state);
 
   @override
   String toString() {
-    return 'BlindJoinInfo(sessionId: $sessionId, name: $name)';
+    return 'BlindJoinInfo(name: $name, state: $state)';
   }
 }
 
@@ -51,7 +50,7 @@ abstract mixin class $BlindJoinInfoCopyWith<$Res> {
           BlindJoinInfo value, $Res Function(BlindJoinInfo) _then) =
       _$BlindJoinInfoCopyWithImpl;
   @useResult
-  $Res call({String sessionId, String name});
+  $Res call({String name, String state});
 }
 
 /// @nodoc
@@ -67,17 +66,17 @@ class _$BlindJoinInfoCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? sessionId = null,
     Object? name = null,
+    Object? state = null,
   }) {
     return _then(BlindJoinInfo(
-      sessionId: null == sessionId
-          ? _self.sessionId
-          : sessionId // ignore: cast_nullable_to_non_nullable
-              as String,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      state: null == state
+          ? _self.state
+          : state // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }

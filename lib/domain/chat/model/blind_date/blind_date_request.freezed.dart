@@ -14,7 +14,6 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$BlindDateRequest {
-  String get sessionId;
   String get message;
   int get senderId;
 
@@ -31,19 +30,17 @@ mixin _$BlindDateRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is BlindDateRequest &&
-            (identical(other.sessionId, sessionId) ||
-                other.sessionId == sessionId) &&
             (identical(other.message, message) || other.message == message) &&
             (identical(other.senderId, senderId) ||
                 other.senderId == senderId));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, sessionId, message, senderId);
+  int get hashCode => Object.hash(runtimeType, message, senderId);
 
   @override
   String toString() {
-    return 'BlindDateRequest(sessionId: $sessionId, message: $message, senderId: $senderId)';
+    return 'BlindDateRequest(message: $message, senderId: $senderId)';
   }
 }
 
@@ -53,7 +50,7 @@ abstract mixin class $BlindDateRequestCopyWith<$Res> {
           BlindDateRequest value, $Res Function(BlindDateRequest) _then) =
       _$BlindDateRequestCopyWithImpl;
   @useResult
-  $Res call({String sessionId, String message, int senderId});
+  $Res call({String message, int senderId});
 }
 
 /// @nodoc
@@ -69,15 +66,10 @@ class _$BlindDateRequestCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? sessionId = null,
     Object? message = null,
     Object? senderId = null,
   }) {
     return _then(BlindDateRequest(
-      sessionId: null == sessionId
-          ? _self.sessionId
-          : sessionId // ignore: cast_nullable_to_non_nullable
-              as String,
       message: null == message
           ? _self.message
           : message // ignore: cast_nullable_to_non_nullable

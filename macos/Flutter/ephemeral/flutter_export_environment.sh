@@ -1,11 +1,11 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/Users/seungwon-woo/development/flutter"
-export "FLUTTER_APPLICATION_PATH=/Users/seungwon-woo/dongsoop"
+export "FLUTTER_ROOT=/Users/seungbhin/Downloads/flutter"
+export "FLUTTER_APPLICATION_PATH=/Users/seungbhin/dongsoop"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_BUILD_DIR=build"
-export "FLUTTER_BUILD_NAME=1.5.3"
-export "FLUTTER_BUILD_NUMBER=22"
+export "FLUTTER_BUILD_NAME=1.5.6"
+export "FLUTTER_BUILD_NUMBER=25"
 export "DART_OBFUSCATION=false"
 export "TRACK_WIDGET_CREATION=true"
 export "TREE_SHAKE_ICONS=false"

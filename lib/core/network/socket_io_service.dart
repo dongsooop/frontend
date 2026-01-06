@@ -47,12 +47,11 @@ class SocketIoService {
   // 연결
   Future<void> connect({
     required String url,
-    required String sessionId,
     required int memberId,
   }) async {
     final opts = IO.OptionBuilder()
         .setTransports(['websocket'])
-        .setQuery({'sessionId': sessionId, 'memberId': memberId.toString()})
+        .setQuery({'memberId': memberId.toString()})
         .disableAutoConnect()
         .setReconnectionAttempts(10)
         .setReconnectionDelay(600)
@@ -65,7 +64,7 @@ class SocketIoService {
       ..onConnect((_) {
       })
       ..on('joined', (data) {
-        _joinedCtrl.add(data['volunteer']);
+        _joinedCtrl.add(data);
       })
       ..on('start', (data) {
         if (data is Map && data['sessionId'] is String) {

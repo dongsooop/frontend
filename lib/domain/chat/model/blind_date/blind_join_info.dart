@@ -6,12 +6,12 @@ part 'blind_join_info.g.dart';
 @freezed
 @JsonSerializable()
 class BlindJoinInfo with _$BlindJoinInfo {
-  final String sessionId;
   final String name;
+  final String state;
 
   BlindJoinInfo({
-    required this.sessionId,
     required this.name,
+    required this.state
   });
 
   factory BlindJoinInfo.fromJson(Map<String, dynamic> json) => _$BlindJoinInfoFromJson(json);

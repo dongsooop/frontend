@@ -7,7 +7,7 @@ part of 'search_recruit_view_model.dart';
 // **************************************************************************
 
 String _$searchRecruitViewModelHash() =>
-    r'5eefc1102f8096ac13f78140edd298442d782d41';
+    r'3622df7d51e1360021ccf19452a7298cd891ee8d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,7 +31,7 @@ class _SystemHash {
 }
 
 abstract class _$SearchRecruitViewModel
-    extends BuildlessAutoDisposeNotifier<SearchRecruitState> {
+    extends BuildlessNotifier<SearchRecruitState> {
   late final RecruitType type;
   late final String departmentName;
 
@@ -87,8 +87,8 @@ class SearchRecruitViewModelFamily extends Family<SearchRecruitState> {
 }
 
 /// See also [SearchRecruitViewModel].
-class SearchRecruitViewModelProvider extends AutoDisposeNotifierProviderImpl<
-    SearchRecruitViewModel, SearchRecruitState> {
+class SearchRecruitViewModelProvider
+    extends NotifierProviderImpl<SearchRecruitViewModel, SearchRecruitState> {
   /// See also [SearchRecruitViewModel].
   SearchRecruitViewModelProvider({
     required RecruitType type,
@@ -154,7 +154,7 @@ class SearchRecruitViewModelProvider extends AutoDisposeNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeNotifierProviderElement<SearchRecruitViewModel, SearchRecruitState>
+  NotifierProviderElement<SearchRecruitViewModel, SearchRecruitState>
       createElement() {
     return _SearchRecruitViewModelProviderElement(this);
   }
@@ -178,8 +178,7 @@ class SearchRecruitViewModelProvider extends AutoDisposeNotifierProviderImpl<
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin SearchRecruitViewModelRef
-    on AutoDisposeNotifierProviderRef<SearchRecruitState> {
+mixin SearchRecruitViewModelRef on NotifierProviderRef<SearchRecruitState> {
   /// The parameter `type` of this provider.
   RecruitType get type;
 
@@ -188,8 +187,8 @@ mixin SearchRecruitViewModelRef
 }
 
 class _SearchRecruitViewModelProviderElement
-    extends AutoDisposeNotifierProviderElement<SearchRecruitViewModel,
-        SearchRecruitState> with SearchRecruitViewModelRef {
+    extends NotifierProviderElement<SearchRecruitViewModel, SearchRecruitState>
+    with SearchRecruitViewModelRef {
   _SearchRecruitViewModelProviderElement(super.provider);
 
   @override

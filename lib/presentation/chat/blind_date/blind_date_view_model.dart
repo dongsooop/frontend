@@ -11,18 +11,22 @@ class BlindDateViewModel extends StateNotifier<BlindDateState> {
   ) : super(BlindDateState(isLoading: false));
 
   Future<bool> isOpened() async {
-    state = state.copyWith(errorMessage: null);
+    state = state.copyWith(errorMessage: null, isLoading: true);
 
     try {
-      return await _getBlindDateOpenUseCase.execute();
+      final result = await _getBlindDateOpenUseCase.execute();
+      state = state.copyWith(isLoading: false);
+      return result;
     } on BlindDateOpenException catch (e) {
       state = state.copyWith(
         isBlindDateOpened: e.message,
+        isLoading: false,
       );
       return false;
     } catch (e) {
       state = state.copyWith(
         errorMessage: '과팅 오픈 확인 중 오류가 발생했습니다.',
+        isLoading: false,
       );
       return false;
     }
