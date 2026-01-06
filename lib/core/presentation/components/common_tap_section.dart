@@ -14,6 +14,7 @@ class BoardTabSection extends StatelessWidget {
   final VoidCallback? onHelpPressed;
   final TextEditingController searchController;
   final Future<void> Function(String) onSubmitted;
+  final bool showSearchBar;
 
   const BoardTabSection({
     super.key,
@@ -27,6 +28,7 @@ class BoardTabSection extends StatelessWidget {
     this.onHelpPressed,
     required this.searchController,
     required this.onSubmitted,
+    this.showSearchBar = true,
   });
 
   @override
@@ -49,13 +51,16 @@ class BoardTabSection extends StatelessWidget {
           ),
         ),
 
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: SearchBarComponent(
-            controller: searchController,
-            onSubmitted: onSubmitted,
-          ),
-        ),
+        if (showSearchBar)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: SearchBarComponent(
+              controller: searchController,
+              onSubmitted: onSubmitted,
+            ),
+          )
+        else
+          const SizedBox(height: 16),
 
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,

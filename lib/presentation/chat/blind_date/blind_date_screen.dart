@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -22,6 +23,9 @@ class BlindDateScreen extends HookConsumerWidget {
     final chatState = ref.watch(blindDateViewModelProvider);
 
     final isJoining = useRef(false);
+
+    final subTabs = const <String>[];
+    final searchController = useTextEditingController();
 
     useEffect(() {
       if (chatState.isBlindDateOpened != null) {
@@ -61,24 +65,24 @@ class BlindDateScreen extends HookConsumerWidget {
       backgroundColor: ColorStyles.white,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 24,
             children: [
-              SizedBox(
-                width: double.infinity,
-                height: 44,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 16,
-                  children: [
-                    _buildTopTab(label: '채팅', isSelected: false, onTap: onTapChat),
-                    _buildTopTab(label: '과팅', isSelected: true, onTap: () {},),
-                  ],
-                ),
+              BoardTabSection(
+                categoryTabs: const ['채팅', '과팅'],
+                selectedCategoryIndex: 1,
+                subTabs: subTabs,
+                selectedSubTabIndex: 0,
+                onCategorySelected: (i) {
+                  if (i == 1) return;
+                  onTapChat();
+                },
+                onSubTabSelected: (_) {},
+                showSearchBar: false,
+                searchController: searchController,
+                onSubmitted: (_) async {},
               ),
               _joinBlindDateButton(
                 onTap: (chatState.isLoading || isJoining.value)
@@ -98,30 +102,6 @@ class BlindDateScreen extends HookConsumerWidget {
                 },
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopTab({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 44,
-          minHeight: 44,
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: isSelected
-                ? TextStyles.titleTextBold.copyWith(color: ColorStyles.primaryColor,)
-                : TextStyles.titleTextRegular.copyWith(color: ColorStyles.gray4),
           ),
         ),
       ),
