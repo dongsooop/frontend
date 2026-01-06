@@ -62,21 +62,22 @@ class BoardTabSection extends StatelessWidget {
           children: [
             Expanded(
               child: Row(
-                children: List.generate(subTabs.length, (index) {
-                  return Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => onSubTabSelected(index),
+                spacing: 8,
+                children: [
+                  for (int i = 0; i < subTabs.length; i++) ...[
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => onSubTabSelected(i),
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
                         child: _buildUnderlineTab(
-                          subTabs[index],
-                          selectedSubTabIndex == index,
+                          subTabs[i],
+                          selectedSubTabIndex == i,
                         ),
                       ),
-                      if (index != subTabs.length - 1)
-                        const SizedBox(width: 24),
-                    ],
-                  );
-                }),
+                    ),
+                  ],
+                ],
               ),
             ),
             if (showHelpIcon && onHelpPressed != null)
@@ -123,32 +124,28 @@ class BoardTabSection extends StatelessWidget {
 
   Widget _buildUnderlineTab(String label, bool isSelected) {
     return Container(
-      height: 44,
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       alignment: Alignment.bottomCenter,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 2),
+            padding: const EdgeInsets.only(bottom: 8),
             child: Text(
               label,
               style: isSelected
-                  ? TextStyles.largeTextBold
-                      .copyWith(color: ColorStyles.primary100)
-                  : TextStyles.largeTextRegular
-                      .copyWith(color: ColorStyles.gray4),
+                ? TextStyles.largeTextBold.copyWith(color: ColorStyles.primary100)
+                : TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray4),
             ),
           ),
           if (isSelected)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 1,
-                color: ColorStyles.primary100,
-              ),
-            ),
+            SizedBox(
+              width: double.infinity,
+              child: Container(height: 2, color: ColorStyles.primary100),
+            )
+          else
+            const SizedBox(height: 2),
         ],
       ),
     );
