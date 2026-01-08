@@ -38,25 +38,31 @@ class CategoryTabBar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // 카테고리
-          Row(
-            spacing: 16,
-            mainAxisSize: MainAxisSize.min,
-            children: List.generate(tabs.length, (i) {
-              final isSelected = selectedIndex == i;
-              return GestureDetector(
-                onTap: () => onSelected(i),
-                behavior: HitTestBehavior.opaque,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  child: Text(
-                    tabs[i],
-                    style: isSelected
-                        ? TextStyles.largeTextBold.copyWith(color: ColorStyles.primary100)
-                        : TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray5),
-                  ),
-                ),
-              );
-            }),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 120,),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                spacing: 16,
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(tabs.length, (i) {
+                  final isSelected = selectedIndex == i;
+                  return GestureDetector(
+                    onTap: () => onSelected(i),
+                    behavior: HitTestBehavior.opaque,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                      child: Text(
+                        tabs[i],
+                        style: isSelected
+                            ? TextStyles.largeTextBold.copyWith(color: ColorStyles.primary100)
+                            : TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray5),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
           ),
 
           if (isBoard) ...[
