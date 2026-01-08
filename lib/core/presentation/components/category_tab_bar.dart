@@ -39,7 +39,7 @@ class CategoryTabBar extends StatelessWidget {
         children: [
           // 카테고리
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 120,),
+            constraints: const BoxConstraints(maxWidth: 160,),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
