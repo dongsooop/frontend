@@ -26,16 +26,19 @@ class _MypageWebViewState extends State<MypageWebView> {
 
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-
       ..setOnJavaScriptAlertDialog((request) async {
         if (!mounted) return;
 
-        await CustomConfirmDialog(
-          title: '알림',
-          content: request.message,
-          onConfirm: () {},
-          confirmText: '확인',
-          isSingleAction: true,
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => CustomConfirmDialog(
+            title: '알림',
+            content: request.message,
+            confirmText: '확인',
+            isSingleAction: true,
+            onConfirm: () {},
+          ),
         );
       })
       ..loadRequest(Uri.parse(widget.url));
