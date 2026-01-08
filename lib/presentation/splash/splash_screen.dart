@@ -113,14 +113,21 @@ class SplashScreen extends HookConsumerWidget {
       };
     }, const []);
 
-    if (splashState.errorMessage != null) {
-      return Center(
-        child: Text(
-          splashState.errorMessage!,
-          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-        ),
-      );
-    }
+    useEffect(() {
+      if (splashState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '동숲 오류',
+              content: splashState.errorMessage!,
+              onConfirm: () {},
+            ),
+          );
+        });
+      }
+      return null;
+    }, [splashState.errorMessage]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
