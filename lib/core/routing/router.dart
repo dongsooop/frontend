@@ -38,7 +38,7 @@ import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.d
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_more_screen.dart';
-import 'package:dongsoop/presentation/setting/notification_screen.dart';
+import 'package:dongsoop/presentation/setting/notification/notification_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
