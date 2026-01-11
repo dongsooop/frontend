@@ -1,6 +1,8 @@
-import 'package:dongsoop/core/presentation/components/common_tap_section.dart';
+import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
+import 'package:dongsoop/core/presentation/components/search_bar_section.dart';
 import 'package:dongsoop/core/presentation/components/single_action_dialog.dart';
+import 'package:dongsoop/core/presentation/components/sub_tab_bar.dart';
 import 'package:dongsoop/core/utils/use_search_reset.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
@@ -247,124 +249,129 @@ class BoardPageScreen extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
-      floatingActionButton: WriteButton(
-        onPressed: handleWriteAction,
-      ),
       body: SafeArea(
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            FocusManager.instance.primaryFocus?.unfocus();
-          },
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: BoardTabSection(
-                  categoryTabs: categoryTabs,
-                  selectedCategoryIndex: tabState.categoryIndex,
-                  selectedSubTabIndex: safeIndex,
-                  subTabs: currentSubTabs,
-                  onCategorySelected: (newIndex) {
+        child: Stack(
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        SearchBarSection(
+                          controller: searchCtrl,
+                          onSubmitted: performSearch,
+                        ),
+                        SubTabBar(
+                          tabs: currentSubTabs,
+                          selectedIndex: safeIndex,
+                          onSelected: (newSubIndex) {
+                            if (isSearching) cancelSearch();
+                            if (isRecruit) {
+                              tabNotifier.setRecruitTabIndex(newSubIndex);
+                              recruitController.jumpToPage(newSubIndex);
+                            } else {
+                              tabNotifier.setMarketTabIndex(newSubIndex);
+                              marketController.jumpToPage(newSubIndex);
+                            }
+                          },
+                          showHelpIcon: isRecruit,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: PageView.builder(
+                      key: ValueKey(isRecruit ? 'pv-recruit' : 'pv-market'),
+                      controller: pageController,
+                      itemCount: currentSubTabs.length,
+                      onPageChanged: (index) {
+                        if (isRecruit) {
+                          tabNotifier.setRecruitTabIndex(index);
+                        } else {
+                          tabNotifier.setMarketTabIndex(index);
+                        }
+                      },
+                      itemBuilder: (context, index) {
+                        final isActive = index == safeIndex;
+                        final controller = scrollControllers[index];
+                        if (!isActive) return const SizedBox.shrink();
+
+                        if (isSearching) {
+                          if (isRecruit && index < RecruitType.values.length) {
+                            return SearchRecruitItemListSection(
+                              key: ValueKey(
+                                'search-recruit-${RecruitType.values[index].name}-${keyword.value}',
+                              ),
+                              recruitType: RecruitType.values[index],
+                              departmentName: departmentName,
+                              scrollController: controller,
+                              onTapRecruitDetail: handleRecruitDetail,
+                              query: keyword.value,
+                            );
+                          } else if (!isRecruit && index < MarketType.values.length) {
+                            return SearchMarketItemListSection(
+                              key: ValueKey(
+                                'search-market-${MarketType.values[index].name}-${keyword.value}',
+                              ),
+                              marketType: MarketType.values[index],
+                              scrollController: controller,
+                              onTapMarketDetail: handleMarketDetail,
+                              query: keyword.value,
+                            );
+                          }
+                        } else {
+                          if (isRecruit && index < RecruitType.values.length) {
+                            return RecruitItemListSection(
+                              key: ValueKey(
+                                'recruit-${RecruitType.values[index].name}-$departmentCode',
+                              ),
+                              recruitType: RecruitType.values[index],
+                              departmentCode: departmentCode,
+                              onTapRecruitDetail: handleRecruitDetail,
+                              scrollController: controller,
+                            );
+                          } else if (!isRecruit && index < MarketType.values.length) {
+                            return MarketItemListSection(
+                              key: ValueKey('market-${MarketType.values[index].name}'),
+                              marketType: MarketType.values[index],
+                              onTapMarketDetail: handleMarketDetail,
+                              scrollController: controller,
+                            );
+                          }
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // 카테고리
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 24,
+              child: Center(
+                child: CategoryTabBar(
+                  tabs: categoryTabs,
+                  selectedIndex: tabState.categoryIndex,
+                  onSelected: (newIndex) {
                     if (isSearching) cancelSearch();
                     tabNotifier.setCategoryIndex(newIndex);
                   },
-                  onSubTabSelected: (newSubIndex) {
-                    if (isSearching) cancelSearch();
-                    if (isRecruit) {
-                      tabNotifier.setRecruitTabIndex(newSubIndex);
-                      recruitController.jumpToPage(newSubIndex);
-                    } else {
-                      tabNotifier.setMarketTabIndex(newSubIndex);
-                      marketController.jumpToPage(newSubIndex);
-                    }
-                  },
-                  showHelpIcon: isRecruit,
-                  onHelpPressed: () {
-                    final messenger = ScaffoldMessenger.of(context);
-                    messenger.removeCurrentSnackBar();
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: const Text('현재 모집 중인 게시글만 보여져요.'),
-                        duration: const Duration(seconds: 3),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        backgroundColor: ColorStyles.black,
-                      ),
-                    );
-                  },
-                  searchController: searchCtrl,
-                  onSubmitted: performSearch,
+                  onWriteTab: handleWriteAction,
+                  isBoard: true,
                 ),
               ),
-              Expanded(
-                child: PageView.builder(
-                  key: ValueKey(isRecruit ? 'pv-recruit' : 'pv-market'),
-                  controller: pageController,
-                  itemCount: currentSubTabs.length,
-                  onPageChanged: (index) {
-                    if (isRecruit) {
-                      tabNotifier.setRecruitTabIndex(index);
-                    } else {
-                      tabNotifier.setMarketTabIndex(index);
-                    }
-                  },
-                  itemBuilder: (context, index) {
-                    final isActive = index == safeIndex;
-                    final controller = scrollControllers[index];
-                    if (!isActive) return const SizedBox.shrink();
-
-                    if (isSearching) {
-                      if (isRecruit && index < RecruitType.values.length) {
-                        return SearchRecruitItemListSection(
-                          key: ValueKey(
-                            'search-recruit-${RecruitType.values[index].name}-${keyword.value}',
-                          ),
-                          recruitType: RecruitType.values[index],
-                          departmentName: departmentName,
-                          scrollController: controller,
-                          onTapRecruitDetail: handleRecruitDetail,
-                          query: keyword.value,
-                        );
-                      } else if (!isRecruit && index < MarketType.values.length) {
-                        return SearchMarketItemListSection(
-                          key: ValueKey(
-                            'search-market-${MarketType.values[index].name}-${keyword.value}',
-                          ),
-                          marketType: MarketType.values[index],
-                          scrollController: controller,
-                          onTapMarketDetail: handleMarketDetail,
-                          query: keyword.value,
-                        );
-                      }
-                    } else {
-                      if (isRecruit && index < RecruitType.values.length) {
-                        return RecruitItemListSection(
-                          key: ValueKey(
-                            'recruit-${RecruitType.values[index].name}-$departmentCode',
-                          ),
-                          recruitType: RecruitType.values[index],
-                          departmentCode: departmentCode,
-                          onTapRecruitDetail: handleRecruitDetail,
-                          scrollController: controller,
-                        );
-                      } else if (!isRecruit && index < MarketType.values.length) {
-                        return MarketItemListSection(
-                          key: ValueKey('market-${MarketType.values[index].name}'),
-                          marketType: MarketType.values[index],
-                          onTapMarketDetail: handleMarketDetail,
-                          scrollController: controller,
-                        );
-                      }
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         )
       ),
     );

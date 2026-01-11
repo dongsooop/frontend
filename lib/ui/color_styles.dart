@@ -13,6 +13,7 @@ abstract class ColorStyles {
 
   static const Color primary100 = Color(0xFF006DFF);
   static const Color primary5 = Color(0xFFEBF3FF);
+  static const Color primaryGray = Color(0xFF00439C);
 
   static const Color labelColorRed100 = Color(0xFF804640);
   static const Color labelColorRed10 = Color(0xFFFCEEED);
