@@ -7,7 +7,6 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SettingScreen extends HookConsumerWidget {
   final VoidCallback onTapNotification;
@@ -48,22 +47,6 @@ class SettingScreen extends HookConsumerWidget {
         ),
       );
     }
-
-    useEffect(() {
-      final observer = _LifecycleObserver(onResumed: () {
-        viewModel.refreshNotificationPermission();
-      });
-
-      WidgetsBinding.instance.addObserver(observer);
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        viewModel.refreshNotificationPermission();
-      });
-
-      return () {
-        WidgetsBinding.instance.removeObserver(observer);
-      };
-    }, const []);
 
     return Scaffold(
       backgroundColor: ColorStyles.gray1,
@@ -231,18 +214,5 @@ class SettingScreen extends HookConsumerWidget {
         ),
       ),
     );
-  }
-}
-
-class _LifecycleObserver extends WidgetsBindingObserver {
-  _LifecycleObserver({required this.onResumed});
-
-  final VoidCallback onResumed;
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      onResumed();
-    }
   }
 }
