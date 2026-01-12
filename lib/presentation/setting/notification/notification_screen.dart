@@ -1,3 +1,4 @@
+import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -27,8 +28,8 @@ class _NotificationScreenState
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: ColorStyles.black,
+        content: Text(message, style: TextStyles.normalTextRegular),
+        backgroundColor: ColorStyles.gray3,
       ),
     );
   }
@@ -43,7 +44,7 @@ class _NotificationScreenState
     required bool enabled,
   }) {
     return '${_todayLabel()} $label 알림 '
-        '${enabled ? '동의했어요' : '동의를 철회했어요'}';
+        '${enabled ? '동의했어요' : '동의를 거부했어요'}';
   }
 
   @override
@@ -91,7 +92,7 @@ class _NotificationScreenState
         body: Center(
           child: Text(
             state.error!,
-            style: const TextStyle(fontSize: 14),
+            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
             textAlign: TextAlign.center,
           ),
         ),
@@ -274,11 +275,11 @@ class _NotificationScreenState
               subtitle: '과팅 오픈 소식을 확인할 수 있어요',
               children: [
                 NotificationToggleRow(
-                  label: '광고성 푸시',
+                  label: '광고성 푸시 알림',
                   value: state.isEnabled(NotificationTypes.marketing),
                   loading: state.isLoading(NotificationTypes.marketing),
                   onChanged: (v) => onToggle(
-                    label: '광고성 푸시',
+                    label: '광고성 푸시 알림',
                     type: NotificationTypes.marketing,
                     nextValue: v,
                   ),

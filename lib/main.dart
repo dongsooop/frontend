@@ -4,7 +4,6 @@ import 'package:dongsoop/core/app_scaffold_messenger.dart';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
-import 'package:dongsoop/core/storage/notification_permission_service.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:dongsoop/firebase_options.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
@@ -93,10 +92,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     FirebaseMessagingService.instance().setBadgeCallback(
           (int n) => ref.read(notificationBadgeViewModelProvider.notifier).setBadge(n),
     );
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(notificationPermissionServiceProvider).requestOnce();
-    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _refreshBadgeThrottled(ref, force: false);

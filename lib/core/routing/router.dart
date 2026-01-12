@@ -55,7 +55,10 @@ import 'package:dongsoop/presentation/web_view/restaurant_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final router = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: RoutePaths.splash,
   routes: [
     GoRoute(
