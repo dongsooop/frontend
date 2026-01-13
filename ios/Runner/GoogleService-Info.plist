@@ -2,14 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>API_KEY</key>
+	<key>API_KEY</key>
 	<string>AIzaSyA6BN3kxxLe_woKaH9Nba-bRzOSnw2drDc</string>
 	<key>GCM_SENDER_ID</key>
 	<string>818311481512</string>
-	<key>PLIST_VERSION</key>
-	<string>1</string>
-	<key>BUNDLE_ID</key>
-	<string>com.dongsoop.site.dongsoop</string>
 	<key>PROJECT_ID</key>
 	<string>dongsoop-feb7b</string>
 	<key>STORAGE_BUCKET</key>
@@ -27,12 +23,12 @@
 	<key>GOOGLE_APP_ID</key>
 	<string>1:818311481512:ios:7019cf9d102b21afde9a9d</string>
 	<key>CLIENT_ID</key>
-	<string>818311481512-4bkq7busrhim2j9dhoob38bivu57oj6f.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.818311481512-4bkq7busrhim2j9dhoob38bivu57oj6f</string>
-	<key>PLIST_VERSION</key>
-	<string>1</string>
-	<key>BUNDLE_ID</key>
-	<string>com.dongsoop.site.dongsoop</string>
+    <string>818311481512-4bkq7busrhim2j9dhoob38bivu57oj6f.apps.googleusercontent.com</string>
+    <key>REVERSED_CLIENT_ID</key>
+    <string>com.googleusercontent.apps.818311481512-4bkq7busrhim2j9dhoob38bivu57oj6f</string>
+    <key>PLIST_VERSION</key>
+    <string>1</string>
+    <key>BUNDLE_ID</key>
+    <string>com.dongsoop.site.dongsoop</string>
 </dict>
 </plist>

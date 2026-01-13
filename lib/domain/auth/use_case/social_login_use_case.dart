@@ -2,6 +2,7 @@ import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
 import 'package:dongsoop/domain/device_token/repositoy/device_token_repository.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:flutter/services.dart';
 
@@ -76,8 +77,31 @@ class SocialLoginUseCase {
   }
 
   Future<String?> googleLogin() async {
-    // 코드 작성 필요
-    return null;
+    try {
+      final GoogleSignIn _signIn = GoogleSignIn.instance;
+      final GoogleSignInAccount? user = await _signIn.authenticate();
+      if (user == null) return null;
+
+      const scopes = <String>[
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile',
+      ];
+
+      final authorization = await user.authorizationClient.authorizeScopes(scopes);
+
+      final token = authorization.accessToken;
+      if (token.isEmpty) return null;
+
+      print('구글 로그인 성공! token: $token');
+      return token;
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return null;
+
+      rethrow;
+    } catch (e) {
+      print('구글 로그인 실패: ${e}');
+      rethrow;
+    }
   }
 
   Future<String?> appleLogin() async {

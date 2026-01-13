@@ -32,7 +32,12 @@ class SignInScreen extends HookConsumerWidget {
 
     ref.listen(signInViewModelProvider, (prev, next) {
       final wasLoading = prev?.isLoading ?? false;
-      if (wasLoading && !next.isLoading && next.errorMessage == null) {
+      if (!wasLoading || next.isLoading) return;
+
+      final user = ref.read(userSessionProvider);
+      final hasAnyError = next.errorMessage != null || next.dialogMessage != null;
+
+      if (!hasAnyError && user != null) {
         context.go(RoutePaths.mypage);
       }
     });
@@ -221,7 +226,9 @@ class SignInScreen extends HookConsumerWidget {
                       ),
                       // 구글
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () async {
+                          await viewModel.socialLogin(LoginPlatform.google);
+                        },
                         child: ClipOval(
                           child: Image.asset(
                             'assets/images/google_symbol.png',

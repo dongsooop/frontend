@@ -38,6 +38,7 @@ class SignInViewModel extends StateNotifier<SignInState> {
   }
 
   Future<void> socialLogin(LoginPlatform platform) async {
+    if (state.isLoading) return;
     state = state.copyWith(isLoading: true, errorMessage: null, dialogMessage: null);
 
     try {
