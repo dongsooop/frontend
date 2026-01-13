@@ -569,3 +569,13 @@ class FeedbackException implements Exception {
   @override
   String toString() => message;
 }
+
+class NotificationSettingException implements Exception {
+  final String message;
+
+  NotificationSettingException(
+      [this.message = "알림 설정을 변경할 수 없어요. 잠시 후 다시 시도해 주세요."]);
+
+  @override
+  String toString() => message;
+}

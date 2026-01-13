@@ -8,6 +8,8 @@ class PreferencesService {
   static const _departmentKey = 'departmentType';
   static const _roleKey = 'role';
   static const _notificationPermissionRequestedKey = 'notification_permission_requested';
+  static const _adsPushConsent = 'ads_push_consent'; // 사용자 동의 여부
+  static const _adsPushPrompted = 'ads_push_prompted'; // 노출 여부
 
   Future<void> saveUser(User user) async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
@@ -45,6 +47,26 @@ class PreferencesService {
   Future<void> setNotificationPermissionRequested() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_notificationPermissionRequestedKey, true);
+  }
+
+  Future<bool> isAdsPushConsentGranted() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_adsPushConsent) ?? false;
+  }
+
+  Future<void> setAdsPushConsentGranted(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_adsPushConsent, value);
+  }
+
+  Future<bool> isAdsPushPrompted() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_adsPushPrompted) ?? false;
+  }
+
+  Future<void> setAdsPushPrompted() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_adsPushPrompted, true);
   }
 }
 
