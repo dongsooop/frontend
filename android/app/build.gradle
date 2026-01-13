@@ -5,6 +5,13 @@ plugins {
     id "com.google.gms.google-services"
 }
 
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localProps.load(new FileInputStream(localPropsFile))
+}
+def kakaoNativeAppKey = localProps.getProperty("KAKAO_NATIVE_APP_KEY", "")
+
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = file("keystore/key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -23,6 +30,10 @@ android {
         targetSdkVersion  flutter.targetSdkVersion
         versionCode       flutter.versionCode
         versionName       flutter.versionName
+
+        manifestPlaceholders = [
+                KAKAO_NATIVE_APP_KEY: kakaoNativeAppKey
+        ]
 
         ndk {
             abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"

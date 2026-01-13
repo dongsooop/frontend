@@ -59,5 +59,18 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>LSApplicationQueriesSchemes</key>
+      <array>
+          <string>kakaokompassauth</string>
+      </array>
+      <key>CFBundleURLTypes</key>
+      <array>
+        <dict>
+          <key>CFBundleURLSchemes</key>
+          <array>
+            <string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
+          </array>
+        </dict>
+      </array>
 </dict>
 </plist>
