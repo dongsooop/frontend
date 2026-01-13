@@ -1,25 +1,25 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
-import 'package:dongsoop/providers/os_notification_providers.dart';
 import 'package:dongsoop/providers/setting_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SettingScreen extends HookConsumerWidget {
+  final VoidCallback onTapNotification;
+
   const SettingScreen({
     super.key,
+    required this.onTapNotification,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.read(settingViewModelProvider.notifier);
     final settingState = ref.watch(settingViewModelProvider);
-    final osNotifState = ref.watch(osNotificationViewModelProvider);
     final user = ref.read(userSessionProvider);
 
     const termsOfService =
@@ -48,22 +48,6 @@ class SettingScreen extends HookConsumerWidget {
       );
     }
 
-    useEffect(() {
-      final observer = _LifecycleObserver(onResumed: () {
-        viewModel.refreshNotificationPermission();
-      });
-
-      WidgetsBinding.instance.addObserver(observer);
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        viewModel.refreshNotificationPermission();
-      });
-
-      return () {
-        WidgetsBinding.instance.removeObserver(observer);
-      };
-    }, const []);
-
     return Scaffold(
       backgroundColor: ColorStyles.gray1,
       appBar: DetailHeader(
@@ -79,7 +63,7 @@ class SettingScreen extends HookConsumerWidget {
               title: '이용 안내',
               children: [
                 buildSettingsItem(
-                  label: '버전  1.5.10',
+                  label: '버전  1.6.0',
                   onTap: () {},
                 ),
                 buildSettingsItem(
@@ -114,40 +98,9 @@ class SettingScreen extends HookConsumerWidget {
               buildSettingsSection(
                 title: '앱 설정',
                 children: [
-                  buildSettingsToggleItem(
+                  buildSettingsItem(
                     label: '알림 설정',
-                    value: osNotifState.isAllowed ?? false,
-                    loading: osNotifState.isLoading,
-                    onChanged: (enabled) async {
-                      if (enabled) {
-                        await viewModel.enableNotification();
-                        final allowedNow =
-                            ref.read(osNotificationViewModelProvider).isAllowed ??
-                                false;
-
-                        if (!allowedNow) {
-                          _showOpenSettingsDialog(
-                            context,
-                            title: '알림 ON',
-                            content:
-                            '알림 권한을 허용하실래요?',
-                            onOk: () async {
-                              await viewModel.openNotificationSettings();
-                            },
-                          );
-                        }
-                      } else {
-                        _showOpenSettingsDialog(
-                          context,
-                          title: '알림 OFF',
-                          content:
-                          '알림을 끄면 중요한 안내를 받지 못할 수 있어요.',
-                          onOk: () async {
-                            await viewModel.openNotificationSettings();
-                          },
-                        );
-                      }
-                    },
+                    onTap: onTapNotification
                   ),
                   if (user != null)
                   buildSettingsItem(
@@ -261,83 +214,5 @@ class SettingScreen extends HookConsumerWidget {
         ),
       ),
     );
-  }
-
-  Widget buildSettingsToggleItem({
-    required String label,
-    required bool value,
-    required bool loading,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return SizedBox(
-      height: 44,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyles.normalTextRegular.copyWith(
-              color: ColorStyles.black,
-            ),
-          ),
-          Row(
-            children: [
-              if (loading)
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 1),
-                ),
-              const SizedBox(width: 8),
-              SwitchTheme(
-                data: SwitchThemeData(
-                  trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
-                ),
-                child: Switch(
-                  value: value,
-                  onChanged: loading ? null : onChanged,
-                  inactiveTrackColor: ColorStyles.gray3,
-                  inactiveThumbColor: ColorStyles.white,
-                  activeTrackColor: ColorStyles.primaryColor,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showOpenSettingsDialog(
-      BuildContext context, {
-        required Future<void> Function() onOk,
-        required String title,
-        required String content,
-        String confirmText = '확인',
-      }) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => CustomConfirmDialog(
-        title: title,
-        content: content,
-        confirmText: confirmText,
-        onConfirm: () async {
-          await onOk();
-        },
-      ),
-    );
-  }
-}
-
-class _LifecycleObserver extends WidgetsBindingObserver {
-  _LifecycleObserver({required this.onResumed});
-
-  final VoidCallback onResumed;
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      onResumed();
-    }
   }
 }
