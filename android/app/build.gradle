@@ -32,7 +32,8 @@ android {
         versionName       flutter.versionName
 
         manifestPlaceholders = [
-                KAKAO_NATIVE_APP_KEY: kakaoNativeAppKey
+                applicationName      : "android.app.Application",
+                KAKAO_NATIVE_APP_KEY : kakaoNativeAppKey,
         ]
 
         ndk {

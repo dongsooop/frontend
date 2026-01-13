@@ -52,7 +52,7 @@ class SignInViewModel extends StateNotifier<SignInState> {
     } on SocialLoginException catch (e) {
       state = state.copyWith(isLoading: false, dialogMessage: e.message);
     } catch (e) {
-      state = state.copyWith(isLoading: false, dialogMessage: "소셜 로그인 중 오류가 발생했습니다.");
+      state = state.copyWith(isLoading: false, dialogMessage: "소셜 로그인 중 오류가 발생했습니다.\n${e}");
     }
   }
 

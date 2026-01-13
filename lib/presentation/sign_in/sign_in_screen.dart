@@ -240,10 +240,12 @@ class SignInScreen extends HookConsumerWidget {
                       ),
                       // 애플
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () async {
+                          await viewModel.socialLogin(LoginPlatform.apple);
+                        },
                         child: ClipOval(
                           child: Image.asset(
-                            'assets/images/kakao_symbol.png',
+                            'assets/images/apple_symbol.png',
                             width: 48,
                             height: 48,
                             fit: BoxFit.cover,
