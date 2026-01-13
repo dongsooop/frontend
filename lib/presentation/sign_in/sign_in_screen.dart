@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -35,6 +36,30 @@ class SignInScreen extends HookConsumerWidget {
         context.go(RoutePaths.mypage);
       }
     });
+
+    useEffect(() {
+      final message = loginState.dialogMessage;
+      if (message == null) return null;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+
+        viewModel.clearErrorMessage();
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => CustomConfirmDialog(
+            title: '소셜 로그인 오류',
+            content: message,
+            onConfirm: () {},
+            onCancel: () {},
+          ),
+        );
+      });
+
+      return null;
+    }, [loginState.dialogMessage]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
