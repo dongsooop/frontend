@@ -63,14 +63,15 @@
       <array>
           <string>kakaokompassauth</string>
       </array>
-      <key>CFBundleURLTypes</key>
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLSchemes</key>
       <array>
-        <dict>
-          <key>CFBundleURLSchemes</key>
-          <array>
-            <string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
-          </array>
-        </dict>
+        <string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
+        <string>com.googleusercontent.apps.818311481512-4bkq7busrhim2j9dhoob38bivu57oj6f</string>
       </array>
+    </dict>
+  </array>
 </dict>
 </plist>
