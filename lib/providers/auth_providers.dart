@@ -8,6 +8,7 @@ import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_state.dart
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_view_model.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_state.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_view_model.dart';
+import 'package:dongsoop/presentation/sign_in/sign_in_state.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
 import 'package:dongsoop/providers/activity_providers.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
@@ -118,7 +119,7 @@ final blindDateOpenUseCaseProvider = Provider<BlindDateOpenUseCase>((ref) {
 });
 
 // View Model
-final signInViewModelProvider = StateNotifierProvider<SignInViewModel, AsyncValue<void>>((ref) {
+final signInViewModelProvider = StateNotifierProvider<SignInViewModel, SignInState>((ref) {
   final loginUseCase = ref.watch(SignInUseCaseProvider);
   final loadUserUseCase = ref.watch(loadUserUseCaseProvider);
 
