@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
+import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:dongsoop/domain/mypage/model/blind_date_open_request.dart';
 import 'package:dongsoop/domain/mypage/model/blocked_user.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
+import 'package:dongsoop/domain/mypage/model/social_state.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 
@@ -89,6 +91,52 @@ class MypageDataSourceImpl implements MypageDataSource {
       final response = await _authDio.post(endpoint, data: request.toJson());
       if (response.statusCode == HttpStatusCode.created.code) {
         return true;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<SocialState>> getSocialStateList() async {
+    final endpoint = dotenv.get('SOCIAL_STATE_ENDPOINT');
+
+    try {
+      final dummy = <Map<String, dynamic>>[
+        // {"providerType": "APPLE", "createdAt": "2026-01-01 10:00:00"},
+        // {"providerType": "GOOGLE", "createdAt": "2026-01-01 10:00:00"},
+      ];
+
+      return dummy.map((e) =>
+          SocialState.fromJson(e)).toList();
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<dynamic> data = response.data;
+        final List<SocialState> list = data.map((e) =>
+            SocialState.fromJson(e as Map<String, dynamic>)).toList();
+        return list;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<DateTime> linkSocialAccount(LoginPlatform platform, String socialToken) async {
+    final endpoint = dotenv.get('SOCIAL_LINK_ENDPOINT');
+    final url = endpoint + '/${platform.name}';
+    final requestBody = {
+      "token": socialToken,
+    };
+
+    try {
+      final response = await _authDio.post(url, data: requestBody);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final createdAt = response.data['createdAt'];
+        print('${platform.label} 계정 연동 성공 - $createdAt');
+        return createdAt;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {

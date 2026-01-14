@@ -16,6 +16,7 @@ import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_screen.d
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
 import 'package:dongsoop/presentation/home/chatbot/chatbot_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_screen.dart';
+import 'package:dongsoop/presentation/my_page/social_login_connect/social_login_connect_screen.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_screen.dart';
 import 'package:dongsoop/presentation/restaurants/search/restaurants_search_screen.dart';
 import 'package:dongsoop/presentation/restaurants/write/restaurants_write_screen.dart';
@@ -355,6 +356,10 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.mypageBlock,
       builder: (context, state) => BlockedUserScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.socialLoginConnect,
+      builder: (context, state) => SocialLoginConnectScreen(),
     ),
     GoRoute(
       path: RoutePaths.recruitWrite,
@@ -743,7 +748,10 @@ final router = GoRouter(
               },
               onTapBlockedUser: () {
                 context.push(RoutePaths.mypageBlock);
-              }
+              },
+              onTapSocialLoginConnect: () {
+                context.push(RoutePaths.socialLoginConnect);
+              },
             ),
           ),
         ]),
