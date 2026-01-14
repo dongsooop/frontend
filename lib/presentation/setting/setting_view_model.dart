@@ -1,6 +1,7 @@
 import 'package:dongsoop/domain/auth/use_case/delete_user_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/logout_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/delete_chat_data_use_case.dart';
+import 'package:dongsoop/domain/mypage/use_case/get_social_state_use_case.dart';
 import 'package:dongsoop/presentation/setting/setting_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -9,6 +10,7 @@ class SettingViewModel extends StateNotifier<SettingState> {
   final LogoutUseCase _logoutUseCase;
   final DeleteUserUseCase _deleteUserUseCase;
   final DeleteChatDataUseCase _deleteChatDataUseCase;
+  final GetSocialStateUseCase _getSocialStateUseCase;
   final Ref _ref;
 
   bool _shouldReturnToSettingAfterOsSettings = false;
@@ -17,6 +19,7 @@ class SettingViewModel extends StateNotifier<SettingState> {
     this._logoutUseCase,
     this._deleteUserUseCase,
     this._deleteChatDataUseCase,
+    this._getSocialStateUseCase,
     this._ref,
   ) : super(SettingState(isLoading: false));
 
@@ -60,6 +63,16 @@ class SettingViewModel extends StateNotifier<SettingState> {
     state =state.copyWith(isLoading: true, errorMessage: null);
 
     try {
+      // 연결된 소셜 로그인 정보가 있다면 해제 다이얼로그 표시 필요
+      final socialLogin = await _getSocialStateUseCase.execute();
+      print('소셜 로그인 정보: ${socialLogin.toString()}');
+
+      if (socialLogin != null || socialLogin!.isNotEmpty) {
+        // 연결된 소셜 로그인 정보 없음
+        state = state.copyWith(isLoading: false, errorTitle: '소셜 연동 해제', errorMessage: '연결된 소셜 계정이 있어요\n마이페이지에서 소셜 계정을 모두 연동 해제해 주세요');
+        return;
+      }
+
       await _deleteUserUseCase.execute();
       _ref.invalidate(userSessionProvider);
       _ref.invalidate(myPageViewModelProvider);
@@ -68,5 +81,9 @@ class SettingViewModel extends StateNotifier<SettingState> {
     } catch (e) {
       state.copyWith(isLoading: false, errorMessage: '탈퇴 중 오류가 발생했습니다.');
     }
+  }
+
+  void clearErrorMessage() {
+    state = state.copyWith(errorMessage: null, errorTitle: null);
   }
 }

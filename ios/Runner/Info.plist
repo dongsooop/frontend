@@ -22,15 +22,27 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
+				<string>com.googleusercontent.apps.818311481512-4bkq7busrhim2j9dhoob38bivu57oj6f</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<true/>
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<true/>
+	<key>GIDClientID</key>
+	<string>818311481512-4bkq7busrhim2j9dhoob38bivu57oj6f.apps.googleusercontent.com</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-		<string>kakaomap</string>
+		<string>kakaokompassauth</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -59,21 +71,5 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>LSApplicationQueriesSchemes</key>
-      <array>
-          <string>kakaokompassauth</string>
-      </array>
-  <key>GIDClientID</key>
-  <string>818311481512-4bkq7busrhim2j9dhoob38bivu57oj6f.apps.googleusercontent.com</string>
-  <key>CFBundleURLTypes</key>
-  <array>
-    <dict>
-      <key>CFBundleURLSchemes</key>
-      <array>
-        <string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
-        <string>com.googleusercontent.apps.818311481512-4bkq7busrhim2j9dhoob38bivu57oj6f</string>
-      </array>
-    </dict>
-  </array>
 </dict>
 </plist>
