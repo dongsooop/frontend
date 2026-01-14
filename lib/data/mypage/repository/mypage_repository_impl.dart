@@ -59,4 +59,9 @@ class MypageRepositoryImpl implements MypageRepository {
   Future<DateTime> linkSocialAccount(LoginPlatform platform, String socialToken) async {
     return await _mypageDataSource.linkSocialAccount(platform, socialToken);
   }
+
+  @override
+  Future<bool> unlinkSocialAccount(platform, socialToken) async {
+    return await _mypageDataSource.unlinkSocialAccount(platform, socialToken);
+  }
 }

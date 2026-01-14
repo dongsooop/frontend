@@ -49,7 +49,7 @@ class SignInViewModel extends StateNotifier<SignInState> {
       final user = await _loadUserUseCase.execute();
       _ref.read(userSessionProvider.notifier).state = user;
       state = state.copyWith(isLoading: false,);
-    } on SocialLoginException catch (e) {
+    } on OAuthException catch (e) {
       state = state.copyWith(isLoading: false, dialogMessage: e.message);
     } catch (e) {
       state = state.copyWith(isLoading: false, dialogMessage: "소셜 로그인 중 오류가 발생했습니다.\n${e}");

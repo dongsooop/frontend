@@ -13,4 +13,5 @@ abstract class MypageRepository {
   Future<bool> blindOpen(BlindDateOpenRequest request);
   Future<List<SocialState>> getSocialStateList();
   Future<DateTime> linkSocialAccount(LoginPlatform platform, String socialToken);
+  Future<bool> unlinkSocialAccount(platform, socialToken);
 }

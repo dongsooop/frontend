@@ -74,7 +74,15 @@ class SocialLoginConnectScreen extends HookConsumerWidget {
                 platform: item.platform,
                 isConnected: item.isConnected,
                 connectedDate: item.connectedDate,
-                onTap: () => viewModel.socialConnect(item.platform),
+                onTap: () async {
+                  if (item.isConnected) {
+                    // 소셜 연결 해제
+                    await viewModel.socialUnlink(item.platform);
+                  } else {
+                    // 소셜 연결
+                    await viewModel.socialLink(item.platform);
+                  }
+                }
               );
             },
           ),

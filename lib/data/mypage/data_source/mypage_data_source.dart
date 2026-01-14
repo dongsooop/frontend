@@ -13,4 +13,5 @@ abstract class MypageDataSource {
   Future<bool> blindDateOpen(BlindDateOpenRequest request);
   Future<List<SocialState>> getSocialStateList();
   Future<DateTime> linkSocialAccount(LoginPlatform platform, String socialToken);
+  Future<bool> unlinkSocialAccount(LoginPlatform platform, String socialToken);
 }

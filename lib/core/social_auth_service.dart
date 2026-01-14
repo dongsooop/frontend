@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -22,7 +23,7 @@ class SocialAuthService {
           return token.accessToken;
         } catch (error) {
           if (_isCanceledPlatformException(error)) return null;
-          rethrow;
+          throw SocialException();
         }
       }
     } else {
@@ -31,7 +32,7 @@ class SocialAuthService {
         return token.accessToken;
       } catch (error) {
         if (_isCanceledPlatformException(error)) return null;
-        rethrow;
+        throw SocialException();
       }
     }
   }
@@ -60,7 +61,7 @@ class SocialAuthService {
       return token;
     } on GoogleSignInException catch (e) {
       if (e.code == GoogleSignInExceptionCode.canceled) return null;
-      rethrow;
+      throw SocialException();
     }
   }
 
@@ -73,14 +74,22 @@ class SocialAuthService {
         ],
       );
 
-      // 서버로 넘길 값: authorizationCode (요청하신 방식)
       final code = credential.authorizationCode;
       if (code.isEmpty) return null;
 
       return code;
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) return null;
-      rethrow;
+      throw SocialException();
+    }
+  }
+
+  Future<void> kakaoUnlink() async {
+    try {
+      await UserApi.instance.unlink();
+      print('카카오 SDK 연결 해제 성공');
+    } catch (error) {
+      throw SocialException();
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:dongsoop/domain/mypage/use_case/get_my_market_posts_use_case.dar
 import 'package:dongsoop/domain/mypage/use_case/get_my_recruit_posts_use_case.dart';
 import 'package:dongsoop/domain/mypage/use_case/get_social_state_use_case.dart';
 import 'package:dongsoop/domain/mypage/use_case/link_social_use_case.dart';
+import 'package:dongsoop/domain/mypage/use_case/unlink_social_use_case.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_state.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_view_model.dart';
 import 'package:dongsoop/presentation/my_page/activity/blocked_user_state.dart';
@@ -59,6 +60,10 @@ final linkSocialUseCaseProvider = Provider<LinkSocialUseCase>((ref) {
   final repository = ref.watch(mypageRepositoryProvider);
   return LinkSocialUseCase(repository);
 });
+final unlinkSocialUseCaseProvider = Provider<UnlinkSocialUseCase>((ref) {
+  final repository = ref.watch(mypageRepositoryProvider);
+  return UnlinkSocialUseCase(repository);
+});
 
 
 // View Model
@@ -88,6 +93,7 @@ final socialLoginConnectUserViewModelProvider =
 StateNotifierProvider.autoDispose<SocialLoginConnectViewModel, SocialLoginConnectState>((ref) {
   final getSocialStateUseCase = ref.watch(getSocialStateUseCaseProvider);
   final linkSocialUseCase = ref.watch(linkSocialUseCaseProvider);
+  final unlinkSocialUseCase = ref.watch(unlinkSocialUseCaseProvider);
 
-  return SocialLoginConnectViewModel(getSocialStateUseCase, linkSocialUseCase);
+  return SocialLoginConnectViewModel(getSocialStateUseCase, linkSocialUseCase, unlinkSocialUseCase);
 });
