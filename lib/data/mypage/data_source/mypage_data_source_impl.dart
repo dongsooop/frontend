@@ -149,19 +149,15 @@ class MypageDataSourceImpl implements MypageDataSource {
     try {
       final response = await _authDio.delete(url, data: requestBody);
       if (response.statusCode == HttpStatusCode.noContent.code) {
-        print('${platform.label} 계정 해제 성공');
         return true;
       }
-      print('에러: ${response.statusCode}');
       throw OAuthException();
     }  on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.unauthorized.code) {
         throw SocialUnlinkUserException();
       }
-      print('에러: ${e}');
       throw OAuthException();
     } catch (e) {
-      print('에러: ${e}');
       rethrow;
     }
   }

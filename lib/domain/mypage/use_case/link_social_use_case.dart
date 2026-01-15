@@ -16,7 +16,6 @@ class LinkSocialUseCase {
       LoginPlatform.apple => await auth.appleLogin(),
     };
 
-    print('${platform.label} 로그인 성공 - $socialToken');
     if (socialToken == null) return null;
 
     final createdAt = await _mypageRepository.linkSocialAccount(platform, socialToken);

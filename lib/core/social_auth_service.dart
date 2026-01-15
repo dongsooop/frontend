@@ -60,11 +60,9 @@ class SocialAuthService {
       if (token.isEmpty) return null;
       return token;
     } on GoogleSignInException catch (e) {
-      print('GoogleSignInException code=${e.code} message=${e.description} details=${e.details}');
       if (e.code == GoogleSignInExceptionCode.canceled) return null;
       throw SocialException();
     } catch (e) {
-      print('구글 로그인 예외: $e');
       throw SocialException();
     }
   }
@@ -94,7 +92,7 @@ class SocialAuthService {
       return token;
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) return null;
-      final msg = (e.message ?? '').toLowerCase();
+      final msg = (e.message).toLowerCase();
       final looksLikeCancel =
         msg.contains('cancel') ||
         msg.contains('canceled') ||
@@ -113,7 +111,6 @@ class SocialAuthService {
 
       if (looksLikeCancel) return null;
 
-      print('애플 로그인 예외: $e');
       throw SocialException();
     }
   }

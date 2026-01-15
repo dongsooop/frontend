@@ -17,7 +17,6 @@ class UnlinkSocialUseCase {
       LoginPlatform.apple => await auth.appleLogin(),
     };
 
-    print('${platform.label} 로그인 성공 - $socialToken');
     if (socialToken == null) return null;
 
     // 카카오의 경우 kakao SDK를 사용하여 연결 해제 진행
