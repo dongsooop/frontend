@@ -22,9 +22,8 @@ class SocialLoginUseCase {
       LoginPlatform.apple => await auth.appleLogin(),
     };
 
-    print('${platform.label} 로그인 성공 - $socialToken');
-
     if (socialToken == null) return;
+
     final response = await _authRepository.socialLogin(platform, socialToken, tokenToSend,);
 
     final storedUser = StoredUser(
