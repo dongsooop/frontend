@@ -74,10 +74,10 @@ class SocialAuthService {
         ],
       );
 
-      final code = credential.authorizationCode;
-      if (code.isEmpty) return null;
+      final token = credential.identityToken;
+      if (token == null) return null;
 
-      return code;
+      return token;
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) return null;
       throw SocialException();
@@ -87,7 +87,6 @@ class SocialAuthService {
   Future<void> kakaoUnlink() async {
     try {
       await UserApi.instance.unlink();
-      print('카카오 SDK 연결 해제 성공');
     } catch (error) {
       throw SocialException();
     }

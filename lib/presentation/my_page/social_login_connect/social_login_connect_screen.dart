@@ -76,10 +76,8 @@ class SocialLoginConnectScreen extends HookConsumerWidget {
                 connectedDate: item.connectedDate,
                 onTap: () async {
                   if (item.isConnected) {
-                    // 소셜 연결 해제
                     await viewModel.socialUnlink(item.platform);
                   } else {
-                    // 소셜 연결
                     await viewModel.socialLink(item.platform);
                   }
                 }

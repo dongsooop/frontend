@@ -21,7 +21,7 @@ class UnlinkSocialUseCase {
     if (socialToken == null) return null;
 
     // 카카오의 경우 kakao SDK를 사용하여 연결 해제 진행
-    await auth.kakaoUnlink();
+    if (platform.name == LoginPlatform.kakao) await auth.kakaoUnlink();
 
     // 소셜 해제 진행
     final isSuccess = await _mypageRepository.unlinkSocialAccount(platform, socialToken);

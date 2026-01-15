@@ -104,13 +104,6 @@ class MypageDataSourceImpl implements MypageDataSource {
     final endpoint = dotenv.get('SOCIAL_STATE_ENDPOINT');
 
     try {
-      final dummy = <Map<String, dynamic>>[
-        {"providerType": "APPLE", "createdAt": "2026-01-01 10:00:00"},
-        // {"providerType": "GOOGLE", "createdAt": "2026-01-01 10:00:00"},
-      ];
-
-      return dummy.map((e) =>
-          SocialState.fromJson(e)).toList();
       final response = await _authDio.get(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
@@ -129,14 +122,13 @@ class MypageDataSourceImpl implements MypageDataSource {
     final endpoint = dotenv.get('SOCIAL_LINK_ENDPOINT');
     final url = endpoint + '/${platform.name}';
     final requestBody = {
-      "token": socialToken,
+      "providerToken": socialToken,
     };
 
     try {
       final response = await _authDio.post(url, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
-        final createdAt = response.data['createdAt'];
-        print('${platform.label} 계정 연동 성공 - $createdAt');
+        final createdAt = DateTime.parse(response.data);
         return createdAt;
       }
       throw OAuthException();
@@ -151,7 +143,7 @@ class MypageDataSourceImpl implements MypageDataSource {
     final url = endpoint + '/${platform.name}';
     // 카카오는 토큰 X
     final requestBody = {
-      "token": platform.name == 'kakao' ? null : socialToken,
+      "token": platform.name == 'kakao' ? 'mobile' : socialToken,
     };
 
     try {
@@ -160,13 +152,16 @@ class MypageDataSourceImpl implements MypageDataSource {
         print('${platform.label} 계정 해제 성공');
         return true;
       }
+      print('에러: ${response.statusCode}');
       throw OAuthException();
     }  on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.unauthorized.code) {
         throw SocialUnlinkUserException();
       }
+      print('에러: ${e}');
       throw OAuthException();
     } catch (e) {
+      print('에러: ${e}');
       rethrow;
     }
   }

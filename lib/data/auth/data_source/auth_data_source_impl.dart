@@ -68,7 +68,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     final url = endpoint + '/${platform.name}';
     final requestBody = {
       "token": socialToken,
-      "fcmToken": fcmToken,
+      "deviceToken": fcmToken,
     };
     try {
       final response = await _plainDio.post(url, data: requestBody);

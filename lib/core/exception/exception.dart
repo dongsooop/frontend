@@ -590,7 +590,7 @@ class OAuthException implements Exception {
 
 class SocialUnlinkUserException extends OAuthException {
   const SocialUnlinkUserException([
-    String message = "회원 정보를 확인하는 데 실패했어요\n잠시 후에 다시 주세요"
+    String message = "회원 정보를 확인하는 데 실패했어요\n잠시 후에 다시 시도해 주세요"
   ]) : super(message);
 
   @override
@@ -599,7 +599,7 @@ class SocialUnlinkUserException extends OAuthException {
 
 class SocialException extends OAuthException {
   const SocialException([
-    String message = "소셜 로그인 중 오류가 발생했습니다.\n잠시 후에 다시 주세요"
+    String message = "소셜 로그인 중 오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요"
   ]) : super(message);
 
   @override
