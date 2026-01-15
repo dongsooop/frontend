@@ -70,94 +70,98 @@ class _UserFeedbackScreenState extends ConsumerState<UserFeedbackScreen> {
     return Scaffold(
       appBar: DetailHeader(title: '사용자 피드백'),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.only(
-            top: 24,
-            left: 16,
-            right: 16,
-            bottom: 32,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _requiredLabel("앱을 사용하며 가장 편리했던 서비스를 선택해주세요"),
-              const SizedBox(height: 4),
-              Text(
-                "최대 3개까지 중복 선택 가능해요",
-                style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 16,
-                children: ServiceFeature.values.map((feature) {
-                  final label = _serviceFeatureOptions[feature]!;
-                  final isSelected =
-                  state.serviceFeatureList.contains(feature);
-
-                  return _selectServiceChip(
-                    label: label,
-                    value: isSelected,
-                    loading: state.isLoading,
-                    onChanged: (_) => viewmodel.toggleFeature(feature),
-                  );
-                }).toList(),
-              ),
-
-              const SizedBox(height: 32),
-
-              _requiredLabel("앱을 사용하며 개선되었으면 하는 부분이 있었나요?"),
-              const SizedBox(height: 16),
-              BoardTextFormField(
-                controller: _improveController,
-                hintText: '불편했던 점이나 개선 아이디어를 적어주세요',
-                maxLines: 4,
-                maxLength: 150,
-                keyboardType: TextInputType.multiline,
-              ),
-              if (state.improvementError != null) ...[
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(
+              top: 24,
+              left: 16,
+              right: 16,
+              bottom: 32,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _requiredLabel("앱을 사용하며 가장 편리했던 서비스를 선택해주세요"),
                 const SizedBox(height: 4),
                 Text(
-                  state.improvementError!,
-                  style: TextStyles.smallTextRegular
-                      .copyWith(color: ColorStyles.warning100),
+                  "최대 3개까지 중복 선택 가능해요",
+                  style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
                 ),
-              ],
-
-              const SizedBox(height: 32),
-
-              _requiredLabel("추가되었으면 하는 서비스가 있나요?"),
-              const SizedBox(height: 4),
-              Text(
-                "여러분의 의견을 자유롭게 적어주세요",
-                style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
-              ),
-              const SizedBox(height: 16),
-              BoardTextFormField(
-                controller: _additionalController,
-                hintText: '있었으면 하는 기능이나 서비스를 적어주세요',
-                maxLines: 4,
-                maxLength: 150,
-                keyboardType: TextInputType.multiline,
-              ),
-              if (state.featureError != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  state.featureError!,
-                  style: TextStyles.smallTextRegular
-                      .copyWith(color: ColorStyles.warning100),
-                ),
-              ],
-
-              if (state.errMessage != null) ...[
                 const SizedBox(height: 16),
-                Text(
-                  state.errMessage!,
-                  style: TextStyles.smallTextRegular
-                      .copyWith(color: ColorStyles.warning100),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 16,
+                  children: ServiceFeature.values.map((feature) {
+                    final label = _serviceFeatureOptions[feature]!;
+                    final isSelected =
+                    state.serviceFeatureList.contains(feature);
+
+                    return _selectServiceChip(
+                      label: label,
+                      value: isSelected,
+                      loading: state.isLoading,
+                      onChanged: (_) => viewmodel.toggleFeature(feature),
+                    );
+                  }).toList(),
                 ),
+
+                const SizedBox(height: 32),
+
+                _requiredLabel("앱을 사용하며 개선되었으면 하는 부분이 있었나요?"),
+                const SizedBox(height: 16),
+                BoardTextFormField(
+                  controller: _improveController,
+                  hintText: '불편했던 점이나 개선 아이디어를 적어주세요',
+                  maxLines: 4,
+                  maxLength: 150,
+                  keyboardType: TextInputType.multiline,
+                ),
+                if (state.improvementError != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    state.improvementError!,
+                    style: TextStyles.smallTextRegular
+                        .copyWith(color: ColorStyles.warning100),
+                  ),
+                ],
+
+                const SizedBox(height: 32),
+
+                _requiredLabel("추가되었으면 하는 서비스가 있나요?"),
+                const SizedBox(height: 4),
+                Text(
+                  "여러분의 의견을 자유롭게 적어주세요",
+                  style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+                ),
+                const SizedBox(height: 16),
+                BoardTextFormField(
+                  controller: _additionalController,
+                  hintText: '있었으면 하는 기능이나 서비스를 적어주세요',
+                  maxLines: 4,
+                  maxLength: 150,
+                  keyboardType: TextInputType.multiline,
+                ),
+                if (state.featureError != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    state.featureError!,
+                    style: TextStyles.smallTextRegular
+                        .copyWith(color: ColorStyles.warning100),
+                  ),
+                ],
+
+                if (state.errMessage != null) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    state.errMessage!,
+                    style: TextStyles.smallTextRegular
+                        .copyWith(color: ColorStyles.warning100),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

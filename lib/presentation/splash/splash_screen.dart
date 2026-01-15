@@ -1,5 +1,8 @@
 import 'package:dongsoop/core/routing/utils/push_router_helper.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/core/storage/notification_permission_service.dart';
+import 'package:dongsoop/presentation/app/marketing_push_dialog.dart';
+import 'package:dongsoop/presentation/app/marketing_push_guard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +35,37 @@ class SplashScreen extends HookConsumerWidget {
       final container = ProviderScope.containerOf(context, listen: false);
       bool cancelled = false;
 
+      Future<void> runMarketingConsentIfNeeded() async {
+        if (cancelled || !context.mounted) return;
+
+        try {
+          await ref.read(notificationPermissionServiceProvider).requestOnce();
+        } catch (_) {}
+
+        if (cancelled || !context.mounted) return;
+
+        await SchedulerBinding.instance.endOfFrame;
+        await Future.delayed(const Duration(milliseconds: 200));
+
+        if (cancelled || !context.mounted) return;
+
+        try {
+          final guard = ref.read(marketingPushGuardProvider);
+          final shouldShow = await guard.shouldShowDialog();
+          if (!shouldShow) return;
+
+          if (cancelled || !context.mounted) return;
+
+          await showMarketingPushDialog(context, ref);
+        } catch (_) {}
+      }
+
+      Future<void> goNextWithConsent() async {
+        await runMarketingConsentIfNeeded();
+        if (cancelled || !context.mounted) return;
+        _goNext();
+      }
+
       Future(() async {
         await Future.delayed(const Duration(seconds: 2));
         // 자동 로그인
@@ -60,16 +94,16 @@ class SplashScreen extends HookConsumerWidget {
                     '${reportSanction.startDate} ~ ${reportSanction.endDate}',
                   isSingleAction: true,
                   confirmText: '확인',
-                  onConfirm: () {
+                  onConfirm: () async {
                     if (cancelled || !context.mounted) return;
-                    _goNext();
+                    await goNextWithConsent();
                   },
                 ),
               );
             });
           } else {
             if (cancelled || !context.mounted) return;
-            _goNext();
+            await goNextWithConsent();
           }
           return;
         }
@@ -105,7 +139,7 @@ class SplashScreen extends HookConsumerWidget {
             await Future.delayed(const Duration(milliseconds: 200));
           }
         if (cancelled || !context.mounted) return;
-        _goNext();
+        await goNextWithConsent();
       });
 
       return () {
@@ -113,14 +147,21 @@ class SplashScreen extends HookConsumerWidget {
       };
     }, const []);
 
-    if (splashState.errorMessage != null) {
-      return Center(
-        child: Text(
-          splashState.errorMessage!,
-          style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-        ),
-      );
-    }
+    useEffect(() {
+      if (splashState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: '동숲 오류',
+              content: splashState.errorMessage!,
+              onConfirm: () {},
+            ),
+          );
+        });
+      }
+      return null;
+    }, [splashState.errorMessage]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
