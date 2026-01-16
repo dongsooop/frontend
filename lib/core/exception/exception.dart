@@ -606,6 +606,15 @@ class SocialException extends OAuthException {
   String toString() => message;
 }
 
+class KakaoRateLimitException extends OAuthException {
+  const KakaoRateLimitException([
+    String message = "카카오 로그인 요청이 너무 자주 발생했습니다.\n잠시 후 다시 시도해 주세요."
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
 class SocialLoginException implements OAuthException {
   final String message;
   const SocialLoginException([this.message = "회원가입 또는 소셜 로그인 연결 정보가 없습니다.\n로그인 후 마이페이지에서 소셜 로그인 연결을 먼저 해주세요"]);
