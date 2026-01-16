@@ -39,6 +39,11 @@ jobs:
         run: |
           echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
 
+      - name: Decode Secrets.xcconfig
+        run: |
+          mkdir -p ios/Flutter
+          echo "${{ secrets.SECRETS_XCCONFIG_B64 }}" | base64 --decode > ios/Flutter/Secrets.xcconfig
+
       - name: Decode GoogleService-Info.plist
         run: |
           mkdir -p ios/Runner

@@ -1,5 +1,6 @@
 import 'package:dongsoop/presentation/setting/setting_state.dart';
 import 'package:dongsoop/presentation/setting/setting_view_model.dart';
+import 'package:dongsoop/providers/activity_providers.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,7 @@ StateNotifierProvider<SettingViewModel, SettingState>((ref) {
   final logoutUseCase = ref.watch(logoutUseCaseProvider);
   final deleteUserUseCase = ref.watch(deleteUserUseCaseProvider);
   final deleteChatDateUseCase = ref.watch(deleteChatDataUseCaseProvider);
+  final getSocialStateUseCase = ref.watch(getSocialStateUseCaseProvider);
 
-  return SettingViewModel(logoutUseCase, deleteUserUseCase,deleteChatDateUseCase, ref);
+  return SettingViewModel(logoutUseCase, deleteUserUseCase,deleteChatDateUseCase, getSocialStateUseCase, ref);
 });
