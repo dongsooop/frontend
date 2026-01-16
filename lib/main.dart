@@ -16,6 +16,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:dongsoop/presentation/app/push_sync_controller.dart';
@@ -42,7 +43,6 @@ Future<void> main() async {
     print('[AppCheck] getToken error at boot: $e');
   }
 
-
   final localNotificationsService = LocalNotificationsService.instance();
   await localNotificationsService.init();
 
@@ -58,6 +58,12 @@ Future<void> main() async {
   if (Platform.isIOS) {
     WebViewPlatform.instance = WebKitWebViewPlatform();
   }
+
+  // 카카오 로그인
+  final KAKAO_NATIVE_APP_KEY = dotenv.get('KAKAO_NATIVE_APP_KEY');
+  KakaoSdk.init(
+    nativeAppKey: '${KAKAO_NATIVE_APP_KEY}',
+  );
 
   runApp(
     const ProviderScope(

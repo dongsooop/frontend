@@ -3,11 +3,13 @@ import 'package:dongsoop/domain/auth/use_case/delete_user_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/password_check_email_code_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/password_send_email_code_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/social_login_use_case.dart';
 import 'package:dongsoop/domain/mypage/use_case/blind_date_open_use_case.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_state.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_view_model.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_state.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_view_model.dart';
+import 'package:dongsoop/presentation/sign_in/sign_in_state.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
 import 'package:dongsoop/providers/activity_providers.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
@@ -55,6 +57,12 @@ final SignInUseCaseProvider = Provider<SignInUseCase>((ref) {
   final authRepo = ref.watch(authRepositoryProvider);
   final fcmRepo = ref.watch(deviceTokenRepositoryProvider);
   return SignInUseCase(authRepo, fcmRepo);
+});
+
+final SocialLoginUseCaseProvider = Provider<SocialLoginUseCase>((ref) {
+  final authRepo = ref.watch(authRepositoryProvider);
+  final fcmRepo = ref.watch(deviceTokenRepositoryProvider);
+  return SocialLoginUseCase(authRepo, fcmRepo);
 });
 
 final loadUserUseCaseProvider = Provider<LoadUserUseCase>((ref) {
@@ -118,11 +126,12 @@ final blindDateOpenUseCaseProvider = Provider<BlindDateOpenUseCase>((ref) {
 });
 
 // View Model
-final signInViewModelProvider = StateNotifierProvider<SignInViewModel, AsyncValue<void>>((ref) {
+final signInViewModelProvider = StateNotifierProvider<SignInViewModel, SignInState>((ref) {
   final loginUseCase = ref.watch(SignInUseCaseProvider);
+  final socialLoginUseCase = ref.watch(SocialLoginUseCaseProvider);
   final loadUserUseCase = ref.watch(loadUserUseCaseProvider);
 
-  return SignInViewModel(loginUseCase, loadUserUseCase, ref);
+  return SignInViewModel(loginUseCase, socialLoginUseCase, loadUserUseCase, ref);
 });
 
 final signUpViewModelProvider = StateNotifierProvider.autoDispose<SignUpViewModel, SignUpState>((ref) {
