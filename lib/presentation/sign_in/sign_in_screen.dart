@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/domain/auth/enum/login_entry.dart';
 import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -213,6 +214,7 @@ class SignInScreen extends HookConsumerWidget {
                       // 카카오
                       GestureDetector(
                         onTap: () async {
+                          KakaoLoginFlow.entry = LoginEntry.socialConnect;
                           await viewModel.socialLogin(LoginPlatform.kakao);
                         },
                         child: ClipOval(
