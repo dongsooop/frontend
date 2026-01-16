@@ -1,28 +1,24 @@
 import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
-import 'package:dongsoop/core/presentation/components/search_bar_section.dart';
 import 'package:dongsoop/core/presentation/components/single_action_dialog.dart';
 import 'package:dongsoop/core/presentation/components/sub_tab_bar.dart';
-import 'package:dongsoop/core/utils/use_search_reset.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/timezone/providers/check_time_zone_use_case_provider.dart';
-import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
+import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
-import 'package:dongsoop/presentation/board/market/list/search_market_list.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
-import 'package:dongsoop/presentation/board/market/list/view_model/search_market_view_model.dart';
 import 'package:dongsoop/presentation/board/providers/board_taps_provider.dart';
 import 'package:dongsoop/presentation/board/providers/post_update_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/list/recruit_list_item.dart';
-import 'package:dongsoop/presentation/board/recruit/list/search_recruit_list.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
-import 'package:dongsoop/presentation/board/recruit/list/view_models/search_recruit_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class BoardPageScreen extends HookConsumerWidget {
@@ -55,11 +51,6 @@ class BoardPageScreen extends HookConsumerWidget {
           () => PageController(initialPage: tabState.marketTabIndex),
     );
 
-    final searchCtrl = useTextEditingController();
-    final keyword = useState('');
-
-    final lastSearchTimeRef = useRef<DateTime?>(null);
-
     final isRecruit = tabState.categoryIndex == 0;
     final currentSubTabs = isRecruit ? recruitSubTabs : marketSubTabs;
     final selectedSubIndex =
@@ -68,15 +59,6 @@ class BoardPageScreen extends HookConsumerWidget {
     final pageController = isRecruit ? recruitController : marketController;
 
     final safeIndex = selectedSubIndex.clamp(0, currentSubTabs.length - 1);
-
-    final isSearching = keyword.value.trim().isNotEmpty;
-
-    useSearchReset(
-      controller: searchCtrl,
-      keyword: keyword,
-      scrollController: scrollControllers[safeIndex],
-      onReset: () {},
-    );
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -148,7 +130,6 @@ class BoardPageScreen extends HookConsumerWidget {
     }
 
     Future<void> handleRecruitDetail(int id, RecruitType type) async {
-      final wasSearching = isSearching;
       final didApply = await onTapRecruitDetail(id, type);
 
       final deletedIds = ref.read(deletedRecruitIdsProvider);
@@ -166,11 +147,6 @@ class BoardPageScreen extends HookConsumerWidget {
 
           final controller = scrollControllers[safeIndex];
           if (controller.hasClients) controller.jumpTo(0);
-
-        if (wasSearching) {
-          searchCtrl.clear();
-          keyword.value = '';
-        }
 
           if (isDeleted) {
             ref.read(deletedRecruitIdsProvider.notifier).update((_) => {});
@@ -193,60 +169,6 @@ class BoardPageScreen extends HookConsumerWidget {
       }
     }
 
-    Future<void> performSearch(String kw) async {
-      final q = kw.trim();
-      if (q.isEmpty) {
-        keyword.value = '';
-        return;
-      }
-
-      final now = DateTime.now();
-      final last = lastSearchTimeRef.value;
-      if (last != null &&
-          now.difference(last) < const Duration(milliseconds: 500)) {
-        return;
-      }
-      lastSearchTimeRef.value = now;
-
-      keyword.value = q;
-
-      if (isRecruit && recruitType != null) {
-        final provider = searchRecruitViewModelProvider(
-          type: recruitType,
-          departmentName: departmentName,
-        );
-        await ref.read(provider.notifier).search(q);
-      } else if (!isRecruit && marketType != null) {
-        final provider = searchMarketViewModelProvider(type: marketType);
-        await ref.read(provider.notifier).search(q);
-      }
-
-      final controller = scrollControllers[safeIndex];
-      if (controller.hasClients) {
-        controller.jumpTo(0);
-      }
-      FocusManager.instance.primaryFocus?.unfocus();
-    }
-
-    void cancelSearch() {
-      searchCtrl.clear();
-      keyword.value = '';
-      FocusManager.instance.primaryFocus?.unfocus();
-
-      if (isRecruit && recruitType != null) {
-        ref.invalidate(
-          searchRecruitViewModelProvider(
-            type: recruitType,
-            departmentName: departmentName,
-          ),
-        );
-      } else if (!isRecruit && marketType != null) {
-        ref.invalidate(
-          searchMarketViewModelProvider(type: marketType),
-        );
-      }
-    }
-
     return Scaffold(
       backgroundColor: ColorStyles.white,
       body: SafeArea(
@@ -263,15 +185,49 @@ class BoardPageScreen extends HookConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       children: [
-                        SearchBarSection(
-                          controller: searchCtrl,
-                          onSubmitted: performSearch,
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        isRecruit ? '모집' : '장터',
+                                        style: const TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w600,
+                                          color: ColorStyles.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.search, color: ColorStyles.gray3),
+                                onPressed: () {
+                                  context.push(
+                                    RoutePaths.search,
+                                    extra: isRecruit
+                                        ? SearchBoardType.recruit
+                                        : SearchBoardType.market,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(height: 16),
                         SubTabBar(
                           tabs: currentSubTabs,
                           selectedIndex: safeIndex,
                           onSelected: (newSubIndex) {
-                            if (isSearching) cancelSearch();
                             if (isRecruit) {
                               tabNotifier.setRecruitTabIndex(newSubIndex);
                               recruitController.jumpToPage(newSubIndex);
@@ -302,30 +258,6 @@ class BoardPageScreen extends HookConsumerWidget {
                         final controller = scrollControllers[index];
                         if (!isActive) return const SizedBox.shrink();
 
-                        if (isSearching) {
-                          if (isRecruit && index < RecruitType.values.length) {
-                            return SearchRecruitItemListSection(
-                              key: ValueKey(
-                                'search-recruit-${RecruitType.values[index].name}-${keyword.value}',
-                              ),
-                              recruitType: RecruitType.values[index],
-                              departmentName: departmentName,
-                              scrollController: controller,
-                              onTapRecruitDetail: handleRecruitDetail,
-                              query: keyword.value,
-                            );
-                          } else if (!isRecruit && index < MarketType.values.length) {
-                            return SearchMarketItemListSection(
-                              key: ValueKey(
-                                'search-market-${MarketType.values[index].name}-${keyword.value}',
-                              ),
-                              marketType: MarketType.values[index],
-                              scrollController: controller,
-                              onTapMarketDetail: handleMarketDetail,
-                              query: keyword.value,
-                            );
-                          }
-                        } else {
                           if (isRecruit && index < RecruitType.values.length) {
                             return RecruitItemListSection(
                               key: ValueKey(
@@ -343,7 +275,6 @@ class BoardPageScreen extends HookConsumerWidget {
                               onTapMarketDetail: handleMarketDetail,
                               scrollController: controller,
                             );
-                          }
                         }
                         return const SizedBox.shrink();
                       },
@@ -363,7 +294,6 @@ class BoardPageScreen extends HookConsumerWidget {
                   tabs: categoryTabs,
                   selectedIndex: tabState.categoryIndex,
                   onSelected: (newIndex) {
-                    if (isSearching) cancelSearch();
                     tabNotifier.setCategoryIndex(newIndex);
                   },
                   onWriteTab: handleWriteAction,

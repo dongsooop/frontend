@@ -56,7 +56,7 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<List<SearchRecruitEntity>> searchRecruit({
     required int page,
     required String keyword,
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
     required int size,
     required String sort,
@@ -65,7 +65,7 @@ class SearchRepositoryImpl implements SearchRepository {
       final models = await _dataSource.searchRecruit(
           page: page,
           keyword: keyword,
-          type: type,
+          types: types,
           departmentName: departmentName,
           size: size,
           sort: sort,
@@ -78,7 +78,7 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<List<SearchMarketEntity>> searchMarket({
     required int page,
     required String keyword,
-    required MarketType type,
+    required List<MarketType> types,
     required int size,
     required String sort,
   }) async {
@@ -86,7 +86,7 @@ class SearchRepositoryImpl implements SearchRepository {
       final models = await _dataSource.searchMarket(
         page: page,
         keyword: keyword,
-        type: type,
+        types: types,
         size: size,
         sort: sort,
       );

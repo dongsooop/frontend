@@ -10,15 +10,15 @@ part 'search_market_view_model.g.dart';
 @Riverpod(keepAlive: true)
 class SearchMarketViewModel extends _$SearchMarketViewModel {
   late SearchMarketUseCase _useCase;
-  late MarketType _type;
+  late List<MarketType> _types;
   late int _pageSize;
 
   int _page = 0;
   bool _fetching = false;
 
   @override
-  SearchMarketState build({ required MarketType type }) {
-    _type = type;
+  SearchMarketState build({required List<MarketType> types}) {
+    _types = types;
     _useCase = ref.read(searchMarketUseCaseProvider);
     _pageSize = _useCase.pageSize;
     return SearchMarketState.initial();
@@ -53,7 +53,7 @@ class SearchMarketViewModel extends _$SearchMarketViewModel {
       final next = await _useCase.execute(
         page: _page,
         keyword: state.keyword,
-        type: _type,
+        types: _types,
       );
 
       final hasMore = next.isNotEmpty && next.length == _pageSize;

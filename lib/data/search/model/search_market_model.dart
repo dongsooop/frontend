@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/search/entity/search_market_entity.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -13,6 +14,7 @@ class SearchMarketModel with _$SearchMarketModel {
   final DateTime createdAt;
   final int price;
   final int? contactCount;
+  final MarketType marketplaceType;
 
   SearchMarketModel({
     required this.boardId,
@@ -21,6 +23,7 @@ class SearchMarketModel with _$SearchMarketModel {
     required this.createdAt,
     required this.price,
     this.contactCount,
+    required this.marketplaceType,
   });
 
   factory SearchMarketModel.fromJson(Map<String, dynamic> json) => _$SearchMarketModelFromJson(json);
@@ -34,7 +37,8 @@ extension SearchMarketModelMapper on SearchMarketModel {
       content: content,
       createdAt: createdAt,
       price: price,
-      contactCount: contactCount
+      contactCount: contactCount,
+      marketplaceType: marketplaceType
     );
   }
 }

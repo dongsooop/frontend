@@ -23,7 +23,7 @@ abstract class SearchDataSource {
   Future<List<SearchRecruitModel>> searchRecruit({
     required int page,
     required String keyword,
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
     required int size,
     required String sort,
@@ -32,7 +32,7 @@ abstract class SearchDataSource {
   Future<List<SearchMarketModel>> searchMarket({
     required int page,
     required String keyword,
-    required MarketType type,
+    required List<MarketType> types,
     required int size,
     required String sort,
   });

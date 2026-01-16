@@ -78,7 +78,7 @@ class SearchDataSourceImpl implements SearchDataSource {
   Future<List<SearchRecruitModel>> searchRecruit({
     required int page,
     required String keyword,
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
     required int size,
     required String sort,
@@ -93,7 +93,7 @@ class SearchDataSourceImpl implements SearchDataSource {
       'size': size,
       'sort': sort,
       if (key.isNotEmpty) 'keyword': key,
-      'boardType': type.name,
+      'boardType': types.map((e) => e.name).toList(),
       if (dep.isNotEmpty) 'departmentName': dep,
     };
 
@@ -118,7 +118,7 @@ class SearchDataSourceImpl implements SearchDataSource {
   Future<List<SearchMarketModel>> searchMarket({
     required int page,
     required String keyword,
-    required MarketType type,
+    required List<MarketType> types,
     required int size,
     required String sort,
   }) async {
@@ -130,7 +130,7 @@ class SearchDataSourceImpl implements SearchDataSource {
       'sort': sort,
       if (keyword.trim().isNotEmpty)
       'keyword': keyword.trim(),
-      'marketplaceType': type.name,
+      'marketplaceType': types.map((e) => e.name).toList(),
     };
 
     final response = await _plainDio.get(

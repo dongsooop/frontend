@@ -9,7 +9,7 @@ part 'search_recruit_view_model.g.dart';
 @Riverpod(keepAlive: true)
 class SearchRecruitViewModel extends _$SearchRecruitViewModel {
   late SearchRecruitUseCase _useCase;
-  late RecruitType _type;
+  late List<RecruitType> _types;
   late String _departmentName;
   late int _pageSize;
 
@@ -18,10 +18,10 @@ class SearchRecruitViewModel extends _$SearchRecruitViewModel {
 
   @override
   SearchRecruitState build({
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
   }) {
-    _type = type;
+    _types = types;
     _departmentName = departmentName;
     _useCase = ref.read(searchRecruitUseCaseProvider);
     _pageSize = _useCase.pageSize;
@@ -54,7 +54,7 @@ class SearchRecruitViewModel extends _$SearchRecruitViewModel {
       final next = await _useCase.execute(
         page: _page,
         keyword: state.keyword,
-        type: _type,
+        types: _types,
         departmentName: _departmentName,
       );
 
