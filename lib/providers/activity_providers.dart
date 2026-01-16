@@ -2,10 +2,15 @@ import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
 import 'package:dongsoop/domain/mypage/repository/mypage_repository.dart';
 import 'package:dongsoop/domain/mypage/use_case/get_my_market_posts_use_case.dart';
 import 'package:dongsoop/domain/mypage/use_case/get_my_recruit_posts_use_case.dart';
+import 'package:dongsoop/domain/mypage/use_case/get_social_state_use_case.dart';
+import 'package:dongsoop/domain/mypage/use_case/link_social_use_case.dart';
+import 'package:dongsoop/domain/mypage/use_case/unlink_social_use_case.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_state.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_market_view_model.dart';
 import 'package:dongsoop/presentation/my_page/activity/blocked_user_state.dart';
 import 'package:dongsoop/presentation/my_page/activity/blocked_user_view_model.dart';
+import 'package:dongsoop/presentation/my_page/social_login_connect/social_login_connect_state.dart';
+import 'package:dongsoop/presentation/my_page/social_login_connect/social_login_connect_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/data/mypage/data_source/mypage_data_source_impl.dart';
 import 'package:dongsoop/data/mypage/repository/mypage_repository_impl.dart';
@@ -47,6 +52,20 @@ final unBlockUseCaseProvider = Provider<UnBlockUseCase>((ref) {
   return UnBlockUseCase(repository);
 });
 
+final getSocialStateUseCaseProvider = Provider<GetSocialStateUseCase>((ref) {
+  final repository = ref.watch(mypageRepositoryProvider);
+  return GetSocialStateUseCase(repository);
+});
+final linkSocialUseCaseProvider = Provider<LinkSocialUseCase>((ref) {
+  final repository = ref.watch(mypageRepositoryProvider);
+  return LinkSocialUseCase(repository);
+});
+final unlinkSocialUseCaseProvider = Provider<UnlinkSocialUseCase>((ref) {
+  final repository = ref.watch(mypageRepositoryProvider);
+  return UnlinkSocialUseCase(repository);
+});
+
+
 // View Model
 final activityMarketViewModelProvider =
 StateNotifierProvider.autoDispose<ActivityMarketViewModel, ActivityMarketState>((ref) {
@@ -68,4 +87,13 @@ StateNotifierProvider.autoDispose<BlockedUserViewModel, BlockedUserState>((ref) 
   final unBlockUseCase = ref.watch(unBlockUseCaseProvider);
 
   return BlockedUserViewModel(getBlockedUserListUseCase, unBlockUseCase);
+});
+
+final socialLoginConnectUserViewModelProvider =
+StateNotifierProvider.autoDispose<SocialLoginConnectViewModel, SocialLoginConnectState>((ref) {
+  final getSocialStateUseCase = ref.watch(getSocialStateUseCaseProvider);
+  final linkSocialUseCase = ref.watch(linkSocialUseCaseProvider);
+  final unlinkSocialUseCase = ref.watch(unlinkSocialUseCaseProvider);
+
+  return SocialLoginConnectViewModel(getSocialStateUseCase, linkSocialUseCase, unlinkSocialUseCase);
 });

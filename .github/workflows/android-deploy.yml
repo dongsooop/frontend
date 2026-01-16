@@ -50,6 +50,16 @@ jobs:
         run: |
           mkdir -p lib
           echo "${{ secrets.FIREBASE_OPTIONS_B64 }}" | base64 --decode > lib/firebase_options.dart
+
+      - name: Create android/local.properties (CI)
+        run: |
+          mkdir -p android
+          ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+          echo "KAKAO_NATIVE_APP_KEY=${{ secrets.KAKAO_NATIVE_APP_KEY }}" >> android/local.properties
+          echo "local.properties created at android/local.properties"
+          cat android/local.properties | sed 's/KAKAO_NATIVE_APP_KEY=.*/KAKAO_NATIVE_APP_KEY=***REDACTED***/'  
+
       - name: Verify firebase_options.dart exists
         run: |
           test -f lib/firebase_options.dart && head -n 5 lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)
