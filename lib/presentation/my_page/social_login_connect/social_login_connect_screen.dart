@@ -1,3 +1,5 @@
+import 'package:dongsoop/domain/auth/enum/login_entry.dart';
+import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:dongsoop/presentation/my_page/widgets/social_login_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -75,6 +77,9 @@ class SocialLoginConnectScreen extends HookConsumerWidget {
                 isConnected: item.isConnected,
                 connectedDate: item.connectedDate,
                 onTap: () async {
+                  if (item.platform == LoginPlatform.kakao){
+                    KakaoLoginFlow.entry = LoginEntry.socialConnect;
+                  }
                   if (item.isConnected) {
                     await viewModel.socialUnlink(item.platform);
                   } else {

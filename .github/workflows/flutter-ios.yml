@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-ios:
-    timeout-minutes: 10
+    timeout-minutes: 15
     name: Build Flutter iOS App
     runs-on: macos-latest
     

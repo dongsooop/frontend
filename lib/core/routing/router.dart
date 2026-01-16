@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/auth/enum/login_entry.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
@@ -55,6 +56,7 @@ import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/restaurant_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -758,4 +760,17 @@ final router = GoRouter(
       ],
     ),
   ],
+  redirect: (context, state) {
+    final uri = state.uri;
+    final isKakaoOauthCallback = uri.scheme.contains('kakao') && uri.authority == 'oauth';
+
+    if (isKakaoOauthCallback) {
+      return KakaoLoginFlow.entry == LoginEntry.socialConnect
+        ? RoutePaths.socialLoginConnect
+        : RoutePaths.signIn;
+    }
+    return null;
+  },
 );
+
+final goRouterProvider = Provider<GoRouter>((ref) => router);
