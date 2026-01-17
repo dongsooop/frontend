@@ -17,12 +17,21 @@ class SocialAuthService {
       } catch (error) {
         if (_isCanceledPlatformException(error)) return null;
 
+        if (_isKakaoRateLimitError(error)) {
+          throw const KakaoRateLimitException();
+        }
+
         // 카카오톡 실패 시 카카오계정으로 fallback
         try {
           final token = await UserApi.instance.loginWithKakaoAccount();
           return token.accessToken;
         } catch (error) {
           if (_isCanceledPlatformException(error)) return null;
+
+          if (_isKakaoRateLimitError(error)) {
+            throw const KakaoRateLimitException();
+          }
+
           throw SocialException();
         }
       }
@@ -32,6 +41,11 @@ class SocialAuthService {
         return token.accessToken;
       } catch (error) {
         if (_isCanceledPlatformException(error)) return null;
+
+        if (_isKakaoRateLimitError(error)) {
+          throw const KakaoRateLimitException();
+        }
+
         throw SocialException();
       }
     }
@@ -125,5 +139,12 @@ class SocialAuthService {
 
   bool _isCanceledPlatformException(Object error) {
     return error is PlatformException && error.code == 'CANCELED';
+  }
+
+  bool _isKakaoRateLimitError(Object error) {
+    final s = error.toString().toLowerCase();
+    return s.contains('invalid_request') &&
+        s.contains('rate limit') &&
+        s.contains('token');
   }
 }
