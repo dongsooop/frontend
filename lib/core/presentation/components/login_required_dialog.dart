@@ -30,7 +30,7 @@ Future<void> LoginRequiredDialog(BuildContext context) {
                   content: '이 서비스를 이용하려면\n로그인을 해야 해요!',
                   isSingleAction: false,
                   confirmText: '확인',
-                  onConfirm: () => context.push(RoutePaths.signIn),
+                  onConfirm: () => context.push(RoutePaths.mypage + RoutePaths.signIn),
                   onCancel: () {},
                 ),
               ),

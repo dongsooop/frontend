@@ -214,7 +214,7 @@ class SignInScreen extends HookConsumerWidget {
                       // 카카오
                       GestureDetector(
                         onTap: () async {
-                          KakaoLoginFlow.entry = LoginEntry.socialConnect;
+                          KakaoLoginFlow.entry = LoginEntry.signIn;
                           await viewModel.socialLogin(LoginPlatform.kakao);
                         },
                         child: ClipOval(
