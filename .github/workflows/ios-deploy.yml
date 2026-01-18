@@ -33,7 +33,7 @@ jobs:
       - name: Select Xcode 16.4
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4'
+          xcode-version: '26.2'
 
       - name: Decode and create .env file
         run: |
