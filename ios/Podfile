@@ -9,7 +9,6 @@ project 'Runner', {
   'Profile' => :release,
   'Release' => :release,
 }
-platform :ios, '15.0'
 
 def flutter_root
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
@@ -32,8 +31,6 @@ target 'Runner' do
   use_frameworks!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  pod 'FirebaseAppCheck'
-
   target 'RunnerTests' do
     inherit! :search_paths
   end
