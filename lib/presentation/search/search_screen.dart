@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/presentation/components/search_bar.dart';
+import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
@@ -7,9 +8,10 @@ import 'package:dongsoop/presentation/search/view_models/search_market_view_mode
 import 'package:dongsoop/presentation/search/view_models/search_recruit_view_model.dart';
 import 'package:dongsoop/presentation/search/widget/search_market_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_notice_list.dart';
+import 'package:dongsoop/presentation/search/widget/search_recent_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_recruit_list.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
-import 'package:dongsoop/presentation/home/view_models/search_notice_view_model.dart';
+import 'package:dongsoop/presentation/search/view_models/search_notice_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -67,6 +69,8 @@ class SearchScreen extends HookConsumerWidget {
       final q = kw.trim();
       if (q.isEmpty) return;
 
+      await ref.read(preferencesProvider).addRecentSearch(q);
+
       keyword.value = q;
       FocusManager.instance.primaryFocus?.unfocus();
       if (scrollController.hasClients) scrollController.jumpTo(0);
@@ -103,6 +107,28 @@ class SearchScreen extends HookConsumerWidget {
     }
 
     final isSearching = keyword.value.trim().isNotEmpty;
+
+    if (isSearching) {
+      if (boardType == SearchBoardType.recruit) {
+        ref.watch(
+          searchRecruitViewModelProvider(
+            types: _recruitTypes,
+            departmentName: departmentName,
+          ),
+        );
+      } else if (boardType == SearchBoardType.market) {
+        ref.watch(
+          searchMarketViewModelProvider(types: _marketTypes),
+        );
+      } else {
+        ref.watch(
+          searchNoticeViewModelProvider(
+            tab: NoticeTab.all,
+            departmentName: departmentName,
+          ),
+        );
+      }
+    }
 
     return SafeArea(
       child: Scaffold(
@@ -145,13 +171,15 @@ class SearchScreen extends HookConsumerWidget {
                     onTapRecruitDetail: onTapRecruitDetail,
                     onTapMarketDetail: onTapMarketDetail,
                   )
-                      : Center(
-                    child: Text(
-                      '검색어를 입력해주세요',
-                      style: TextStyles.largeTextRegular.copyWith(
-                        color: ColorStyles.gray4,
-                      ),
-                    ),
+                      : SearchRecentList(
+                    key: const ValueKey('recent'),
+                    scrollController: scrollController,
+                    query: keyword.value,
+                    onTapRecentDetail: (recentKeyword) async {
+                      keywordCtrl.text = recentKeyword;
+                      keyword.value = recentKeyword.trim();
+                      await onSubmit(recentKeyword);
+                    },
                   ),
                 ),
               ),

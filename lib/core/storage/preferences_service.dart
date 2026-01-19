@@ -10,6 +10,8 @@ class PreferencesService {
   static const _notificationPermissionRequestedKey = 'notification_permission_requested';
   static const _adsPushConsent = 'ads_push_consent'; // 사용자 동의 여부
   static const _adsPushPrompted = 'ads_push_prompted'; // 노출 여부
+  static const _searchRecentKey = 'search_recent';
+  static const _searchRecentLimit = 5;
 
   Future<void> saveUser(User user) async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
@@ -67,6 +69,41 @@ class PreferencesService {
   Future<void> setAdsPushPrompted() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_adsPushPrompted, true);
+  }
+
+  Future<List<String>> getRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_searchRecentKey) ?? [];
+    return list.take(_searchRecentLimit).toList();
+  }
+
+  Future<void> addRecentSearch(String keyword) async {
+    final prefs = await SharedPreferences.getInstance();
+    final keyword = keyword.trim();
+    if (keyword.isEmpty) return;
+
+    final list = prefs.getStringList(_searchRecentKey) ?? [];
+
+    final updated = <String>[
+      keyword,
+      ...list.where((e) => e != keyword),
+    ].take(_searchRecentLimit).toList();
+
+    await prefs.setStringList(_searchRecentKey, updated);
+  }
+
+  Future<void> removeRecentSearch(String keyword) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_searchRecentKey) ?? [];
+    await prefs.setStringList(
+      _searchRecentKey,
+      list.where((e) => e != keyword).toList(),
+    );
+  }
+
+  Future<void> clearRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_searchRecentKey);
   }
 }
 

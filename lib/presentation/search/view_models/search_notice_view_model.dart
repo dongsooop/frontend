@@ -7,7 +7,7 @@ import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.da
 
 part 'search_notice_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class SearchNoticeViewModel extends _$SearchNoticeViewModel {
   late final int _pageSize;
   int _page = 0;

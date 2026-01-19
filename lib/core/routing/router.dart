@@ -512,7 +512,33 @@ final router = GoRouter(
       path: RoutePaths.search,
       builder: (context, state) {
         final boardType = state.extra as SearchBoardType;
-        return SearchScreen(boardType: boardType);
+
+        return SearchScreen(
+          boardType: boardType,
+          onTapRecruitDetail: (id, type) async {
+            await context.push<bool>(
+              RoutePaths.recruitDetail,
+              extra: {'id': id, 'type': type},
+            );
+          },
+          onTapMarketDetail: (id, type) async {
+            await context.push<bool>(
+              RoutePaths.marketDetail,
+              extra: {'id': id, 'type': type},
+            );
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.noticeWebView,
+      name: 'noticeWebView',
+      pageBuilder: (context, state) {
+        final path = state.uri.queryParameters['path'];
+        return MaterialPage(
+          key: state.pageKey,
+          child: NoticeWebViewScreen(path: path ?? ''),
+        );
       },
     ),
     GoRoute(
@@ -592,17 +618,6 @@ final router = GoRouter(
                     return MaterialPage(
                       key: state.pageKey,
                       child: const NoticeListPageScreen(),
-                    );
-                  },
-                ),
-                GoRoute(
-                  path: RoutePaths.noticeWebView,
-                  name: 'noticeWebView',
-                  pageBuilder: (context, state) {
-                    final path = state.uri.queryParameters['path'];
-                    return MaterialPage(
-                      key: state.pageKey,
-                      child: NoticeWebViewScreen(path: path ?? ''),
                     );
                   },
                 ),
