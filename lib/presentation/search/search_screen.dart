@@ -1,17 +1,17 @@
-import 'package:dongsoop/core/presentation/components/search_bar.dart';
+import 'package:dongsoop/core/presentation/components/common_search_bar.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
+import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/search_market_view_model.dart';
+import 'package:dongsoop/presentation/search/view_models/search_notice_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/search_recruit_view_model.dart';
 import 'package:dongsoop/presentation/search/widget/search_market_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_notice_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_recent_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_recruit_list.dart';
-import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
-import 'package:dongsoop/presentation/search/view_models/search_notice_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -130,40 +130,33 @@ class SearchScreen extends HookConsumerWidget {
       }
     }
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        body: GestureDetector(
+    final searchFocusNode = useFocusNode();
+
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: CommonSearchAppBar(
+        controller: keywordCtrl,
+        focusNode: searchFocusNode,
+        hintText: _hintByBoardType(boardType),
+        onBack: () => context.pop(),
+        onTap: () => onSubmit(keywordCtrl.text),
+        onClear: handleClear,
+      ),
+      body: SafeArea(
+        child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: SearchBarComponent(
-                        controller: keywordCtrl,
-                        onSubmitted: onSubmit,
-                        onClear: handleClear,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: 8),
               Expanded(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
                   child: isSearching
                       ? _SearchResultBody(
-                    key: ValueKey('result-${boardType.name}-${keyword.value}'),
+                    key: ValueKey(
+                      'result-${boardType.name}-${keyword.value}',
+                    ),
                     boardType: boardType,
                     keyword: keyword.value,
                     departmentName: departmentName,
@@ -188,6 +181,17 @@ class SearchScreen extends HookConsumerWidget {
         ),
       ),
     );
+  }
+
+  String _hintByBoardType(SearchBoardType boardType) {
+    switch (boardType) {
+      case SearchBoardType.recruit:
+        return '모집 게시글을 검색해 주세요';
+      case SearchBoardType.market:
+        return '장터 게시글을 검색해 주세요';
+      case SearchBoardType.notice:
+        return '공지 게시글을 검색해 주세요';
+    }
   }
 }
 

@@ -79,14 +79,14 @@ class PreferencesService {
 
   Future<void> addRecentSearch(String keyword) async {
     final prefs = await SharedPreferences.getInstance();
-    final keyword = keyword.trim();
-    if (keyword.isEmpty) return;
+    final trimmedKeyword = keyword.trim();
+    if (trimmedKeyword.isEmpty) return;
 
     final list = prefs.getStringList(_searchRecentKey) ?? [];
 
     final updated = <String>[
-      keyword,
-      ...list.where((e) => e != keyword),
+      trimmedKeyword,
+      ...list.where((e) => e != trimmedKeyword),
     ].take(_searchRecentLimit).toList();
 
     await prefs.setStringList(_searchRecentKey, updated);

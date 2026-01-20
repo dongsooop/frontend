@@ -59,41 +59,34 @@ class SearchRecentList extends HookConsumerWidget {
             '최근 검색',
             style: TextStyles.normalTextBold.copyWith(color: ColorStyles.gray6),
           ),
-          PopupMenuButton<_RecentMenu>(
-            enabled: items.isNotEmpty,
-            icon: const Icon(Icons.more_horiz, color: ColorStyles.gray4),
-            splashRadius: 18,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            onSelected: (value) async {
-              switch (value) {
-                case _RecentMenu.clearAll:
-                  await clearAll();
-                  break;
-                case _RecentMenu.cancel:
-                  break;
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem<_RecentMenu>(
-                value: _RecentMenu.clearAll,
-                child: Text(
-                  '전체 삭제',
-                  style: TextStyles.normalTextRegular.copyWith(
-                    color: ColorStyles.black,
+          SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: PopupMenuButton<_RecentMenu>(
+                enabled: items.isNotEmpty,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: const Icon(Icons.more_horiz, color: ColorStyles.gray4),
+                onSelected: (value) async {
+                  if (value == _RecentMenu.clearAll) await clearAll();
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: _RecentMenu.clearAll,
+                    child: Text('전체 삭제',
+                        style: TextStyles.normalTextRegular
+                            .copyWith(color: ColorStyles.black)),
                   ),
-                ),
-              ),
-              PopupMenuItem<_RecentMenu>(
-                value: _RecentMenu.cancel,
-                child: Text(
-                  '취소',
-                  style: TextStyles.normalTextRegular.copyWith(
-                    color: ColorStyles.gray4,
+                  PopupMenuItem(
+                    value: _RecentMenu.cancel,
+                    child: Text('취소',
+                        style: TextStyles.normalTextRegular
+                            .copyWith(color: ColorStyles.gray4)),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       );
@@ -176,7 +169,7 @@ class _RecentKeywordRow extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: onRemove,
-                  icon: const Icon(Icons.close, color: ColorStyles.gray4),
+                  icon: const Icon(Icons.close, size: 20, color: ColorStyles.gray4),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(
                     minWidth: 44,

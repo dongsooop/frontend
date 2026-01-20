@@ -19,6 +19,14 @@ class RestaurantsSearchViewModel extends StateNotifier<RestaurantsSearchState>{
   bool _hasNextPage = true;
   String _lastSearch = '';
 
+  void reset() {
+    _currentPage = 0;
+    _hasNextPage = true;
+    _lastSearch = '';
+
+    state = RestaurantsSearchState(isLoading: false);
+  }
+
   Future<void> search({
     required bool isLogin,
     required String search,
