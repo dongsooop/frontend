@@ -65,3 +65,5 @@ String formatYmd(DateTime d) {
   final da = d.day.toString().padLeft(2, '0');
   return '$y-$m-$da';
 }
+
+String formatYmdDot(DateTime dt) => '${dt.year}. ${dt.month}. ${dt.day}.';

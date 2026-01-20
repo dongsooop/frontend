@@ -287,3 +287,6 @@ fabric.properties
 
 !/gradle/wrapper/gradle-wrapper.jar
 /lib/firebase_options.dart
+
+# API key
+ios/Flutter/Secrets.xcconfig

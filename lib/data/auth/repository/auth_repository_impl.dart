@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:dongsoop/domain/auth/model/sign_in_response.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
@@ -20,6 +21,19 @@ class AuthRepositoryImpl implements AuthRepository {
     return _authDataSource.signIn(
       email,
       password,
+      fcmToken,
+    );
+  }
+
+  @override
+  Future<SignInResponse> socialLogin(
+    LoginPlatform platform,
+    String socialToken,
+    String fcmToken,
+  ) {
+    return _authDataSource.socialLogin(
+      platform,
+      socialToken,
       fcmToken,
     );
   }

@@ -3,6 +3,7 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
+import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:dongsoop/domain/auth/model/sign_in_response.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
@@ -50,6 +51,36 @@ class AuthDataSourceImpl implements AuthDataSource {
         throw UserSanctionedException();
       } else if (e.response?.statusCode == HttpStatusCode.notFound.code) {
         throw UserNotFoundException();
+      }
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<SignInResponse> socialLogin(
+    LoginPlatform platform,
+    String socialToken,
+    String fcmToken,
+  ) async {
+    final endpoint = dotenv.get('SOCIAL_LOGIN_ENDPOINT');
+    final url = endpoint + '/${platform.name}';
+    final requestBody = {
+      "token": socialToken,
+      "deviceToken": fcmToken,
+    };
+    try {
+      final response = await _plainDio.post(url, data: requestBody);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+
+        return SignInResponse.fromJson(data);
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw SocialLoginException();
       }
       rethrow;
     } catch (e) {

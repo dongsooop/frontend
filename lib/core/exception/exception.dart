@@ -579,3 +579,46 @@ class NotificationSettingException implements Exception {
   @override
   String toString() => message;
 }
+
+class OAuthException implements Exception {
+  final String message;
+  const OAuthException([this.message = "소셜 로그인 처리 중\n알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+
+class SocialUnlinkUserException extends OAuthException {
+  const SocialUnlinkUserException([
+    String message = "회원 정보를 확인하는 데 실패했어요\n잠시 후에 다시 시도해 주세요"
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class SocialException extends OAuthException {
+  const SocialException([
+    String message = "소셜 로그인 중 오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요"
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class KakaoRateLimitException extends OAuthException {
+  const KakaoRateLimitException([
+    String message = "카카오 로그인 요청이 너무 자주 발생했습니다.\n잠시 후 다시 시도해 주세요."
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class SocialLoginException implements OAuthException {
+  final String message;
+  const SocialLoginException([this.message = "회원가입 또는 소셜 로그인 연결 정보가 없습니다.\n로그인 후 마이페이지에서 소셜 로그인 연결을 먼저 해주세요"]);
+
+  @override
+  String toString() => message;
+}

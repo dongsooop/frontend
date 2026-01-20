@@ -1,3 +1,6 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
+import 'package:dongsoop/domain/auth/enum/login_entry.dart';
+import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
@@ -28,6 +31,42 @@ class SignInScreen extends HookConsumerWidget {
     final loginState = ref.watch(signInViewModelProvider);
     final viewModel = ref.watch(signInViewModelProvider.notifier);
 
+    ref.listen(signInViewModelProvider, (prev, next) {
+      final wasLoading = prev?.isLoading ?? false;
+      if (!wasLoading || next.isLoading) return;
+
+      final user = ref.read(userSessionProvider);
+      final hasAnyError = next.errorMessage != null || next.dialogMessage != null;
+
+      if (!hasAnyError && user != null) {
+        context.go(RoutePaths.mypage);
+      }
+    });
+
+    useEffect(() {
+      final message = loginState.dialogMessage;
+      if (message == null) return null;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+
+        viewModel.clearErrorMessage();
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => CustomConfirmDialog(
+            title: '소셜 로그인 오류',
+            content: message,
+            onConfirm: () {},
+            onCancel: () {},
+          ),
+        );
+      });
+
+      return null;
+    }, [loginState.dialogMessage]);
+
     return Scaffold(
       backgroundColor: ColorStyles.white,
       appBar: DetailHeader(),
@@ -39,7 +78,7 @@ class SignInScreen extends HookConsumerWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 16,
                 children: [
@@ -107,15 +146,18 @@ class SignInScreen extends HookConsumerWidget {
                   ),
                   // 에러 메시지 표시
                   ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minHeight: 24,
-                    ),
-                    child: loginState.hasError
-                      ? Text(
-                        loginState.error.toString(),
-                        style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.warning100),
+                    constraints: const BoxConstraints(minHeight: 24),
+                    child: (loginState.errorMessage != null)
+                      ? Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          loginState.errorMessage!,
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: ColorStyles.warning100,
+                          ),
+                        ),
                       )
-                      : null,
+                      : const SizedBox.shrink(),
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -126,19 +168,14 @@ class SignInScreen extends HookConsumerWidget {
                       ),
                       elevation: 0
                     ),
-                    onPressed: loginState is AsyncLoading
+                    onPressed: loginState.isLoading
                       ? null
                       : () async {
                         final email = emailController.text.trim();
                         final password = passwordController.text;
                         await viewModel.login(email, password);
-            
-                        final loginResult = ref.read(signInViewModelProvider);
-                        loginResult.whenOrNull(
-                          data: (_) => context.go(RoutePaths.mypage),
-                        );
                       },
-                    child: loginState is AsyncLoading
+                    child: loginState.isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : Text('로그인', style: TextStyles.normalTextBold.copyWith(color: ColorStyles.white)),
                   ),
@@ -166,6 +203,58 @@ class SignInScreen extends HookConsumerWidget {
                         style: TextStyles.smallTextBold.copyWith(color: ColorStyles.gray4)
                       ),
                     ),
+                  ),
+
+                  // 소셜 로그인
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 24,
+                    children: [
+                      // 카카오
+                      GestureDetector(
+                        onTap: () async {
+                          KakaoLoginFlow.entry = LoginEntry.signIn;
+                          await viewModel.socialLogin(LoginPlatform.kakao);
+                        },
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/kakao_symbol.png',
+                            width: 48,
+                            height: 48,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      // 구글
+                      GestureDetector(
+                        onTap: () async {
+                          await viewModel.socialLogin(LoginPlatform.google);
+                        },
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/google_symbol.png',
+                            width: 48,
+                            height: 48,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      // 애플
+                      GestureDetector(
+                        onTap: () async {
+                          await viewModel.socialLogin(LoginPlatform.apple);
+                        },
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/apple_symbol.png',
+                            width: 48,
+                            height: 48,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
                   )
                 ],
               ),

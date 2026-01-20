@@ -5,6 +5,7 @@ import 'package:dongsoop/providers/setting_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -31,22 +32,26 @@ class SettingScreen extends HookConsumerWidget {
     const licenseInfo =
         'https://zircon-football-529.notion.site/2883ee6f256180a49d5edf214bc61003?pvs=74';
 
+    useEffect(() {
+      if (settingState.errorMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          viewModel.clearErrorMessage();
 
-    if (settingState.errorMessage != null) {
-      // error dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => CustomConfirmDialog(
-          title: '',
-          content: settingState.errorMessage!,
-          onConfirm: () async {
-            // 로그아웃
-            Navigator.of(context).pop(); // 다이얼로그 닫기
-          },
-        ),
-      );
-    }
+          showDialog(
+            context: context,
+            builder: (_) => CustomConfirmDialog(
+              title: settingState.errorTitle ?? '',
+              content: settingState.errorMessage!,
+              onConfirm: () {
+              },
+              confirmText: '확인',
+            ),
+          );
+        });
+      }
+      return null;
+    }, [settingState.errorMessage]);
 
     return Scaffold(
       backgroundColor: ColorStyles.gray1,
@@ -63,7 +68,7 @@ class SettingScreen extends HookConsumerWidget {
               title: '이용 안내',
               children: [
                 buildSettingsItem(
-                  label: '버전  1.6.1',
+                  label: '버전  1.7.1',
                   onTap: () {},
                 ),
                 buildSettingsItem(

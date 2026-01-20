@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/auth/enum/login_entry.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
@@ -18,6 +19,7 @@ import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_screen.d
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
 import 'package:dongsoop/presentation/home/chatbot/chatbot_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_screen.dart';
+import 'package:dongsoop/presentation/my_page/social_login_connect/social_login_connect_screen.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_screen.dart';
 import 'package:dongsoop/presentation/restaurants/search/restaurants_search_screen.dart';
 import 'package:dongsoop/presentation/restaurants/write/restaurants_write_screen.dart';
@@ -175,13 +177,6 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-      path: RoutePaths.signIn,
-      builder: (context, state) => SignInScreen(
-        onTapSignUp: () => context.push(RoutePaths.signUp),
-        onTapPasswordReset: () => context.push(RoutePaths.passwordReset),
-      ),
-    ),
-    GoRoute(
       path: RoutePaths.signUp,
       builder: (context, state) => SignUpScreen(),
     ),
@@ -266,43 +261,6 @@ final router = GoRouter(
       ),
     ),
     GoRoute(
-      path: RoutePaths.mypageMarket,
-      builder: (context, state) => ActivityMarketScreen(
-        onTapMarketDetail: (targetId, type, status) async {
-          final isDeleted = await context.push<bool>(
-            RoutePaths.marketDetail,
-            extra: {
-              'id': targetId,
-              'type': type,
-              'status': status,
-            },
-          );
-          return isDeleted ?? false;
-        },
-      ),
-    ),
-    GoRoute(
-        path: RoutePaths.mypageRecruit,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final isApply = extra?['isApply'] as bool? ?? false;
-
-          return ActivityRecruitScreen(
-            isApply: isApply,
-            onTapRecruitDetail: (targetId, type, status) async {
-              final isDeleted = await context.push<bool>(
-                RoutePaths.recruitDetail,
-                extra: {
-                  'id': targetId,
-                  'type': type,
-                  'status': status,
-                },
-              );
-              return isDeleted ?? false;
-            },
-          );
-        }),
-    GoRoute(
         path: RoutePaths.adminReportSanction,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
@@ -353,10 +311,6 @@ final router = GoRouter(
         final type = state.extra as FeedbackType? ?? FeedbackType.improvement;
         return FeedbackMoreScreen(type: type);
       },
-    ),
-    GoRoute(
-      path: RoutePaths.mypageBlock,
-      builder: (context, state) => BlockedUserScreen(),
     ),
     GoRoute(
       path: RoutePaths.recruitWrite,
@@ -703,7 +657,7 @@ final router = GoRouter(
                   );
                   return isLeaved ?? false;
                 },
-                onTapSignIn: () { context.push(RoutePaths.signIn); },
+                onTapSignIn: () { context.push(RoutePaths.mypage + RoutePaths.signIn); },
                 onTapBlindDate: () {
                   context.push('${RoutePaths.chat}/${RoutePaths.blindDate}');
                 },
@@ -732,18 +686,74 @@ final router = GoRouter(
         StatefulShellBranch(routes: [
           GoRoute(
             path: RoutePaths.mypage,
+            routes: [
+              GoRoute(
+                path: RoutePaths.signIn,
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (context, state) => SignInScreen(
+                  onTapSignUp: () => context.push(RoutePaths.signUp),
+                  onTapPasswordReset: () => context.push(RoutePaths.passwordReset),
+                ),
+              ),
+              GoRoute(
+                path: RoutePaths.socialLoginConnect,
+                builder: (context, state) => SocialLoginConnectScreen(),
+              ),
+              GoRoute(
+                path: RoutePaths.mypageBlock,
+                builder: (context, state) => BlockedUserScreen(),
+              ),
+              GoRoute(
+                path: RoutePaths.mypageMarket,
+                builder: (context, state) => ActivityMarketScreen(
+                  onTapMarketDetail: (targetId, type, status) async {
+                    final isDeleted = await context.push<bool>(
+                      RoutePaths.marketDetail,
+                      extra: {
+                        'id': targetId,
+                        'type': type,
+                        'status': status,
+                      },
+                    );
+                    return isDeleted ?? false;
+                  },
+                ),
+              ),
+              GoRoute(
+                path: RoutePaths.mypageRecruit,
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final isApply = extra?['isApply'] as bool? ?? false;
+
+                  return ActivityRecruitScreen(
+                    isApply: isApply,
+                    onTapRecruitDetail: (targetId, type, status) async {
+                      final isDeleted = await context.push<bool>(
+                        RoutePaths.recruitDetail,
+                        extra: {
+                          'id': targetId,
+                          'type': type,
+                          'status': status,
+                        },
+                      );
+                      return isDeleted ?? false;
+                    },
+                  );
+                }
+              ),
+            ],
             builder: (context, state) => MyPageScreen(
               onTapSignIn: () {
-                context.push(RoutePaths.signIn);
+                context.push(RoutePaths.mypage + RoutePaths.signIn);
               },
               onTapSetting: () {
                 context.push(RoutePaths.setting);
               },
               onTapMarket: () {
-                context.push(RoutePaths.mypageMarket);
+                context.push(RoutePaths.mypage + RoutePaths.mypageMarket);
               },
               onTapRecruit: (isApply) {
-                context.push(RoutePaths.mypageRecruit, extra: {
+                context.push(RoutePaths.mypage + RoutePaths.mypageRecruit, extra: {
                   'isApply': isApply,
                 });
               },
@@ -766,12 +776,26 @@ final router = GoRouter(
                 context.push(RoutePaths.timetable);
               },
               onTapBlockedUser: () {
-                context.push(RoutePaths.mypageBlock);
-              }
+                context.push(RoutePaths.mypage + RoutePaths.mypageBlock);
+              },
+              onTapSocialLoginConnect: () {
+                context.push(RoutePaths.mypage + RoutePaths.socialLoginConnect);
+              },
             ),
           ),
         ]),
       ],
     ),
   ],
+  redirect: (context, state) {
+    final uri = state.uri;
+    final isKakaoOauthCallback = uri.scheme.contains('kakao') && uri.authority == 'oauth';
+
+    if (isKakaoOauthCallback) {
+      return KakaoLoginFlow.entry == LoginEntry.socialConnect
+        ? RoutePaths.mypage + RoutePaths.socialLoginConnect
+        : RoutePaths.mypage + RoutePaths.signIn;
+    }
+    return null;
+  },
 );

@@ -1,23 +1,23 @@
-class SettingState {
+class SignInState {
   final bool isLoading;
   final String? errorMessage;
-  final String? errorTitle;
+  final String? dialogMessage;
 
-  SettingState({
+  SignInState({
     required this.isLoading,
     this.errorMessage,
-    this.errorTitle,
+    this.dialogMessage,
   });
 
-  SettingState copyWith({
+  SignInState copyWith({
     bool? isLoading,
     String? errorMessage,
-    String? errorTitle,
+    String? dialogMessage,
   }) {
-    return SettingState(
+    return SignInState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
-      errorTitle: errorTitle
+      dialogMessage: dialogMessage,
     );
   }
 }

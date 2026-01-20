@@ -42,11 +42,12 @@ abstract class RoutePaths {
   static const String report = '/report';
   static const String adminReport = '/admin/report';
   static const String adminReportSanction = '/admin/sanction';
-  static const String mypageMarket = '/mypage/market';
-  static const String mypageRecruit = '/mypage/recruit';
-  static const String mypageBlock = '/mypage/block';
+  static const String mypageMarket = '/mypageMarket';
+  static const String mypageRecruit = '/mypageRecruit';
+  static const String mypageBlock = '/mypageBlock';
   static const String blindDate = 'blind-date';
   static const String blindDateDetail = '/blindDateDetail';
   static const String adminBlindDate = '/adminBlindDate';
+  static const String socialLoginConnect = '/socialLoginConnect';
   static const String search = '/search';
 }

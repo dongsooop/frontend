@@ -16,6 +16,7 @@ class LoggedInUserCard extends HookConsumerWidget {
   final VoidCallback onTapTimetable;
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
+  final VoidCallback onTapSocialLoginConnect;
 
   const LoggedInUserCard({
     super.key,
@@ -29,6 +30,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.onTapTimetable,
     required this.onTapRecruit,
     required this.onTapBlockedUser,
+    required this.onTapSocialLoginConnect,
   });
 
   @override
@@ -38,6 +40,7 @@ class LoggedInUserCard extends HookConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 16,
       children: [
         Container(
           width: double.infinity,
@@ -89,7 +92,6 @@ class LoggedInUserCard extends HookConsumerWidget {
             ],
           ),
         ),
-        SizedBox(height: 16),
         Container(
           width: double.infinity,
           padding: EdgeInsets.all(16),
@@ -116,7 +118,6 @@ class LoggedInUserCard extends HookConsumerWidget {
             ],
           ),
         ),
-        SizedBox(height: 16),
         Container(
           width: double.infinity,
           decoration: ShapeDecoration(
@@ -163,7 +164,30 @@ class LoggedInUserCard extends HookConsumerWidget {
             ],
           ),
         ),
-        SizedBox(height: 16),
+
+        Container(
+          width: double.infinity,
+          decoration: ShapeDecoration(
+              color: ColorStyles.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  MyActivityItem(
+                    label: '소셜 계정 연동',
+                    onTap: onTapSocialLoginConnect ,
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
 
         Container(
           width: double.infinity,

@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-ios:
-    timeout-minutes: 10
+    timeout-minutes: 15
     name: Build Flutter iOS App
     runs-on: macos-latest
     
@@ -35,6 +35,11 @@ jobs:
       - name: Decode and create .env file
         run: |
           echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
+
+      - name: Decode Secrets.xcconfig
+        run: |
+          mkdir -p ios/Flutter
+          echo "${{ secrets.SECRETS_XCCONFIG_B64 }}" | base64 --decode > ios/Flutter/Secrets.xcconfig
 
       - name: Decode GoogleService-Info.plist
         run: |
