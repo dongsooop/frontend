@@ -122,14 +122,14 @@ class SearchDataSourceImpl implements SearchDataSource {
     required int size,
     required String sort,
   }) async {
-    final base = dotenv.get('MARKET_SEARCH_ENDPOINT');
+    final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
 
-    final params = <String, dynamic>{
+    final params = {
       'page': page,
       'size': size,
       'sort': sort,
-      if (keyword.trim().isNotEmpty)
-      'keyword': keyword.trim(),
+      if (keyword.trim().isNotEmpty) 'keyword': keyword.trim(),
+      'boardType': 'MARKETPLACE',
       'marketplaceType': types.map((e) => e.name).toList(),
     };
 
