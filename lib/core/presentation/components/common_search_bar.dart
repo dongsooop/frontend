@@ -11,6 +11,8 @@ class CommonSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
   final VoidCallback onTap;
   final VoidCallback? onBack;
   final VoidCallback? onClear;
+  final ValueChanged<String>? onChanged;
+
   final String hintText;
 
   const CommonSearchAppBar({
@@ -20,6 +22,7 @@ class CommonSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
     required this.onTap,
     this.onBack,
     this.onClear,
+    this.onChanged,
     this.hintText = '검색어를 입력해 주세요',
   });
 
@@ -68,6 +71,7 @@ class CommonSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
                   child: TextFormField(
                     controller: controller,
                     focusNode: focusNode,
+                    onChanged: onChanged,
                     onFieldSubmitted: (_) => onTap(),
                     textInputAction: TextInputAction.search,
                     style: TextStyles.normalTextRegular.copyWith(
@@ -96,6 +100,7 @@ class CommonSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
                       constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                       onPressed: () {
                         controller.clear();
+                        onChanged?.call('');
                         onClear?.call();
                         focusNode.requestFocus();
                       },
@@ -111,10 +116,7 @@ class CommonSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
             ),
           ),
         ),
-        Container(
-          height: 4,
-          color: ColorStyles.gray1,
-        ),
+        Container(height: 4, color: ColorStyles.gray1),
       ],
     );
   }

@@ -5,9 +5,11 @@ import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
+import 'package:dongsoop/presentation/search/view_models/auto_complete_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/search_market_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/search_notice_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/search_recruit_view_model.dart';
+import 'package:dongsoop/presentation/search/widget/auto_complete_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_market_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_notice_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_recent_list.dart';
@@ -51,6 +53,8 @@ class SearchScreen extends HookConsumerWidget {
     final keyword = useState('');
     final scrollController = useScrollController();
 
+    final query = keywordCtrl.text.trim();
+
     final user = ref.watch(userSessionProvider);
     String departmentName = '';
     if (user != null) {
@@ -58,9 +62,19 @@ class SearchScreen extends HookConsumerWidget {
       departmentName = dept.displayName;
     }
 
+    final isSearching = keyword.value.trim().isNotEmpty;
+
+    final isTyping = !isSearching && query.isNotEmpty;
+
+    final autoAsync = ref.watch(autocompleteViewModelProvider);
+    final autoItems = autoAsync.valueOrNull ?? const <String>[];
+
     void handleClear() {
       keywordCtrl.clear();
       keyword.value = '';
+
+      ref.read(autocompleteViewModelProvider.notifier).clear();
+
       FocusManager.instance.primaryFocus?.unfocus();
       if (scrollController.hasClients) scrollController.jumpTo(0);
     }
@@ -72,6 +86,9 @@ class SearchScreen extends HookConsumerWidget {
       await ref.read(preferencesProvider).addRecentSearch(q);
 
       keyword.value = q;
+
+      ref.read(autocompleteViewModelProvider.notifier).clear();
+
       FocusManager.instance.primaryFocus?.unfocus();
       if (scrollController.hasClients) scrollController.jumpTo(0);
 
@@ -106,8 +123,6 @@ class SearchScreen extends HookConsumerWidget {
           .search(q);
     }
 
-    final isSearching = keyword.value.trim().isNotEmpty;
-
     if (isSearching) {
       if (boardType == SearchBoardType.recruit) {
         ref.watch(
@@ -141,6 +156,14 @@ class SearchScreen extends HookConsumerWidget {
         onBack: () => context.pop(),
         onTap: () => onSubmit(keywordCtrl.text),
         onClear: handleClear,
+
+        onChanged: (text) {
+          if (keyword.value.trim().isEmpty) {
+            ref
+                .read(autocompleteViewModelProvider.notifier)
+                .onQueryChanged(text, boardType: boardType);
+          }
+        },
       ),
       body: SafeArea(
         child: GestureDetector(
@@ -164,12 +187,32 @@ class SearchScreen extends HookConsumerWidget {
                     onTapRecruitDetail: onTapRecruitDetail,
                     onTapMarketDetail: onTapMarketDetail,
                   )
+                      : isTyping
+                      ? AutocompleteList(
+                    key: ValueKey('auto-$query'),
+                    scrollController: scrollController,
+                    query: query,
+                    items: autoItems,
+                    onTapSuggestion: (suggestion) async {
+                      keywordCtrl.text = suggestion;
+                      keywordCtrl.selection =
+                          TextSelection.fromPosition(
+                            TextPosition(offset: suggestion.length),
+                          );
+
+                      await onSubmit(suggestion);
+                    },
+                  )
                       : SearchRecentList(
                     key: const ValueKey('recent'),
                     scrollController: scrollController,
-                    query: keyword.value,
+                    query: '',
                     onTapRecentDetail: (recentKeyword) async {
                       keywordCtrl.text = recentKeyword;
+                      keywordCtrl.selection =
+                          TextSelection.fromPosition(
+                            TextPosition(offset: recentKeyword.length),
+                          );
                       keyword.value = recentKeyword.trim();
                       await onSubmit(recentKeyword);
                     },

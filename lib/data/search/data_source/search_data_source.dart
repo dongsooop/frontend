@@ -3,6 +3,7 @@ import 'package:dongsoop/data/search/model/search_notice_model.dart';
 import 'package:dongsoop/data/search/model/search_recruit_model.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
+import 'package:dongsoop/domain/search/enum/board_type.dart';
 
 abstract class SearchDataSource {
   Future<List<SearchNoticeModel>> searchOfficialNotice({
@@ -35,5 +36,10 @@ abstract class SearchDataSource {
     required List<MarketType> types,
     required int size,
     required String sort,
+  });
+
+  Future<List<String>> searchAuto({
+    required String keyword,
+    required SearchBoardType boardType,
   });
 }

@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/search/entity/search_market_entity.dart';
 import 'package:dongsoop/domain/search/entity/search_notice_entity.dart';
 import 'package:dongsoop/domain/search/entity/search_recruit_entity.dart';
+import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/domain/search/repository/search_repository.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
@@ -92,6 +93,17 @@ class SearchRepositoryImpl implements SearchRepository {
       );
       return models.map((model) => model.toEntity()).toList();
     }, SearchException());
+  }
+
+  @override
+  Future<List<String>> searchAuto({
+    required String keyword,
+    required SearchBoardType boardType,
+  }) {
+    return _handle(() => _dataSource.searchAuto(
+      keyword: keyword,
+      boardType: boardType
+    ), SearchException());
   }
 
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
