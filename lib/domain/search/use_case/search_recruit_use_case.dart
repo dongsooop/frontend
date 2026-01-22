@@ -15,13 +15,13 @@ class SearchRecruitUseCase {
   Future<List<SearchRecruitEntity>> execute({
     required int page,
     required String keyword,
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
   }) {
     return _repository.searchRecruit(
       page: page,
       keyword: keyword.trim(),
-      type: type,
+      types: types,
       departmentName: departmentName.trim(),
       size: _config.pageSize,
       sort: _config.defaultSort,

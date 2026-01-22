@@ -20,6 +20,7 @@ mixin _$SearchMarketModel {
   DateTime get createdAt;
   int get price;
   int? get contactCount;
+  MarketType get marketplaceType;
 
   /// Create a copy of SearchMarketModel
   /// with the given fields replaced by the non-null parameter values.
@@ -41,17 +42,19 @@ mixin _$SearchMarketModel {
                 other.createdAt == createdAt) &&
             (identical(other.price, price) || other.price == price) &&
             (identical(other.contactCount, contactCount) ||
-                other.contactCount == contactCount));
+                other.contactCount == contactCount) &&
+            (identical(other.marketplaceType, marketplaceType) ||
+                other.marketplaceType == marketplaceType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, boardId, title, content, createdAt, price, contactCount);
+  int get hashCode => Object.hash(runtimeType, boardId, title, content,
+      createdAt, price, contactCount, marketplaceType);
 
   @override
   String toString() {
-    return 'SearchMarketModel(boardId: $boardId, title: $title, content: $content, createdAt: $createdAt, price: $price, contactCount: $contactCount)';
+    return 'SearchMarketModel(boardId: $boardId, title: $title, content: $content, createdAt: $createdAt, price: $price, contactCount: $contactCount, marketplaceType: $marketplaceType)';
   }
 }
 
@@ -67,7 +70,8 @@ abstract mixin class $SearchMarketModelCopyWith<$Res> {
       String content,
       DateTime createdAt,
       int price,
-      int? contactCount});
+      int? contactCount,
+      MarketType marketplaceType});
 }
 
 /// @nodoc
@@ -89,6 +93,7 @@ class _$SearchMarketModelCopyWithImpl<$Res>
     Object? createdAt = null,
     Object? price = null,
     Object? contactCount = freezed,
+    Object? marketplaceType = null,
   }) {
     return _then(SearchMarketModel(
       boardId: null == boardId
@@ -115,6 +120,10 @@ class _$SearchMarketModelCopyWithImpl<$Res>
           ? _self.contactCount
           : contactCount // ignore: cast_nullable_to_non_nullable
               as int?,
+      marketplaceType: null == marketplaceType
+          ? _self.marketplaceType
+          : marketplaceType // ignore: cast_nullable_to_non_nullable
+              as MarketType,
     ));
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/common_search_bar.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/restaurants/enum/restaurants_tag.dart';
@@ -8,7 +9,6 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -62,19 +62,26 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
       return null;
     }, [selectedTag.value]);
 
+    void handleClear() {
+      selectedTag.value = null;
+      searchFocusNode.unfocus();
+      viewModel.reset();
+    }
+
     return Scaffold(
       backgroundColor: ColorStyles.white,
-      appBar: _searchBar(
-        context: context,
+      appBar: CommonSearchAppBar(
+        controller: searchTextController,
+        focusNode: searchFocusNode,
+        hintText: '가게를 검색해 주세요',
         onTap: () async {
           searchFocusNode.unfocus();
           await viewModel.search(
             isLogin: isLogin,
-            search: searchTextController.text.trim()
+            search: searchTextController.text.trim(),
           );
         },
-        textController: searchTextController,
-        searchFocusNode: searchFocusNode,
+        onClear: handleClear,
       ),
       body: SafeArea(
         child: GestureDetector(
@@ -244,89 +251,6 @@ class RestaurantsSearchScreen extends HookConsumerWidget {
             ),
           );
         }).toList(),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _searchBar({
-    required BuildContext context,
-    required VoidCallback onTap,
-    required TextEditingController textController,
-    required FocusNode searchFocusNode,
-  }) {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(96),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SafeArea(
-            bottom: false,
-            child: Row(
-              children: [
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () => context.pop(),
-                  highlightColor: Colors.transparent,
-                  icon: const Icon(
-                    Icons.navigate_before,
-                    size: 24,
-                    color: ColorStyles.black,
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      minHeight: 44,
-                    ),
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: TextFormField(
-                      focusNode: searchFocusNode,
-                      onFieldSubmitted: (_) => onTap(),
-                      maxLines: 1,
-                      keyboardType: TextInputType.emailAddress,
-                      controller: textController,
-                      textInputAction: TextInputAction.done,
-                      textAlignVertical: TextAlignVertical.center,
-                      style: TextStyles.normalTextRegular.copyWith(
-                        color: ColorStyles.black,
-                      ),
-                      decoration: InputDecoration(
-                        isDense: true,
-                        border: InputBorder.none,
-                        hintText: '가게를 검색해 주세요',
-                        hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                  visualDensity: VisualDensity.compact,
-                  onPressed: onTap,
-                  highlightColor: Colors.transparent,
-                  icon: SvgPicture.asset(
-                    'assets/icons/search.svg',
-                    width: 20,
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(
-                      ColorStyles.black,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            height: 4,
-            color: ColorStyles.gray1,
-          ),
-        ],
       ),
     );
   }

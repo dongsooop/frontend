@@ -1,16 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/search/data_source/search_data_source.dart';
+import 'package:dongsoop/data/search/data_source/auto_complete_mapper.dart';
 import 'package:dongsoop/data/search/model/search_market_model.dart';
 import 'package:dongsoop/data/search/model/search_notice_model.dart';
 import 'package:dongsoop/data/search/model/search_recruit_model.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
+import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SearchDataSourceImpl implements SearchDataSource {
   final Dio _plainDio;
-  SearchDataSourceImpl(this._plainDio);
+  final Dio _authDio;
+
+  SearchDataSourceImpl(this._plainDio, this._authDio);
 
   @override
   Future<List<SearchNoticeModel>> searchOfficialNotice({
@@ -21,7 +25,7 @@ class SearchDataSourceImpl implements SearchDataSource {
   }) async {
     final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
 
-    final params = <String, dynamic>{
+    final params = {
       'page': page,
       'size': size,
       'sort': sort,
@@ -33,12 +37,8 @@ class SearchDataSourceImpl implements SearchDataSource {
     final response = await _plainDio.get(base, queryParameters: params);
 
     if (response.statusCode == HttpStatusCode.ok.code) {
-      final data = response.data;
-      if (data is! Map || data['results'] is! List) {
-        throw const FormatException('응답 데이터 형식이 옳지 않습니다.');
-      }
-      final list = data['results'] as List;
-      return list.map((json) => SearchNoticeModel.fromJson(json)).toList();
+      final list = response.data['results'] as List;
+      return list.map((e) => SearchNoticeModel.fromJson(e)).toList();
     }
     throw Exception('status: ${response.statusCode}');
   }
@@ -53,7 +53,7 @@ class SearchDataSourceImpl implements SearchDataSource {
   }) async {
     final base = dotenv.get('NOTICE_SEARCH_ENDPOINT');
 
-    final params = <String, dynamic>{
+    final params = {
       'page': page,
       'size': size,
       'sort': sort,
@@ -64,12 +64,8 @@ class SearchDataSourceImpl implements SearchDataSource {
     final response = await _plainDio.get(base, queryParameters: params);
 
     if (response.statusCode == HttpStatusCode.ok.code) {
-      final data = response.data;
-      if (data is! Map || data['results'] is! List) {
-        throw const FormatException('응답 데이터 형식이 옳지 않습니다.');
-      }
-      final list = data['results'] as List;
-      return list.map((json) => SearchNoticeModel.fromJson(json)).toList();
+      final list = response.data['results'] as List;
+      return list.map((e) => SearchNoticeModel.fromJson(e)).toList();
     }
     throw Exception('status: ${response.statusCode}');
   }
@@ -78,23 +74,21 @@ class SearchDataSourceImpl implements SearchDataSource {
   Future<List<SearchRecruitModel>> searchRecruit({
     required int page,
     required String keyword,
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
     required int size,
     required String sort,
   }) async {
     final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
 
-    final key = keyword.trim();
-    final dep = departmentName.trim();
-
-    final params = <String, dynamic>{
+    final params = {
       'page': page,
       'size': size,
       'sort': sort,
-      if (key.isNotEmpty) 'keyword': key,
-      'boardType': type.name,
-      if (dep.isNotEmpty) 'departmentName': dep,
+      if (keyword.trim().isNotEmpty) 'keyword': keyword.trim(),
+      'boardType': types.map((e) => e.name).toList(),
+      if (departmentName.trim().isNotEmpty)
+        'departmentName': departmentName.trim(),
     };
 
     final response = await _plainDio.get(
@@ -103,12 +97,8 @@ class SearchDataSourceImpl implements SearchDataSource {
     );
 
     if (response.statusCode == HttpStatusCode.ok.code) {
-      final data = response.data;
-      if (data is! Map || data['results'] is! List) {
-        throw const FormatException('응답 데이터 형식이 옳지 않습니다.');
-      }
-      final list = data['results'] as List;
-      return list.map((json) => SearchRecruitModel.fromJson(json)).toList();
+      final list = response.data['results'] as List;
+      return list.map((e) => SearchRecruitModel.fromJson(e)).toList();
     }
 
     throw Exception('status: ${response.statusCode}');
@@ -118,19 +108,19 @@ class SearchDataSourceImpl implements SearchDataSource {
   Future<List<SearchMarketModel>> searchMarket({
     required int page,
     required String keyword,
-    required MarketType type,
+    required List<MarketType> types,
     required int size,
     required String sort,
   }) async {
-    final base = dotenv.get('MARKET_SEARCH_ENDPOINT');
+    final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
 
-    final params = <String, dynamic>{
+    final params = {
       'page': page,
       'size': size,
       'sort': sort,
-      if (keyword.trim().isNotEmpty)
-      'keyword': keyword.trim(),
-      'marketplaceType': type.name,
+      if (keyword.trim().isNotEmpty) 'keyword': keyword.trim(),
+      'boardType': 'MARKETPLACE',
+      'marketplaceType': types.map((e) => e.name).toList(),
     };
 
     final response = await _plainDio.get(
@@ -139,12 +129,41 @@ class SearchDataSourceImpl implements SearchDataSource {
     );
 
     if (response.statusCode == HttpStatusCode.ok.code) {
-      final data = response.data;
-      if (data is! Map || data['results'] is! List) {
-        throw const FormatException('응답 데이터 형식이 옳지 않습니다.');
-      }
-      final list = data['results'] as List;
+      final list = response.data['results'] as List;
       return list.map((e) => SearchMarketModel.fromJson(e)).toList();
+    }
+
+    throw Exception('status: ${response.statusCode}');
+  }
+
+  @override
+  Future<List<String>> searchAuto({
+    required String keyword,
+    required SearchBoardType boardType,
+  }) async {
+    final base = dotenv.get('AUTO_SEARCH_ENDPOINT');
+
+    final params = {
+      if (keyword.trim().isNotEmpty) 'keyword': keyword.trim(),
+      'boardType': AutoCompleteMapper.toApiBoardType(boardType),
+    };
+
+    final response = await _authDio.get(base, queryParameters: params);
+
+    if (response.statusCode == HttpStatusCode.ok.code) {
+      return AutoCompleteMapper.parseKeywordList(response.data);
+    }
+
+    throw Exception('status: ${response.statusCode}');
+  }
+
+  @override
+  Future<List<String>> searchPopular() async {
+    final base = dotenv.get('POPULAR_SEARCH_ENDPOINT');
+    final response = await _plainDio.get(base);
+
+    if (response.statusCode == HttpStatusCode.ok.code) {
+      return AutoCompleteMapper.parseKeywordList(response.data);
     }
 
     throw Exception('status: ${response.statusCode}');

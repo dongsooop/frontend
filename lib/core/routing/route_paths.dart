@@ -49,4 +49,5 @@ abstract class RoutePaths {
   static const String blindDateDetail = '/blindDateDetail';
   static const String adminBlindDate = '/adminBlindDate';
   static const String socialLoginConnect = '/socialLoginConnect';
+  static const String search = '/search';
 }

@@ -1,3 +1,5 @@
+import 'package:dongsoop/domain/board/market/enum/market_type.dart';
+
 class SearchMarketEntity {
   final int id;
   final String title;
@@ -5,6 +7,7 @@ class SearchMarketEntity {
   final DateTime createdAt;
   final int price;
   final int? contactCount;
+  final MarketType marketplaceType;
 
   const SearchMarketEntity({
     required this.id,
@@ -13,5 +16,6 @@ class SearchMarketEntity {
     required this.createdAt,
     required this.price,
     this.contactCount,
+    required this.marketplaceType,
   });
 }

@@ -14,6 +14,8 @@ SearchMarketModel _$SearchMarketModelFromJson(Map<String, dynamic> json) =>
       createdAt: DateTime.parse(json['createdAt'] as String),
       price: (json['price'] as num).toInt(),
       contactCount: (json['contactCount'] as num?)?.toInt(),
+      marketplaceType:
+          $enumDecode(_$MarketTypeEnumMap, json['marketplaceType']),
     );
 
 Map<String, dynamic> _$SearchMarketModelToJson(SearchMarketModel instance) =>
@@ -24,4 +26,11 @@ Map<String, dynamic> _$SearchMarketModelToJson(SearchMarketModel instance) =>
       'createdAt': instance.createdAt.toIso8601String(),
       'price': instance.price,
       'contactCount': instance.contactCount,
+      'marketplaceType': _$MarketTypeEnumMap[instance.marketplaceType]!,
     };
+
+const _$MarketTypeEnumMap = {
+  MarketType.SELL: 'SELL',
+  MarketType.BUY: 'BUY',
+  MarketType.REPORT: 'REPORT',
+};

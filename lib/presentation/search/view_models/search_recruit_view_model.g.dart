@@ -7,7 +7,7 @@ part of 'search_recruit_view_model.dart';
 // **************************************************************************
 
 String _$searchRecruitViewModelHash() =>
-    r'3622df7d51e1360021ccf19452a7298cd891ee8d';
+    r'1599308b18835f5518e10e68b38fded90f83be1b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,11 +32,11 @@ class _SystemHash {
 
 abstract class _$SearchRecruitViewModel
     extends BuildlessNotifier<SearchRecruitState> {
-  late final RecruitType type;
+  late final List<RecruitType> types;
   late final String departmentName;
 
   SearchRecruitState build({
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
   });
 }
@@ -52,11 +52,11 @@ class SearchRecruitViewModelFamily extends Family<SearchRecruitState> {
 
   /// See also [SearchRecruitViewModel].
   SearchRecruitViewModelProvider call({
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
   }) {
     return SearchRecruitViewModelProvider(
-      type: type,
+      types: types,
       departmentName: departmentName,
     );
   }
@@ -66,7 +66,7 @@ class SearchRecruitViewModelFamily extends Family<SearchRecruitState> {
     covariant SearchRecruitViewModelProvider provider,
   ) {
     return call(
-      type: provider.type,
+      types: provider.types,
       departmentName: provider.departmentName,
     );
   }
@@ -91,11 +91,11 @@ class SearchRecruitViewModelProvider
     extends NotifierProviderImpl<SearchRecruitViewModel, SearchRecruitState> {
   /// See also [SearchRecruitViewModel].
   SearchRecruitViewModelProvider({
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
   }) : this._internal(
           () => SearchRecruitViewModel()
-            ..type = type
+            ..types = types
             ..departmentName = departmentName,
           from: searchRecruitViewModelProvider,
           name: r'searchRecruitViewModelProvider',
@@ -106,7 +106,7 @@ class SearchRecruitViewModelProvider
           dependencies: SearchRecruitViewModelFamily._dependencies,
           allTransitiveDependencies:
               SearchRecruitViewModelFamily._allTransitiveDependencies,
-          type: type,
+          types: types,
           departmentName: departmentName,
         );
 
@@ -117,11 +117,11 @@ class SearchRecruitViewModelProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.type,
+    required this.types,
     required this.departmentName,
   }) : super.internal();
 
-  final RecruitType type;
+  final List<RecruitType> types;
   final String departmentName;
 
   @override
@@ -129,7 +129,7 @@ class SearchRecruitViewModelProvider
     covariant SearchRecruitViewModel notifier,
   ) {
     return notifier.build(
-      type: type,
+      types: types,
       departmentName: departmentName,
     );
   }
@@ -140,14 +140,14 @@ class SearchRecruitViewModelProvider
       origin: this,
       override: SearchRecruitViewModelProvider._internal(
         () => create()
-          ..type = type
+          ..types = types
           ..departmentName = departmentName,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        type: type,
+        types: types,
         departmentName: departmentName,
       ),
     );
@@ -162,14 +162,14 @@ class SearchRecruitViewModelProvider
   @override
   bool operator ==(Object other) {
     return other is SearchRecruitViewModelProvider &&
-        other.type == type &&
+        other.types == types &&
         other.departmentName == departmentName;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, type.hashCode);
+    hash = _SystemHash.combine(hash, types.hashCode);
     hash = _SystemHash.combine(hash, departmentName.hashCode);
 
     return _SystemHash.finish(hash);
@@ -179,8 +179,8 @@ class SearchRecruitViewModelProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin SearchRecruitViewModelRef on NotifierProviderRef<SearchRecruitState> {
-  /// The parameter `type` of this provider.
-  RecruitType get type;
+  /// The parameter `types` of this provider.
+  List<RecruitType> get types;
 
   /// The parameter `departmentName` of this provider.
   String get departmentName;
@@ -192,7 +192,8 @@ class _SearchRecruitViewModelProviderElement
   _SearchRecruitViewModelProviderElement(super.provider);
 
   @override
-  RecruitType get type => (origin as SearchRecruitViewModelProvider).type;
+  List<RecruitType> get types =>
+      (origin as SearchRecruitViewModelProvider).types;
   @override
   String get departmentName =>
       (origin as SearchRecruitViewModelProvider).departmentName;
