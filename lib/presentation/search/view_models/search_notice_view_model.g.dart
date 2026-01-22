@@ -7,7 +7,7 @@ part of 'search_notice_view_model.dart';
 // **************************************************************************
 
 String _$searchNoticeViewModelHash() =>
-    r'fa2abd56e1043ba60530604523bc6dc208709b67';
+    r'180f77f14ad71c07c7e311eba652e53cb5017bde';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,7 +31,7 @@ class _SystemHash {
 }
 
 abstract class _$SearchNoticeViewModel
-    extends BuildlessAutoDisposeNotifier<SearchNoticeState> {
+    extends BuildlessNotifier<SearchNoticeState> {
   late final NoticeTab tab;
   late final String? departmentName;
 
@@ -87,8 +87,8 @@ class SearchNoticeViewModelFamily extends Family<SearchNoticeState> {
 }
 
 /// See also [SearchNoticeViewModel].
-class SearchNoticeViewModelProvider extends AutoDisposeNotifierProviderImpl<
-    SearchNoticeViewModel, SearchNoticeState> {
+class SearchNoticeViewModelProvider
+    extends NotifierProviderImpl<SearchNoticeViewModel, SearchNoticeState> {
   /// See also [SearchNoticeViewModel].
   SearchNoticeViewModelProvider({
     required NoticeTab tab,
@@ -154,7 +154,7 @@ class SearchNoticeViewModelProvider extends AutoDisposeNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeNotifierProviderElement<SearchNoticeViewModel, SearchNoticeState>
+  NotifierProviderElement<SearchNoticeViewModel, SearchNoticeState>
       createElement() {
     return _SearchNoticeViewModelProviderElement(this);
   }
@@ -178,8 +178,7 @@ class SearchNoticeViewModelProvider extends AutoDisposeNotifierProviderImpl<
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin SearchNoticeViewModelRef
-    on AutoDisposeNotifierProviderRef<SearchNoticeState> {
+mixin SearchNoticeViewModelRef on NotifierProviderRef<SearchNoticeState> {
   /// The parameter `tab` of this provider.
   NoticeTab get tab;
 
@@ -188,8 +187,8 @@ mixin SearchNoticeViewModelRef
 }
 
 class _SearchNoticeViewModelProviderElement
-    extends AutoDisposeNotifierProviderElement<SearchNoticeViewModel,
-        SearchNoticeState> with SearchNoticeViewModelRef {
+    extends NotifierProviderElement<SearchNoticeViewModel, SearchNoticeState>
+    with SearchNoticeViewModelRef {
   _SearchNoticeViewModelProviderElement(super.provider);
 
   @override

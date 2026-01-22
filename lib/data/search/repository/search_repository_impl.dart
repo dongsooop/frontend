@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/search/entity/search_market_entity.dart';
 import 'package:dongsoop/domain/search/entity/search_notice_entity.dart';
 import 'package:dongsoop/domain/search/entity/search_recruit_entity.dart';
+import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/domain/search/repository/search_repository.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
@@ -56,7 +57,7 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<List<SearchRecruitEntity>> searchRecruit({
     required int page,
     required String keyword,
-    required RecruitType type,
+    required List<RecruitType> types,
     required String departmentName,
     required int size,
     required String sort,
@@ -65,7 +66,7 @@ class SearchRepositoryImpl implements SearchRepository {
       final models = await _dataSource.searchRecruit(
           page: page,
           keyword: keyword,
-          type: type,
+          types: types,
           departmentName: departmentName,
           size: size,
           sort: sort,
@@ -78,7 +79,7 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<List<SearchMarketEntity>> searchMarket({
     required int page,
     required String keyword,
-    required MarketType type,
+    required List<MarketType> types,
     required int size,
     required String sort,
   }) async {
@@ -86,12 +87,28 @@ class SearchRepositoryImpl implements SearchRepository {
       final models = await _dataSource.searchMarket(
         page: page,
         keyword: keyword,
-        type: type,
+        types: types,
         size: size,
         sort: sort,
       );
       return models.map((model) => model.toEntity()).toList();
     }, SearchException());
+  }
+
+  @override
+  Future<List<String>> searchAuto({
+    required String keyword,
+    required SearchBoardType boardType,
+  }) {
+    return _handle(() => _dataSource.searchAuto(
+      keyword: keyword,
+      boardType: boardType
+    ), SearchException());
+  }
+
+  @override
+  Future<List<String>> searchPopular() {
+    return _handle(() => _dataSource.searchPopular(), SearchException());
   }
 
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {

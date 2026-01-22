@@ -2,6 +2,7 @@ import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/login_entry.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
+import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
@@ -13,6 +14,7 @@ import 'package:dongsoop/presentation/board/recruit/apply/list/recruit_applicant
 import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
+import 'package:dongsoop/presentation/search/search_screen.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
 import 'package:dongsoop/presentation/home/chatbot/chatbot_screen.dart';
@@ -461,6 +463,39 @@ final router = GoRouter(
       },
     ),
     GoRoute(
+      path: RoutePaths.search,
+      builder: (context, state) {
+        final boardType = state.extra as SearchBoardType;
+
+        return SearchScreen(
+          boardType: boardType,
+          onTapRecruitDetail: (id, type) async {
+            await context.push<bool>(
+              RoutePaths.recruitDetail,
+              extra: {'id': id, 'type': type},
+            );
+          },
+          onTapMarketDetail: (id, type) async {
+            await context.push<bool>(
+              RoutePaths.marketDetail,
+              extra: {'id': id, 'type': type},
+            );
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.noticeWebView,
+      name: 'noticeWebView',
+      pageBuilder: (context, state) {
+        final path = state.uri.queryParameters['path'];
+        return MaterialPage(
+          key: state.pageKey,
+          child: NoticeWebViewScreen(path: path ?? ''),
+        );
+      },
+    ),
+    GoRoute(
       path: RoutePaths.report,
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
@@ -537,17 +572,6 @@ final router = GoRouter(
                     return MaterialPage(
                       key: state.pageKey,
                       child: const NoticeListPageScreen(),
-                    );
-                  },
-                ),
-                GoRoute(
-                  path: RoutePaths.noticeWebView,
-                  name: 'noticeWebView',
-                  pageBuilder: (context, state) {
-                    final path = state.uri.queryParameters['path'];
-                    return MaterialPage(
-                      key: state.pageKey,
-                      child: NoticeWebViewScreen(path: path ?? ''),
                     );
                   },
                 ),

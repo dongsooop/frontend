@@ -7,7 +7,7 @@ part of 'search_market_view_model.dart';
 // **************************************************************************
 
 String _$searchMarketViewModelHash() =>
-    r'78b85bc936fd1455256553a3581d5de6cb480751';
+    r'c659609ceaab496efb5daa3c54ffb326f63cf898';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,10 +32,10 @@ class _SystemHash {
 
 abstract class _$SearchMarketViewModel
     extends BuildlessNotifier<SearchMarketState> {
-  late final MarketType type;
+  late final List<MarketType> types;
 
   SearchMarketState build({
-    required MarketType type,
+    required List<MarketType> types,
   });
 }
 
@@ -50,10 +50,10 @@ class SearchMarketViewModelFamily extends Family<SearchMarketState> {
 
   /// See also [SearchMarketViewModel].
   SearchMarketViewModelProvider call({
-    required MarketType type,
+    required List<MarketType> types,
   }) {
     return SearchMarketViewModelProvider(
-      type: type,
+      types: types,
     );
   }
 
@@ -62,7 +62,7 @@ class SearchMarketViewModelFamily extends Family<SearchMarketState> {
     covariant SearchMarketViewModelProvider provider,
   ) {
     return call(
-      type: provider.type,
+      types: provider.types,
     );
   }
 
@@ -86,9 +86,9 @@ class SearchMarketViewModelProvider
     extends NotifierProviderImpl<SearchMarketViewModel, SearchMarketState> {
   /// See also [SearchMarketViewModel].
   SearchMarketViewModelProvider({
-    required MarketType type,
+    required List<MarketType> types,
   }) : this._internal(
-          () => SearchMarketViewModel()..type = type,
+          () => SearchMarketViewModel()..types = types,
           from: searchMarketViewModelProvider,
           name: r'searchMarketViewModelProvider',
           debugGetCreateSourceHash:
@@ -98,7 +98,7 @@ class SearchMarketViewModelProvider
           dependencies: SearchMarketViewModelFamily._dependencies,
           allTransitiveDependencies:
               SearchMarketViewModelFamily._allTransitiveDependencies,
-          type: type,
+          types: types,
         );
 
   SearchMarketViewModelProvider._internal(
@@ -108,17 +108,17 @@ class SearchMarketViewModelProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.type,
+    required this.types,
   }) : super.internal();
 
-  final MarketType type;
+  final List<MarketType> types;
 
   @override
   SearchMarketState runNotifierBuild(
     covariant SearchMarketViewModel notifier,
   ) {
     return notifier.build(
-      type: type,
+      types: types,
     );
   }
 
@@ -127,13 +127,13 @@ class SearchMarketViewModelProvider
     return ProviderOverride(
       origin: this,
       override: SearchMarketViewModelProvider._internal(
-        () => create()..type = type,
+        () => create()..types = types,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        type: type,
+        types: types,
       ),
     );
   }
@@ -146,13 +146,13 @@ class SearchMarketViewModelProvider
 
   @override
   bool operator ==(Object other) {
-    return other is SearchMarketViewModelProvider && other.type == type;
+    return other is SearchMarketViewModelProvider && other.types == types;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, type.hashCode);
+    hash = _SystemHash.combine(hash, types.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -161,8 +161,8 @@ class SearchMarketViewModelProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin SearchMarketViewModelRef on NotifierProviderRef<SearchMarketState> {
-  /// The parameter `type` of this provider.
-  MarketType get type;
+  /// The parameter `types` of this provider.
+  List<MarketType> get types;
 }
 
 class _SearchMarketViewModelProviderElement
@@ -171,7 +171,7 @@ class _SearchMarketViewModelProviderElement
   _SearchMarketViewModelProviderElement(super.provider);
 
   @override
-  MarketType get type => (origin as SearchMarketViewModelProvider).type;
+  List<MarketType> get types => (origin as SearchMarketViewModelProvider).types;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

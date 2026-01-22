@@ -15,12 +15,12 @@ class SearchMarketUseCase {
   Future<List<SearchMarketEntity>> execute({
     required int page,
     required String keyword,
-    required MarketType type,
+    required List<MarketType> types,
   }) {
     return _repository.searchMarket(
       page: page,
       keyword: keyword.trim(),
-      type: type,
+      types: types,
       size: _config.pageSize,
       sort: _config.defaultSort,
     );
