@@ -6,14 +6,15 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/auto_complete_view_model.dart';
+import 'package:dongsoop/presentation/search/view_models/popular_search_view_model.dart'; // ✅ 추가
 import 'package:dongsoop/presentation/search/view_models/search_market_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/search_notice_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/search_recruit_view_model.dart';
 import 'package:dongsoop/presentation/search/widget/auto_complete_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_market_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_notice_list.dart';
-import 'package:dongsoop/presentation/search/widget/search_recent_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_recruit_list.dart';
+import 'package:dongsoop/presentation/search/widget/popular_search_list.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -21,6 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+enum _RecentMenu { clearAll, cancel }
 
 class SearchScreen extends HookConsumerWidget {
   final SearchBoardType boardType;
@@ -203,18 +206,17 @@ class SearchScreen extends HookConsumerWidget {
                       await onSubmit(suggestion);
                     },
                   )
-                      : SearchRecentList(
-                    key: const ValueKey('recent'),
+                      : _PopularAndRecentBody(
+                    key: const ValueKey('popular+recent'),
                     scrollController: scrollController,
-                    query: '',
-                    onTapRecentDetail: (recentKeyword) async {
-                      keywordCtrl.text = recentKeyword;
+                    onTapKeyword: (kw) async {
+                      keywordCtrl.text = kw;
                       keywordCtrl.selection =
                           TextSelection.fromPosition(
-                            TextPosition(offset: recentKeyword.length),
+                            TextPosition(offset: kw.length),
                           );
-                      keyword.value = recentKeyword.trim();
-                      await onSubmit(recentKeyword);
+                      keyword.value = kw.trim();
+                      await onSubmit(kw);
                     },
                   ),
                 ),
@@ -235,6 +237,188 @@ class SearchScreen extends HookConsumerWidget {
       case SearchBoardType.notice:
         return '공지 게시글을 검색해 주세요';
     }
+  }
+}
+
+class _PopularAndRecentBody extends HookConsumerWidget {
+  final ScrollController scrollController;
+  final void Function(String keyword) onTapKeyword;
+
+  const _PopularAndRecentBody({
+    super.key,
+    required this.scrollController,
+    required this.onTapKeyword,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final prefs = ref.watch(preferencesProvider);
+    final recent = useState<List<String>>([]);
+    final popularAsync = ref.watch(popularSearchViewModelProvider);
+
+    final loadRecent = useCallback(() async {
+      recent.value = await prefs.getRecentSearches();
+    }, [prefs]);
+
+    final removeOne = useCallback((String keyword) async {
+      await prefs.removeRecentSearch(keyword);
+      await loadRecent();
+    }, [prefs, loadRecent]);
+
+    final clearAll = useCallback(() async {
+      await prefs.clearRecentSearches();
+      await loadRecent();
+    }, [prefs, loadRecent]);
+
+    useEffect(() {
+      loadRecent();
+      return null;
+    }, [loadRecent]);
+
+    final recentItems = recent.value.take(5).toList();
+
+    Widget recentHeader() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '최근 검색',
+            style: TextStyles.normalTextBold.copyWith(color: ColorStyles.gray6),
+          ),
+          SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: PopupMenuButton<_RecentMenu>(
+                enabled: recentItems.isNotEmpty,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: const Icon(Icons.more_horiz, color: ColorStyles.gray4),
+                onSelected: (value) async {
+                  if (value == _RecentMenu.clearAll) await clearAll();
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: _RecentMenu.clearAll,
+                    child: Text(
+                      '전체 삭제',
+                      style: TextStyles.normalTextRegular
+                          .copyWith(color: ColorStyles.black),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _RecentMenu.cancel,
+                    child: Text(
+                      '취소',
+                      style: TextStyles.normalTextRegular
+                          .copyWith(color: ColorStyles.gray4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return ListView(
+      controller: scrollController,
+      padding: EdgeInsets.zero,
+      children: [
+        popularAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (e, st) => const SizedBox.shrink(),
+          data: (keywords) => PopularSearchList(
+            keywords: keywords,
+            onTapKeyword: onTapKeyword,
+            maxItems: 10,
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              const SizedBox(height: 8),
+              recentHeader(),
+              const SizedBox(height: 8),
+              if (recentItems.isEmpty)
+                SizedBox(
+                  height: 120,
+                  child: Center(
+                    child: Text(
+                      '최근 검색어가 없어요',
+                      style: TextStyles.normalTextRegular
+                          .copyWith(color: ColorStyles.gray4),
+                    ),
+                  ),
+                )
+              else
+                ...recentItems.map((k) {
+                  return _RecentKeywordRow(
+                    key: ValueKey(k),
+                    keyword: k,
+                    onTap: () => onTapKeyword(k),
+                    onRemove: () => removeOne(k),
+                  );
+                }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RecentKeywordRow extends StatelessWidget {
+  final String keyword;
+  final VoidCallback onTap;
+  final VoidCallback onRemove;
+
+  const _RecentKeywordRow({
+    super.key,
+    required this.keyword,
+    required this.onTap,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    keyword,
+                    style: TextStyles.largeTextRegular
+                        .copyWith(color: ColorStyles.black),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  onPressed: onRemove,
+                  icon: const Icon(Icons.close,
+                      size: 20, color: ColorStyles.gray4),
+                  padding: EdgeInsets.zero,
+                  constraints:
+                  const BoxConstraints(minWidth: 44, minHeight: 44),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
   }
 }
 

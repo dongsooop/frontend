@@ -12,7 +12,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SearchDataSourceImpl implements SearchDataSource {
   final Dio _plainDio;
-  SearchDataSourceImpl(this._plainDio);
+  final Dio _authDio;
+
+  SearchDataSourceImpl(this._plainDio, this._authDio);
 
   @override
   Future<List<SearchNoticeModel>> searchOfficialNotice({
@@ -146,7 +148,19 @@ class SearchDataSourceImpl implements SearchDataSource {
       'boardType': AutoCompleteMapper.toApiBoardType(boardType),
     };
 
-    final response = await _plainDio.get(base, queryParameters: params);
+    final response = await _authDio.get(base, queryParameters: params);
+
+    if (response.statusCode == HttpStatusCode.ok.code) {
+      return AutoCompleteMapper.parseKeywordList(response.data);
+    }
+
+    throw Exception('status: ${response.statusCode}');
+  }
+
+  @override
+  Future<List<String>> searchPopular() async {
+    final base = dotenv.get('POPULAR_SEARCH_ENDPOINT');
+    final response = await _plainDio.get(base);
 
     if (response.statusCode == HttpStatusCode.ok.code) {
       return AutoCompleteMapper.parseKeywordList(response.data);

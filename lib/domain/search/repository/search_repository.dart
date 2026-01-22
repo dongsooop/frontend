@@ -42,4 +42,6 @@ abstract class SearchRepository {
     required String keyword,
     required SearchBoardType boardType,
   });
+
+  Future<List<String>> searchPopular();
 }

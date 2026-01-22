@@ -106,6 +106,11 @@ class SearchRepositoryImpl implements SearchRepository {
     ), SearchException());
   }
 
+  @override
+  Future<List<String>> searchPopular() {
+    return _handle(() => _dataSource.searchPopular(), SearchException());
+  }
+
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();
