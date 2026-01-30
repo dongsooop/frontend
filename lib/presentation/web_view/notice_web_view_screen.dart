@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -133,7 +134,15 @@ class _NoticeWebViewScreenState extends ConsumerState<NoticeWebViewScreen> {
     final downloadState = ref.watch(noticeWebViewViewModelProvider);
 
     return Scaffold(
-      appBar: DetailHeader(),
+      appBar: DetailHeader(
+        onBack: () {
+          if (context.canPop()) {
+            context.pop();
+            return;
+          }
+          context.go(RoutePaths.home);
+        },
+      ),
       body: SafeArea(
         child: Stack(
           children: [
