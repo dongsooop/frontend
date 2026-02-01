@@ -127,6 +127,9 @@ class PushRouter {
         case 'CHAT':
           return await _routeChatCold(value);
 
+        case 'BLINDDATE':
+          return await _routeBlindChatCold();
+
         case 'NOTICE':
           return await _routeNoticeCold(value, fromNotificationList);
 
@@ -167,6 +170,11 @@ class PushRouter {
           router.go(RoutePaths.chat);
           router.push(RoutePaths.chatDetail, extra: value);
           return true;
+
+      case 'BLINDDATE':
+        router.go(RoutePaths.chat);
+        router.pushNamed('blindDate');
+        return true;
 
       case 'NOTICE':
         if (fromNotificationList) {
@@ -284,6 +292,13 @@ class PushRouter {
     }
 
     // cold
+    static Future<bool> _routeBlindChatCold() async {
+      _setNextNamedRoute('blindDate');
+      router.go(RoutePaths.splash);
+      return true;
+    }
+
+    // cold
     static Future<bool> _routeNoticeCold(String path, bool from) async {
       _setNextNamedRoute(
         'noticeWebView',
@@ -377,6 +392,7 @@ class PushRouter {
     switch (type) {
       case 'CALENDAR':
       case 'TIMETABLE':
+      case 'BLINDDATE':
         return false;
       default:
         return true;
