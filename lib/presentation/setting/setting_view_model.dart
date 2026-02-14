@@ -63,9 +63,9 @@ class SettingViewModel extends StateNotifier<SettingState> {
     state =state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final socialLogin = await _getSocialStateUseCase.execute();
+      final socialLogin = await _getSocialStateUseCase.execute() ?? [];
 
-      if (socialLogin != null || socialLogin!.isNotEmpty) {
+      if (socialLogin.isNotEmpty) {
         state = state.copyWith(isLoading: false, errorTitle: '소셜 연동 해제', errorMessage: '연결된 소셜 계정이 있어요\n마이페이지에서 소셜 계정을 모두 연동 해제해 주세요');
         return;
       }
