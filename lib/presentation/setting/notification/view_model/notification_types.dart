@@ -17,6 +17,7 @@ class NotificationTypes {
   static const marketing = 'MARKETING';
   static const blinddate = 'BLINDDATE';
   static const feedback = 'FEEDBACK';
+  static const newDevice = 'NEW_DEVICE_LOGIN';
 
   static const recruitApplyGroup = <String>[
     tutoringApplicant,
