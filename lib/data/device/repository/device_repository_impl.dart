@@ -12,16 +12,17 @@ class DeviceRepositoryImpl implements DeviceRepository {
   Future<List<DeviceEntity>> getDeviceList() async {
     final models = await _dataSource.getDeviceList();
 
-    final entities = models
-        .map((m) => DeviceEntity(
+    final entities = models.map((m) => DeviceEntity(
       id: m.id,
       type: _deviceTypeFromString(m.type),
       current: m.current,
-    ))
-        .toList()
+      loginAt: m.loginAt, // 추가
+    )).toList()
       ..sort((a, b) {
-        if (a.current == b.current) return 0;
-        return a.current ? -1 : 1;
+        if (a.current != b.current) {
+          return a.current ? -1 : 1;
+        }
+        return b.loginAt.compareTo(a.loginAt);
       });
 
     return entities;

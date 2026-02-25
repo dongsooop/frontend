@@ -1,5 +1,5 @@
-import 'package:dongsoop/domain/device/use_case/device_delete_use_case.dart';
-import 'package:dongsoop/domain/device/use_case/force_logout_use_case.dart';
+import 'package:dongsoop/domain/device/use_case/force_logout_device_use_case.dart';
+import 'package:dongsoop/domain/device/use_case/device_list_use_case.dart';
 import 'package:dongsoop/presentation/setting/device_management/view_model/device_management_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

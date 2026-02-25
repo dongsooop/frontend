@@ -17,6 +17,7 @@ mixin _$DeviceResponse {
   int get id;
   String get type;
   bool get current;
+  DateTime get loginAt;
 
   /// Create a copy of DeviceResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -33,16 +34,17 @@ mixin _$DeviceResponse {
             other is DeviceResponse &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.type, type) || other.type == type) &&
-            (identical(other.current, current) || other.current == current));
+            (identical(other.current, current) || other.current == current) &&
+            (identical(other.loginAt, loginAt) || other.loginAt == loginAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, type, current);
+  int get hashCode => Object.hash(runtimeType, id, type, current, loginAt);
 
   @override
   String toString() {
-    return 'DeviceResponse(id: $id, type: $type, current: $current)';
+    return 'DeviceResponse(id: $id, type: $type, current: $current, loginAt: $loginAt)';
   }
 }
 
@@ -52,7 +54,7 @@ abstract mixin class $DeviceResponseCopyWith<$Res> {
           DeviceResponse value, $Res Function(DeviceResponse) _then) =
       _$DeviceResponseCopyWithImpl;
   @useResult
-  $Res call({int id, String type, bool current});
+  $Res call({int id, String type, bool current, DateTime loginAt});
 }
 
 /// @nodoc
@@ -71,6 +73,7 @@ class _$DeviceResponseCopyWithImpl<$Res>
     Object? id = null,
     Object? type = null,
     Object? current = null,
+    Object? loginAt = null,
   }) {
     return _then(DeviceResponse(
       id: null == id
@@ -85,6 +88,10 @@ class _$DeviceResponseCopyWithImpl<$Res>
           ? _self.current
           : current // ignore: cast_nullable_to_non_nullable
               as bool,
+      loginAt: null == loginAt
+          ? _self.loginAt
+          : loginAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }

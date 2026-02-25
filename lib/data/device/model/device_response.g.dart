@@ -11,6 +11,7 @@ DeviceResponse _$DeviceResponseFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       type: json['type'] as String,
       current: json['current'] as bool,
+      loginAt: DateTime.parse(json['loginAt'] as String),
     );
 
 Map<String, dynamic> _$DeviceResponseToJson(DeviceResponse instance) =>
@@ -18,4 +19,5 @@ Map<String, dynamic> _$DeviceResponseToJson(DeviceResponse instance) =>
       'id': instance.id,
       'type': instance.type,
       'current': instance.current,
+      'loginAt': instance.loginAt.toIso8601String(),
     };

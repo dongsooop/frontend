@@ -9,11 +9,13 @@ class DeviceResponse with _$DeviceResponse{
   final int id;
   final String type;
   final bool current;
+  final DateTime loginAt;
 
   DeviceResponse({
     required this.id,
     required this.type,
     required this.current,
+    required this.loginAt,
   });
 
   factory DeviceResponse.fromJson(Map<String, dynamic> json) => _$DeviceResponseFromJson(json);
