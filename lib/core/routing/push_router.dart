@@ -108,6 +108,10 @@ class PushRouter {
       type = type.trim().toUpperCase();
       value = value.trim();
 
+      if (type == 'FORCE_LOGOUT') {
+        return true;
+      }
+
       if (_shouldSkipAsDuplicate(type, value)) {
         return true;
       }
@@ -148,6 +152,9 @@ class PushRouter {
         case 'RECRUITMENT_PROJECT_APPLY_RESULT':
         case 'RECRUITMENT_TUTORING_APPLY_RESULT':
           return await _routeRecruitResultCold(type, value);
+
+        case 'NEW_DEVICE_LOGIN':
+          return await _routeDeviceManagementCold();
 
         default:
           return await _fallbackToNotificationList(isColdStart: isColdStart);
@@ -213,6 +220,10 @@ class PushRouter {
         case 'RECRUITMENT_PROJECT_APPLY_RESULT':
         case 'RECRUITMENT_TUTORING_APPLY_RESULT':
           return await _routeRecruitResultWarm(type, value);
+
+        case 'NEW_DEVICE_LOGIN':
+          router.push(RoutePaths.deviceManagement);
+          return true;
 
         default:
           router.goNamed('notificationList');
@@ -376,6 +387,12 @@ class PushRouter {
       return true;
   }
 
+  static Future<bool> _routeDeviceManagementCold() async {
+    _setNextRoute(RoutePaths.deviceManagement);
+    router.go(RoutePaths.splash);
+    return true;
+  }
+
   static bool _shouldSkipAsDuplicate(String type, String value) {
     final now = DateTime.now();
     final key = '$type|$value';
@@ -393,6 +410,9 @@ class PushRouter {
       case 'CALENDAR':
       case 'TIMETABLE':
       case 'BLINDDATE':
+      case 'NEW_DEVICE_LOGIN':
+        return false;
+      case 'FORCE_LOGOUT':
         return false;
       default:
         return true;

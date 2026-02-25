@@ -8,10 +8,12 @@ part 'device_response.g.dart';
 class DeviceResponse with _$DeviceResponse{
   final int id;
   final String type;
+  final bool current;
 
   DeviceResponse({
     required this.id,
     required this.type,
+    required this.current,
   });
 
   factory DeviceResponse.fromJson(Map<String, dynamic> json) => _$DeviceResponseFromJson(json);

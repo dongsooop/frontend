@@ -11,10 +11,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SettingScreen extends HookConsumerWidget {
   final VoidCallback onTapNotification;
+  final VoidCallback onTapDevice;
 
   const SettingScreen({
     super.key,
     required this.onTapNotification,
+    required this.onTapDevice,
   });
 
   @override
@@ -128,6 +130,20 @@ class SettingScreen extends HookConsumerWidget {
                 ],
               ),
               const SizedBox(height: 40),
+
+              if (user != null) ...[
+                buildSettingsSection(
+                  title: '보안',
+                  children: [
+                    buildSettingsItem(
+                      label: '기기 관리',
+                      onTap: onTapDevice,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+              ],
+
               if (user != null)
               buildSettingsSection(
                 title: '기타',
