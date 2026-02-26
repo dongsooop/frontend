@@ -78,16 +78,17 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     })
   }
 
-  override func application(
+override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    AppCheck.setAppCheckProviderFactory(MyAppCheckProviderFactory())
-    FirebaseApp.configure()
+) -> Bool {
 
-    FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { registry in
-      GeneratedPluginRegistrant.register(with: registry)
+    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+
+    if FirebaseApp.app() == nil {
+        FirebaseApp.configure()
     }
+    AppCheck.setAppCheckProviderFactory(MyAppCheckProviderFactory())
 
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self
@@ -169,7 +170,7 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
       print("[PUSH][iOS][BRIDGE] didFinish: rootViewController is not FlutterViewController (channel not created)")
     }
 
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    return result
   }
 
   @available(iOS 10.0, *)

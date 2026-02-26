@@ -7,7 +7,6 @@ import 'package:dongsoop/presentation/home/view_models/notification_badge_view_m
 import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/core/presentation/components/single_action_dialog.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,10 +25,21 @@ class DeviceController {
     lns.init();
     fms.init(localNotificationsService: lns);
 
+    // 배지 상태 감시: ViewModel 숫자가 바뀌면 네이티브 배지 업데이트
+    _ref.listen(notificationBadgeViewModelProvider, (prev, next) {
+      if (prev != next) {
+        fms.updateNativeBadge(next);
+      }
+    });
+
+    // 읽음 콜백: 알림 클릭 시 서버에 읽음 요청 후 배지 새로고침
     fms.setReadCallback((id) async {
       try {
         await _ref.read(notificationViewModelProvider.notifier).read(id);
-      } catch (_) {}
+        await refreshBadge(force: true);
+      } catch (_) {
+        await refreshBadge(force: true);
+      }
     });
 
     fms.setBadgeCallback((n) {
@@ -38,11 +48,12 @@ class DeviceController {
       } catch (_) {}
     });
 
-    fms.setBadgeRefreshCallback(() => refreshBadge(force: false));
+    fms.setBadgeRefreshCallback(() async {
+      await refreshBadge(force: false);
+    });
   }
 
   Future<void> _handleForceLogout() async {
-    if (kDebugMode) debugPrint('🚨 [FORCE_LOGOUT] Signal Catch inside DeviceController!');
     try {
       await _ref.read(secureStorageProvider).delete();
       _ref.read(userSessionProvider.notifier).state = null;

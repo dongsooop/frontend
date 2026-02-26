@@ -30,8 +30,19 @@ class FirebaseMessagingService {
   SetBadgeFn? _setBadge;
   Future<void> Function()? _forceLogout;
 
+  int? _pendingReadId;
+
   String? _activeChatRoomId;
   String? get activeChatRoomId => _activeChatRoomId;
+
+  Future<void> updateNativeBadge(int count) async {
+    try {
+      await _pushChannel.invokeMethod('setBadge', {'count': count});
+      if (kDebugMode) debugPrint('[FMS] Native badge sync success: $count');
+    } catch (e) {
+      if (kDebugMode) debugPrint('[FMS] Native badge sync failed: $e');
+    }
+  }
 
   void setActiveChat(String roomId) {
     if (roomId.isEmpty) return;
@@ -44,7 +55,15 @@ class FirebaseMessagingService {
     try { _pushChannel.invokeMethod('clearActiveChat'); } catch (_) {}
   }
 
-  void setReadCallback(ReadFn read) => _read = read;
+  void setReadCallback(ReadFn read) {
+    _read = read;
+    if (_pendingReadId != null) {
+      if (kDebugMode) debugPrint('🚀 [FMS] Processing pending read ID: $_pendingReadId');
+      _read?.call(_pendingReadId!);
+      _pendingReadId = null;
+    }
+  }
+
   void setBadgeRefreshCallback(RefreshBadgeFn cb) => _refreshBadge = cb;
   void setBadgeCallback(SetBadgeFn cb) => _setBadge = cb;
   void setForceLogoutCallback(Future<void> Function() fn) => _forceLogout = fn;
@@ -86,15 +105,14 @@ class FirebaseMessagingService {
     }
   }
 
-  // --- Logic Handlers ---
   Future<void> _handleForceLogout({required String source}) async {
-    if (kDebugMode) {
-      debugPrint('🚨 [FORCE_LOGOUT] EXECUTION! source=$source callbackNull=${_forceLogout == null}');
-    }
     try {
-      if (_forceLogout != null) await _forceLogout!.call();
+      if (_forceLogout != null) {
+        await _forceLogout!.call();
+      }
+      await updateNativeBadge(0);
     } catch (e) {
-      if (kDebugMode) debugPrint('❌ [FORCE_LOGOUT] Callback Error: $e');
+
     }
   }
 
@@ -105,6 +123,10 @@ class FirebaseMessagingService {
     final type = map['type']?.toString().trim().toUpperCase();
     final value = (map['value'] ?? map['roomId'])?.toString().trim() ?? '';
 
+    final id = _extractValidId(map['id'] ?? map['notificationId'] ?? map['gcm.notification.id']);
+
+    if (kDebugMode) debugPrint('🔎 [FMS] Extracted ID: $id (raw: ${map['id']})');
+
     _applyBadgeFromNative(map);
 
     if (type == 'FORCE_LOGOUT') {
@@ -113,6 +135,14 @@ class FirebaseMessagingService {
     }
 
     if (!isTap) return;
+
+    if (id != null) {
+      if (_read != null) {
+        await _read?.call(id);
+      } else {
+        _pendingReadId = id;
+      }
+    }
 
     try {
       await PushRouter.routeFromTypeValue(
@@ -124,7 +154,6 @@ class FirebaseMessagingService {
     } catch (_) {}
   }
 
-  // --- Initialization ---
   Future<void> init({required LocalNotificationsService localNotificationsService}) async {
     _localNotificationsService = localNotificationsService;
 
@@ -149,12 +178,20 @@ class FirebaseMessagingService {
         final map = jsonDecode(payloadJson) as Map<String, dynamic>;
         final type = map['type']?.toString().trim().toUpperCase();
         final value = map['value']?.toString();
-        final id = _extractValidId(map['id']);
+        final id = _extractValidId(map['id'] ?? map['notificationId']);
         final payloadBadge = int.tryParse(map['badge']?.toString() ?? '');
 
         if (type == 'FORCE_LOGOUT') {
           await _handleForceLogout(source: 'localNotificationTap');
           return;
+        }
+
+        if (id != null) {
+          if (_read != null) {
+            await _read?.call(id);
+          } else {
+            _pendingReadId = id;
+          }
         }
 
         if (type != null && value != null) {
@@ -165,11 +202,11 @@ class FirebaseMessagingService {
             isColdStart: false,
           );
         }
-        if (id != null) await _read?.call(id);
 
         if (payloadBadge != null) {
           try {
             _setBadge?.call(payloadBadge);
+            updateNativeBadge(payloadBadge);
           } catch (_) {
             _scheduleBadgeRefresh();
           }
@@ -206,7 +243,7 @@ class FirebaseMessagingService {
       return;
     }
 
-    final type = message.data['type']?.toString()?.trim().toUpperCase();
+    final type = message.data['type']?.toString().trim().toUpperCase();
     final value = (message.data['value'] ?? message.data['roomId'])?.toString();
 
     if (type == 'FORCE_LOGOUT') {
@@ -244,13 +281,21 @@ class FirebaseMessagingService {
       return;
     }
 
-    final type = message.data['type']?.toString()?.trim().toUpperCase();
+    final type = message.data['type']?.toString().trim().toUpperCase();
     final value = message.data['value']?.toString();
-    final id = _extractValidId(message.data['id']);
+    final id = _extractValidId(message.data['id'] ?? message.data['notificationId']);
 
     if (type == 'FORCE_LOGOUT') {
       await _handleForceLogout(source: 'android:onMessageOpenedApp');
       return;
+    }
+
+    if (id != null) {
+      if (_read != null) {
+        await _read?.call(id);
+      } else {
+        _pendingReadId = id;
+      }
     }
 
     if (type != null && value != null) {
@@ -263,12 +308,17 @@ class FirebaseMessagingService {
         );
       } catch (_) {}
     }
-    if (id != null) await _read?.call(id);
+
     _applyBadgeOrRefresh(message);
   }
 
   Map<String, dynamic>? _normalizeNativeArgs(dynamic args) {
-    if (args is Map) return args.map((k, v) => MapEntry(k.toString(), v));
+    if (args is Map) {
+      return args.entries.fold<Map<String, dynamic>>({}, (prev, e) {
+        prev[e.key.toString()] = e.value;
+        return prev;
+      });
+    }
     return null;
   }
 
@@ -277,8 +327,13 @@ class FirebaseMessagingService {
   bool _isAndroidEmptyTitleBody(RemoteMessage m) => Platform.isAndroid && (m.notification?.title ?? '').trim().isEmpty && (m.notification?.body ?? '').trim().isEmpty;
 
   int? _extractValidId(dynamic raw) {
-    final s = raw?.toString();
-    if (s == null) return null;
+    if (raw == null) return null;
+    if (raw is int) return raw > 0 ? raw : null;
+    if (raw is String) {
+      final v = int.tryParse(raw);
+      return (v == null || v <= 0) ? null : v;
+    }
+    final s = raw.toString();
     final v = int.tryParse(s);
     return (v == null || v <= 0) ? null : v;
   }
