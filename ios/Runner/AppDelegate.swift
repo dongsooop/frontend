@@ -22,73 +22,19 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private var pushChannel: FlutterMethodChannel?
-
-  private var pendingPushUserInfo: [AnyHashable: Any]?
   private var pendingTapUserInfo: [AnyHashable: Any]?
   private var activeChatRoomId: String?
 
-  private func short(_ v: Any?, max: Int = 140) -> String {
-    guard let v = v else { return "nil" }
-    let s = String(describing: v)
-    if s.count <= max { return s }
-    let idx = s.index(s.startIndex, offsetBy: max)
-    return String(s[..<idx]) + "…(len=\(s.count))"
-  }
-
-  private func typeOf(_ userInfo: [AnyHashable: Any]) -> String {
-    return short(userInfo["type"])
-  }
-
-  private func msgIdOf(_ userInfo: [AnyHashable: Any]) -> String {
-    if let mid = userInfo["gcm.message_id"] { return short(mid) }
-    return "nil"
-  }
-
-  private func hasAlert(_ userInfo: [AnyHashable: Any]) -> Bool {
-    guard let aps = userInfo["aps"] as? [String: Any] else { return false }
-    return aps["alert"] != nil
-  }
-
-  private func isContentAvailable(_ userInfo: [AnyHashable: Any]) -> Bool {
-    guard let aps = userInfo["aps"] as? [String: Any] else { return false }
-    if let ca = aps["content-available"] as? Int { return ca == 1 }
-    if let ca = aps["content-available"] as? NSNumber { return ca.intValue == 1 }
-    if let ca = aps["content-available"] as? String { return ca == "1" }
-    return false
-  }
-
-  private func logBridge(
-    event: String,
-    method: String,
-    userInfo: [AnyHashable: Any],
-    channelReady: Bool,
-    queued: Bool
-  ) {
-    print(
-      "[PUSH][iOS][BRIDGE] event=\(event) method=\(method) " +
-      "type=\(typeOf(userInfo)) mid=\(msgIdOf(userInfo)) " +
-      "alert=\(hasAlert(userInfo)) contentAvail=\(isContentAvailable(userInfo)) " +
-      "channelReady=\(channelReady) queued=\(queued)"
-    )
-  }
-
-  private func invokeToDart(method: String, userInfo: [AnyHashable: Any], event: String) {
-    pushChannel?.invokeMethod(method, arguments: userInfo, result: { res in
-      print("[PUSH][iOS][BRIDGE] result event=\(event) method=\(method) type=\(self.typeOf(userInfo)) mid=\(self.msgIdOf(userInfo)) res=\(String(describing: res))")
-    })
-  }
-
-override func application(
+  override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-) -> Bool {
-
-    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
-
-    if FirebaseApp.app() == nil {
-        FirebaseApp.configure()
-    }
+  ) -> Bool {
     AppCheck.setAppCheckProviderFactory(MyAppCheckProviderFactory())
+    FirebaseApp.configure()
+
+    FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { registry in
+      GeneratedPluginRegistrant.register(with: registry)
+    }
 
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self
@@ -99,6 +45,11 @@ override func application(
     }
 
     GeneratedPluginRegistrant.register(with: self)
+
+    if let remoteNotif = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
+        print("[PUSH][iOS] Cold Start detected via launchOptions")
+        pendingTapUserInfo = remoteNotif
+    }
 
     if let controller = window?.rootViewController as? FlutterViewController {
       pushChannel = FlutterMethodChannel(
@@ -117,21 +68,15 @@ override func application(
             }
             result(nil)
           } else {
-            result(FlutterError(code: "BAD_ARGS",
-                                message: "setBadge requires {count: int}",
-                                details: nil))
+            result(FlutterError(code: "BAD_ARGS", message: "setBadge requires {count: int}", details: nil))
           }
-
         case "clearBadge":
-          DispatchQueue.main.async {
-            UIApplication.shared.applicationIconBadgeNumber = 0
-          }
+          DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = 0 }
           result(nil)
 
         case "setActiveChat":
           if let args = call.arguments as? [String: Any],
-             let rid = (args["roomId"] as? String)?
-              .trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+             let rid = (args["roomId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
              !rid.isEmpty {
             self.activeChatRoomId = rid
           }
@@ -147,30 +92,20 @@ override func application(
         }
       }
 
-      if let info = pendingPushUserInfo {
-        logBridge(event: "didFinish(flushPendingPush)", method: "onPush", userInfo: info, channelReady: true, queued: false)
-        DispatchQueue.main.async { [weak self] in
-          self?.invokeToDart(method: "onPush", userInfo: info, event: "didFinish(flushPendingPush)")
-        }
-        pendingPushUserInfo = nil
-      } else {
-        print("[PUSH][iOS][BRIDGE] didFinish: no pendingPushUserInfo")
-      }
-
       if let info = pendingTapUserInfo {
-        logBridge(event: "didFinish(flushPendingTap)", method: "onPushTap", userInfo: info, channelReady: true, queued: false)
-        DispatchQueue.main.async { [weak self] in
-          self?.invokeToDart(method: "onPushTap", userInfo: info, event: "didFinish(flushPendingTap)")
+        print("[PUSH][iOS] Scheduling pending tap delivery...")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+          guard let self = self else { return }
+          if let channel = self.pushChannel {
+              print("[PUSH][iOS] Cold Start: Sending data to Dart now.")
+              channel.invokeMethod("onPushTap", arguments: info)
+              self.pendingTapUserInfo = nil // 성공적으로 전송 시도 후 비움
+          }
         }
-        pendingTapUserInfo = nil
-      } else {
-        print("[PUSH][iOS][BRIDGE] didFinish: no pendingTapUserInfo")
       }
-    } else {
-      print("[PUSH][iOS][BRIDGE] didFinish: rootViewController is not FlutterViewController (channel not created)")
     }
 
-    return result
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   @available(iOS 10.0, *)
@@ -180,32 +115,21 @@ override func application(
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
     let userInfo = notification.request.content.userInfo
-    print("[PUSH][iOS] willPresent rawUserInfo=\(userInfo)")
 
-    let type = (userInfo["type"] as? String)?
-      .trimmingCharacters(in: .whitespacesAndNewlines)
+    if let n = notification.request.content.badge as? NSNumber {
+      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = n.intValue }
+    } else if let aps = userInfo["aps"] as? [String: Any], let b = aps["badge"] as? Int {
+      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = b }
+    }
+
+    let type = (userInfo["type"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
     let valueRaw = (userInfo["value"] as? String) ?? (userInfo["roomId"] as? String)
     let value = valueRaw?.trimmingCharacters(in: .whitespacesAndNewlines)
 
     if type == "CHAT", let active = activeChatRoomId, let v = value, active == v {
       completionHandler([])
-
-      if let n = notification.request.content.badge as? NSNumber {
-        DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = n.intValue }
-      } else if let aps = userInfo["aps"] as? [String: Any],
-                let b = aps["badge"] as? Int {
-        DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = b }
-      }
-
       DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
-        if self.pushChannel != nil {
-          self.logBridge(event: "willPresent(sameChat)", method: "onPush", userInfo: userInfo, channelReady: true, queued: false)
-          self.invokeToDart(method: "onPush", userInfo: userInfo, event: "willPresent(sameChat)")
-        } else {
-          self.logBridge(event: "willPresent(sameChat)", method: "onPush", userInfo: userInfo, channelReady: false, queued: true)
-          self.pendingPushUserInfo = userInfo
-        }
+        self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
       }
       return
     }
@@ -216,22 +140,8 @@ override func application(
       completionHandler([.alert, .sound, .badge])
     }
 
-    if let n = notification.request.content.badge as? NSNumber {
-      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = n.intValue }
-    } else if let aps = userInfo["aps"] as? [String: Any],
-              let b = aps["badge"] as? Int {
-      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = b }
-    }
-
     DispatchQueue.main.async { [weak self] in
-      guard let self = self else { return }
-      if self.pushChannel != nil {
-        self.logBridge(event: "willPresent", method: "onPush", userInfo: userInfo, channelReady: true, queued: false)
-        self.invokeToDart(method: "onPush", userInfo: userInfo, event: "willPresent")
-      } else {
-        self.logBridge(event: "willPresent", method: "onPush", userInfo: userInfo, channelReady: false, queued: true)
-        self.pendingPushUserInfo = userInfo
-      }
+      self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
     }
   }
 
@@ -242,15 +152,13 @@ override func application(
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
     let userInfo = response.notification.request.content.userInfo
-    print("[PUSH][iOS] didReceiveTap rawUserInfo=\(userInfo)")
+    print("[PUSH][iOS] didReceive response (Tap) detected")
 
-    if pushChannel != nil {
-      logBridge(event: "didReceiveTap", method: "onPushTap", userInfo: userInfo, channelReady: true, queued: false)
-      DispatchQueue.main.async { [weak self] in
-        self?.invokeToDart(method: "onPushTap", userInfo: userInfo, event: "didReceiveTap")
+    if let channel = pushChannel {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        channel.invokeMethod("onPushTap", arguments: userInfo)
       }
     } else {
-      logBridge(event: "didReceiveTap", method: "onPushTap", userInfo: userInfo, channelReady: false, queued: true)
       pendingTapUserInfo = userInfo
     }
     completionHandler()
@@ -261,22 +169,13 @@ override func application(
     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
   ) {
-    print("[PUSH][iOS] didReceiveRemoteNotification rawUserInfo=\(userInfo)")
-
     if let aps = userInfo["aps"] as? [String: Any],
        let badge = aps["badge"] as? Int {
       UIApplication.shared.applicationIconBadgeNumber = badge
     }
     DispatchQueue.main.async { [weak self] in
-      guard let self = self else { return }
-      if self.pushChannel != nil {
-        self.logBridge(event: "didReceiveRemoteNotification", method: "onPush", userInfo: userInfo, channelReady: true, queued: false)
-        self.invokeToDart(method: "onPush", userInfo: userInfo, event: "didReceiveRemoteNotification")
-      } else {
-        self.logBridge(event: "didReceiveRemoteNotification", method: "onPush", userInfo: userInfo, channelReady: false, queued: true)
-        self.pendingPushUserInfo = userInfo
-      }
+      self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
     }
-    completionHandler(.newData)
+    super.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
   }
 }

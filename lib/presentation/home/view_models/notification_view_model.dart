@@ -11,7 +11,7 @@ import 'package:dongsoop/domain/notification/entity/notification_response_entity
 
 part 'notification_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class NotificationViewModel extends _$NotificationViewModel {
   static const int _pageSize = 10;
 
