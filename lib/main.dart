@@ -6,6 +6,7 @@ import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:dongsoop/firebase_options.dart';
 import 'package:dongsoop/presentation/app/device_controller.dart';
+import 'package:dongsoop/presentation/app/session_observer.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -34,6 +35,13 @@ Future<void> main() async {
     appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttestWithDeviceCheckFallback,
   );
   await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
+
+  try {
+    final token = await FirebaseAppCheck.instance.getToken();
+    print('[AppCheck] token=$token');
+  } catch (e) {
+    print('[AppCheck] getToken error at boot: $e');
+  }
 
   await Hive.initFlutter();
   Hive.registerAdapter(LocalTimetableInfoAdapter());
@@ -91,6 +99,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   }
   @override
   Widget build(BuildContext context) {
+    ref.watch(sessionObserverProvider);
     ref.watch(pushSyncControllerProvider);
     return MaterialApp.router(
       scaffoldMessengerKey: rootScaffoldMessengerKey,

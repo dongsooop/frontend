@@ -34,6 +34,9 @@ class FeedbackResultViewModel extends _$FeedbackResultViewModel {
         featureRequests: entity.featureRequests,
       );
 
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
+
     } on FeedbackException catch (e) {
       state = state.copyWith(
         isLoading: false,

@@ -32,6 +32,9 @@ class MypageDataSourceImpl implements MypageDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -51,6 +54,9 @@ class MypageDataSourceImpl implements MypageDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -68,6 +74,9 @@ class MypageDataSourceImpl implements MypageDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -80,6 +89,9 @@ class MypageDataSourceImpl implements MypageDataSource {
     try {
       await _authDio.delete(endpoint, data: requestBody);
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -95,6 +107,9 @@ class MypageDataSourceImpl implements MypageDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -113,6 +128,9 @@ class MypageDataSourceImpl implements MypageDataSource {
       }
       throw OAuthException();
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -133,6 +151,9 @@ class MypageDataSourceImpl implements MypageDataSource {
       }
       throw OAuthException();
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -158,6 +179,9 @@ class MypageDataSourceImpl implements MypageDataSource {
       }
       throw OAuthException();
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }

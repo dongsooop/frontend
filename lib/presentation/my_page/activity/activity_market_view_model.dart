@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/domain/mypage/use_case/get_my_market_posts_use_case.dart';
 import 'activity_market_state.dart';
@@ -22,6 +23,11 @@ class ActivityMarketViewModel extends StateNotifier<ActivityMarketState> {
         hasNext: !isLast,
       );
     } catch (e, st) {
+      if (e is SessionExpiredException) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+
       state = state.copyWith(
         isLoading: false,
         errorMessage: '장터 목록을 불러오는 중\n오류가 발생했습니다.',
@@ -47,6 +53,11 @@ class ActivityMarketViewModel extends StateNotifier<ActivityMarketState> {
         hasNext: !isLast,
       );
     } catch (e) {
+      if (e is SessionExpiredException) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+
       state = state.copyWith(isLoading: false, errorMessage: '장터 목록을 불러오는 중 오류가 발생했습니다.');
     }
   }

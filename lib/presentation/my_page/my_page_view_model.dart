@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
@@ -21,6 +22,10 @@ class MyPageViewModel extends StateNotifier<AsyncValue<User?>> {
 
       _ref.read(userSessionProvider.notifier).state = user;
     } catch (e, st) {
+      if (e is SessionExpiredException) {
+        state = const AsyncValue.data(null);
+        return null;
+      }
       state = AsyncValue.error("사용자 정보를 불러오는 중 오류가 발생했습니다.", st);
     }
     return null;

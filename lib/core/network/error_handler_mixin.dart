@@ -2,10 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 
 mixin ErrorHandlerMixin {
-  Never convertError(Object e) {
+  Object convertError(Object e) {
     if (e is DioException && e.error is SessionExpiredException) {
-      throw e.error!;
+      return e.error!;
     }
-    throw e;
+    return e;
   }
 }
