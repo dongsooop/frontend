@@ -299,4 +299,10 @@ class AuthDataSourceImpl implements AuthDataSource {
       rethrow;
     }
   }
+
+  @override
+  Future<void> clearLocalData() async {
+    await _preferencesService.clearUser();
+    await _secureStorageService.delete();
+  }
 }

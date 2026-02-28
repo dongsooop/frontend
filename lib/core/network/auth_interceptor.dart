@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/core/network/app_check_interceptor.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
+import 'package:dongsoop/providers/session_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -80,14 +82,32 @@ class AuthInterceptor extends Interceptor {
         if (e.response?.statusCode == HttpStatusCode.unauthorized.code) {
           _ref.read(userSessionProvider.notifier).state = null;
           _ref.read(myPageViewModelProvider.notifier).reset();
-
           await _secureStorageService.delete();
           await _preferencesService.clearUser();
+
+          _ref.read(sessionExpiredProvider.notifier).state = true;
+
+          return handler.reject(
+            DioException(
+              requestOptions: e.requestOptions,
+              response: e.response,
+              type: DioExceptionType.unknown,
+              error: const SessionExpiredException(),
+            ),
+          );
         }
         return handler.reject(e);
+
+      } catch (e) {
+        return handler.reject(
+          DioException(
+            requestOptions: err.requestOptions,
+            error: e,
+          ),
+        );
       }
     } else {
-      super.onError(err, handler);
+      return super.onError(err, handler);
     }
   }
 }

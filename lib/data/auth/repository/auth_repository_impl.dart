@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:dongsoop/domain/auth/model/sign_in_response.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
@@ -9,6 +11,7 @@ import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthDataSource _authDataSource;
+  final _sessionExpiredController = StreamController<void>.broadcast();
 
   AuthRepositoryImpl(this._authDataSource);
 
@@ -99,5 +102,14 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> userBlock(int blockerId, int blockedMemberId) async {
     await _authDataSource.userBlock(blockerId, blockedMemberId);
+  }
+
+  @override
+  Stream<void> get onSessionExpired => _sessionExpiredController.stream;
+
+  @override
+  Future<void> clearLocalSession() async {
+    await _authDataSource.clearLocalData();
+    _sessionExpiredController.add(null);
   }
 }
