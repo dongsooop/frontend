@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/schedule/entities/schedule_list_entity.dart';
 import 'package:dongsoop/domain/schedule/enum/schedule_type.dart';
 import 'package:dongsoop/domain/schedule/use_cases/schedule_use_case.dart';
@@ -22,22 +21,12 @@ class ScheduleViewModel extends _$ScheduleViewModel {
     final initialTab = isLoggedIn ? ScheduleType.member : ScheduleType.official;
     final memberType = isLoggedIn ? MemberType.member : MemberType.guest;
 
-    try {
-      final all = await _fetchMonth(firstOfMonth, memberType: memberType);
-      return ScheduleState(
-        focusedMonth: firstOfMonth,
-        tab: initialTab,
-        allEvents: all,
-      );
-    } on SessionExpiredException {
-      return ScheduleState(
-        focusedMonth: firstOfMonth,
-        tab: ScheduleType.official,
-        allEvents: [],
-      );
-    } catch (e) {
-      rethrow;
-    }
+    final all = await _fetchMonth(firstOfMonth, memberType: memberType);
+    return ScheduleState(
+      focusedMonth: firstOfMonth,
+      tab: initialTab,
+      allEvents: all,
+    );
   }
 
   void setTab(ScheduleType tab) {
@@ -92,18 +81,12 @@ class ScheduleViewModel extends _$ScheduleViewModel {
     final isLoggedIn = ref.read(userSessionProvider) != null;
     final memberType = isLoggedIn ? MemberType.member : MemberType.guest;
 
-    try {
-      final all = await _useCase.execute(
-        currentMonth: month,
-        type: memberType,
-      );
+    final all = await _useCase.execute(
+      currentMonth: month,
+      type: memberType,
+    );
 
-      state = AsyncData(currentState.copyWith(focusedMonth: month, allEvents: all));
-    } on SessionExpiredException {
-      state = AsyncData(currentState.copyWith(focusedMonth: month, allEvents: []));
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
+    state = AsyncData(currentState.copyWith(focusedMonth: month, allEvents: all));
   }
 
   Future<List<ScheduleListEntity>> _fetchMonth(

@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/restaurants/data_source/restaurants_data_source.dart';
 import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
@@ -6,7 +5,7 @@ import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_request.dart';
 import 'package:dongsoop/domain/restaurants/repository/restaurants_repository.dart';
 
-class RestaurantsRepositoryImpl with ErrorHandlerMixin implements RestaurantsRepository {
+class RestaurantsRepositoryImpl implements RestaurantsRepository{
   final RestaurantsDataSource _reportDataSource;
 
   RestaurantsRepositoryImpl(this._reportDataSource,);
@@ -18,20 +17,12 @@ class RestaurantsRepositoryImpl with ErrorHandlerMixin implements RestaurantsRep
 
   @override
   Future<bool> checkRestaurantsDuplication(String externalMapId) async {
-    try {
-      return await _reportDataSource.checkRestaurantsDuplication(externalMapId);
-    } catch (e) {
-      throw convertError(e);
-    }
+    return await _reportDataSource.checkRestaurantsDuplication(externalMapId);
   }
 
   @override
   Future<bool> restaurantsRegister(RestaurantsRequest request) async {
-    try {
-      return await _reportDataSource.restaurantsRegister(request);
-    } catch (e) {
-      throw convertError(e);
-    }
+    return await _reportDataSource.restaurantsRegister(request);
   }
 
   @override
@@ -41,16 +32,12 @@ class RestaurantsRepositoryImpl with ErrorHandlerMixin implements RestaurantsRep
     required int page,
     int size = 20,
   }) async {
-    try {
-      return await _reportDataSource.getRestaurants(
-        isLogin: isLogin,
-        category: category,
-        page: page,
-        size: size,
-      );
-    } catch (e) {
-      throw convertError(e);
-    }
+    return await _reportDataSource.getRestaurants(
+      isLogin: isLogin,
+      category: category,
+      page: page,
+      size: size,
+    );
   }
 
   @override
@@ -58,14 +45,10 @@ class RestaurantsRepositoryImpl with ErrorHandlerMixin implements RestaurantsRep
     required int id,
     required bool likedByMe,
   }) async {
-    try {
-      return await _reportDataSource.like(
-        id: id,
-        likedByMe: likedByMe,
-      );
-    } catch (e) {
-      throw convertError(e);
-    }
+    return await _reportDataSource.like(
+      id: id,
+      likedByMe: likedByMe,
+    );
   }
 
   @override
@@ -75,15 +58,11 @@ class RestaurantsRepositoryImpl with ErrorHandlerMixin implements RestaurantsRep
     required int page,
     int size = 20,
   }) async {
-    try {
-      return await _reportDataSource.search(
+    return await _reportDataSource.search(
         isLogin: isLogin,
         search: search,
         page: page,
-        size: size,
-      );
-    } catch (e) {
-      throw convertError(e);
-    }
+        size: size
+    );
   }
 }

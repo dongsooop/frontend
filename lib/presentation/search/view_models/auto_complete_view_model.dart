@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/search/providers/auto_complete_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -51,10 +50,6 @@ class AutocompleteViewModel extends _$AutocompleteViewModel {
         state = AsyncData(result);
       } catch (e, st) {
         if (mySeq != _seq) return;
-        if (e is SessionExpiredException) {
-          state = const AsyncData(<String>[]);
-          return;
-        }
         state = AsyncError(e, st);
       }
     });

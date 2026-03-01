@@ -39,11 +39,6 @@ class TimetableDetailViewModel extends StateNotifier<TimetableDetailState> {
       state = state.copyWith(isAnalyzing: false, analysisErrorMessage: e.message);
       return false;
     } catch (e) {
-      if (e is SessionExpiredException) {
-        state = state.copyWith(isAnalyzing: false);
-        return false;
-      }
-
       state = state.copyWith(
         isAnalyzing: false,
         analysisErrorMessage: '알 수 없는 오류가 발생했어요\n$e',
@@ -60,11 +55,6 @@ class TimetableDetailViewModel extends StateNotifier<TimetableDetailState> {
       state = state.copyWith(isLoading: false,);
       return result;
     } catch (e) {
-      if (e is SessionExpiredException) {
-        state = state.copyWith(isAnalyzing: false);
-        return false;
-      }
-
       state = state.copyWith(
         isLoading: false,
         errorMessage: '시간표를 삭제하는 중 오류가 발생했습니다.',

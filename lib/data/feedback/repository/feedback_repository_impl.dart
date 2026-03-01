@@ -1,11 +1,10 @@
 import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/feedback/data_source/feedback_data_source.dart';
 import 'package:dongsoop/domain/feedback/entity/feedback_list_entity.dart';
 import 'package:dongsoop/domain/feedback/entity/feedback_write_entity.dart';
 import 'package:dongsoop/domain/feedback/repository/feeedback_repository.dart';
 
-class FeedbackRepositoryImpl with ErrorHandlerMixin implements FeedbackRepository {
+class FeedbackRepositoryImpl implements FeedbackRepository {
   final FeedbackDataSource _dataSource;
 
   FeedbackRepositoryImpl(this._dataSource);
@@ -47,12 +46,9 @@ class FeedbackRepositoryImpl with ErrorHandlerMixin implements FeedbackRepositor
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();
-    } catch (e, st) {
-      final converted = convertError(e);
-      if (converted is SessionExpiredException) {
-        throw converted;
-      }
-      Error.throwWithStackTrace(exception, st);
+    }
+    catch (_) {
+      throw exception;
     }
   }
 }

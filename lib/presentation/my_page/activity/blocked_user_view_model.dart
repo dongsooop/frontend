@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/mypage/use_case/get_blocked_user_list_use_case.dart';
 import 'package:dongsoop/domain/mypage/use_case/un_block_use_case.dart';
 import 'package:dongsoop/presentation/my_page/activity/blocked_user_state.dart';
@@ -23,11 +22,6 @@ class BlockedUserViewModel extends StateNotifier<BlockedUserState> {
         list: list,
       );
     } catch (e) {
-      if (e is SessionExpiredException) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-
       state = state.copyWith(
         isLoading: false,
         errorMessage: '차단된 사용자 목록을 불러오는 중\n오류가 발생했습니다.\n${e}',
@@ -45,11 +39,6 @@ class BlockedUserViewModel extends StateNotifier<BlockedUserState> {
         errorMessage: null,
       );
     } catch (e) {
-      if (e is SessionExpiredException) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-
       state = state.copyWith(isLoading: false, errorMessage: '차단 해제 중 오류가 발생했습니다.');
     }
   }

@@ -34,11 +34,6 @@ class SocialLoginConnectViewModel extends StateNotifier<SocialLoginConnectState>
         items: _buildItems(list),
       );
     } catch (e) {
-      if (e is SessionExpiredException) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-
       state = state.copyWith(
         isLoading: false,
         errorMessage: '소셜 계정 연동 정보를 불러오는 중\n오류가 발생했습니다.',
@@ -107,11 +102,6 @@ class SocialLoginConnectViewModel extends StateNotifier<SocialLoginConnectState>
     } on OAuthException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
-      if (e is SessionExpiredException) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-
       state = state.copyWith(isLoading: false, errorMessage: '소셜 계정 연동 중 오류가 발생했습니다.');
     }
   }
@@ -148,11 +138,6 @@ class SocialLoginConnectViewModel extends StateNotifier<SocialLoginConnectState>
     } on OAuthException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
-      if (e is SessionExpiredException) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-      
       state = state.copyWith(isLoading: false, errorMessage: '소셜 계정 연동 중 오류가 발생했습니다.');
     }
   }

@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_delete_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_detail_use_case.dart';
@@ -69,8 +68,6 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
   Future<void> deleteRecruit(int id, RecruitType type) async {
     try {
       await _deleteUseCase.execute(id: id, type: type);
-    } on SessionExpiredException {
-      return;
     } catch (e) {
       rethrow;
     }
@@ -80,8 +77,6 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
     try {
       final chatRoom = await _createQNAChatRoomUseCase.execute(request);
       return chatRoom;
-    } on SessionExpiredException {
-      return "";
     } catch (e) {
       rethrow;
     }
@@ -90,8 +85,6 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
   Future<void> userBlock(int blockerId, int blockedMemberId) async {
     try {
       await _userBlockUseCase.execute(blockerId, blockedMemberId);
-    } on SessionExpiredException {
-      return;
     } catch (e) {
       rethrow;
     }

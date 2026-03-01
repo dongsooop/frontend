@@ -1,11 +1,10 @@
 import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/notice/data_sources/notice_data_source.dart';
 import 'package:dongsoop/data/notice/model/notice_model.dart';
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
 import 'package:dongsoop/domain/notice/repository/notice_repository.dart';
 
-class NoticeRepositoryImpl with ErrorHandlerMixin implements NoticeRepository {
+class NoticeRepositoryImpl implements NoticeRepository {
   final NoticeDataSource _remote;
 
   NoticeRepositoryImpl(this._remote);
@@ -40,20 +39,11 @@ class NoticeRepositoryImpl with ErrorHandlerMixin implements NoticeRepository {
     }, NoticeException());
   }
 
-  Future<T> _handle<T>(
-      Future<T> Function() action,
-      Exception defaultException,
-      ) async {
+  Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();
-    } on SessionExpiredException {
-      rethrow;
-    } catch (e, st) {
-      final converted = convertError(e);
-      if (converted is SessionExpiredException) {
-        throw converted;
-      }
-      Error.throwWithStackTrace(defaultException, st);
+    } catch (_) {
+      throw exception;
     }
   }
 }

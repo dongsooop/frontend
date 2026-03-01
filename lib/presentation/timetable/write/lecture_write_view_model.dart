@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/enum/week_day.dart';
@@ -90,10 +89,6 @@ class LectureWriteViewModel extends StateNotifier<LectureWriteState> {
       state = state.copyWith(isLoading: false,);
       return result;
     } catch (e) {
-      if (e is SessionExpiredException) {
-        state = state.copyWith(isLoading: false);
-        return false;
-      }
       state = state.copyWith(
         isLoading: false,
         errorMessage: '시간표를 작성하는 중 오류가 발생했습니다.',
@@ -128,10 +123,6 @@ class LectureWriteViewModel extends StateNotifier<LectureWriteState> {
       state = state.copyWith(isLoading: false,);
       return result;
     } catch (e) {
-      if (e is SessionExpiredException) {
-        state = state.copyWith(isLoading: false);
-        return false;
-      }
       state = state.copyWith(
         isLoading: false,
         errorMessage: '시간표를 수정하는 중 오류가 발생했습니다.',

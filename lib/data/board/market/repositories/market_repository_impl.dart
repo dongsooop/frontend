@@ -1,5 +1,4 @@
 import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/board/market/data_sources/market_data_source.dart';
 import 'package:dongsoop/data/board/market/models/market_detail_model.dart';
 import 'package:dongsoop/data/board/market/models/market_list_model.dart';
@@ -10,7 +9,7 @@ import 'package:dongsoop/domain/board/market/entities/market_write_entity.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/market/repository/market_repository.dart';
 
-class MarketRepositoryImpl with ErrorHandlerMixin implements MarketRepository {
+class MarketRepositoryImpl implements MarketRepository {
   final MarketDataSource _dataSource;
 
   MarketRepositoryImpl(this._dataSource);
@@ -103,12 +102,9 @@ class MarketRepositoryImpl with ErrorHandlerMixin implements MarketRepository {
       rethrow;
     } on NotFoundBoardException {
       rethrow;
-    } catch (e, st) {
-      final converted = convertError(e);
-      if (converted is SessionExpiredException) {
-        throw converted;
-      }
-      Error.throwWithStackTrace(defaultException, st);
+    }
+    catch (_) {
+      throw defaultException;
     }
   }
 }

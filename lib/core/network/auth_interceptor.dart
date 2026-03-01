@@ -80,12 +80,14 @@ class AuthInterceptor extends Interceptor {
         return handler.resolve(retryResponse);
       } on DioException catch (e) {
         if (e.response?.statusCode == HttpStatusCode.unauthorized.code) {
-          _ref.read(userSessionProvider.notifier).state = null;
-          _ref.read(myPageViewModelProvider.notifier).reset();
           await _secureStorageService.delete();
           await _preferencesService.clearUser();
 
-          _ref.read(sessionExpiredProvider.notifier).state = true;
+          Future.microtask(() {
+            _ref.read(userSessionProvider.notifier).state = null;
+            _ref.read(myPageViewModelProvider.notifier).reset();
+            _ref.read(sessionExpiredProvider.notifier).state = true;
+          });
 
           return handler.reject(
             DioException(
