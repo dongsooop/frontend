@@ -13,12 +13,10 @@ import 'package:image_picker/image_picker.dart';
 
 class TimetableDataSourceImpl implements TimetableDataSource {
   final Dio _authDio;
-  final Dio _aiDio;
   final HiveService _hiveService;
 
   TimetableDataSourceImpl(
     this._authDio,
-    this._aiDio,
     this._hiveService,
   );
 
@@ -53,7 +51,6 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   Future<bool> createLecture(LectureRequest request) async {
     final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
 
-    print('request: ${request.toJson()}');
     try {
       final response = await _authDio.post(endpoint, data: request.toJson());
       if (response.statusCode == HttpStatusCode.created.code) {
@@ -108,7 +105,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   }
 
   @override
-  Future<List<LectureAi>> timetableAnalysis(XFile file) async {
+  Future<String> timetableAnalysis(XFile file) async {
     final endpoint = dotenv.get('TIMETABLE_ANALYSIS_ENDPOINT');
 
     try {
@@ -119,6 +116,23 @@ class TimetableDataSourceImpl implements TimetableDataSource {
         endpoint,
         data: formData,
       );
+
+      if (response.statusCode == HttpStatusCode.accepted.code) {
+        return response.data['job_id'];
+      }
+      throw TimetableAnalysisFailedException();
+    } catch (e) {
+      throw TimetableAnalysisFailedException();
+    }
+  }
+
+  @override
+  Future<List<LectureAi>> getTimetableAnalysis(String jobId) async {
+    final baseEndpoint = dotenv.get('TIMETABLE_ANALYSIS_RESULT_ENDPOINT');
+    final endpoint = '$baseEndpoint/$jobId';
+
+    try {
+      final response = await _authDio.get(endpoint);
 
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data as List<dynamic>;
@@ -181,8 +195,6 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   Future<void> saveMultipleTimetable(List<LectureRequest> timetable) async {
     final endpoint = dotenv.get('TIMETABLE_MULTIPLE_ENDPOINT');
     final requestBody = timetable.map((e) => e.toJson()).toList();
-
-    print('timetable: $requestBody');
 
     try {
       final response = await _authDio.post(endpoint, data: requestBody);

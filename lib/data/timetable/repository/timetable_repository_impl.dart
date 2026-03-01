@@ -56,7 +56,8 @@ class TimetableRepositoryImpl implements TimetableRepository {
 
   @override
   Future<List<LectureAi>> getTimetableAnalysis(XFile file) async {
-    return await _timetableDataSource.timetableAnalysis(file);
+    final jobId = await _timetableDataSource.timetableAnalysis(file);
+    return await _timetableDataSource.getTimetableAnalysis(jobId);
   }
 
   @override

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source.dart';
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source_impl.dart';
@@ -27,16 +26,12 @@ import 'package:dongsoop/presentation/timetable/write/timetable_write_view_model
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'auth_dio.dart';
 
-
-final aiDioProvider = Provider<Dio>((ref) => createAuthDio(ref: ref, useAi: true));
-
 // Data Source
 final timetableDataSourceProvider = Provider<TimetableDataSource>((ref) {
   final authDio = ref.watch(authDioProvider);
-  final aiDio = ref.watch(aiDioProvider);
   final hiveService = ref.watch(hiveServiceProvider);
 
-  return TimetableDataSourceImpl(authDio, aiDio, hiveService);
+  return TimetableDataSourceImpl(authDio, hiveService);
 });
 
 // Repository
