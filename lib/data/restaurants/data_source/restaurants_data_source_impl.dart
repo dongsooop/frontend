@@ -9,7 +9,7 @@ import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class RestaurantsDataSourceImpl implements RestaurantsDataSource{
+class RestaurantsDataSourceImpl implements RestaurantsDataSource {
   final Dio _plainDio;
   final Dio _authDio;
 
@@ -69,6 +69,9 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
       }
       return false;
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -84,6 +87,9 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
       }
       return false;
     } on DioException catch (e) {
+      if (e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       if (e.response?.statusCode == HttpStatusCode.conflict.code) {
         throw RestaurantsDuplicationException();
       }
@@ -126,7 +132,9 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
-      print('error: $e');
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -152,6 +160,9 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
       }
       return false;
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -202,7 +213,9 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource{
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
-      print('error: $e');
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }

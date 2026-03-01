@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/use_case/delete_timetable_use_case.dart';
 import 'package:dongsoop/domain/timetable/use_case/get_timetable_info_use_case.dart';
@@ -36,6 +37,10 @@ class TimetableListViewModel extends StateNotifier<TimetableListState> {
       await _deleteTimetableUseCase.execute(year, semester);
       state = state.copyWith(isLoading: false);
     } catch (e) {
+      if (e is SessionExpiredException) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
       state = state.copyWith(
         isLoading: false,
         errorMessage: '시간표를 삭제하는 중 오류가 발생했습니다.',

@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/search/data_source/search_data_source.dart';
 import 'package:dongsoop/data/search/model/search_market_model.dart';
 import 'package:dongsoop/data/search/model/search_notice_model.dart';
@@ -11,7 +12,7 @@ import 'package:dongsoop/domain/search/entity/search_recruit_entity.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/domain/search/repository/search_repository.dart';
 
-class SearchRepositoryImpl implements SearchRepository {
+class SearchRepositoryImpl with ErrorHandlerMixin implements SearchRepository {
   final SearchDataSource _dataSource;
   SearchRepositoryImpl(this._dataSource);
 
@@ -114,7 +115,11 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();
-    } catch (_) {
+    } catch (e) {
+      final converted = convertError(e);
+      if (converted is SessionExpiredException) {
+        throw converted;
+      }
       throw exception;
     }
   }

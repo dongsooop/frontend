@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_applicant_detail_entity.dart';
 import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
 import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_applicant_detail_use_case.dart';
@@ -58,7 +59,6 @@ class RecruitApplicantDetailViewModel
 
   Future<void> refresh(RecruitApplicantDetailArgs args) async {
     state = const AsyncLoading();
-
     try {
       final detail = await _useCase.execute(
         viewer: args.viewer,
@@ -67,6 +67,10 @@ class RecruitApplicantDetailViewModel
         memberId: args.memberId,
       );
       state = AsyncData(detail);
+    } on SessionExpiredException {
+      if (state.hasValue) {
+        state = AsyncData(state.value!);
+      }
     } catch (e, st) {
       state = AsyncError(e, st);
     }

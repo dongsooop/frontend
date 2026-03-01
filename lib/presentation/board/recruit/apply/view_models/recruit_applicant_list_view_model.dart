@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_applicant_entity.dart';
 import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_applicant_list_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
@@ -29,12 +30,17 @@ class RecruitApplicantListViewModel extends _$RecruitApplicantListViewModel {
     required RecruitType type,
     required int boardId,
   }) async {
+    final previousState = state;
     state = const AsyncLoading();
 
     try {
       final list = await _useCase.execute(type: type, boardId: boardId);
       final sorted = _sortApplicants(list);
       state = AsyncData(sorted);
+    } on SessionExpiredException {
+      if (previousState.hasValue) {
+        state = AsyncData(previousState.value!);
+      }
     } catch (e, st) {
       state = AsyncError(e, st);
     }

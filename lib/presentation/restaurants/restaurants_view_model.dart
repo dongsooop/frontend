@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
 import 'package:dongsoop/domain/restaurants/use_case/get_restaurants_use_case.dart';
 import 'package:dongsoop/domain/restaurants/use_case/send_restaurant_like_use_case.dart';
@@ -46,6 +47,11 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
         restaurants: result ?? [],
       );
     } catch (e) {
+      if (e is SessionExpiredException) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+
       state = state.copyWith(
         isLoading: false,
         errorMessage: '가게 정보 조회 중 오류가 발생했습니다.'
@@ -86,6 +92,11 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
         ],
       );
     } catch (e) {
+      if (e is SessionExpiredException) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+
       state = state.copyWith(errorMessage: '가게 정보 조회 중 오류가 발생했습니다.');
     } finally {
       _isLoadingMore = false;
@@ -123,6 +134,11 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
         restaurants: updated,
       );
     } catch (e) {
+      if (e is SessionExpiredException) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+
       state = state.copyWith(
         isLoading: false,
         errorMessage: '가게 추천 중 오류가 발생했습니다.',

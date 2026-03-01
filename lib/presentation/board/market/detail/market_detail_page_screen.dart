@@ -130,7 +130,9 @@ class MarketDetailPageScreen extends ConsumerWidget {
                               .notifier,
                         );
                         final chatRoom = await viewModel.contactMarket(id);
-                        onTapChatDetail(chatRoom);
+                        if (chatRoom != null) {
+                          onTapChatDetail(chatRoom);
+                        }
                       } catch (e) {
                         showDialog(
                           context: context,

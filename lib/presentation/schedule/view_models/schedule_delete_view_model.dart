@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/schedule/use_cases/schedule_delete_use_case.dart';
 import 'package:dongsoop/presentation/schedule/providers/schedule_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -28,10 +29,14 @@ class ScheduleDeleteViewModel extends _$ScheduleDeleteViewModel {
 
   Future<void> delete({required int calendarId}) async {
     if (state.isLoading) return;
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, error: null);
     try {
       await _useCase.execute(calendarId: calendarId);
     } catch (e) {
+      if (e is SessionExpiredException) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
       rethrow;
     } finally {
       state = state.copyWith(isLoading: false);

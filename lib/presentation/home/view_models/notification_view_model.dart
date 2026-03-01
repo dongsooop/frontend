@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
 import 'package:dongsoop/domain/notification/use_case/notification_read_all_use_case.dart';
 import 'package:dongsoop/presentation/home/providers/notification_use_case_provider.dart';
@@ -53,7 +54,11 @@ class NotificationViewModel extends _$NotificationViewModel {
       );
     }
 
-    return _loadNextPageInternal(const NotificationState());
+    try {
+      return await _loadNextPageInternal(const NotificationState());
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<NotificationState> _loadNextPageInternal(
@@ -79,41 +84,71 @@ class NotificationViewModel extends _$NotificationViewModel {
   Future<void> loadNextPage() async {
     if (!_isAuthed) return;
     state = const AsyncLoading<NotificationState>().copyWithPrevious(state);
-    state = await AsyncValue.guard(() async {
+
+    try {
       final current = state.value ?? const NotificationState();
-      return _loadNextPageInternal(current);
-    });
+      final newState = await _loadNextPageInternal(current);
+      state = AsyncData(newState);
+    } on SessionExpiredException {
+      state = AsyncData(state.value ?? const NotificationState());
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 
   Future<void> refresh() async {
     if (!_isAuthed) return;
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      return _loadNextPageInternal(const NotificationState());
-    });
+
+    try {
+      final newState = await _loadNextPageInternal(const NotificationState());
+      state = AsyncData(newState);
+    } on SessionExpiredException {
+      state = const AsyncData(NotificationState());
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 
   Future<void> read(int id) async {
     if (!_isAuthed || id <= 0) return;
-    await _readUseCase.execute(id: id);
-    final current = state.value;
-    if (current == null) return;
-    state = AsyncData(current.read(id));
+    try {
+      await _readUseCase.execute(id: id);
+      final current = state.value;
+      if (current == null) return;
+      state = AsyncData(current.read(id));
+    } on SessionExpiredException {
+      return;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> readAll() async {
     if (!_isAuthed) return;
-    await _readAllUseCase.execute();
-    final current = state.value;
-    if (current == null) return;
-    state = AsyncData(current.readAll());
+    try {
+      await _readAllUseCase.execute();
+      final current = state.value;
+      if (current == null) return;
+      state = AsyncData(current.readAll());
+    } on SessionExpiredException {
+      return;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> delete(int id) async {
     if (!_isAuthed) return;
-    await _deleteUseCase.execute(id: id);
-    final current = state.value;
-    if (current == null) return;
-    state = AsyncData(current.removeById(id));
+    try {
+      await _deleteUseCase.execute(id: id);
+      final current = state.value;
+      if (current == null) return;
+      state = AsyncData(current.removeById(id));
+    } on SessionExpiredException {
+      return;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

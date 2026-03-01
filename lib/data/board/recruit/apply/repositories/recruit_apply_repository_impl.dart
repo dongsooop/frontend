@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/board/recruit/apply/data_sources/recruit_apply_data_source.dart';
 import 'package:dongsoop/data/board/recruit/apply/models/recruit_applicant_detail_model.dart';
 import 'package:dongsoop/data/board/recruit/apply/models/recruit_applicant_list_model.dart';
@@ -9,7 +10,7 @@ import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_text_fi
 import 'package:dongsoop/domain/board/recruit/apply/repository/recruit_apply_repository.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 
-class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
+class RecruitApplyRepositoryImpl with ErrorHandlerMixin implements RecruitApplyRepository {
   final RecruitApplyDataSource _dataSource;
 
   RecruitApplyRepositoryImpl(this._dataSource);
@@ -90,16 +91,19 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
     }, RecruitApplicantException());
   }
 
-  Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
+  Future<T> _handle<T>(Future<T> Function() action, Exception defaultException) async {
     try {
       return await action();
     } on ProfanityDetectedException {
       rethrow;
     } on NotFoundBoardException {
       rethrow;
-    }
-    catch (_) {
-      throw exception;
+    } catch (e, st) {
+      final converted = convertError(e);
+      if (converted is SessionExpiredException) {
+        throw converted;
+      }
+      Error.throwWithStackTrace(defaultException, st);
     }
   }
 }

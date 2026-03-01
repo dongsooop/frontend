@@ -1,11 +1,12 @@
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/schedule/data_sources/schedule_data_source.dart';
 import 'package:dongsoop/data/schedule/models/schedule_list_model.dart';
 import 'package:dongsoop/domain/schedule/entities/schedule_entity.dart';
 import 'package:dongsoop/domain/schedule/entities/schedule_list_entity.dart';
 import 'package:dongsoop/domain/schedule/repository/schedule_repository.dart';
 
-class ScheduleRepositoryImpl implements ScheduleRepository {
+class ScheduleRepositoryImpl with ErrorHandlerMixin implements ScheduleRepository {
   final ScheduleDataSource _dataSource;
 
   ScheduleRepositoryImpl(this._dataSource);
@@ -61,11 +62,17 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     }, CalendarActionException());
   }
 
-  Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
+  Future<T> _handle<T>(Future<T> Function() action, Exception defaultException) async {
     try {
       return await action();
-    } catch (_) {
-      throw exception;
+    } on SessionExpiredException {
+      rethrow;
+    } catch (e, st) {
+      final converted = convertError(e);
+      if (converted is SessionExpiredException) {
+        throw converted;
+      }
+      Error.throwWithStackTrace(defaultException, st);
     }
   }
 }

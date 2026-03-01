@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
 import 'package:dongsoop/presentation/home/providers/notice_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -58,6 +59,10 @@ class NoticeListViewModel extends _$NoticeListViewModel {
         state = AsyncValue.data([..._items]);
       }
     } catch (e, st) {
+      if (e is SessionExpiredException) {
+        _isLoading = false;
+        return;
+      }
       state = AsyncValue.error(e, st);
     } finally {
       _isLoading = false;
@@ -75,6 +80,9 @@ class NoticeListViewModel extends _$NoticeListViewModel {
       }
       return [..._items];
     } catch (e) {
+      if (e is SessionExpiredException) {
+        return [];
+      }
       rethrow;
     }
   }

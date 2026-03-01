@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
@@ -7,7 +8,7 @@ import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:dongsoop/domain/timetable/repository/timetable_repository.dart';
 import 'package:image_picker/image_picker.dart';
 
-class TimetableRepositoryImpl implements TimetableRepository {
+class TimetableRepositoryImpl with ErrorHandlerMixin implements TimetableRepository {
   final TimetableDataSource _timetableDataSource;
 
   TimetableRepositoryImpl(
@@ -16,22 +17,38 @@ class TimetableRepositoryImpl implements TimetableRepository {
 
   @override
   Future<bool> createLecture(LectureRequest request) async {
-    return await _timetableDataSource.createLecture(request);
+    try {
+      return await _timetableDataSource.createLecture(request);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
   Future<bool> deleteLecture(int id) async {
-    return await _timetableDataSource.deleteLecture(id);
+    try {
+      return await _timetableDataSource.deleteLecture(id);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
   Future<List<Lecture>?> getLecture(int year, Semester semester) async {
-    return await _timetableDataSource.getLecture(year, semester);
+    try {
+      return await _timetableDataSource.getLecture(year, semester);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
   Future<bool> updateLecture(Lecture timetable) async {
-    return await _timetableDataSource.updateLecture(timetable);
+    try {
+      return await _timetableDataSource.updateLecture(timetable);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
@@ -51,16 +68,28 @@ class TimetableRepositoryImpl implements TimetableRepository {
 
   @override
   Future<void> deleteTimetable(int year, Semester semester) async {
-    await _timetableDataSource.deleteTimetable(year, semester);
+    try {
+      await _timetableDataSource.deleteTimetable(year, semester);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
   Future<List<LectureAi>> getTimetableAnalysis(XFile file) async {
-    return await _timetableDataSource.timetableAnalysis(file);
+    try {
+      return await _timetableDataSource.timetableAnalysis(file);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
   Future<void> saveMultipleTimetable(List<LectureRequest> timetable) async {
-    await _timetableDataSource.saveMultipleTimetable(timetable);
+    try {
+      await _timetableDataSource.saveMultipleTimetable(timetable);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 }

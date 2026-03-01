@@ -96,6 +96,10 @@ class ChatViewModel extends StateNotifier<ChatState> {
       final chatRooms = await _loadChatRoomsUseCase.execute();
       state = state.copyWith(isLoading: false, chatRooms: chatRooms);
     } catch (e) {
+      if (e is SessionExpiredException) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
       state = state.copyWith(
         isLoading: false,
         errorMessage: '채팅방 목록을 불러오는 중 오류가 발생했습니다.',
@@ -121,6 +125,10 @@ class ChatViewModel extends StateNotifier<ChatState> {
       );
       return false;
     } catch (e) {
+      if (e is SessionExpiredException) {
+        state = state.copyWith(isLoading: false);
+        return false;
+      }
       state = state.copyWith(
         isLoading: false,
         errorMessage: '과팅 오픈 확인 중 오류가 발생했습니다.',

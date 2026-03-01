@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
@@ -11,7 +12,7 @@ import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 
-class ChatRepositoryImpl implements ChatRepository {
+class ChatRepositoryImpl with ErrorHandlerMixin implements ChatRepository {
   final ChatDataSource _chatDataSource;
 
   ChatRepositoryImpl(
@@ -20,21 +21,32 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Future<String> createQNAChatRoom(ChatRoomRequest request) async {
-    return await _chatDataSource.createQNAChatRoom(request);
+    try {
+      return await _chatDataSource.createQNAChatRoom(request);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
   Future<List<ChatRoom>?> getChatRooms() async {
-    final rooms =  await _chatDataSource.getChatRooms();
-    if (rooms == null || rooms.isEmpty) return [];
-
-    rooms.sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
-    return rooms;
+    try {
+      final rooms = await _chatDataSource.getChatRooms();
+      if (rooms == null || rooms.isEmpty) return [];
+      rooms.sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
+      return rooms;
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
   Future<Map<String, String>> getUserNicknamesByRoomId(String roomId) async {
-    return await _chatDataSource.getUserNicknamesByRoomId(roomId);
+    try {
+      return await _chatDataSource.getUserNicknamesByRoomId(roomId);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
@@ -82,21 +94,38 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Future<void> leaveChatRoom(String roomId) async {
-    await _chatDataSource.leaveChatRoom(roomId);
+    try {
+      await _chatDataSource.leaveChatRoom(roomId);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
   Future<void> kickUser(String roomId, int userId) async {
-    await _chatDataSource.kickUser(roomId, userId);
+    try {
+      await _chatDataSource.kickUser(roomId, userId);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override
   Future<Map<String, String?>> sendChatbot(String text) async {
-    return await _chatDataSource.sendChatbot(text);
+    try {
+      return await _chatDataSource.sendChatbot(text);
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
+  @override
   Future<bool> getBlindDateOpen() async {
-    return await _chatDataSource.getBlindDateOpen();
+    try {
+      return await _chatDataSource.getBlindDateOpen();
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/schedule/entities/schedule_entity.dart';
 import 'package:dongsoop/domain/schedule/use_cases/schedule_write_use_case.dart';
 import 'package:dongsoop/presentation/schedule/providers/schedule_use_case_provider.dart';
@@ -40,6 +41,11 @@ class ScheduleWriteViewModel extends _$ScheduleWriteViewModel {
     try {
       await _useCase.execute(entity: entity);
     } catch (e) {
+      if (e is SessionExpiredException) {
+        _submitting = false;
+        state = state.copyWith(isLoading: false);
+        return;
+      }
       rethrow;
     } finally {
       state = state.copyWith(isLoading: false);

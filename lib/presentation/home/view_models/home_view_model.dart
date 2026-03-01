@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/presentation/home/providers/home_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -21,6 +22,16 @@ class HomeViewModel extends _$HomeViewModel {
         : departmentCode!.trim();
     final useCase = ref.read(homeUseCaseProvider);
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => useCase.execute(departmentType: code));
+
+    try {
+      final result = await useCase.execute(departmentType: code);
+      state = AsyncData(result);
+    } catch (e, st) {
+      if (e is SessionExpiredException) {
+        state = state.hasValue ? AsyncData(state.value as HomeEntity) : state;
+        return;
+      }
+      state = AsyncError(e, st);
+    }
   }
 }
