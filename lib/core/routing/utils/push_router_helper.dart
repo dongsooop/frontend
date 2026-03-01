@@ -107,6 +107,23 @@ class PushRouterHelper {
       return;
     }
 
+    // 기기 관리
+    if (pending.path == RoutePaths.deviceManagement) {
+      context.go(RoutePaths.mypage);
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        context.push(RoutePaths.setting);
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          context.push(RoutePaths.deviceManagement);
+        });
+      });
+
+      return;
+    }
+
     // 그 외
     if (pending.path != null) {
       final path = pending.path!;
