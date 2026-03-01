@@ -1,6 +1,7 @@
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/presentation/home/providers/home_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'home_view_model.g.dart';
 
@@ -12,7 +13,14 @@ class HomeViewModel extends _$HomeViewModel {
         ? null
         : departmentCode.trim();
     final useCase = ref.read(homeUseCaseProvider);
-    return useCase.execute(departmentType: code);
+
+    try {
+      return await useCase.execute(departmentType: code);
+    } on SessionExpiredException {
+      throw const SessionExpiredException();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> refresh() async {
@@ -20,7 +28,17 @@ class HomeViewModel extends _$HomeViewModel {
         ? null
         : departmentCode!.trim();
     final useCase = ref.read(homeUseCaseProvider);
+
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => useCase.execute(departmentType: code));
+
+    state = await AsyncValue.guard(() async {
+      try {
+        return await useCase.execute(departmentType: code);
+      } on SessionExpiredException {
+        throw const SessionExpiredException();
+      } catch (e) {
+        rethrow;
+      }
+    });
   }
 }

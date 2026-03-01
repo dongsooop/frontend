@@ -1,16 +1,16 @@
 import 'package:dongsoop/domain/board/market/use_cases/market_complete_use_case.dart';
-import 'package:dongsoop/domain/board/market/use_cases/market_contact_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_delete_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_detail_use_case.dart';
+import 'package:dongsoop/domain/board/market/use_cases/market_contact_use_case.dart';
 import 'package:dongsoop/presentation/board/market/state/market_detail_state.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_complete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_contact_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_delete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_detail_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'market_detail_view_model.g.dart';
 
@@ -51,6 +51,8 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
         marketDetail: marketDetail,
         isLoading: false,
       );
+    } on SessionExpiredException {
+      return MarketDetailState(isLoading: false);
     } catch (e) {
       rethrow;
     }
@@ -59,6 +61,8 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
   Future<void> deleteMarket(int marketId) async {
     try {
       await _deleteUseCase.execute(marketId: marketId);
+    } on SessionExpiredException {
+      // 세션 만료 시 rethrow 하지 않음
     } catch (e) {
       rethrow;
     }
@@ -76,6 +80,8 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
           ),
         );
       }
+    } on SessionExpiredException {
+      // 세션 만료 시 rethrow 하지 않음
     } catch (e) {
       rethrow;
     }
@@ -84,6 +90,8 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
   Future<String> contactMarket(int marketId) async {
     try {
       return await _contactUseCase.execute(marketId: marketId);
+    } on SessionExpiredException {
+      return ""; // 세션 만료 시 빈 값 반환
     } catch (e) {
       rethrow;
     }
@@ -92,6 +100,8 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
   Future<void> userBlock(int blockerId, int blockedMemberId) async {
     try {
       await _userBlockUseCase.execute(blockerId, blockedMemberId);
+    } on SessionExpiredException {
+      // 세션 만료 시 rethrow 하지 않음
     } catch (e) {
       rethrow;
     }

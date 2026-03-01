@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
@@ -40,22 +41,22 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   final BlindDisconnectStreamUseCase _disconnect$;
 
   BlindDateDetailViewModel(
-    this._ref,
-    this._connectUseCase,
-    this._disconnectUseCase,
-    this._blindSendMessageUseCase,
-    this._blindChoiceUseCase,
-    this._joined$,
-    this._start$,
-    this._system$,
-    this._freeze$,
-    this._broadcast$,
-    this._join$,
-    this._participants$,
-    this._match$,
-    this._ended$,
-    this._disconnect$,
-  ) : super(BlindDateDetailState());
+      this._ref,
+      this._connectUseCase,
+      this._disconnectUseCase,
+      this._blindSendMessageUseCase,
+      this._blindChoiceUseCase,
+      this._joined$,
+      this._start$,
+      this._system$,
+      this._freeze$,
+      this._broadcast$,
+      this._join$,
+      this._participants$,
+      this._match$,
+      this._ended$,
+      this._disconnect$,
+      ) : super(BlindDateDetailState());
 
   final _subs = <StreamSubscription>[];
 
@@ -116,14 +117,25 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
       state = state.copyWith(disconnectReason: reason);
     }));
 
-    // 웹소켓 연결
-    await _connectUseCase.execute(userId);
-
-    state = state.copyWith(isConnecting: false);
+    try {
+      // 웹소켓 연결
+      await _connectUseCase.execute(userId);
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      rethrow;
+    } finally {
+      state = state.copyWith(isConnecting: false);
+    }
   }
 
   Future<void> disconnect() async {
-    await _disconnectUseCase.execute();
+    try {
+      await _disconnectUseCase.execute();
+    } on SessionExpiredException {
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
@@ -135,12 +147,22 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   }
 
   void send(BlindDateRequest message) {
-    _blindSendMessageUseCase.execute(message);
+    try {
+      _blindSendMessageUseCase.execute(message);
+    } on SessionExpiredException {
+    } catch (e) {
+      rethrow;
+    }
   }
 
   void choice(BlindChoice data) {
     state = state.copyWith(isVoteTime: false);
-    _blindChoiceUseCase.execute(data);
+    try {
+      _blindChoiceUseCase.execute(data);
+    } on SessionExpiredException {
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 

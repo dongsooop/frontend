@@ -2,6 +2,7 @@ import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_decision_us
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/apply/recruit_decision_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'recruit_decision_view_model.g.dart';
 
@@ -30,6 +31,8 @@ class RecruitDecisionViewModel extends _$RecruitDecisionViewModel {
         status: status,
         applierId: applierId,
       );
+      state = const AsyncData(null);
+    } on SessionExpiredException {
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);

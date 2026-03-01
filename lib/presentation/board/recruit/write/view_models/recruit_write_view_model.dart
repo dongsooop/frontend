@@ -96,6 +96,9 @@ class RecruitWriteViewModel extends _$RecruitWriteViewModel {
 
       await _useCase.execute(type: type, entity: entity);
       return true;
+    } on SessionExpiredException {
+      state = state.copyWith(isFiltering: false);
+      return false;
     } on ProfanityDetectedException catch (e) {
       state = state.copyWith(isFiltering: false);
       _setProfanityMessage(e);

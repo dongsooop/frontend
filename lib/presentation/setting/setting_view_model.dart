@@ -5,6 +5,7 @@ import 'package:dongsoop/domain/mypage/use_case/get_social_state_use_case.dart';
 import 'package:dongsoop/presentation/setting/setting_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 class SettingViewModel extends StateNotifier<SettingState> {
   final LogoutUseCase _logoutUseCase;
@@ -29,7 +30,7 @@ class SettingViewModel extends StateNotifier<SettingState> {
     return current;
   }
 
-  // 채팅 캐시 삭제
+  // 채팅 캐시 삭제 (로컬 작업이므로 세션 예외 제외)
   Future<void> localDataDelete() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -53,6 +54,10 @@ class SettingViewModel extends StateNotifier<SettingState> {
       _ref.invalidate(myPageViewModelProvider);
 
       state = state.copyWith(isLoading: false, errorMessage: null);
+    } on SessionExpiredException {
+      // 이미 세션이 만료된 경우에도 로컬 세션 정보는 무효화
+      _ref.invalidate(userSessionProvider);
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state.copyWith(isLoading: false, errorMessage: '로그아웃 중 오류가 발생했습니다.');
     }
@@ -75,6 +80,8 @@ class SettingViewModel extends StateNotifier<SettingState> {
       _ref.invalidate(myPageViewModelProvider);
 
       state.copyWith(isLoading: false, errorMessage: null);
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state.copyWith(isLoading: false, errorMessage: '탈퇴 중 오류가 발생했습니다.');
     }

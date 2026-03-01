@@ -41,21 +41,21 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   bool _hasLeaved = false;
 
   ChatDetailViewModel(
-    this._chatRoomConnectUseCase,
-    this._chatRoomDisconnectUseCase,
-    this._sendMessageUseCase,
-    this._subscribeMessagesUseCase,
-    this._subscribeBlockUseCase,
-    this._getUserNicknamesUseCase,
-    this._getRoomDetailUseCase,
-    this._saveChatMessageUseCase,
-    this._getPagedMessages,
-    this._getOfflineMessagesUseCase,
-    this._leaveChatRoomUseCase,
-    this._kickUserUseCase,
-    this._userBlockUseCase,
-    this._ref,
-  ) : super(ChatDetailState(isLoading: false, roomDetail: null));
+      this._chatRoomConnectUseCase,
+      this._chatRoomDisconnectUseCase,
+      this._sendMessageUseCase,
+      this._subscribeMessagesUseCase,
+      this._subscribeBlockUseCase,
+      this._getUserNicknamesUseCase,
+      this._getRoomDetailUseCase,
+      this._saveChatMessageUseCase,
+      this._getPagedMessages,
+      this._getOfflineMessagesUseCase,
+      this._leaveChatRoomUseCase,
+      this._kickUserUseCase,
+      this._userBlockUseCase,
+      this._ref,
+      ) : super(ChatDetailState(isLoading: false, roomDetail: null));
 
   void clearError() {
     state = state.copyWith(errorMessage: null);
@@ -69,6 +69,8 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       for (final msg in offlineMessages) {
         await _saveChatMessageUseCase.execute(msg);
       }
+      state = state.copyWith(isLoading: false);
+    } on SessionExpiredException {
       state = state.copyWith(isLoading: false);
     } on ChatForbiddenException catch (e) {
       state = state.copyWith(
@@ -114,6 +116,8 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
         _ref.read(chatMessagesProvider.notifier).addMessage(msg);
         _latestMessage = msg;
       });
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } on LoginRequiredException catch (e) {
       state = state.copyWith(
         errorMessage: e.message,
@@ -142,12 +146,18 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   }
 
   void send(ChatMessageRequest request) {
-    _sendMessageUseCase.execute(request);
+    try {
+      _sendMessageUseCase.execute(request);
+    } on SessionExpiredException {
+    } catch (_) {}
   }
 
   Future<void> closeChatRoom() async {
     if (_hasLeaved) {
-      _chatRoomDisconnectUseCase.execute();
+      try {
+        _chatRoomDisconnectUseCase.execute();
+      } on SessionExpiredException {
+      } catch (_) {}
 
       _messagesSubscription?.cancel();
       _blockSubscription?.cancel();
@@ -169,6 +179,8 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
 
       _ref.read(chatMessagesProvider.notifier).clear();
       state = state.copyWith(isLoading: false);
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } on ChatForbiddenException catch (e) {
       state = state.copyWith(
         errorMessage: e.message,
@@ -185,6 +197,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   Future<void> disconnectSocketOnly(String roomId) async {
     try {
       _chatRoomDisconnectUseCase.execute();
+    } on SessionExpiredException {
     } catch (_) {}
 
     try {
@@ -203,6 +216,8 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     try {
       final room = await _getRoomDetailUseCase.execute(roomId);
       state = state.copyWith(isLoading: false, roomDetail: room);
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } on ChatForbiddenException catch (e) {
       state = state.copyWith(
         errorMessage: e.message,
@@ -221,6 +236,8 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     try {
       final nicknameMap = await _getUserNicknamesUseCase.execute(roomId);
       state = state.copyWith(isLoading: false, nicknameMap: nicknameMap);
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } on ChatForbiddenException catch (e) {
       state = state.copyWith(
         errorMessage: e.message,
@@ -240,10 +257,10 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     int? otherUserId = state.nicknameMap.keys
-      .map((k) => int.tryParse(k))
-      .where((id) => id != null && id != userId)
-      .cast<int>()
-      .firstOrNull;
+        .map((k) => int.tryParse(k))
+        .where((id) => id != null && id != userId)
+        .cast<int>()
+        .firstOrNull;
 
     state = state.copyWith(
       otherUserId: otherUserId,
@@ -264,6 +281,9 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       }
 
       return result ?? [];
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
+      return [];
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -288,6 +308,9 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       _ref.read(chatMessagesProvider.notifier).clear();
       state = state.copyWith(isLoading: false);
       return true;
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
+      return false;
     } on ChatLeaveException catch (e) {
       state = state.copyWith(
         errorMessage: e.message,
@@ -318,6 +341,8 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     try {
       await _kickUserUseCase.execute(roomId, userId);
       state = state.copyWith(isLoading: false);
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } on ChatLeaveException catch (e) {
       state = state.copyWith(
         errorMessage: e.message,
@@ -334,6 +359,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   Future<void> userBlock(int blockerId, int blockedMemberId) async {
     try {
       await _userBlockUseCase.execute(blockerId, blockedMemberId);
+    } on SessionExpiredException {
     } catch (e) {
       rethrow;
     }

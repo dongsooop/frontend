@@ -18,12 +18,12 @@ class ChatViewModel extends StateNotifier<ChatState> {
   final SubscribeChatListUseCase _subscribeChatListUseCase;
 
   ChatViewModel(
-    this._loadChatRoomsUseCase,
-    this._getBlindDateOpenUseCase,
-    this._connectChatListUseCase,
-    this._disconnectChatListUseCase,
-    this._subscribeChatListUseCase,
-  ) : super(ChatState(isLoading: false));
+      this._loadChatRoomsUseCase,
+      this._getBlindDateOpenUseCase,
+      this._connectChatListUseCase,
+      this._disconnectChatListUseCase,
+      this._subscribeChatListUseCase,
+      ) : super(ChatState(isLoading: false));
 
   StreamSubscription<ChatRoomWs>? _chatRoomListSubscription;
 
@@ -34,6 +34,8 @@ class ChatViewModel extends StateNotifier<ChatState> {
       _disconnectChatListUseCase.execute();
       _chatRoomListSubscription?.cancel();
 
+      state = state.copyWith(isLoading: false);
+    } on SessionExpiredException {
       state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
@@ -49,10 +51,13 @@ class ChatViewModel extends StateNotifier<ChatState> {
       // 기존 구독이 있다면 해제
       _chatRoomListSubscription?.cancel();
 
-      // block
-      _chatRoomListSubscription = _subscribeChatListUseCase.execute().listen((chatRoomData) async {
-        updateChatRoomFromWs(chatRoomData);
-      });
+      // message
+      _chatRoomListSubscription =
+          _subscribeChatListUseCase.execute().listen((chatRoomData) async {
+            updateChatRoomFromWs(chatRoomData);
+          });
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         errorMessage: '채팅방을 불러오는 중\n오류가 발생했습니다.',
@@ -95,6 +100,8 @@ class ChatViewModel extends StateNotifier<ChatState> {
     try {
       final chatRooms = await _loadChatRoomsUseCase.execute();
       state = state.copyWith(isLoading: false, chatRooms: chatRooms);
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -114,6 +121,9 @@ class ChatViewModel extends StateNotifier<ChatState> {
       final result = await _getBlindDateOpenUseCase.execute();
       state = state.copyWith(isLoading: false);
       return result;
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
+      return false;
     } on BlindDateOpenException catch (e) {
       state = state.copyWith(
         isLoading: false,

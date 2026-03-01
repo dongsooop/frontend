@@ -10,6 +10,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
 import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'recruit_detail_view_model.g.dart';
 
@@ -55,6 +56,8 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
         recruitDetail: recruitDetail,
         isLoading: false,
       );
+    } on SessionExpiredException {
+      throw const SessionExpiredException();
     } catch (e) {
       rethrow;
     }
@@ -68,6 +71,7 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
   Future<void> deleteRecruit(int id, RecruitType type) async {
     try {
       await _deleteUseCase.execute(id: id, type: type);
+    } on SessionExpiredException {
     } catch (e) {
       rethrow;
     }
@@ -77,6 +81,8 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
     try {
       final chatRoom = await _createQNAChatRoomUseCase.execute(request);
       return chatRoom;
+    } on SessionExpiredException {
+      return "";
     } catch (e) {
       rethrow;
     }
@@ -85,6 +91,7 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
   Future<void> userBlock(int blockerId, int blockedMemberId) async {
     try {
       await _userBlockUseCase.execute(blockerId, blockedMemberId);
+    } on SessionExpiredException {
     } catch (e) {
       rethrow;
     }

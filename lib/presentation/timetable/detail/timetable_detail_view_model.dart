@@ -35,6 +35,9 @@ class TimetableDetailViewModel extends StateNotifier<TimetableDetailState> {
 
       state = state.copyWith(isAnalyzing: false,);
       return true;
+    } on SessionExpiredException {
+      state = state.copyWith(isAnalyzing: false);
+      return false;
     } on TimetableException catch (e) {
       state = state.copyWith(isAnalyzing: false, analysisErrorMessage: e.message);
       return false;
@@ -54,6 +57,9 @@ class TimetableDetailViewModel extends StateNotifier<TimetableDetailState> {
       final result = await _deleteLectureUseCase.execute(id);
       state = state.copyWith(isLoading: false,);
       return result;
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
+      return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

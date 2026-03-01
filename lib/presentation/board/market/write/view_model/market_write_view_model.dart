@@ -76,6 +76,8 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
         images: imageFiles,
         initialImageUrls: detail.imageUrlList,
       );
+    } on SessionExpiredException {
+      return;
     } catch (_) {
     } finally {
       _loadingDetail = false;
@@ -220,6 +222,8 @@ class MarketWriteViewModel extends _$MarketWriteViewModel {
       }
 
       return true;
+    } on SessionExpiredException {
+      return false;
     } on ProfanityDetectedException catch (e) {
       state = state.copyWith(isFiltering: false);
       _setProfanityMessage(e);

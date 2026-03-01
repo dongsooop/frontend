@@ -3,6 +3,7 @@ import 'package:dongsoop/domain/restaurants/use_case/get_restaurants_use_case.da
 import 'package:dongsoop/domain/restaurants/use_case/send_restaurant_like_use_case.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
   final GetRestaurantsUseCase _getRestaurantsUseCase;
@@ -45,6 +46,8 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
         isLoading: false,
         restaurants: result ?? [],
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -85,6 +88,8 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
           ...?result,
         ],
       );
+    } on SessionExpiredException {
+      // 추가 로드 중 세션 만료 시 조용히 중단
     } catch (e) {
       state = state.copyWith(errorMessage: '가게 정보 조회 중 오류가 발생했습니다.');
     } finally {
@@ -122,6 +127,8 @@ class RestaurantsViewModel extends StateNotifier<RestaurantsState>{
         isLoading: false,
         restaurants: updated,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
