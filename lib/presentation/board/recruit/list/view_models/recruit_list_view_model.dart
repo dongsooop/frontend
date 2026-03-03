@@ -3,6 +3,7 @@ import 'package:dongsoop/domain/board/recruit/use_cases/recruit_list_use_case.da
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_list_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/list/state/recruit_list_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'recruit_list_view_model.g.dart';
 
@@ -54,8 +55,8 @@ class RecruitListViewModel extends _$RecruitListViewModel {
       final uniquePosts = filtered
           .where(
             (newPost) =>
-                !state.posts.any((existing) => existing.id == newPost.id),
-          )
+        !state.posts.any((existing) => existing.id == newPost.id),
+      )
           .toList();
 
       state = state.copyWith(
@@ -64,6 +65,8 @@ class RecruitListViewModel extends _$RecruitListViewModel {
         isLoading: false,
         hasMore: filtered.length == _pageSize,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }

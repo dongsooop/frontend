@@ -1,6 +1,7 @@
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
 import 'package:dongsoop/presentation/home/providers/notice_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'notice_list_view_model.g.dart';
 
@@ -41,7 +42,13 @@ class NoticeListViewModel extends _$NoticeListViewModel {
     _page = 0;
     _isLastPage = false;
     _items.clear();
-    return await _fetchNext(args);
+    try {
+      return await _fetchNext(args);
+    } on SessionExpiredException {
+      throw const SessionExpiredException();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> fetchNextPage(NoticeListArgs args) async {
@@ -57,6 +64,8 @@ class NoticeListViewModel extends _$NoticeListViewModel {
         _items.addAll(nextItems);
         state = AsyncValue.data([..._items]);
       }
+    } on SessionExpiredException {
+      state = AsyncValue.error(const SessionExpiredException(), StackTrace.current);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     } finally {
@@ -81,25 +90,31 @@ class NoticeListViewModel extends _$NoticeListViewModel {
 
   Future<List<NoticeEntity>> _fetch(NoticeListArgs args,
       {required int page}) async {
-    switch (args.tab) {
-      case NoticeTab.school:
-        final useCase = ref.read(NoticeSchoolUseCaseProvider);
-        return await useCase.execute(page: page);
+    try {
+      switch (args.tab) {
+        case NoticeTab.school:
+          final useCase = ref.read(NoticeSchoolUseCaseProvider);
+          return await useCase.execute(page: page);
 
-      case NoticeTab.department:
-        if (args.departmentType == null) return [];
-        final useCase = ref.read(NoticeDepartmentUseCaseProvider);
-        return await useCase.execute(
-          page: page,
-          departmentType: args.departmentType!,
-        );
+        case NoticeTab.department:
+          if (args.departmentType == null) return [];
+          final useCase = ref.read(NoticeDepartmentUseCaseProvider);
+          return await useCase.execute(
+            page: page,
+            departmentType: args.departmentType!,
+          );
 
-      case NoticeTab.all:
-        final useCase = await ref.read(NoticeCombinedUseCaseProvider.future);
-        return await useCase.execute(
-          page: page,
-          departmentType: args.departmentType,
-        );
+        case NoticeTab.all:
+          final useCase = await ref.read(NoticeCombinedUseCaseProvider.future);
+          return await useCase.execute(
+            page: page,
+            departmentType: args.departmentType,
+          );
+      }
+    } on SessionExpiredException {
+      throw const SessionExpiredException();
+    } catch (e) {
+      rethrow;
     }
   }
 }

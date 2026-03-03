@@ -85,6 +85,9 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
 
       state = const RecruitApplyState();
       return true;
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false, isFiltering: false);
+      return false;
     } on ProfanityDetectedException catch (e) {
       final badSentences = <String>[];
       final data = e.responseData;

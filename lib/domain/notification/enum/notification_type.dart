@@ -13,6 +13,8 @@ enum NotificationType {
   projectApplicant('RECRUITMENT_PROJECT_APPLY'),
   projectAppliedResult('RECRUITMENT_PROJECT_APPLY_RESULT'),
 
+  newDevice('NEW_DEVICE_LOGIN'),
+
   marketing('MARKETING'),
   blindDate('BLINDDATE'),
   feedback('FEEDBACK');

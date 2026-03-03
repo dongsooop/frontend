@@ -3,6 +3,7 @@ import 'package:dongsoop/domain/timetable/use_case/delete_timetable_use_case.dar
 import 'package:dongsoop/domain/timetable/use_case/get_timetable_info_use_case.dart';
 import 'package:dongsoop/presentation/timetable/list/timetable_list_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 class TimetableListViewModel extends StateNotifier<TimetableListState> {
   final GetTimetableInfoUseCase _getTimetableInfoUseCase;
@@ -21,6 +22,8 @@ class TimetableListViewModel extends StateNotifier<TimetableListState> {
     try {
       final localData = await _getTimetableInfoUseCase.execute();
       state = state.copyWith(isLoading: false, localTimetableInfo: localData);
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -34,6 +37,8 @@ class TimetableListViewModel extends StateNotifier<TimetableListState> {
 
     try {
       await _deleteTimetableUseCase.execute(year, semester);
+      state = state.copyWith(isLoading: false);
+    } on SessionExpiredException {
       state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(

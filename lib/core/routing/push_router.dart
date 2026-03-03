@@ -53,7 +53,13 @@ class PushRouter {
   }
 
   static bool get _isColdStart {
-    return router.routeInformationProvider.value.uri.toString().isEmpty;
+    final uri = router.routeInformationProvider.value.uri.toString();
+    return uri.isEmpty || uri == '/';
+  }
+
+  static bool get _isAtSplash {
+    final currentPath = router.routeInformationProvider.value.uri.path;
+    return currentPath == RoutePaths.splash;
   }
 
   static Future<void> _waitRouterReady() async {
@@ -108,21 +114,20 @@ class PushRouter {
       type = type.trim().toUpperCase();
       value = value.trim();
 
+      if (type == 'FORCE_LOGOUT') {
+        return true;
+      }
+
       if (_shouldSkipAsDuplicate(type, value)) {
         return true;
       }
 
       final needsValue = _requiresValue(type);
       if (type.isEmpty || (needsValue && value.isEmpty)) {
-        return await _fallbackToNotificationList(isColdStart: isColdStart);
+        return await _fallbackToNotificationList(isColdStart: isColdStart || _isAtSplash);
       }
 
-      // warm
-      if (!isColdStart) {
-        return await _routeWarmByType(type, value, fromNotificationList);
-      }
-
-      // cold
+    if (isColdStart || _isAtSplash) {
       switch (type) {
         case 'CHAT':
           return await _routeChatCold(value);
@@ -149,11 +154,17 @@ class PushRouter {
         case 'RECRUITMENT_TUTORING_APPLY_RESULT':
           return await _routeRecruitResultCold(type, value);
 
+        case 'NEW_DEVICE_LOGIN':
+          return await _routeDeviceManagementCold();
+
         default:
-          return await _fallbackToNotificationList(isColdStart: isColdStart);
+          return await _fallbackToNotificationList(isColdStart: true);
         }
+        }
+        return await _routeWarmByType(type, value, fromNotificationList);
+
       } catch (_) {
-        return await _fallbackToNotificationList(isColdStart: isColdStart);
+        return await _fallbackToNotificationList(isColdStart: isColdStart || _isAtSplash);
       } finally {
         _isRouting = false;
       }
@@ -177,21 +188,13 @@ class PushRouter {
         return true;
 
       case 'NOTICE':
-        if (fromNotificationList) {
-          router.pushNamed(
-            'noticeWebView',
-            queryParameters: {
-              'path': value,
-              'from': 'notificationList',
-            },
-          );
-        } else {
-          // 푸시 알림 등 외부 진입
-          router.goNamed(
-            'noticeWebView',
-            queryParameters: {'path': value},
-          );
-        }
+        router.pushNamed(
+          'noticeWebView',
+          queryParameters: {
+            'path': value,
+            if (fromNotificationList) 'from': 'notificationList',
+          },
+        );
         return true;
 
       // 캘린더 (value 불필요)
@@ -213,6 +216,16 @@ class PushRouter {
         case 'RECRUITMENT_PROJECT_APPLY_RESULT':
         case 'RECRUITMENT_TUTORING_APPLY_RESULT':
           return await _routeRecruitResultWarm(type, value);
+
+        case 'NEW_DEVICE_LOGIN':
+          router.go(RoutePaths.mypage);
+          if (router.routeInformationProvider.value.uri.path != RoutePaths.setting) {
+            router.push(RoutePaths.setting);
+          }
+          if (router.routeInformationProvider.value.uri.path != RoutePaths.deviceManagement) {
+            router.push(RoutePaths.deviceManagement);
+          }
+          return true;
 
         default:
           router.goNamed('notificationList');
@@ -255,11 +268,9 @@ class PushRouter {
         String type,
         String value,
         ) async {
-      final id = int.tryParse(value);
-      if (id == null || id <= 0) return false;
-
-      final recruitType = _parseRecruitTypeSafe(type);
-      if (recruitType == null) return false;
+    final id = int.tryParse(value);
+    final recruitType = _parseRecruitTypeSafe(type);
+    if (id == null || id <= 0 || recruitType == null) return false;
 
       router.go(RoutePaths.board);
 
@@ -287,14 +298,14 @@ class PushRouter {
     // cold
     static Future<bool> _routeChatCold(String roomId) async {
       _setNextRoute(RoutePaths.chat, extra: roomId);
-      router.go(RoutePaths.splash);
+      if (!_isAtSplash) router.go(RoutePaths.splash);
       return true;
     }
 
     // cold
     static Future<bool> _routeBlindChatCold() async {
       _setNextNamedRoute('blindDate');
-      router.go(RoutePaths.splash);
+      if (!_isAtSplash) router.go(RoutePaths.splash);
       return true;
     }
 
@@ -305,28 +316,20 @@ class PushRouter {
         queryParameters:
         from ? {'path': path, 'from': 'notificationList'} : {'path': path},
       );
-      router.go(RoutePaths.splash);
+      if (!_isAtSplash) router.go(RoutePaths.splash);
       return true;
     }
 
-    // cold
-    static Future<bool> _routeHomeCold(String route) async {
-      _setNextRoute(route);
-      router.go(RoutePaths.splash);
-      return true;
-    }
+  static Future<bool> _routeHomeCold(String route) async {
+    _setNextRoute(route);
+    if (!_isAtSplash) router.go(RoutePaths.splash);
+    return true;
+  }
 
-    // cold
-    static Future<bool> _routeRecruitApplyCold(String type, String value) async {
-      final id = int.tryParse(value);
-      if (id == null || id <= 0) {
-        return _fallbackToNotificationList(isColdStart: true);
-      }
-
-      final recruitType = _parseRecruitTypeSafe(type);
-      if (recruitType == null) {
-        return _fallbackToNotificationList(isColdStart: true);
-      }
+  static Future<bool> _routeRecruitApplyCold(String type, String value) async {
+    final id = int.tryParse(value);
+    final recruitType = _parseRecruitTypeSafe(type);
+    if (id == null || id <= 0 || recruitType == null) return _fallbackToNotificationList(isColdStart: true);
 
       _setNextRoute(
         RoutePaths.recruitDetail,
@@ -340,21 +343,14 @@ class PushRouter {
         },
       );
 
-      router.go(RoutePaths.splash);
+      if (!_isAtSplash) router.go(RoutePaths.splash);
       return true;
     }
 
-    // cold
-    static Future<bool> _routeRecruitResultCold(String type, String value) async {
-      final id = int.tryParse(value);
-      if (id == null || id <= 0) {
-        return _fallbackToNotificationList(isColdStart: true);
-      }
-
-      final recruitType = _parseRecruitTypeSafe(type);
-      if (recruitType == null) {
-        return _fallbackToNotificationList(isColdStart: true);
-      }
+  static Future<bool> _routeRecruitResultCold(String type, String value) async {
+    final id = int.tryParse(value);
+    final recruitType = _parseRecruitTypeSafe(type);
+    if (id == null || id <= 0 || recruitType == null) return _fallbackToNotificationList(isColdStart: true);
 
       _setNextRoute(
         RoutePaths.recruitDetail,
@@ -371,9 +367,14 @@ class PushRouter {
           },
         },
       );
-
-      router.go(RoutePaths.splash);
+      if (!_isAtSplash) router.go(RoutePaths.splash);
       return true;
+  }
+
+  static Future<bool> _routeDeviceManagementCold() async {
+    _setNextRoute(RoutePaths.deviceManagement);
+    if (!_isAtSplash) router.go(RoutePaths.splash);
+    return true;
   }
 
   static bool _shouldSkipAsDuplicate(String type, String value) {
@@ -393,6 +394,7 @@ class PushRouter {
       case 'CALENDAR':
       case 'TIMETABLE':
       case 'BLINDDATE':
+      case 'NEW_DEVICE_LOGIN':
         return false;
       default:
         return true;
@@ -411,7 +413,7 @@ class PushRouter {
   }) async {
     if (isColdStart) {
       _setNextNamedRoute('notificationList');
-      router.go(RoutePaths.splash);
+      if (!_isAtSplash) router.go(RoutePaths.splash);
     } else {
       router.goNamed('notificationList');
     }

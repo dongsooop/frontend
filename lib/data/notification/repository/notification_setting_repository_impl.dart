@@ -1,15 +1,15 @@
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/notification/data_source/notification_setting_data_source.dart';
 import 'package:dongsoop/data/notification/model/notification_enable_model.dart';
 import 'package:dongsoop/data/notification/model/notification_recruit_model.dart';
-
 import 'package:dongsoop/domain/notification/entity/notification_enable_entity.dart';
 import 'package:dongsoop/domain/notification/entity/notification_recruit_entity.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
 import 'package:dongsoop/domain/notification/enum/notification_type.dart';
 import 'package:dongsoop/domain/notification/repository/notification_setting_repository.dart';
 
-class NotificationSettingRepositoryImpl implements NotificationSettingRepository {
+class NotificationSettingRepositoryImpl with ErrorHandlerMixin implements NotificationSettingRepository {
   final NotificationSettingDataSource _dataSource;
 
   NotificationSettingRepositoryImpl(this._dataSource);
@@ -114,12 +114,18 @@ class NotificationSettingRepositoryImpl implements NotificationSettingRepository
 
   Future<T> _handle<T>(
       Future<T> Function() action,
-      Exception exception,
+      Exception defaultException,
       ) async {
     try {
       return await action();
-    } catch (_) {
-      throw exception;
+    } on SessionExpiredException {
+      rethrow;
+    } catch (e, st) {
+      final converted = convertError(e);
+      if (converted is SessionExpiredException) {
+        throw converted;
+      }
+      Error.throwWithStackTrace(defaultException, st);
     }
   }
 }

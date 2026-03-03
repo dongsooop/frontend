@@ -40,6 +40,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -55,6 +58,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -71,6 +77,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -88,6 +97,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -128,6 +140,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       throw TimetableAnalysisFailedException();
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       throw TimetableAnalysisFailedException();
     }
   }
@@ -169,6 +184,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
         await _hiveService.deleteTimetableInfo(year, semester);
       }
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -199,6 +217,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       rethrow;
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }

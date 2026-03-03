@@ -622,3 +622,8 @@ class SocialLoginException implements OAuthException {
   @override
   String toString() => message;
 }
+
+// 시스템 제어용
+class SessionExpiredException implements Exception {
+  const SessionExpiredException();
+}

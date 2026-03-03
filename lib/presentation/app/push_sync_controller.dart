@@ -81,32 +81,24 @@ class PushSyncController {
     _onPushTap = pushChannel.onPushTap.listen((payload) async {
       if (payload.type.isEmpty) return;
 
+    try {
       if (payload.type == 'CHAT') {
         if (payload.value != null) {
-          try {
-            await PushRouter.routeFromTypeValue(type: payload.type, value: payload.value!);
-          } catch (_) {}
-        }
-        return;
-      }
-
-      if (_isSameRecruitListScreen(payload) || _isSameRecruitDetailScreen(payload)) {
-        if (payload.id != null && payload.id! > 0) {
-          await _readOnce(payload.id!);
-        }
-        if (payload.badge != null) {
-          ref.read(notificationBadgeViewModelProvider.notifier).setBadge(payload.badge!);
-        } else {
-          _refreshBadgeThrottled(force: false);
-        }
-        return;
-      }
-
-      if (payload.type.isNotEmpty && payload.value != null) {
-        try {
           await PushRouter.routeFromTypeValue(type: payload.type, value: payload.value!);
-        } catch (_) {}
+        }
+        return;
       }
+
+        if (payload.type == 'NEW_DEVICE_LOGIN') {
+          await PushRouter.routeFromTypeValue(type: payload.type, value: payload.value ?? '');
+        }
+        else if (!_isSameRecruitListScreen(payload) && !_isSameRecruitDetailScreen(payload)) {
+
+          if (payload.value != null) {
+            await PushRouter.routeFromTypeValue(type: payload.type, value: payload.value!);
+          }
+        }
+      } catch (_) {}
 
       if (payload.id != null && payload.id! > 0) {
         await _readOnce(payload.id!);

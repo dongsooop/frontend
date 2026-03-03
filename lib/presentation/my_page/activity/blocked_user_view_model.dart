@@ -2,15 +2,16 @@ import 'package:dongsoop/domain/mypage/use_case/get_blocked_user_list_use_case.d
 import 'package:dongsoop/domain/mypage/use_case/un_block_use_case.dart';
 import 'package:dongsoop/presentation/my_page/activity/blocked_user_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 class BlockedUserViewModel extends StateNotifier<BlockedUserState> {
   final GetBlockedUserListUseCase _getBlockedUserListUseCase;
   final UnBlockUseCase _unBlockUseCase;
 
   BlockedUserViewModel(
-    this._getBlockedUserListUseCase,
-    this._unBlockUseCase,
-  ) : super(BlockedUserState(isLoading: false));
+      this._getBlockedUserListUseCase,
+      this._unBlockUseCase,
+      ) : super(BlockedUserState(isLoading: false));
 
   Future<void> loadList() async {
     state = state.copyWith(isLoading: true, errorMessage: null,);
@@ -21,6 +22,8 @@ class BlockedUserViewModel extends StateNotifier<BlockedUserState> {
         isLoading: false,
         list: list,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -38,6 +41,8 @@ class BlockedUserViewModel extends StateNotifier<BlockedUserState> {
         isLoading: false,
         errorMessage: null,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: '차단 해제 중 오류가 발생했습니다.');
     }

@@ -8,10 +8,11 @@ import 'package:dongsoop/domain/notification/use_case/notification_delete_use_ca
 import 'package:dongsoop/domain/notification/use_case/notification_list_use_case.dart';
 import 'package:dongsoop/domain/notification/use_case/notification_read_use_case.dart';
 import 'package:dongsoop/domain/notification/entity/notification_response_entity.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'notification_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class NotificationViewModel extends _$NotificationViewModel {
   static const int _pageSize = 10;
 
@@ -53,7 +54,13 @@ class NotificationViewModel extends _$NotificationViewModel {
       );
     }
 
-    return _loadNextPageInternal(const NotificationState());
+    try {
+      return await _loadNextPageInternal(const NotificationState());
+    } on SessionExpiredException {
+      throw const SessionExpiredException();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<NotificationState> _loadNextPageInternal(
@@ -61,19 +68,25 @@ class NotificationViewModel extends _$NotificationViewModel {
     if (!_isAuthed) return current;
     if (!current.hasMore) return current;
 
-    final NotificationResponseEntity page =
-    await _listUseCase.execute(page: current.page, size: _pageSize);
+    try {
+      final NotificationResponseEntity page =
+      await _listUseCase.execute(page: current.page, size: _pageSize);
 
-    final seen = current.items.map((e) => e.id).toSet();
-    final fresh = page.items.where((n) => seen.add(n.id)).toList();
+      final seen = current.items.map((e) => e.id).toSet();
+      final fresh = page.items.where((n) => seen.add(n.id)).toList();
 
-    return current.copyWith(
-      items: [...current.items, ...fresh],
-      page: current.page + 1,
-      hasMore: page.items.length == _pageSize,
-      isLoading: false,
-      error: null,
-    );
+      return current.copyWith(
+        items: [...current.items, ...fresh],
+        page: current.page + 1,
+        hasMore: page.items.length == _pageSize,
+        isLoading: false,
+        error: null,
+      );
+    } on SessionExpiredException {
+      throw const SessionExpiredException();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> loadNextPage() async {
@@ -95,25 +108,41 @@ class NotificationViewModel extends _$NotificationViewModel {
 
   Future<void> read(int id) async {
     if (!_isAuthed || id <= 0) return;
-    await _readUseCase.execute(id: id);
-    final current = state.value;
-    if (current == null) return;
-    state = AsyncData(current.read(id));
+    try {
+      await _readUseCase.execute(id: id);
+      final current = state.value;
+      if (current == null) return;
+      state = AsyncData(current.read(id));
+    } on SessionExpiredException {
+      // 세션 만료 시 상태 업데이트 중단
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> readAll() async {
     if (!_isAuthed) return;
-    await _readAllUseCase.execute();
-    final current = state.value;
-    if (current == null) return;
-    state = AsyncData(current.readAll());
+    try {
+      await _readAllUseCase.execute();
+      final current = state.value;
+      if (current == null) return;
+      state = AsyncData(current.readAll());
+    } on SessionExpiredException {
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> delete(int id) async {
     if (!_isAuthed) return;
-    await _deleteUseCase.execute(id: id);
-    final current = state.value;
-    if (current == null) return;
-    state = AsyncData(current.removeById(id));
+    try {
+      await _deleteUseCase.execute(id: id);
+      final current = state.value;
+      if (current == null) return;
+      state = AsyncData(current.removeById(id));
+    } on SessionExpiredException {
+    } catch (e) {
+      rethrow;
+    }
   }
 }

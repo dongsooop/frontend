@@ -4,6 +4,8 @@ import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_applicant_d
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/apply/recruit_applicant_detail_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dongsoop/core/exception/exception.dart';
+
 part 'recruit_applicant_detail_view_model.g.dart';
 
 class RecruitApplicantDetailArgs {
@@ -51,6 +53,8 @@ class RecruitApplicantDetailViewModel
         memberId: args.memberId,
       );
       return detail;
+    } on SessionExpiredException {
+      throw const SessionExpiredException();
     } catch (e) {
       throw e;
     }
@@ -58,7 +62,6 @@ class RecruitApplicantDetailViewModel
 
   Future<void> refresh(RecruitApplicantDetailArgs args) async {
     state = const AsyncLoading();
-
     try {
       final detail = await _useCase.execute(
         viewer: args.viewer,
@@ -67,6 +70,8 @@ class RecruitApplicantDetailViewModel
         memberId: args.memberId,
       );
       state = AsyncData(detail);
+    } on SessionExpiredException {
+      state = AsyncError(const SessionExpiredException(), StackTrace.current);
     } catch (e, st) {
       state = AsyncError(e, st);
     }
