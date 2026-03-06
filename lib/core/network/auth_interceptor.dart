@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/core/network/app_check_interceptor.dart';
+import 'package:dongsoop/core/network/user_agent.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/providers/session_provider.dart';
@@ -55,6 +56,7 @@ class AuthInterceptor extends Interceptor {
         final url = '$baseUrl$endpoint';
 
         final refreshDio = Dio();
+        refreshDio.options.headers['User-Agent'] = getUserAgent();
         await _attachAppCheckHeader(refreshDio.options.headers);
 
         final refreshResponse = await refreshDio.post(url, data: refreshToken);
