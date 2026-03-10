@@ -3,6 +3,7 @@ import 'package:dongsoop/presentation/sign_in/widgets/password_reset_section.dar
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -109,21 +110,21 @@ class PasswordResetScreen extends HookConsumerWidget {
             if (!context.mounted) return;
 
             if (isSuccessed) {
-              await showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) => CustomConfirmDialog(
-                  title: '비밀번호 변경',
-                  content: '비밀번호 변경에 성공했어요.\n로그인 페이지로 이동할까요?',
-                  isSingleAction: true,
-                  confirmText: '확인',
-                  dismissOnConfirm: false,
-                  onConfirm: () {
-                    Navigator.of(context).pop();
-                    context.pop();
-                  },
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '비밀번호 변경에 성공했어요.',
+                    style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.white),
+                  ),
+                  duration: Duration(milliseconds: 1200),
+                  behavior: SnackBarBehavior.floating,
                 ),
               );
+
+              await Future.delayed(const Duration(milliseconds: 300));
+              if (!context.mounted) return;
+              context.pop();
             }
           },
           label: '비밀번호 변경하기',

@@ -282,6 +282,7 @@ final router = GoRouter(
         onTapDevice: () {
           context.push(RoutePaths.deviceManagement);
         },
+        onTapPasswordReset: () => context.push(RoutePaths.passwordReset),
       ),
     ),
     GoRoute(

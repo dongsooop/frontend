@@ -12,11 +12,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class SettingScreen extends HookConsumerWidget {
   final VoidCallback onTapNotification;
   final VoidCallback onTapDevice;
+  final VoidCallback onTapPasswordReset;
 
   const SettingScreen({
     super.key,
     required this.onTapNotification,
     required this.onTapDevice,
+    required this.onTapPasswordReset,
   });
 
   @override
@@ -67,41 +69,40 @@ class SettingScreen extends HookConsumerWidget {
           child: ListView(
             children: [
               buildSettingsSection(
-              title: '이용 안내',
-              children: [
-                buildSettingsItem(
-                  label: '버전  1.9.2',
-                  onTap: () {},
-                ),
-                buildSettingsItem(
-                  label: '서비스 이용약관',
-                  onTap: () {
-                    context.push('/mypageWebView?url=$termsOfService&title=서비스 이용약관');
-                  },
-                ),
-                buildSettingsItem(
-                  label: '개인정보 처리방침',
-                  onTap: () {
-                    context.push('/mypageWebView?url=$privacyPolicy&title=개인정보처리방침');
-                  },
-                ),
-                buildSettingsItem(
-                  label: '자주 묻는 질문',
-                  onTap: () {
-                    context.push('/mypageWebView?url=$faqPage&title=자주 묻는 질문');
-                  },
-                ),
-                buildSettingsItem(
-                  label: '오픈소스 라이선스',
-                  onTap: () {
-                    context.push('/mypageWebView?url=$licenseInfo&title=오픈소스 라이선스');
-                  },
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 40,
-            ),
+                title: '이용 안내',
+                children: [
+                  buildSettingsItem(
+                    label: '버전  1.9.3',
+                    onTap: () {},
+                  ),
+                  buildSettingsItem(
+                    label: '서비스 이용약관',
+                    onTap: () {
+                      context.push('/mypageWebView?url=$termsOfService&title=서비스 이용약관');
+                    },
+                  ),
+                  buildSettingsItem(
+                    label: '개인정보 처리방침',
+                    onTap: () {
+                      context.push('/mypageWebView?url=$privacyPolicy&title=개인정보처리방침');
+                    },
+                  ),
+                  buildSettingsItem(
+                    label: '자주 묻는 질문',
+                    onTap: () {
+                      context.push('/mypageWebView?url=$faqPage&title=자주 묻는 질문');
+                    },
+                  ),
+                  buildSettingsItem(
+                    label: '오픈소스 라이선스',
+                    onTap: () {
+                      context.push('/mypageWebView?url=$licenseInfo&title=오픈소스 라이선스');
+                    },
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 40),
               buildSettingsSection(
                 title: '앱 설정',
                 children: [
@@ -135,6 +136,10 @@ class SettingScreen extends HookConsumerWidget {
                 buildSettingsSection(
                   title: '보안',
                   children: [
+                    buildSettingsItem(
+                      label: '비밀번호 변경',
+                      onTap: onTapPasswordReset,
+                    ),
                     buildSettingsItem(
                       label: '기기 관리',
                       onTap: onTapDevice,
