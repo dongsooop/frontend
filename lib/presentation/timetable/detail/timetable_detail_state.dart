@@ -5,7 +5,6 @@ class TimetableDetailState {
   final String? errorMessage;
   final XFile? analysisImage;
   final bool isAnalyzing;
-  final String? analysisLoadingMessage;
   final String? analysisErrorMessage;
 
   TimetableDetailState({
@@ -13,7 +12,6 @@ class TimetableDetailState {
     this.errorMessage,
     this.analysisImage,
     this.isAnalyzing = false,
-    this.analysisLoadingMessage,
     this.analysisErrorMessage,
   });
 
@@ -25,7 +23,6 @@ class TimetableDetailState {
     XFile? analysisImage,
     bool clearAnalysisImage = false,
     bool? isAnalyzing,
-    String? analysisLoadingMessage,
     String? analysisErrorMessage,
   }) {
     return TimetableDetailState(
@@ -35,7 +32,6 @@ class TimetableDetailState {
           ? null
           : (analysisImage ?? this.analysisImage),
       isAnalyzing: isAnalyzing ?? this.isAnalyzing,
-      analysisLoadingMessage: analysisLoadingMessage,
       analysisErrorMessage: analysisErrorMessage,
     );
   }
