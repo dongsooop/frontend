@@ -4,13 +4,15 @@ import 'package:dongsoop/domain/notice/repository/notice_repository.dart';
 import 'package:dongsoop/domain/notice/use_cases/notice_combined_use_case.dart';
 import 'package:dongsoop/domain/notice/use_cases/notice_department_use_case.dart';
 import 'package:dongsoop/domain/notice/use_cases/notice_school_use_case.dart';
+import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // 공통 Dio 기반 Remote DataSource + Remote Repository
 final noticeRemoteRepositoryProvider = Provider<NoticeRepository>((ref) {
-  final dio = ref.watch(plainDioProvider);
-  final remote = NoticeDataSourceImpl(dio);
+  final plainDio = ref.watch(plainDioProvider);
+  final authDio = ref.watch(authDioProvider);
+  final remote = NoticeDataSourceImpl(plainDio,authDio);
   return NoticeRepositoryImpl(remote); // local 없이
 });
 

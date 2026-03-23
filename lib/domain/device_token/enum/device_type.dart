@@ -14,3 +14,16 @@ extension DeviceTypeX on DeviceType {
     }
   }
 }
+
+DeviceType deviceTypeFromString(String raw) {
+  switch (raw.toUpperCase()) {
+    case 'ANDROID':
+      return DeviceType.ANDROID;
+    case 'IOS':
+      return DeviceType.IOS;
+    case 'WEB':
+      return DeviceType.WEB;
+    default:
+      return DeviceType.UNKNOWN;
+  }
+}

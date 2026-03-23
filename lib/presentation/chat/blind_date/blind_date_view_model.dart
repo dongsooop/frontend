@@ -7,8 +7,8 @@ class BlindDateViewModel extends StateNotifier<BlindDateState> {
   final GetBlindDateOpenUseCase _getBlindDateOpenUseCase;
 
   BlindDateViewModel(
-    this._getBlindDateOpenUseCase,
-  ) : super(BlindDateState(isLoading: false));
+      this._getBlindDateOpenUseCase,
+      ) : super(BlindDateState(isLoading: false));
 
   Future<bool> isOpened() async {
     state = state.copyWith(errorMessage: null, isLoading: true);
@@ -17,6 +17,9 @@ class BlindDateViewModel extends StateNotifier<BlindDateState> {
       final result = await _getBlindDateOpenUseCase.execute();
       state = state.copyWith(isLoading: false);
       return result;
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
+      return false;
     } on BlindDateOpenException catch (e) {
       state = state.copyWith(
         isBlindDateOpened: e.message,

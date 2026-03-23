@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/enum/week_day.dart';
@@ -88,6 +89,9 @@ class LectureWriteViewModel extends StateNotifier<LectureWriteState> {
       );
       state = state.copyWith(isLoading: false,);
       return result;
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
+      return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -122,6 +126,9 @@ class LectureWriteViewModel extends StateNotifier<LectureWriteState> {
       );
       state = state.copyWith(isLoading: false,);
       return result;
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
+      return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

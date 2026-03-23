@@ -271,6 +271,27 @@ class _NotificationScreenState
             const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),
 
             NotificationSection(
+              title: '보안',
+              subtitle: '계정 보안을 위한 알림을 설정할 수 있어요',
+              children: [
+                if (user != null) ...[
+                  NotificationToggleRow(
+                    label: '새로운 기기 로그인',
+                    value: state.isEnabled(NotificationTypes.newDevice),
+                    loading: state.isLoading(NotificationTypes.newDevice),
+                    onChanged: (v) => onToggle(
+                      label: '새로운 기기 로그인',
+                      type: NotificationTypes.newDevice,
+                      nextValue: v,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+
+            const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),
+
+            NotificationSection(
               title: '기타',
               subtitle: '과팅 오픈 소식을 확인할 수 있어요',
               children: [

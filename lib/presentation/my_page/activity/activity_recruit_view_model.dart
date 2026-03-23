@@ -1,6 +1,7 @@
 import 'package:dongsoop/domain/mypage/use_case/get_my_recruit_posts_use_case.dart';
 import 'package:dongsoop/presentation/my_page/activity/activity_recruit_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 class ActivityRecruitViewModel extends StateNotifier<ActivityRecruitState> {
   final GetMyRecruitPostsUseCase _getMyRecruitPostsUseCase;
@@ -21,6 +22,8 @@ class ActivityRecruitViewModel extends StateNotifier<ActivityRecruitState> {
         page: 0,
         hasNext: !isLast,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -46,6 +49,8 @@ class ActivityRecruitViewModel extends StateNotifier<ActivityRecruitState> {
         page: nextPage,
         hasNext: !isLast,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: '모집 목록을 불러오는 중 오류가 발생했습니다.');
     }

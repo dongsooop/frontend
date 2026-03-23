@@ -141,65 +141,73 @@ class TimetableScreen extends HookConsumerWidget {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 4,
-              children: [
-                if (timetableState.exists != false) ...[
-                  Text(
-                    '${timetableState.year ?? 'null'}년 ${timetableState.semester?.label ?? 'null'}',
-                    style: TextStyles.smallTextBold.copyWith(color: ColorStyles.primaryColor),
-                  ),
-                  Text(
-                    '강의 시간표',
-                    style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-                  ),
-                  const SizedBox(height: 24),
+        child: RefreshIndicator(
+          color: ColorStyles.primaryColor,
+          onRefresh: () async {
+            await viewModel.getLecture();
+            changed.value = true;
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 4,
+                children: [
+                  if (timetableState.exists != false) ...[
+                    Text(
+                      '${timetableState.year ?? 'null'}년 ${timetableState.semester?.label ?? 'null'}',
+                      style: TextStyles.smallTextBold.copyWith(color: ColorStyles.primaryColor),
+                    ),
+                    Text(
+                      '강의 시간표',
+                      style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  timetableState.exists == false && !timetableState.isLoading
+                      ? CreateTimetableButton(
+                          year: timetableState.year!,
+                          semester: timetableState.semester!,
+                          onTapTimetableWrite: onTapTimetableWrite,
+                          onCreated: (result) async {
+                            viewModel.setYearSemester(result!.year, result.semester);
+                            await viewModel.getLecture();
+                            changed.value = true;
+                          },
+                        )
+                      : TimetableDetailScreen(
+                          lectureList: timetableState.lectureList,
+                          onLectureChanged: () async {
+                            if (!context.mounted) return;
+                            await viewModel.getLecture();
+                            changed.value = true;
+                          },
+                          onEditLecture: (editing) async {
+                            final year = timetableState.year;
+                            final semester = timetableState.semester;
+                            if (year == null || semester == null) return false;
+
+                            final ok = await onTapLectureUpdate(
+                              year,
+                              semester,
+                              timetableState.lectureList,
+                              editing,
+                            );
+                            if (ok) {
+                              if (!context.mounted) return false;
+                              await viewModel.getLecture();
+                              changed.value = true;
+                            }
+                            return ok;
+                          },
+                        ),
                 ],
-
-                timetableState.exists == false && !timetableState.isLoading
-                  ? CreateTimetableButton(
-                    year: timetableState.year!,
-                    semester: timetableState.semester!,
-                    onTapTimetableWrite: onTapTimetableWrite,
-                    onCreated: (result) async {
-                      viewModel.setYearSemester(result!.year, result.semester);
-                      await viewModel.getLecture();
-                      changed.value = true;
-                    },
-                  )
-                  : TimetableDetailScreen(
-                    lectureList: timetableState.lectureList,
-                    onLectureChanged: () async {
-                      if (!context.mounted) return;
-                      await viewModel.getLecture();
-                      changed.value = true;
-                    },
-                    onEditLecture: (editing) async {
-                      final year = timetableState.year;
-                      final semester = timetableState.semester;
-                      if (year == null || semester == null) return false;
-
-                      final ok = await onTapLectureUpdate(
-                        year,
-                        semester,
-                        timetableState.lectureList,
-                        editing,
-                      );
-                      if (ok) {
-                        if (!context.mounted) return false;
-                        await viewModel.getLecture();
-                        changed.value = true;
-                      }
-                      return ok;
-                    }
-                  ),
-              ],
+              ),
             ),
           ),
         ),

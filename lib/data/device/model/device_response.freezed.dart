@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'lecture_AI.dart';
+part of 'device_response.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,111 +13,91 @@ part of 'lecture_AI.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$LectureAi {
-  String get name;
-  String? get professor;
-  String? get location;
-  WeekDay get week;
-  String get startAt;
-  String get endAt;
+mixin _$DeviceResponse {
+  int get id;
+  String get type;
+  bool get current;
+  DateTime get loginAt;
 
-  /// Create a copy of LectureAi
+  /// Create a copy of DeviceResponse
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $LectureAiCopyWith<LectureAi> get copyWith =>
-      _$LectureAiCopyWithImpl<LectureAi>(this as LectureAi, _$identity);
+  $DeviceResponseCopyWith<DeviceResponse> get copyWith =>
+      _$DeviceResponseCopyWithImpl<DeviceResponse>(
+          this as DeviceResponse, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is LectureAi &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.professor, professor) ||
-                other.professor == professor) &&
-            (identical(other.location, location) ||
-                other.location == location) &&
-            (identical(other.week, week) || other.week == week) &&
-            (identical(other.startAt, startAt) || other.startAt == startAt) &&
-            (identical(other.endAt, endAt) || other.endAt == endAt));
+            other is DeviceResponse &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.current, current) || other.current == current) &&
+            (identical(other.loginAt, loginAt) || other.loginAt == loginAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, name, professor, location, week, startAt, endAt);
+  int get hashCode => Object.hash(runtimeType, id, type, current, loginAt);
 
   @override
   String toString() {
-    return 'LectureAi(name: $name, professor: $professor, location: $location, week: $week, startAt: $startAt, endAt: $endAt)';
+    return 'DeviceResponse(id: $id, type: $type, current: $current, loginAt: $loginAt)';
   }
 }
 
 /// @nodoc
-abstract mixin class $LectureAiCopyWith<$Res> {
-  factory $LectureAiCopyWith(LectureAi value, $Res Function(LectureAi) _then) =
-      _$LectureAiCopyWithImpl;
+abstract mixin class $DeviceResponseCopyWith<$Res> {
+  factory $DeviceResponseCopyWith(
+          DeviceResponse value, $Res Function(DeviceResponse) _then) =
+      _$DeviceResponseCopyWithImpl;
   @useResult
-  $Res call(
-      {String name,
-      String? professor,
-      String? location,
-      WeekDay week,
-      String startAt,
-      String endAt});
+  $Res call({int id, String type, bool current, DateTime loginAt});
 }
 
 /// @nodoc
-class _$LectureAiCopyWithImpl<$Res> implements $LectureAiCopyWith<$Res> {
-  _$LectureAiCopyWithImpl(this._self, this._then);
+class _$DeviceResponseCopyWithImpl<$Res>
+    implements $DeviceResponseCopyWith<$Res> {
+  _$DeviceResponseCopyWithImpl(this._self, this._then);
 
-  final LectureAi _self;
-  final $Res Function(LectureAi) _then;
+  final DeviceResponse _self;
+  final $Res Function(DeviceResponse) _then;
 
-  /// Create a copy of LectureAi
+  /// Create a copy of DeviceResponse
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = null,
-    Object? professor = freezed,
-    Object? location = freezed,
-    Object? week = null,
-    Object? startAt = null,
-    Object? endAt = null,
+    Object? id = null,
+    Object? type = null,
+    Object? current = null,
+    Object? loginAt = null,
   }) {
-    return _then(LectureAi(
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
+    return _then(DeviceResponse(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      type: null == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
               as String,
-      professor: freezed == professor
-          ? _self.professor
-          : professor // ignore: cast_nullable_to_non_nullable
-              as String?,
-      location: freezed == location
-          ? _self.location
-          : location // ignore: cast_nullable_to_non_nullable
-              as String?,
-      week: null == week
-          ? _self.week
-          : week // ignore: cast_nullable_to_non_nullable
-              as WeekDay,
-      startAt: null == startAt
-          ? _self.startAt
-          : startAt // ignore: cast_nullable_to_non_nullable
-              as String,
-      endAt: null == endAt
-          ? _self.endAt
-          : endAt // ignore: cast_nullable_to_non_nullable
-              as String,
+      current: null == current
+          ? _self.current
+          : current // ignore: cast_nullable_to_non_nullable
+              as bool,
+      loginAt: null == loginAt
+          ? _self.loginAt
+          : loginAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }
 
-/// Adds pattern-matching-related methods to [LectureAi].
-extension LectureAiPatterns on LectureAi {
+/// Adds pattern-matching-related methods to [DeviceResponse].
+extension DeviceResponsePatterns on DeviceResponse {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:

@@ -49,6 +49,7 @@ class TimetableViewModel extends StateNotifier<TimetableState> {
   }
 
   Future<void> getLecture({int? overrideYear, Semester? overrideSemester}) async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     final year = overrideYear ?? state.year;

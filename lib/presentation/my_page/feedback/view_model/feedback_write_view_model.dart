@@ -79,6 +79,9 @@ class FeedbackWriteViewModel extends _$FeedbackWriteViewModel {
       await _useCase.execute(entity: entity);
       return true;
 
+    } on SessionExpiredException {
+      // 세션 만료 시 에러 메시지 없이 로딩만 해제하고 false 반환
+      return false;
     } on FeedbackSubmitException catch (e) {
       state = state.copyWith(errMessage: e.message);
       return false;

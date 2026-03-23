@@ -1,12 +1,11 @@
-import 'package:flutter/foundation.dart';
-
+import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/data/notification/data_source/notification_data_source.dart';
 import 'package:dongsoop/data/notification/model/notification_response_model.dart';
 import 'package:dongsoop/domain/notification/entity/notification_response_entity.dart';
 import 'package:dongsoop/domain/notification/repository/notification_repository.dart';
 
-class NotificationRepositoryImpl implements NotificationRepository {
+class NotificationRepositoryImpl with ErrorHandlerMixin implements NotificationRepository {
   final NotificationDataSource _dataSource;
   NotificationRepositoryImpl(this._dataSource);
 
@@ -49,14 +48,17 @@ class NotificationRepositoryImpl implements NotificationRepository {
     );
   }
 
-  Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
+  Future<T> _handle<T>(Future<T> Function() action, Exception defaultException) async {
     try {
       return await action();
+    } on SessionExpiredException {
+      rethrow;
     } catch (e, st) {
-      if (kDebugMode) {
-        print('[NotificationRepository] error: $e\n$st');
+      final converted = convertError(e);
+      if (converted is SessionExpiredException) {
+        throw converted;
       }
-      throw exception;
+      Error.throwWithStackTrace(defaultException, st);
     }
   }
 }

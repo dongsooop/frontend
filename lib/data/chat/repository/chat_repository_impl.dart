@@ -15,8 +15,8 @@ class ChatRepositoryImpl implements ChatRepository {
   final ChatDataSource _chatDataSource;
 
   ChatRepositoryImpl(
-    this._chatDataSource,
-  );
+      this._chatDataSource,
+      );
 
   @override
   Future<String> createQNAChatRoom(ChatRoomRequest request) async {

@@ -19,4 +19,5 @@ abstract class AuthDataSource {
   Future<bool> checkEmailCode(String userEmail, String code);
   Future<bool> sendEmailCode(String userEmail);
   Future<void> userBlock(int blockerId, int blockedMemberId);
+  Future<void> clearLocalData();
 }

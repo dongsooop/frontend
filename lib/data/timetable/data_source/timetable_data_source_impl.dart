@@ -5,7 +5,6 @@ import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
-import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
 import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -13,12 +12,10 @@ import 'package:image_picker/image_picker.dart';
 
 class TimetableDataSourceImpl implements TimetableDataSource {
   final Dio _authDio;
-  final Dio _aiDio;
   final HiveService _hiveService;
 
   TimetableDataSourceImpl(
     this._authDio,
-    this._aiDio,
     this._hiveService,
   );
 
@@ -42,6 +39,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -50,7 +50,6 @@ class TimetableDataSourceImpl implements TimetableDataSource {
   Future<bool> createLecture(LectureRequest request) async {
     final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
 
-    print('request: ${request.toJson()}');
     try {
       final response = await _authDio.post(endpoint, data: request.toJson());
       if (response.statusCode == HttpStatusCode.created.code) {
@@ -58,6 +57,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -74,6 +76,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -91,12 +96,15 @@ class TimetableDataSourceImpl implements TimetableDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
 
   @override
-  Future<List<LectureAi>> timetableAnalysis(XFile file) async {
+  Future<bool> timetableAnalysis(XFile file) async {
     final endpoint = dotenv.get('TIMETABLE_ANALYSIS_ENDPOINT');
 
     try {
@@ -108,11 +116,18 @@ class TimetableDataSourceImpl implements TimetableDataSource {
         data: formData,
       );
 
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        final List<dynamic> data = response.data as List<dynamic>;
-        return data.map((e) => LectureAi.fromJson(e as Map<String, dynamic>)).toList();
+      if (response.statusCode == HttpStatusCode.accepted.code) {
+        return true;
       }
       throw TimetableAnalysisFailedException();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.serviceUnavailable.code) {
+        throw JobAlreadyQueuedException();
+      }
+      if (e.response?.statusCode == HttpStatusCode.gatewayTimeout.code) {
+        throw TimetableQueueFullException();
+      }
+      rethrow;
     } catch (e) {
       throw TimetableAnalysisFailedException();
     }
@@ -155,38 +170,9 @@ class TimetableDataSourceImpl implements TimetableDataSource {
         await _hiveService.deleteTimetableInfo(year, semester);
       }
     } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> saveMultipleTimetable(List<LectureRequest> timetable) async {
-    final endpoint = dotenv.get('TIMETABLE_MULTIPLE_ENDPOINT');
-    final requestBody = timetable.map((e) => e.toJson()).toList();
-
-    print('timetable: $requestBody');
-
-    try {
-      final response = await _authDio.post(endpoint, data: requestBody);
-      if (response.statusCode == HttpStatusCode.created.code) {
-        return; // 성공
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
       }
-      if (response.statusCode == HttpStatusCode.multiStatus.code) {
-        // 부분 성공
-        final failed = (response.data as List)
-            .map((e) => e is Map<String, dynamic> ? e['name'] as String? : null)
-            .whereType<String>()
-            .toList();
-        final prefix = failed.isEmpty ? '일부 강의' : failed.join(', ');
-        throw TimetableMultiStatusException('$prefix 강의 저장에 실패했어요');
-      }
-      throw TimetableException();
-    } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.conflict.code) {
-        throw TimetableConflictException();
-      }
-      rethrow;
-    } catch (e) {
       rethrow;
     }
   }

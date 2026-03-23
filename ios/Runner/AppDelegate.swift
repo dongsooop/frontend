@@ -7,11 +7,15 @@ import FirebaseCore
 
 class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
-    if #available(iOS 14.0, *) {
-      return AppAttestProvider(app: app)
-    } else {
-      return DeviceCheckProvider(app: app)
-    }
+    #if targetEnvironment(simulator)
+      return AppCheckDebugProvider(app: app)
+    #else
+      if #available(iOS 14.0, *) {
+        return AppAttestProvider(app: app)
+      } else {
+        return DeviceCheckProvider(app: app)
+      }
+    #endif
   }
 }
 
@@ -42,6 +46,11 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
 
     GeneratedPluginRegistrant.register(with: self)
 
+    if let remoteNotif = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
+        print("[PUSH][iOS] Cold Start detected via launchOptions")
+        pendingTapUserInfo = remoteNotif
+    }
+
     if let controller = window?.rootViewController as? FlutterViewController {
       pushChannel = FlutterMethodChannel(
         name: "app/push",
@@ -59,21 +68,15 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
             }
             result(nil)
           } else {
-            result(FlutterError(code: "BAD_ARGS",
-                                message: "setBadge requires {count: int}",
-                                details: nil))
+            result(FlutterError(code: "BAD_ARGS", message: "setBadge requires {count: int}", details: nil))
           }
-
         case "clearBadge":
-          DispatchQueue.main.async {
-            UIApplication.shared.applicationIconBadgeNumber = 0
-          }
+          DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = 0 }
           result(nil)
 
         case "setActiveChat":
           if let args = call.arguments as? [String: Any],
-             let rid = (args["roomId"] as? String)?
-              .trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+             let rid = (args["roomId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
              !rid.isEmpty {
             self.activeChatRoomId = rid
           }
@@ -90,10 +93,15 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
       }
 
       if let info = pendingTapUserInfo {
-        DispatchQueue.main.async { [weak self] in
-          self?.pushChannel?.invokeMethod("onPushTap", arguments: info)
+        print("[PUSH][iOS] Scheduling pending tap delivery...")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+          guard let self = self else { return }
+          if let channel = self.pushChannel {
+              print("[PUSH][iOS] Cold Start: Sending data to Dart now.")
+              channel.invokeMethod("onPushTap", arguments: info)
+              self.pendingTapUserInfo = nil // 성공적으로 전송 시도 후 비움
+          }
         }
-        pendingTapUserInfo = nil
       }
     }
 
@@ -108,22 +116,18 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
   ) {
     let userInfo = notification.request.content.userInfo
 
-    let type = (userInfo["type"] as? String)?
-      .trimmingCharacters(in: .whitespacesAndNewlines)
+    if let n = notification.request.content.badge as? NSNumber {
+      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = n.intValue }
+    } else if let aps = userInfo["aps"] as? [String: Any], let b = aps["badge"] as? Int {
+      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = b }
+    }
+
+    let type = (userInfo["type"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
     let valueRaw = (userInfo["value"] as? String) ?? (userInfo["roomId"] as? String)
-    let value = valueRaw?
-      .trimmingCharacters(in: .whitespacesAndNewlines)
+    let value = valueRaw?.trimmingCharacters(in: .whitespacesAndNewlines)
 
     if type == "CHAT", let active = activeChatRoomId, let v = value, active == v {
       completionHandler([])
-
-      if let n = notification.request.content.badge as? NSNumber {
-        DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = n.intValue }
-      } else if let aps = userInfo["aps"] as? [String: Any],
-                let b = aps["badge"] as? Int {
-        DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = b }
-      }
-
       DispatchQueue.main.async { [weak self] in
         self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
       }
@@ -134,13 +138,6 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
       completionHandler([.banner, .list, .sound, .badge])
     } else {
       completionHandler([.alert, .sound, .badge])
-    }
-
-    if let n = notification.request.content.badge as? NSNumber {
-      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = n.intValue }
-    } else if let aps = userInfo["aps"] as? [String: Any],
-              let b = aps["badge"] as? Int {
-      DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = b }
     }
 
     DispatchQueue.main.async { [weak self] in
@@ -155,8 +152,10 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
     let userInfo = response.notification.request.content.userInfo
+    print("[PUSH][iOS] didReceive response (Tap) detected")
+
     if let channel = pushChannel {
-      DispatchQueue.main.async {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
         channel.invokeMethod("onPushTap", arguments: userInfo)
       }
     } else {
@@ -177,6 +176,6 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     DispatchQueue.main.async { [weak self] in
       self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
     }
-    completionHandler(.newData)
+    super.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
   }
 }

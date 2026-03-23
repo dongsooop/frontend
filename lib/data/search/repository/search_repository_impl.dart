@@ -64,12 +64,12 @@ class SearchRepositoryImpl implements SearchRepository {
   }) async {
     return _handle(() async {
       final models = await _dataSource.searchRecruit(
-          page: page,
-          keyword: keyword,
-          types: types,
-          departmentName: departmentName,
-          size: size,
-          sort: sort,
+        page: page,
+        keyword: keyword,
+        types: types,
+        departmentName: departmentName,
+        size: size,
+        sort: sort,
       );
       return models.map((model) => model.toEntity()).toList();
     }, SearchException());

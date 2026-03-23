@@ -1,7 +1,6 @@
 import 'package:dongsoop/data/timetable/data_source/timetable_data_source.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
-import 'package:dongsoop/domain/timetable/model/lecture_AI.dart';
 import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:dongsoop/domain/timetable/repository/timetable_repository.dart';
@@ -55,12 +54,7 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<List<LectureAi>> getTimetableAnalysis(XFile file) async {
+  Future<bool> getTimetableAnalysis(XFile file) async {
     return await _timetableDataSource.timetableAnalysis(file);
-  }
-
-  @override
-  Future<void> saveMultipleTimetable(List<LectureRequest> timetable) async {
-    await _timetableDataSource.saveMultipleTimetable(timetable);
   }
 }

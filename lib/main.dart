@@ -1,16 +1,16 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dongsoop/core/app_scaffold_messenger.dart';
 import 'package:dongsoop/core/routing/router.dart';
-import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
-import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:dongsoop/firebase_options.dart';
-import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
-import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
+import 'package:dongsoop/presentation/app/device_controller.dart';
+import 'package:dongsoop/presentation/app/session_observer.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,8 +31,8 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.appAttestWithDeviceCheckFallback,
+    androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttestWithDeviceCheckFallback,
   );
   await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
 
@@ -42,12 +42,6 @@ Future<void> main() async {
   } catch (e) {
     print('[AppCheck] getToken error at boot: $e');
   }
-
-  final localNotificationsService = LocalNotificationsService.instance();
-  await localNotificationsService.init();
-
-  final firebaseMessagingService = FirebaseMessagingService.instance();
-  await firebaseMessagingService.init(localNotificationsService: localNotificationsService);
 
   await Hive.initFlutter();
   Hive.registerAdapter(LocalTimetableInfoAdapter());
@@ -80,27 +74,14 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
-  DateTime? _lastBadgeRefreshAt;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    Future.microtask(() => ref.read(deviceControllerProvider).init());
 
-    ref.read(pushSyncControllerProvider);
-
-    FirebaseMessagingService.instance().setReadCallback(
-          (int id) => ref.read(notificationViewModelProvider.notifier).read(id),
-    );
-    FirebaseMessagingService.instance().setBadgeRefreshCallback(
-          () => _refreshBadgeThrottled(ref, force: false),
-    );
-    FirebaseMessagingService.instance().setBadgeCallback(
-          (int n) => ref.read(notificationBadgeViewModelProvider.notifier).setBadge(n),
-    );
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _refreshBadgeThrottled(ref, force: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(deviceControllerProvider).refreshBadge(force: false);
     });
   }
 
@@ -113,25 +94,13 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _refreshBadgeThrottled(ref, force: false);
+      ref.read(deviceControllerProvider).refreshBadge(force: false);
     }
   }
-
-  Future<void> _refreshBadgeThrottled(WidgetRef ref, {required bool force}) async {
-    final now = DateTime.now();
-    if (!force &&
-        _lastBadgeRefreshAt != null &&
-        now.difference(_lastBadgeRefreshAt!) < const Duration(milliseconds: 350)) {
-      return;
-    }
-    _lastBadgeRefreshAt = now;
-    try {
-      await ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: force);
-    } catch (_) {}
-  }
-
   @override
   Widget build(BuildContext context) {
+    ref.watch(sessionObserverProvider);
+    ref.watch(pushSyncControllerProvider);
     return MaterialApp.router(
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       theme: ThemeData(

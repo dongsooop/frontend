@@ -112,19 +112,8 @@ class TimetableDetailScreen extends HookConsumerWidget {
         child: Container(
           color: ColorStyles.white,
           child: Center(
-            child: Column(
-              spacing: 24,
-              children: [
-                CircularProgressIndicator(
-                  color: ColorStyles.primaryColor,
-                ),
-                Text(
-                  timetableDetailState.analysisLoadingMessage!,
-                  style: TextStyles.normalTextRegular.copyWith(
-                    color: ColorStyles.black,
-                  ),
-                )
-              ],
+            child: CircularProgressIndicator(
+              color: ColorStyles.primaryColor,
             )
           ),
         ),
@@ -211,28 +200,65 @@ class TimetableDetailScreen extends HookConsumerWidget {
                   final semester = timetableState.semester!;
                   TimetableAnalysisBottomSheet(
                     context,
-                      onSubmit: () async {
-                        final ok = await viewModel.submitAnalysis(year, semester);
-                        onLectureChanged?.call();
+                    onSubmit: () async {
+                      final ok = await viewModel.submitAnalysis(year, semester);
 
+                      if (!context.mounted) return;
+                      final messenger = ScaffoldMessenger.of(context);
+                      messenger.hideCurrentSnackBar();
+
+                      if (ok) {
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '이 작업은 1~3분 정도 소요됩니다. 완료 후 새로고침을 통해 확인 가능합니다.',
+                              style: TextStyles.normalTextRegular.copyWith(
+                                  color: ColorStyles.white
+                              ),
+                            ),
+                            backgroundColor: ColorStyles.gray3,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            elevation: 4,
+                            duration: const Duration(seconds: 4),
+                          )
+                        );
+                      } else {
                         final msg = ref.read(timetableDetailViewModelProvider).analysisErrorMessage;
                         final notifier = ref.read(timetableDetailViewModelProvider.notifier);
-                        if (!ok && msg != null && context.mounted) {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (_) => CustomConfirmDialog(
-                              title: '시간표 자동 작성 실패',
-                              isSingleAction: true,
-                              content: msg,
-                              onConfirm: () {},
-                            ),
-                          );
 
-                          if (!context.mounted) return;
-                          notifier.clearAnalysisError();
-                        }
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              msg ?? '시간표 자동 작성에 실패했어요. 잠시 후 다시 시도해 주세요',
+                              style: TextStyles.normalTextRegular.copyWith(
+                                  color: ColorStyles.white
+                              ),
+                            ),
+                            backgroundColor: ColorStyles.gray3,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            elevation: 4,
+                            duration: const Duration(seconds: 4),
+                          )
+                        );
+
+                        notifier.clearAnalysisError();
                       }
+                      onLectureChanged?.call();
+                    }
                   );
                 },
                 style: ElevatedButton.styleFrom(

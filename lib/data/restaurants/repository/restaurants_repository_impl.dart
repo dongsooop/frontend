@@ -59,10 +59,10 @@ class RestaurantsRepositoryImpl implements RestaurantsRepository{
     int size = 20,
   }) async {
     return await _reportDataSource.search(
-      isLogin: isLogin,
-      search: search,
-      page: page,
-      size: size
+        isLogin: isLogin,
+        search: search,
+        page: page,
+        size: size
     );
   }
 }
