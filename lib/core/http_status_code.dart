@@ -10,7 +10,9 @@ enum HttpStatusCode {
   forbidden(403),
   notFound(404),
   conflict(409),
-  internalServerError(500);
+  internalServerError(500),
+  serviceUnavailable(503),
+  gatewayTimeout(504);
 
   final int code;
   const HttpStatusCode(this.code);

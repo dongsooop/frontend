@@ -461,25 +461,25 @@ class TimetableException implements Exception {
 
 class TimetableAnalysisFailedException extends TimetableException {
   const TimetableAnalysisFailedException([
-    String message = "시간표 분석에 실패했어요\n이미지를 다시 첨부해 주세요"
+    String message = "시간표 분석에 실패했어요. 이미지를 다시 첨부해 주세요"
   ]) : super(message);
 
   @override
   String toString() => message;
 }
 
-class TimetableConflictException extends TimetableException {
-  const TimetableConflictException([
-    String message = "시간표 저장에 실패했어요\n겹치는 시간이 있다면 삭제해 주세요"
+class JobAlreadyQueuedException extends TimetableException {
+  const JobAlreadyQueuedException([
+    String message = "등록된 작업이 있습니다. 작업이 완료될 때까지 기다려 주세요"
   ]) : super(message);
 
   @override
   String toString() => message;
 }
 
-class TimetableMultiStatusException extends TimetableException {
-  const TimetableMultiStatusException([
-    String message = "강의 저장에 실패했어요\n겹치는 시간이 있다면 삭제해 주세요"
+class TimetableQueueFullException extends TimetableException {
+  const TimetableQueueFullException([
+    String message = "현재 요청이 많아 분석 대기열이 가득 찼어요. 잠시 후 다시 시도해 주세요."
   ]) : super(message);
 
   @override
