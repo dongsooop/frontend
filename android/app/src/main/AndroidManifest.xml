@@ -11,6 +11,11 @@
         android:enableOnBackInvokedCallback="true"
         android:usesCleartextTraffic="true">
 
+        <!-- AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9706697545903881~1112972622"/>
+
         <meta-data
             android:name="io.flutter.embedding.android.EnableImpeller"
             android:value="false" />

@@ -72,6 +72,7 @@ dependencies:
   kakao_flutter_sdk_user: ^1.10.0
   google_sign_in: ^7.2.0
   sign_in_with_apple: ^7.0.1
+  google_mobile_ads: ^5.2.0
 
 dev_dependencies:
   flutter_test:

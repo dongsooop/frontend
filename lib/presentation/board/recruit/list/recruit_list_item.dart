@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
 import 'package:dongsoop/core/presentation/components/common_recruit_list_item.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
@@ -66,6 +67,8 @@ class RecruitItemListSection extends HookConsumerWidget {
       return const Center(child: Text('모집 중인 게시글이 없어요!'));
     }
 
+    const int adInterval = 5;
+
     return RefreshIndicator(
       color: ColorStyles.primaryColor,
       onRefresh: viewModel.refresh,
@@ -74,10 +77,22 @@ class RecruitItemListSection extends HookConsumerWidget {
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: state.posts.length + ((state.hasMore && state.isLoading) ? 1 : 0),
+        itemCount: state.posts.length +
+            (state.posts.length ~/ adInterval) +
+            ((state.hasMore && state.isLoading) ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index > 0 && index % (adInterval + 1) == adInterval) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: AdmobNativeAd(),
+            );
+          }
+
+          final int adCount = index ~/ (adInterval + 1);
+          final int actualIndex = index - adCount;
+
           final showLoading =
-              index == state.posts.length && state.hasMore && state.isLoading;
+              actualIndex == state.posts.length && state.hasMore && state.isLoading;
 
           if (showLoading) {
             return const Padding(
@@ -88,8 +103,10 @@ class RecruitItemListSection extends HookConsumerWidget {
             );
           }
 
-          final recruit = state.posts[index];
-          final isLast = index == state.posts.length - 1;
+          if (actualIndex >= state.posts.length) return const SizedBox.shrink();
+
+          final recruit = state.posts[actualIndex];
+          final isLast = actualIndex == state.posts.length - 1;
 
           return RecruitListItem(
             recruit: recruit,
