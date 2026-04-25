@@ -5,7 +5,14 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:logger/logger.dart';
 
 class AdmobNativeAd extends StatefulWidget {
-  const AdmobNativeAd({super.key});
+  final TemplateType templateType;
+  final double height;
+
+  const AdmobNativeAd({
+    super.key,
+    this.templateType = TemplateType.small,
+    this.height = 120,
+  });
 
   @override
   State<AdmobNativeAd> createState() => _AdmobNativeAdState();
@@ -23,7 +30,7 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
     } else if (Platform.isIOS) {
       // .env에 ADMOB_IOS_NATIVE_ID가 없으면 테스트 ID 사용
       return dotenv.maybeGet('ADMOB_IOS_NATIVE_ID') ?? 'ca-app-pub-3940256099942544/3986624511';
-    }
+    }w
     return '';
   }
 
@@ -61,7 +68,7 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
       ),
       request: const AdRequest(),
       nativeTemplateStyle: NativeTemplateStyle(
-        templateType: TemplateType.medium,
+        templateType: widget.templateType,
         mainBackgroundColor: Colors.white,
         cornerRadius: 10.0,
         callToActionTextStyle: NativeTemplateTextStyle(
@@ -85,11 +92,11 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
       return Container(
         alignment: Alignment.center,
         width: double.infinity,
-        height: 320,
+        height: widget.height,
         child: AdWidget(ad: _nativeAd!),
       );
     }
     // 광고 로딩 중에는 빈 공간 또는 스켈레톤 UI를 보여줄 수 있습니다.
-    return const SizedBox.shrink();
+    return SizedBox(height: widget.height);
   }
 }
