@@ -93,10 +93,7 @@ class HomePageScreen extends HookConsumerWidget {
                   HomeNewNotice(notices: homeEntity.notices),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                    child: AdmobNativeAd(
-                      templateType: TemplateType.small,
-                      height: 120,
-                    ),
+                    child: AdmobNativeAd(),
                   ),
                   HomePopularRecruits(recruits: homeEntity.popularRecruits),
                 ],
