@@ -56,7 +56,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>"DongSoop"이 사용자의 사진에 접근하려고 합니다.</string>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-9706697545903881~6776488493</string>
+	<string>ca-app-pub-3940256099942544~1458002511</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
