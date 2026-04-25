@@ -30,7 +30,7 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
     } else if (Platform.isIOS) {
       // .env에 ADMOB_IOS_NATIVE_ID가 없으면 테스트 ID 사용
       return dotenv.maybeGet('ADMOB_IOS_NATIVE_ID') ?? 'ca-app-pub-3940256099942544/3986624511';
-    }w
+    }
     return '';
   }
 
