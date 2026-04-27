@@ -195,13 +195,10 @@ class HomeToday extends HookConsumerWidget {
           GestureDetector(
             onTap: () => context.goNamed('restaurants'),
             behavior: HitTestBehavior.opaque,
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Image.asset(
-                'assets/images/restaurant_banner.png',
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+            child: Image.asset(
+              'assets/images/restaurant_banner.png',
+              width: double.infinity,
+              fit: BoxFit.cover,
             ),
           ),
           GestureDetector(
