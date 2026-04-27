@@ -10,8 +10,8 @@ class AdmobNativeAd extends StatefulWidget {
 
   const AdmobNativeAd({
     super.key,
-    this.templateType = TemplateType.small,
-    this.height = 120,
+    this.templateType = TemplateType.medium,
+    this.height = 250,
   });
 
   @override
