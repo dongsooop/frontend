@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/presentation/home/widgets/chatbot_button.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
@@ -90,6 +91,10 @@ class HomePageScreen extends HookConsumerWidget {
                     isLoggedOut: user == null,
                   ),
                   HomeNewNotice(notices: homeEntity.notices),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    child: AdmobNativeAd(),
+                  ),
                   HomePopularRecruits(recruits: homeEntity.popularRecruits),
                 ],
               ),

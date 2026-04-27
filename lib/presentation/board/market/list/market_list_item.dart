@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
 import 'package:dongsoop/core/presentation/components/common_market_list_item.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
@@ -62,6 +63,8 @@ class MarketItemListSection extends HookConsumerWidget {
       return Center(child: Text(emptyText));
     }
 
+    const int adInterval = 5;
+
     return RefreshIndicator(
       color: ColorStyles.primaryColor,
       onRefresh: viewModel.refresh,
@@ -70,10 +73,22 @@ class MarketItemListSection extends HookConsumerWidget {
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: state.items.length + ((state.hasMore && state.isLoading) ? 1 : 0),
+        itemCount: state.items.length +
+            (state.items.length ~/ adInterval) +
+            ((state.hasMore && state.isLoading) ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index > 0 && index % (adInterval + 1) == adInterval) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: AdmobNativeAd(),
+            );
+          }
+
+          final int adCount = index ~/ (adInterval + 1);
+          final int actualIndex = index - adCount;
+
           final showLoading =
-              index == state.items.length && state.hasMore && state.isLoading;
+              actualIndex == state.items.length && state.hasMore && state.isLoading;
 
           if (showLoading) {
             return const Padding(
@@ -84,8 +99,10 @@ class MarketItemListSection extends HookConsumerWidget {
             );
           }
 
-          final market = state.items[index];
-          final isLast = index == state.items.length - 1;
+          if (actualIndex >= state.items.length) return const SizedBox.shrink();
+
+          final market = state.items[actualIndex];
+          final isLast = actualIndex == state.items.length - 1;
 
           return CommonMarketListItem(
             imagePath: market.imageUrl,
