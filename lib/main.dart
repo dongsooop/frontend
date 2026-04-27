@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -27,6 +28,7 @@ import 'domain/chat/model/chat_room_member.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await MobileAds.instance.initialize();
   await dotenv.load(); // .env 파일 로드
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
