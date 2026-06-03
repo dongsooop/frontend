@@ -79,6 +79,12 @@ class SettingScreen extends HookConsumerWidget {
             buildSettingsSection(
               title: '기타',
               children: [
+                // buildSettingsItem(
+                //   label: '알림 설정',
+                //   onTap: () {
+                //     // 알림 설정
+                //   },
+                // ),
                 buildSettingsItem(
                   label: '공지 키워드 알림 설정',
                   onTap: () {
