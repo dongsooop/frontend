@@ -27,6 +27,7 @@ import 'package:dongsoop/presentation/splash/splash_screen.dart';
 import 'package:dongsoop/presentation/web_view/cafeteria_web_view_page_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
+import 'package:dongsoop/presentation/notice/keyword/notice_keyword_screen.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
@@ -180,6 +181,10 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.setting,
       builder: (context, state) => SettingScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.noticeKeyword,
+      builder: (context, state) => const NoticeKeywordScreen(),
     ),
     GoRoute(
       path: RoutePaths.recruitWrite,
