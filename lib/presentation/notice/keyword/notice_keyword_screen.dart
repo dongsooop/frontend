@@ -1,11 +1,14 @@
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_entity.dart';
 import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_type.dart';
 import 'package:dongsoop/presentation/notice/keyword/providers/notice_keyword_providers.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class NoticeKeywordScreen extends HookConsumerWidget {
@@ -13,13 +16,16 @@ class NoticeKeywordScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoggedIn = ref.watch(userSessionProvider) != null;
     final state = ref.watch(noticeKeywordViewModelProvider);
     final viewModel = ref.read(noticeKeywordViewModelProvider.notifier);
 
     useEffect(() {
-      Future.microtask(() => viewModel.loadKeywords());
+      if (isLoggedIn) {
+        Future.microtask(() => viewModel.loadKeywords());
+      }
       return null;
-    }, const []);
+    }, [isLoggedIn]);
 
     ref.listen(noticeKeywordViewModelProvider, (_, next) {
       if (next.errorMessage != null) {
@@ -37,35 +43,44 @@ class NoticeKeywordScreen extends HookConsumerWidget {
           title: '공지 키워드 알림',
           backgroundColor: ColorStyles.gray1,
         ),
-        body: state.isLoading && state.keywords.isEmpty
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 24,
-                ),
-                children: [
-                  _KeywordSection(
-                    title: '알림 받을 키워드',
-                    description: '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.',
-                    type: NoticeKeywordType.include,
-                    keywords: state.includeKeywords,
-                    onAdd: (keyword) =>
-                        viewModel.addKeyword(keyword, NoticeKeywordType.include),
-                    onDelete: viewModel.deleteKeyword,
-                  ),
-                  const SizedBox(height: 24),
-                  _KeywordSection(
-                    title: '알림 받지 않을 키워드',
-                    description: '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
-                    type: NoticeKeywordType.exclude,
-                    keywords: state.excludeKeywords,
-                    onAdd: (keyword) =>
-                        viewModel.addKeyword(keyword, NoticeKeywordType.exclude),
-                    onDelete: viewModel.deleteKeyword,
-                  ),
-                ],
+        body: Stack(
+          children: [
+            if (isLoggedIn)
+              state.isLoading && state.keywords.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 24,
+                      ),
+                      children: [
+                        _KeywordSection(
+                          title: '알림 받을 키워드',
+                          description: '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.',
+                          type: NoticeKeywordType.include,
+                          keywords: state.includeKeywords,
+                          onAdd: (keyword) => viewModel.addKeyword(
+                              keyword, NoticeKeywordType.include),
+                          onDelete: viewModel.deleteKeyword,
+                        ),
+                        const SizedBox(height: 24),
+                        _KeywordSection(
+                          title: '알림 받지 않을 키워드',
+                          description: '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
+                          type: NoticeKeywordType.exclude,
+                          keywords: state.excludeKeywords,
+                          onAdd: (keyword) => viewModel.addKeyword(
+                              keyword, NoticeKeywordType.exclude),
+                          onDelete: viewModel.deleteKeyword,
+                        ),
+                      ],
+                    ),
+            if (!isLoggedIn)
+              LoginRequiredDialog(
+                onCancel: () => context.pop(),
               ),
+          ],
+        ),
       ),
     );
   }
