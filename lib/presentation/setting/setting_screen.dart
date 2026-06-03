@@ -1,5 +1,6 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/providers/setting_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -78,12 +79,12 @@ class SettingScreen extends HookConsumerWidget {
             buildSettingsSection(
               title: '기타',
               children: [
-                // buildSettingsItem(
-                //   label: '알림 설정',
-                //   onTap: () {
-                //     // 알림 설정
-                //   },
-                // ),
+                buildSettingsItem(
+                  label: '공지 키워드 알림 설정',
+                  onTap: () {
+                    context.push(RoutePaths.noticeKeyword);
+                  },
+                ),
                 buildSettingsItem(
                   label: '채팅 캐시 삭제',
                   onTap: () async {
