@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_type.dart';
 import 'package:dongsoop/domain/notice/keyword/use_cases/add_notice_keyword_use_case.dart';
 import 'package:dongsoop/domain/notice/keyword/use_cases/delete_notice_keyword_use_case.dart';
@@ -34,6 +35,8 @@ class NoticeKeywordViewModel extends StateNotifier<NoticeKeywordState> {
         keywords: [...state.keywords, added],
         isLoading: false,
       );
+    } on DuplicateNoticeKeywordException catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }

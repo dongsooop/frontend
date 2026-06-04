@@ -20,12 +20,6 @@ class NoticeKeywordModel {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'keyword': keyword,
-        'type': type,
-      };
-
   NoticeKeywordEntity toEntity() {
     return NoticeKeywordEntity(
       id: id,

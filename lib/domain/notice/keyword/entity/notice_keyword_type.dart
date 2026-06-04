@@ -7,6 +7,7 @@ enum NoticeKeywordType {
   static NoticeKeywordType fromJson(String value) {
     return NoticeKeywordType.values.firstWhere(
       (e) => e.name.toUpperCase() == value.toUpperCase(),
+      orElse: () => NoticeKeywordType.include,
     );
   }
 }

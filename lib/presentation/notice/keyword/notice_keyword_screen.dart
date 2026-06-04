@@ -8,7 +8,6 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class NoticeKeywordScreen extends HookConsumerWidget {
@@ -23,6 +22,10 @@ class NoticeKeywordScreen extends HookConsumerWidget {
     useEffect(() {
       if (isLoggedIn) {
         Future.microtask(() => viewModel.loadKeywords());
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) LoginRequiredDialog(context);
+        });
       }
       return null;
     }, [isLoggedIn]);
@@ -43,44 +46,37 @@ class NoticeKeywordScreen extends HookConsumerWidget {
         backgroundColor: ColorStyles.gray1,
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            if (isLoggedIn)
-              state.isLoading && state.keywords.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 24,
-                      ),
-                      children: [
-                        _KeywordSection(
-                          title: '알림 받을 키워드',
-                          description: '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.',
-                          type: NoticeKeywordType.include,
-                          keywords: state.includeKeywords,
-                          onAdd: (keyword) => viewModel.addKeyword(
-                              keyword, NoticeKeywordType.include),
-                          onDelete: viewModel.deleteKeyword,
-                        ),
-                        const SizedBox(height: 24),
-                        _KeywordSection(
-                          title: '알림 받지 않을 키워드',
-                          description: '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
-                          type: NoticeKeywordType.exclude,
-                          keywords: state.excludeKeywords,
-                          onAdd: (keyword) => viewModel.addKeyword(
-                              keyword, NoticeKeywordType.exclude),
-                          onDelete: viewModel.deleteKeyword,
-                        ),
-                      ],
-                    ),
-            if (!isLoggedIn)
-              LoginRequiredDialog(
-                onCancel: () => context.pop(),
+        child: state.isLoading && state.keywords.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 24,
+                ),
+                children: [
+                  _KeywordSection(
+                    title: '알림 받을 키워드',
+                    description: '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.',
+                    type: NoticeKeywordType.include,
+                    keywords: state.includeKeywords,
+                    isLoading: state.isLoading,
+                    onAdd: (keyword) =>
+                        viewModel.addKeyword(keyword, NoticeKeywordType.include),
+                    onDelete: viewModel.deleteKeyword,
+                  ),
+                  const SizedBox(height: 24),
+                  _KeywordSection(
+                    title: '알림 받지 않을 키워드',
+                    description: '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
+                    type: NoticeKeywordType.exclude,
+                    keywords: state.excludeKeywords,
+                    isLoading: state.isLoading,
+                    onAdd: (keyword) =>
+                        viewModel.addKeyword(keyword, NoticeKeywordType.exclude),
+                    onDelete: viewModel.deleteKeyword,
+                  ),
+                ],
               ),
-          ],
-        ),
       ),
     );
   }
@@ -91,6 +87,7 @@ class _KeywordSection extends HookWidget {
   final String description;
   final NoticeKeywordType type;
   final List<NoticeKeywordEntity> keywords;
+  final bool isLoading;
   final Future<void> Function(String keyword) onAdd;
   final Future<void> Function(int keywordId) onDelete;
 
@@ -99,6 +96,7 @@ class _KeywordSection extends HookWidget {
     required this.description,
     required this.type,
     required this.keywords,
+    required this.isLoading,
     required this.onAdd,
     required this.onDelete,
   });
@@ -111,6 +109,7 @@ class _KeywordSection extends HookWidget {
     Future<void> submit() async {
       final text = controller.text.trim();
       if (text.isEmpty) return;
+      if (keywords.any((k) => k.keyword == text)) return;
       controller.clear();
       focusNode.unfocus();
       await onAdd(text);
@@ -141,6 +140,7 @@ class _KeywordSection extends HookWidget {
             controller: controller,
             focusNode: focusNode,
             type: type,
+            isLoading: isLoading,
             onSubmit: submit,
           ),
           const SizedBox(height: 16),
@@ -176,12 +176,14 @@ class _KeywordInput extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final NoticeKeywordType type;
+  final bool isLoading;
   final VoidCallback onSubmit;
 
   const _KeywordInput({
     required this.controller,
     required this.focusNode,
     required this.type,
+    required this.isLoading,
     required this.onSubmit,
   });
 
@@ -221,13 +223,15 @@ class _KeywordInput extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         GestureDetector(
-          onTap: onSubmit,
+          onTap: isLoading ? null : onSubmit,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
             decoration: BoxDecoration(
-              color: type == NoticeKeywordType.include
-                  ? ColorStyles.primary100
-                  : ColorStyles.gray3,
+              color: isLoading
+                  ? ColorStyles.gray2
+                  : type == NoticeKeywordType.include
+                      ? ColorStyles.primary100
+                      : ColorStyles.gray3,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -258,8 +262,7 @@ class _KeywordChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final isInclude = type == NoticeKeywordType.include;
     final bgColor = isInclude ? ColorStyles.primary5 : ColorStyles.gray1;
-    final textColor =
-        isInclude ? ColorStyles.primary100 : ColorStyles.gray3;
+    final textColor = isInclude ? ColorStyles.primary100 : ColorStyles.gray3;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
