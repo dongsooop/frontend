@@ -1,0 +1,4 @@
+enum FailureType{
+  permissionDenied,
+  registerFailed,
+}

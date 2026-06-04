@@ -36,14 +36,14 @@ class NoticeKeywordScreen extends HookConsumerWidget {
       }
     });
 
-    return SafeArea(
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: ColorStyles.gray1,
+      appBar: DetailHeader(
+        title: '공지 키워드 알림',
         backgroundColor: ColorStyles.gray1,
-        appBar: DetailHeader(
-          title: '공지 키워드 알림',
-          backgroundColor: ColorStyles.gray1,
-        ),
-        body: Stack(
+      ),
+      body: SafeArea(
+        child: Stack(
           children: [
             if (isLoggedIn)
               state.isLoading && state.keywords.isEmpty

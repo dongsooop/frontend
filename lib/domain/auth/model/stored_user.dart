@@ -9,7 +9,7 @@ class StoredUser with _$StoredUser {
   final String departmentType;
   final String accessToken;
   final String refreshToken;
-  final String role;
+  final List<String> role;
 
   const StoredUser({
     required this.id,

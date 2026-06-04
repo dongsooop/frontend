@@ -58,7 +58,11 @@ class DeptSelectBottomSheet extends HookConsumerWidget {
                         return SizedBox(
                           height: 44,
                           width: double.infinity,
-                          child: GestureDetector(
+                          child: InkWell(
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            focusColor: Colors.transparent,
                             onTap: () {
                               onSelected(deptType);
                               Navigator.of(context).pop();

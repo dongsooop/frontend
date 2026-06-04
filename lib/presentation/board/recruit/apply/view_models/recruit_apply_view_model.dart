@@ -18,6 +18,8 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
   late final RecruitApplyUseCase _useCase;
   late final RecruitApplyTextFilterUseCase _textFilterUseCase;
 
+  bool _submitting = false;
+
   @override
   RecruitApplyState build() {
     _useCase = ref.read(recruitApplyUseCaseProvider);
@@ -32,11 +34,23 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
     required RecruitType type,
     required String departmentCode,
   }) async {
+    if (_submitting) {
+      return false;
+    }
+    _submitting = true;
+
+    if (state.isLoading) {
+      _submitting = false;
+      return false;
+    }
+
     state = state.copyWith(isLoading: true, profanityMessage: null);
 
     try {
       final filteredIntroduction = introduction.replaceAll('|', '');
       final filteredMotivation = motivation.replaceAll('|', '');
+
+      state = state.copyWith(isFiltering: true);
 
       await _textFilterUseCase.execute(
         entity: RecruitApplyTextFilterEntity(
@@ -44,6 +58,8 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
           motivation: filteredMotivation,
         ),
       );
+
+      state = state.copyWith(isFiltering: false);
 
       await _useCase.execute(
         entity: RecruitApplyEntity(
@@ -69,6 +85,9 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
 
       state = const RecruitApplyState();
       return true;
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false, isFiltering: false);
+      return false;
     } on ProfanityDetectedException catch (e) {
       final badSentences = <String>[];
       final data = e.responseData;
@@ -87,13 +106,19 @@ class RecruitApplyViewModel extends _$RecruitApplyViewModel {
 
       state = state.copyWith(
         isLoading: false,
+        isFiltering: false,
         profanityMessage: badSentences.join('\n'),
         profanityMessageTriggerKey: state.profanityMessageTriggerKey + 1,
       );
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(
+        isLoading: false,
+        isFiltering: false,
+      );
       return false;
+    } finally {
+      _submitting = false;
     }
   }
 

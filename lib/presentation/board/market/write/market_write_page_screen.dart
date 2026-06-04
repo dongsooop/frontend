@@ -10,6 +10,7 @@ import 'package:dongsoop/presentation/board/common/components/board_text_form_fi
 import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/price_formatter.dart';
 import 'package:dongsoop/presentation/board/market/write/view_model/market_write_view_model.dart';
+import 'package:dongsoop/presentation/board/common/components/board_filtering_overlay.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -30,32 +31,42 @@ class MarketWritePageScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = ref.watch(
-      marketWriteViewModelProvider(isEditing: isEditing, marketId: marketId)
-          .notifier,
-    );
-    final state = ref.watch(
-      marketWriteViewModelProvider(isEditing: isEditing, marketId: marketId),
-    );
+    final vmProv =
+    marketWriteViewModelProvider(isEditing: isEditing, marketId: marketId);
+
+    final viewModel = ref.watch(vmProv.notifier);
+    final state = ref.watch(vmProv);
+
+    final submittingRef = useRef<bool>(false);
+    final isSubmitting = ref.watch(vmProv.select((s) => s.isSubmitting));
+    final isValid = ref.watch(vmProv.select((s) => s.isValid));
+    final isFiltering = ref.watch(vmProv.select((s) => s.isFiltering));
+
+    final overlayRef = useRef<OverlayEntry?>(null);
 
     final titleController = useTextEditingController();
     final contentController = useTextEditingController();
     final priceController = useTextEditingController();
     final isInitialized = useState(false);
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
-    // 초기값을 프레임 이후에 설정
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        titleController.text = state.title;
-        contentController.text = state.content;
-        priceController.text =
-            state.price > 0 ? PriceFormatter.format(state.price) : '';
+        if (titleController.text != state.title) {
+          titleController.text = state.title;
+        }
+        if (contentController.text != state.content) {
+          contentController.text = state.content;
+        }
+        final formattedPrice = state.price > 0 ? PriceFormatter.format(state.price) : '';
+        if (priceController.text != formattedPrice) {
+          priceController.text = formattedPrice;
+        }
         isInitialized.value = true;
       });
       return null;
     }, [state.title, state.content, state.price]);
 
-    // 리스너는 초기화 이후 등록
     useEffect(() {
       if (!isInitialized.value) return null;
 
@@ -72,15 +83,36 @@ class MarketWritePageScreen extends HookConsumerWidget {
       return null;
     }, [isInitialized.value]);
 
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        if (isFiltering && overlayRef.value == null) {
+          overlayRef.value = showBoardFilteringOverlay(
+            context,
+            useRootOverlay: true,
+          );
+        } else if (!isFiltering && overlayRef.value != null) {
+          hideBoardFilteringOverlay(overlayRef.value);
+          overlayRef.value = null;
+        }
+      });
+      return () {
+        hideBoardFilteringOverlay(overlayRef.value);
+        overlayRef.value = null;
+      };
+    }, [isFiltering]);
+
     Future<void> _pickImage() async {
+      if (isSubmitting || submittingRef.value || isFiltering) return;
       final pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.gallery);
+      await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         await viewModel.compressAndAddImage(pickedFile);
       }
     }
 
     Future<void> _showDeleteImageActionSheet(int index) async {
+      if (isSubmitting || submittingRef.value || isFiltering) return;
       customActionSheet(
         context,
         onDelete: () => viewModel.removeImageAt(index),
@@ -106,178 +138,215 @@ class MarketWritePageScreen extends HookConsumerWidget {
         });
       }
       return null;
-    }, [state.profanityMessage]);
+    }, [state.profanityMessageTriggerKey]);
 
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(title: isEditing ? '장터 수정' : '장터 등록'),
-        bottomNavigationBar: PrimaryBottomButton(
-          label: isEditing ? '수정하기' : '등록하기',
-          isEnabled: state.isValid && !state.isSubmitting,
-          onPressed: () async {
-            try {
-              final success = await viewModel.submitMarket(context);
-              if (!success) return;
-              await viewModel.clearTemporaryImages();
-              if (success && context.mounted) {
-                if (isEditing && marketId != null) {
-                  ref.invalidate(
-                    marketDetailViewModelProvider(
-                        MarketDetailArgs(id: marketId!)),
-                  );
-                }
-                context.pop(true);
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(title: isEditing ? '장터 수정' : '장터 등록'),
+      bottomNavigationBar: isKeyboardVisible
+          ? null
+          : PrimaryBottomButton(
+        label: isEditing ? '수정하기' : '등록하기',
+        isEnabled: isValid && !isSubmitting && !submittingRef.value && !isFiltering,
+        onPressed: () async {
+          if (isSubmitting || submittingRef.value || isFiltering) return;
+          submittingRef.value = true;
+          try {
+            final success = await viewModel.submitMarket(context);
+            if (!success) return;
+            await viewModel.clearTemporaryImages();
+            if (success && context.mounted) {
+              if (isEditing && marketId != null) {
+                ref.invalidate(
+                  marketDetailViewModelProvider(
+                      MarketDetailArgs(id: marketId!)),
+                );
               }
-            } catch (e) {
-              await showDialog(
-                context: context,
-                builder: (_) => CustomConfirmDialog(
-                  title: '오류',
-                  content:
-                      '${isEditing ? '수정' : '등록'} 중 문제가 발생했습니다.\n${e.toString()}',
-                  confirmText: '확인',
-                  onConfirm: () {},
-                  isSingleAction: true,
-                ),
-              );
+              context.pop(true);
             }
-          },
-        ),
-        body: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RequiredLabel('글 유형'),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  children: List.generate(2, (index) {
-                    final isSelected = state.type?.index == index;
-                    return GestureDetector(
-                      onTap: () {
-                        viewModel.updateType(
-                          index == 0 ? MarketType.SELL : MarketType.BUY,
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(
-                            color: isSelected
-                                ? ColorStyles.primary100
-                                : ColorStyles.gray2,
-                          ),
-                        ),
-                        child: Text(
-                          index == 0
-                              ? MarketType.SELL.label
-                              : MarketType.BUY.label,
-                          style: TextStyles.normalTextRegular.copyWith(
-                            color: isSelected
-                                ? ColorStyles.primary100
-                                : ColorStyles.gray4,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 40),
-
-                // 제목
-                RequiredLabel('제목'),
-                const SizedBox(height: 16),
-                BoardTextFormField(
-                  controller: titleController,
-                  hintText: '글 제목을 입력해 주세요',
-                  maxLength: 20,
-                ),
-                const SizedBox(height: 40),
-
-                // 내용
-                RequiredLabel('내용'),
-                const SizedBox(height: 16),
-                BoardTextFormField(
-                  controller: contentController,
-                  hintText: '세부 내용을 입력해 주세요',
-                  maxLength: 500,
-                  maxLines: 6,
-                ),
-                const SizedBox(height: 40),
-
-                // 가격
-                RequiredLabel('가격'),
-                const SizedBox(height: 16),
-                BoardTextFormField(
-                  controller: priceController,
-                  hintText: '희망 가격을 입력해 주세요',
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [PriceInputFormatter()],
-                ),
-                const SizedBox(height: 40),
-
-                // 사진
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    RequiredLabel('사진'),
-                    const SizedBox(width: 8),
-                    Text(
-                      '최대 3개까지 첨부 가능해요',
-                      style: TextStyles.smallTextRegular
-                          .copyWith(color: ColorStyles.gray4),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  children: [
-                    ...List.generate(state.images.length, (index) {
+          } catch (e) {
+            await showDialog(
+              context: context,
+              builder: (_) => CustomConfirmDialog(
+                title: '장터 오류',
+                content:
+                '${e.toString()}',
+                confirmText: '확인',
+                onConfirm: () {},
+                isSingleAction: true,
+              ),
+            );
+          } finally {
+            submittingRef.value = false;
+          }
+        },
+      ),
+    body: SafeArea(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: AbsorbPointer(
+            absorbing: isSubmitting || submittingRef.value || isFiltering,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 40),
+                  RequiredLabel('글 유형'),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 16,
+                    children: List.generate(2, (index) {
+                      final isSelected = state.type?.index == index;
                       return GestureDetector(
-                        onTap: () => _showDeleteImageActionSheet(index),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            File(state.images[index].path),
-                            width: 56,
-                            height: 56,
-                            fit: BoxFit.cover,
+                        onTap: () {
+                          if (isSubmitting || submittingRef.value || isFiltering) {
+                            return;
+                          }
+                          viewModel.updateType(
+                            index == 0 ? MarketType.SELL : MarketType.BUY,
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: isSelected
+                                  ? ColorStyles.primary100
+                                  : ColorStyles.gray2,
+                            ),
+                          ),
+                          child: Text(
+                            index == 0
+                                ? MarketType.SELL.label
+                                : MarketType.BUY.label,
+                            style: TextStyles.normalTextRegular.copyWith(
+                              color: isSelected
+                                  ? ColorStyles.primary100
+                                  : ColorStyles.gray4,
+                            ),
                           ),
                         ),
                       );
                     }),
-                    if (state.images.length < 3)
-                      GestureDetector(
-                        onTap: _pickImage,
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: ColorStyles.gray2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: 24.0,
-                              color: ColorStyles.gray4,
-                            ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // 제목
+                  RequiredLabel('제목'),
+                  const SizedBox(height: 16),
+                  BoardTextFormField(
+                    controller: titleController,
+                    hintText: '글 제목을 입력해 주세요',
+                    maxLength: 20,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // 내용
+                  RequiredLabel('내용'),
+                  const SizedBox(height: 16),
+                  BoardTextFormField(
+                    controller: contentController,
+                    hintText: '세부 내용을 입력해 주세요',
+                    maxLength: 500,
+                    maxLines: 6,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.info_outline_rounded,
+                        color: ColorStyles.gray4,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '부적절하거나 불쾌감을 주는 게시글은 제재받을 수 있어요.',
+                          style: TextStyles.smallTextRegular.copyWith(
+                            color: ColorStyles.gray4,
                           ),
                         ),
                       ),
-                  ],
-                ),
-                const SizedBox(height: 40),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+
+                  // 가격
+                  RequiredLabel('가격'),
+                  const SizedBox(height: 16),
+                  BoardTextFormField(
+                    controller: priceController,
+                    hintText: '희망 가격을 입력해 주세요',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [PriceInputFormatter()],
+                    errorText: state.priceErrorText,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // 사진
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      RequiredLabel('사진'),
+                      const SizedBox(width: 8),
+                      Text(
+                        '최대 3개까지 첨부 가능해요',
+                        style: TextStyles.smallTextRegular
+                            .copyWith(color: ColorStyles.gray4),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 16,
+                    children: [
+                      ...List.generate(state.images.length, (index) {
+                        return GestureDetector(
+                          onTap: () => _showDeleteImageActionSheet(index),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              File(state.images[index].path),
+                              width: 56,
+                              height: 56,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      }),
+                      if (state.images.length < 3)
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: ColorStyles.gray2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.camera_alt,
+                                size: 24.0,
+                                color: ColorStyles.gray4,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
             ),
           ),
         ),

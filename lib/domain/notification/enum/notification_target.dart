@@ -1,0 +1,1 @@
+enum NotificationTarget { user, guest }

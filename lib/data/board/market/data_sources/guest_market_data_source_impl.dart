@@ -90,7 +90,7 @@ class GuestMarketDataSourceImpl implements MarketDataSource {
   }
 
   @override
-  Future<void> contactMarket({
+  Future<String> contactMarket({
     required int marketId,
   }) {
     throw LoginRequiredException();

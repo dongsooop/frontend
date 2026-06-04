@@ -20,9 +20,29 @@ class SignUpException implements Exception {
   String toString() => message;
 }
 
+class PWResetException implements Exception {
+  final String message;
+
+  PWResetException([
+    this.message = "입력 정보를 다시 확인해 주세요",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
+
 class LoginException implements Exception {
   final String message;
   const LoginException([this.message = "알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+
+class LogoutException implements Exception {
+  final String message;
+  const LogoutException([this.message = "알 수 없는 오류가 발생했습니다."]);
 
   @override
   String toString() => message;
@@ -46,6 +66,15 @@ class UserSanctionedException extends LoginException {
   String toString() => message;
 }
 
+class UserNotFoundException extends LoginException {
+  const UserNotFoundException(
+      [String message = "등록된 회원 정보를 찾을 수 없습니다."])
+      : super(message);
+
+  @override
+  String toString() => message;
+}
+
 class ReIssueException implements Exception {
   final String message;
   ReIssueException([this.message = "refresh Token이 만료됐습니다. 다시 로그인 해 주세요"]);
@@ -62,10 +91,18 @@ class ChatLeaveException implements Exception {
   String toString() => message;
 }
 
+class ChatForbiddenException implements Exception {
+  final String message;
+  ChatForbiddenException([this.message = "강퇴된 채팅방입니다"]);
+
+  @override
+  String toString() => message;
+}
+
 class RecruitListException implements Exception {
   final String message;
   RecruitListException([
-    this.message = "모집 게시글 목록을 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "모집 게시글 리스트를 불러오는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -75,7 +112,7 @@ class RecruitListException implements Exception {
 class RecruitDetailException implements Exception {
   final String message;
   RecruitDetailException([
-    this.message = "모집 게시글 상세 정보를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "모집 게시글의 상세 정보를\n 불러오는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -85,7 +122,7 @@ class RecruitDetailException implements Exception {
 class RecruitDeleteException implements Exception {
   final String message;
   RecruitDeleteException([
-    this.message = "해당 모집 게시글 삭제 과정에서 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "해당 모집 게시글 삭제 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -96,7 +133,7 @@ class RecruitWriteException implements Exception {
   final String message;
 
   RecruitWriteException([
-    this.message = "모집 게시글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "모집 게시글을 작성하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -107,7 +144,7 @@ class CalendarException implements Exception {
   final String message;
 
   CalendarException([
-    this.message = "일정 데이터를 불러오는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.",
+    this.message = "일정 데이터를 불러오는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -118,7 +155,7 @@ class CalendarActionException implements Exception {
   final String message;
 
   CalendarActionException([
-    this.message = "일정을 처리하는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.",
+    this.message = "일정을 처리하는 과정에서 문제가 발생했어요.\n잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -127,7 +164,8 @@ class CalendarActionException implements Exception {
 
 class CafeteriaException implements Exception {
   final String message;
-  CafeteriaException([this.message = "학식 조회에 실패했습니다. 잠시 후 다시 시도해주세요"]);
+  CafeteriaException(
+      [this.message = "학식을 조회하는 과정에서 문제가 발생했어요.\n잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -135,7 +173,8 @@ class CafeteriaException implements Exception {
 
 class NoticeException implements Exception {
   final String message;
-  NoticeException([this.message = "공지 조회에 실패했습니다. 잠시 후 다시 시도해주세요"]);
+  NoticeException(
+      [this.message = "공지를 조회하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -160,7 +199,7 @@ class DuplicateNoticeKeywordException implements Exception {
 class RecruitApplyException implements Exception {
   final String message;
   RecruitApplyException(
-      [this.message = "해당 모집에 지원하는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+      [this.message = "해당 모집에 지원하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -169,7 +208,7 @@ class RecruitApplyException implements Exception {
 class RecruitApplicantListException implements Exception {
   final String message;
   RecruitApplicantListException(
-      [this.message = "모집 지원 리스트 조회 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+      [this.message = "해당 모집 지원 리스트\n 조회 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -178,7 +217,16 @@ class RecruitApplicantListException implements Exception {
 class RecruitApplicantDetailException implements Exception {
   final String message;
   RecruitApplicantDetailException(
-      [this.message = "지원 내용 확인하는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+      [this.message = "해당 지원자의 지원 내용을 확인하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class RecruitApplicantStatusException implements Exception {
+  final String message;
+  RecruitApplicantStatusException(
+      [this.message = "지원 상태를 조회하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -187,7 +235,7 @@ class RecruitApplicantDetailException implements Exception {
 class RecruitApplicantException implements Exception {
   final String message;
   RecruitApplicantException(
-      [this.message = "결과를 처리하는 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+      [this.message = "결과를 처리하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -214,7 +262,7 @@ class ApplyMotivationException implements Exception {
 class MarketListException implements Exception {
   final String message;
   MarketListException([
-    this.message = "장터 게시글 목록을 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "장터 게시글 리스트를 불러오는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -224,7 +272,7 @@ class MarketListException implements Exception {
 class MarketDetailException implements Exception {
   final String message;
   MarketDetailException([
-    this.message = "장터 게시글 상세 정보를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "장터 게시글의 상세 정보를\n 불러오는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -235,7 +283,7 @@ class MarketWriteException implements Exception {
   final String message;
 
   MarketWriteException([
-    this.message = "장터 게시글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.",
+    this.message = "장터 게시글을 작성하는 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요.",
   ]);
 
   @override
@@ -246,7 +294,7 @@ class MarketUpdateException implements Exception {
   final String message;
 
   MarketUpdateException([
-    this.message = "장터 게시글 수정 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "장터 게시글 수정 중 문제가 발생했어요.\n 잠시 후 다시 시도해주세요",
   ]);
 
   @override
@@ -257,7 +305,7 @@ class MarketDeleteException implements Exception {
   final String message;
 
   MarketDeleteException([
-    this.message = "장터 게시글 삭제 과정에서 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "장터 게시글 삭제 과정에서\n 문제가 발생했어요.\n 잠시 후 다시 시도해주세요",
   ]);
 
   @override
@@ -268,7 +316,7 @@ class MarketCloseException implements Exception {
   final String message;
 
   MarketCloseException([
-    this.message = "거래 완료 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "거래 완료 중 문제가 발생했어요.\n 잠시 후 다시 시도해주세요",
   ]);
 
   @override
@@ -279,7 +327,7 @@ class MarketContactException implements Exception {
   final String message;
 
   MarketContactException([
-    this.message = "거래 연결 중 문제가 발생했어요. 잠시 후 다시 시도해주세요",
+    this.message = "거래 연결 중 문제가 발생했어요.\n 잠시 후 다시 시도해주세요",
   ]);
 
   @override
@@ -382,4 +430,216 @@ class NoAdminAuthorityException extends SanctionException {
 
   @override
   String toString() => message;
+}
+
+class NotificationListException implements Exception {
+  final String message;
+  NotificationListException(
+      [this.message = "알림 목록을 불러오는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class NotificationReadException implements Exception {
+  final String message;
+  NotificationReadException(
+      [this.message = "해당 알림을 확인하는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class NotificationDeleteException implements Exception {
+  final String message;
+  NotificationDeleteException(
+      [this.message = "알림을 삭제하는 과정에서 문제가 발생했어요.\n 잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class NotFoundBoardException implements Exception {
+  final String message;
+  const NotFoundBoardException([this.message = "존재하지 않거나 삭제된 게시글이에요."]);
+
+  @override
+  String toString() => message;
+}
+
+class TimetableException implements Exception {
+  final String message;
+  const TimetableException([this.message = "알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+
+class TimetableAnalysisFailedException extends TimetableException {
+  const TimetableAnalysisFailedException([
+    String message = "시간표 분석에 실패했어요. 이미지를 다시 첨부해 주세요"
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class JobAlreadyQueuedException extends TimetableException {
+  const JobAlreadyQueuedException([
+    String message = "등록된 작업이 있습니다. 작업이 완료될 때까지 기다려 주세요"
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class TimetableQueueFullException extends TimetableException {
+  const TimetableQueueFullException([
+    String message = "현재 요청이 많아 분석 대기열이 가득 찼어요. 잠시 후 다시 시도해 주세요."
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+
+class ChatbotException implements Exception {
+  final String message;
+  const ChatbotException([this.message = "응답에 실패했습니다. 잠시 후에 다시 시도해 주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class HomeException implements Exception {
+  final String message;
+  HomeException(
+      [this.message = "화면을 불러오는 중 오류가 발생했어요\n잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class SendEmailFailed implements Exception {
+  final String message;
+  SendEmailFailed([this.message = "입력하신 이메일을 찾을 수 없어요.\n이메일을 다시 확인해 주세요"]);
+
+  @override
+  String toString() => message;
+}
+class BlindDateOpenException implements Exception {
+  final String message;
+  BlindDateOpenException([this.message = "과팅 오픈 기간이 아니에요.\n다음에 다시 만나요!"]);
+
+  @override
+  String toString() => message;
+}
+
+class ChatLeaveManagerException implements Exception {
+  final String message;
+  ChatLeaveManagerException([this.message = "모집자 혼자 있는 채팅방은\n나갈 수 없어요."]);
+
+  @override
+  String toString() => message;
+}
+
+class SearchException implements Exception {
+  final String message;
+  SearchException(
+      [this.message = "검색 도중 오류가 발생했어요\n잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class KaKaoSearchException implements Exception {
+  final String message;
+  KaKaoSearchException([this.message = "가게 검색 중 오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요"]);
+
+  @override
+  String toString() => message;
+}
+
+class FeedbackSubmitException implements Exception {
+  final String message;
+  FeedbackSubmitException(
+      [this.message = "피드백 전송 중 오류가 발생했어요. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
+class RestaurantsDuplicationException implements Exception {
+  final String message;
+  RestaurantsDuplicationException([this.message = "이미 등록된 가게예요"]);
+
+  @override
+  String toString() => message;
+}
+
+class FeedbackException implements Exception {
+  final String message;
+  FeedbackException(
+      [this.message = "피드백 확인 중 서버 오류가 발생했어요."]);
+
+  @override
+  String toString() => message;
+}
+
+class NotificationSettingException implements Exception {
+  final String message;
+
+  NotificationSettingException(
+      [this.message = "알림 설정을 변경할 수 없어요. 잠시 후 다시 시도해 주세요."]);
+
+  @override
+  String toString() => message;
+}
+
+class OAuthException implements Exception {
+  final String message;
+  const OAuthException([this.message = "소셜 로그인 처리 중\n알 수 없는 오류가 발생했습니다."]);
+
+  @override
+  String toString() => message;
+}
+
+class SocialUnlinkUserException extends OAuthException {
+  const SocialUnlinkUserException([
+    String message = "회원 정보를 확인하는 데 실패했어요\n잠시 후에 다시 시도해 주세요"
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class SocialException extends OAuthException {
+  const SocialException([
+    String message = "소셜 로그인 중 오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요"
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class KakaoRateLimitException extends OAuthException {
+  const KakaoRateLimitException([
+    String message = "카카오 로그인 요청이 너무 자주 발생했습니다.\n잠시 후 다시 시도해 주세요."
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
+class SocialLoginException implements OAuthException {
+  final String message;
+  const SocialLoginException([this.message = "회원가입 또는 소셜 로그인 연결 정보가 없습니다.\n로그인 후 마이페이지에서 소셜 로그인 연결을 먼저 해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
+// 시스템 제어용
+class SessionExpiredException implements Exception {
+  const SessionExpiredException();
 }

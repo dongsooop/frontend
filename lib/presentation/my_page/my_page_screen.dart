@@ -1,3 +1,6 @@
+import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/core/routing/router.dart';
+import 'package:dongsoop/domain/auth/enum/login_entry.dart';
 import 'package:dongsoop/presentation/my_page/widgets/logged_in_user_card.dart';
 import 'package:dongsoop/presentation/my_page/widgets/logged_out_prompt_card.dart';
 import 'package:flutter/material.dart';
@@ -13,18 +16,30 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSignIn;
   final VoidCallback onTapSetting;
   final VoidCallback onTapCalendar;
+  final VoidCallback onTapTimetable;
   final VoidCallback onTapAdminReport;
+  final VoidCallback onTapAdminBlindDate;
+  final VoidCallback onTapAdminFeedback;
+  final VoidCallback onTapUserFeedback;
   final VoidCallback onTapMarket;
   final void Function(bool isApply) onTapRecruit;
+  final VoidCallback onTapBlockedUser;
+  final VoidCallback onTapSocialLoginConnect;
 
   const MyPageScreen({
     super.key,
     required this.onTapSignIn,
     required this.onTapSetting,
     required this.onTapCalendar,
+    required this.onTapTimetable,
     required this.onTapAdminReport,
+    required this.onTapAdminBlindDate,
+    required this.onTapAdminFeedback,
+    required this.onTapUserFeedback,
     required this.onTapMarket,
     required this.onTapRecruit,
+    required this.onTapBlockedUser,
+    required this.onTapSocialLoginConnect,
   });
 
   @override
@@ -42,36 +57,36 @@ class MyPageScreen extends HookConsumerWidget {
       return null;
     }, [user]);
 
-    return SafeArea(
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: ColorStyles.gray1,
+      appBar: DetailHeader(
+        title: '마이페이지',
         backgroundColor: ColorStyles.gray1,
-        appBar: DetailHeader(
-          title: '마이페이지',
-          backgroundColor: ColorStyles.gray1,
-          showBackButton: false,
-          trailing: user != null
-            ? IconButton(
-              onPressed: onTapSetting,
-              icon: SvgPicture.asset(
-                'assets/icons/setting.svg',
-                width: 24,
-                height: 24,
-                colorFilter: const ColorFilter.mode(
-                  ColorStyles.black,
-                  BlendMode.srcIn,
-                ),
+        showBackButton: false,
+        trailing: IconButton(
+            onPressed: onTapSetting,
+            icon: SvgPicture.asset(
+              'assets/icons/setting.svg',
+              width: 24,
+              height: 24,
+              colorFilter: const ColorFilter.mode(
+                ColorStyles.black,
+                BlendMode.srcIn,
               ),
-            )
-            : null,
-        ),
-        body: Column(
-          children: [
-            Container(
+            ),
+          )
+      ),
+      body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               child: myPageState.when(
                 data: (user) {
                   if (user == null) {
-                    return LoggedOutPromptCard(onTapLogin: onTapSignIn);
+                    return LoggedOutPromptCard(
+                      onTapLogin: onTapSignIn,
+                      onTapUserFeedback: onTapUserFeedback,
+                    );
                   } else {
                     return LoggedInUserCard(
                       user: user,
@@ -79,6 +94,12 @@ class MyPageScreen extends HookConsumerWidget {
                       onTapMarket: onTapMarket,
                       onTapRecruit: onTapRecruit,
                       onTapCalendar: onTapCalendar,
+                      onTapTimetable: onTapTimetable,
+                      onTapBlockedUser: onTapBlockedUser,
+                      onTapAdminBlindDate: onTapAdminBlindDate,
+                      onTapAdminFeedback: onTapAdminFeedback,
+                      onTapUserFeedback: onTapUserFeedback,
+                      onTapSocialLoginConnect: onTapSocialLoginConnect,
                     );
                   }
                 },
@@ -86,7 +107,6 @@ class MyPageScreen extends HookConsumerWidget {
                 loading: () => Center(child: CircularProgressIndicator()),
               ),
             ),
-          ],
         ),
       ),
     );

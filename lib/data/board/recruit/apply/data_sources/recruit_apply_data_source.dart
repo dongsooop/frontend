@@ -25,6 +25,11 @@ abstract class RecruitApplyDataSource {
     required int memberId,
   });
 
+  Future<RecruitApplicantDetailModel> recruitApplicantDetailStatus({
+    required RecruitType type,
+    required int boardId,
+  });
+
   Future<void> recruitDecision({
     required RecruitType type,
     required int boardId,

@@ -5,6 +5,7 @@ class RecruitFormState {
   final List<String> tags;
   final List<String> majors;
   final bool isLoading;
+  final bool isFiltering;
   final String? errMessage;
   final String? profanityMessage;
   final int profanityMessageTriggerKey;
@@ -16,6 +17,7 @@ class RecruitFormState {
     this.tags = const [],
     this.majors = const [],
     this.isLoading = false,
+    this.isFiltering = false,
     this.errMessage,
     this.profanityMessage,
     this.profanityMessageTriggerKey = 0,
@@ -28,6 +30,7 @@ class RecruitFormState {
     List<String>? tags,
     List<String>? majors,
     bool? isLoading,
+    bool? isFiltering,
     String? errMessage,
     String? profanityMessage,
     int? profanityMessageTriggerKey,
@@ -39,10 +42,11 @@ class RecruitFormState {
       tags: tags ?? this.tags,
       majors: majors ?? this.majors,
       isLoading: isLoading ?? this.isLoading,
+      isFiltering: isFiltering ?? this.isFiltering,
       errMessage: errMessage ?? this.errMessage,
       profanityMessage: profanityMessage ?? this.profanityMessage,
       profanityMessageTriggerKey:
-          profanityMessageTriggerKey ?? this.profanityMessageTriggerKey,
+      profanityMessageTriggerKey ?? this.profanityMessageTriggerKey,
     );
   }
 }

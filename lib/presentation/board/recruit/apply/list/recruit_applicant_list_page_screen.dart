@@ -5,6 +5,7 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dongsoop/providers/activity_context_providers.dart';
 
 class RecruitApplicantListPage extends ConsumerWidget {
   final int boardId;
@@ -20,29 +21,40 @@ class RecruitApplicantListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(activeRecruitListContextProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+
+      final next = (boardId: boardId, type: type);
+      final notifier = ref.read(activeRecruitListContextProvider.notifier);
+      if (notifier.state != next) {
+        notifier.state = next;
+      }
+    });
+
     final applicantListAsync = ref.watch(
       recruitApplicantListViewModelProvider(boardId: boardId, type: type),
     );
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(44),
-          child: DetailHeader(title: "지원자 확인"),
-        ),
-        body: applicantListAsync.when(
+    return Scaffold(
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(44),
+        child: DetailHeader(title: "지원자 확인"),
+      ),
+      body: SafeArea(
+        child: applicantListAsync.when(
           data: (list) {
             if (list.isEmpty) {
               return const Center(child: Text('지원자가 없습니다.'));
             }
-
+            
             return ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 final applicant = list[index];
                 final statusInfo = _statusBadge(applicant.status);
-
+            
                 return GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () async {
@@ -123,8 +135,21 @@ class RecruitApplicantListPage extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('에러: $e')),
+          loading: () => const Center(
+              child:
+                  CircularProgressIndicator(color: ColorStyles.primaryColor)),
+          error: (e, _) => SizedBox.expand(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: Text(
+                  '$e',
+                  style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

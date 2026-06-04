@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/domain/mypage/use_case/get_my_market_posts_use_case.dart';
 import 'activity_market_state.dart';
@@ -6,8 +7,8 @@ class ActivityMarketViewModel extends StateNotifier<ActivityMarketState> {
   final GetMyMarketPostsUseCase _getMyMarketPostsUseCase;
 
   ActivityMarketViewModel(
-    this._getMyMarketPostsUseCase,
-  ) : super(ActivityMarketState(isLoading: false));
+      this._getMyMarketPostsUseCase,
+      ) : super(ActivityMarketState(isLoading: false));
 
   Future<void> loadPosts() async {
     state = state.copyWith(isLoading: true, errorMessage: null,);
@@ -21,6 +22,8 @@ class ActivityMarketViewModel extends StateNotifier<ActivityMarketState> {
         page: 0,
         hasNext: !isLast,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e, st) {
       state = state.copyWith(
         isLoading: false,
@@ -46,6 +49,8 @@ class ActivityMarketViewModel extends StateNotifier<ActivityMarketState> {
         page: nextPage,
         hasNext: !isLast,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: '장터 목록을 불러오는 중 오류가 발생했습니다.');
     }

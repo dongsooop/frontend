@@ -10,9 +10,14 @@ class MarketFormState {
   final bool isSubmitting;
   final String? errorMessage;
   final String? profanityMessage;
+  final int profanityMessageTriggerKey;
   final bool isEditing;
   final int? marketId;
   final List<String> initialImageUrls;
+  final String? priceErrorText;
+  final bool isFiltering;
+
+  static const int maxPrice = 9999999;
 
   const MarketFormState({
     this.title = '',
@@ -23,23 +28,30 @@ class MarketFormState {
     this.isSubmitting = false,
     this.errorMessage,
     this.profanityMessage,
+    this.profanityMessageTriggerKey = 0,
     this.isEditing = false,
     this.marketId,
     this.initialImageUrls = const [],
+    this.priceErrorText,
+    this.isFiltering = false,
   });
 
-  MarketFormState copyWith(
-      {String? title,
-      String? content,
-      int? price,
-      List<XFile>? images,
-      MarketType? type,
-      bool? isSubmitting,
-      String? errorMessage,
-      String? profanityMessage,
-      bool? isEditing,
-      int? marketId,
-      List<String>? initialImageUrls}) {
+  MarketFormState copyWith({
+    String? title,
+    String? content,
+    int? price,
+    List<XFile>? images,
+    MarketType? type,
+    bool? isSubmitting,
+    String? errorMessage,
+    String? profanityMessage,
+    int? profanityMessageTriggerKey,
+    bool? isEditing,
+    int? marketId,
+    List<String>? initialImageUrls,
+    String? priceErrorText,
+    bool? isFiltering,
+  }) {
     return MarketFormState(
       title: title ?? this.title,
       content: content ?? this.content,
@@ -49,9 +61,13 @@ class MarketFormState {
       isSubmitting: isSubmitting ?? this.isSubmitting,
       errorMessage: errorMessage ?? this.errorMessage,
       profanityMessage: profanityMessage ?? this.profanityMessage,
+      profanityMessageTriggerKey:
+          profanityMessageTriggerKey ?? this.profanityMessageTriggerKey,
       isEditing: isEditing ?? this.isEditing,
       marketId: marketId ?? this.marketId,
       initialImageUrls: initialImageUrls ?? this.initialImageUrls,
+      priceErrorText: priceErrorText,
+      isFiltering: isFiltering ?? this.isFiltering,
     );
   }
 
@@ -59,5 +75,6 @@ class MarketFormState {
       title.trim().isNotEmpty &&
       content.trim().isNotEmpty &&
       price > 0 &&
+      price <= maxPrice &&
       type != null;
 }

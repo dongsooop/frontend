@@ -7,7 +7,7 @@ part of 'recruit_apply_view_model.dart';
 // **************************************************************************
 
 String _$recruitApplyViewModelHash() =>
-    r'9a7748d4e11574c7c6a649c5f831404318387b9d';
+    r'0b2352aa4431076bffe588a3b66ded5f6c06aa82';
 
 /// See also [RecruitApplyViewModel].
 @ProviderFor(RecruitApplyViewModel)

@@ -8,69 +8,100 @@ on:
 
 jobs:
   build-ios:
+    timeout-minutes: 15
     name: Build Flutter iOS App
     runs-on: macos-latest
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.27.1'
-        channel: 'stable'
-        architecture: x64
-    
-    - name: Get Flutter version
-      run: flutter --version
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Decode and create .env file
-      run: |
-        echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
+      # Flutter SDK (subosito) 이전에 pub 캐시 복원
+      - name: Cache Flutter pub packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: pubcache-${{ runner.os }}-stable-3.27.1-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pubcache-${{ runner.os }}-stable-3.27.1-
 
-    - name: Install dependencies
-      run: |
-        flutter clean
-        flutter pub get
-        flutter pub deps
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.4'
+          channel: 'stable'
+          architecture: x64
+          cache: true
 
-    # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
-    - name: Analyze code
-      run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
-      continue-on-error: true
+      - name: Decode and create .env file
+        run: |
+          echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
 
-    - name: Clean build
-      run: flutter clean
-    
-    # 무료 버전 - Apple Developer 계정 없이 빌드만
-    - name: Build iOS (no codesign)
-      run: |
-        flutter build ios --release --no-codesign
-        echo "iOS build completed successfully!"
-    
-    # 빌드 결과 확인
-    - name: List build artifacts
-      run: |
-        echo "Build artifacts:"
-        ls -la build/ios/iphoneos/
-        du -sh build/ios/iphoneos/Runner.app
-    
-    # iOS 빌드 결과물을 GitHub Artifacts에 업로드
-    - name: Upload iOS App as Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: dongsoop-ios-app-${{ github.run_number }}
-        path: build/ios/iphoneos/Runner.app
-        retention-days: 30
-    
-    # 빌드 성공 알림
-    - name: Build Success Summary
-      run: |
-        echo "🎉 Flutter iOS build completed successfully!"
-        echo "📱 iOS app built without code signing"
-        echo "📦 Artifacts uploaded to GitHub Actions"
-        echo "⬇️ Download from: Actions tab > Artifacts"
-        echo "🔗 Build #${{ github.run_number }}"
-        echo "📁 Artifact name: dongsoop-ios-app-${{ github.run_number }}"
-        echo "🍎 App name: Dongsoop (dongyang mirae university service)"
+      - name: Decode Secrets.xcconfig
+        run: |
+          mkdir -p ios/Flutter
+          echo "${{ secrets.SECRETS_XCCONFIG_B64 }}" | base64 --decode > ios/Flutter/Secrets.xcconfig
+
+      - name: Decode GoogleService-Info.plist
+        run: |
+          mkdir -p ios/Runner
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 --decode > ./ios/Runner/GoogleService-Info.plist
+
+      # firebase_options.dart 복원
+      - name: Decode firebase_options.dart
+        run: |
+          mkdir -p lib
+          echo "${{ secrets.FIREBASE_OPTIONS_B64 }}" | base64 --decode > lib/firebase_options.dart
+
+      - name: Verify firebase_options.dart exists
+        run: |
+          test -f lib/firebase_options.dart && head -n 5 lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)
+
+      # iOS Pods 캐시 복원
+      - name: Cache iOS Pods
+        uses: actions/cache@v3
+        with:
+          path: ios/Pods
+          key: iospods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: iospods-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          flutter pub get
+          cd ios && pod install --repo-update
+
+      # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
+      - name: Analyze code
+        run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
+        continue-on-error: false
+
+      # 무료 버전 - Apple Developer 계정 없이 빌드만
+      - name: Build iOS (no codesign)
+        run: |
+          flutter build ios --release --no-codesign
+          echo "iOS build completed successfully!"
+
+      # 빌드 결과 확인
+      - name: List build artifacts
+        run: |
+          echo "Build artifacts:"
+          ls -la build/ios/iphoneos/
+          du -sh build/ios/iphoneos/Runner.app
+
+      # iOS 빌드 결과물을 GitHub Artifacts에 업로드
+      - name: Upload iOS App as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dongsoop-ios-app-${{ github.run_number }}
+          path: build/ios/iphoneos/Runner.app
+          retention-days: 7
+
+      # 빌드 성공 알림
+      - name: Build Success Summary
+        run: |
+          echo "🎉 Flutter iOS build completed successfully!"
+          echo "📱 iOS app built without code signing"
+          echo "📦 Artifacts uploaded to GitHub Actions"
+          echo "⬇️ Download from: Actions tab > Artifacts"
+          echo "🔗 Build #${{ github.run_number }}"
+          echo "📁 Artifact name: dongsoop-ios-app-${{ github.run_number }}"
+          echo "🍎 App name: Dongsoop (dongyang mirae university service)"

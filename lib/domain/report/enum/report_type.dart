@@ -34,11 +34,11 @@ enum ReportType {
 extension RecruitTypeToReportType on RecruitType {
   ReportType get reportType {
     switch (this) {
-      case RecruitType.tutoring:
+      case RecruitType.TUTORING:
         return ReportType.TUTORING_BOARD;
-      case RecruitType.study:
+      case RecruitType.STUDY:
         return ReportType.STUDY_BOARD;
-      case RecruitType.project:
+      case RecruitType.PROJECT:
         return ReportType.PROJECT_BOARD;
     }
   }

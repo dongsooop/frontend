@@ -8,6 +8,7 @@ class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
   final Widget? trailing;
   final Color? backgroundColor;
   final bool showBackButton;
+  final VoidCallback? onBack;
 
   const DetailHeader({
     super.key,
@@ -15,6 +16,7 @@ class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
     this.trailing,
     this.backgroundColor,
     this.showBackButton = true,
+    this.onBack,
   });
 
   @override
@@ -31,7 +33,7 @@ class DetailHeader extends StatelessWidget implements PreferredSizeWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             visualDensity: VisualDensity.compact,
-            onPressed: () => context.pop(),
+            onPressed: onBack ?? () => context.pop(),
             highlightColor: Colors.transparent,
             icon: const Icon(
               Icons.navigate_before,

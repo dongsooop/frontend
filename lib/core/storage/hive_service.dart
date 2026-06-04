@@ -1,12 +1,74 @@
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
+import 'package:dongsoop/domain/timetable/enum/semester.dart';
+import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
 
 class HiveService {
   final chatMemberBoxManager = BoxManager<ChatRoomMember>('chat_members');
+  final chatRoomBoxManager = BoxManager<ChatRoomDetail>('chat_room');
   final chatMessageBoxManager = BoxManager<ChatMessage>('chat_messages');
 
+  // timetable
+  static const String _timetableBoxName = 'local_timetables';
+
+  // timetable
+  Future<void> saveTimetableInfo(int year, Semester semester) async {
+    final box = await Hive.openBox<LocalTimetableInfo>(_timetableBoxName);
+    final info = LocalTimetableInfo(year: year, semester: semester);
+
+    if (!box.values.contains(info)) {
+      await box.add(info);
+    }
+  }
+
+  Future<bool> hasLocalTimetable(int year, Semester semester) async {
+    final box = await Hive.openBox<LocalTimetableInfo>(_timetableBoxName);
+    final info = LocalTimetableInfo(year: year, semester: semester);
+    return box.values.contains(info);
+  }
+
+  Future<void> deleteTimetableInfo(int year, Semester semester) async {
+    final box = await Hive.openBox<LocalTimetableInfo>(_timetableBoxName);
+
+    final keyToDelete = box.keys.firstWhere(
+          (key) {
+        final value = box.get(key);
+        return value?.year == year && value?.semester == semester;
+      },
+      orElse: () => null,
+    );
+
+    if (keyToDelete != null) {
+      await box.delete(keyToDelete);
+    }
+  }
+
+  Future<List<LocalTimetableInfo>> getAllTimetableInfos() async {
+    final box = await Hive.openBox<LocalTimetableInfo>(_timetableBoxName);
+    final list = box.values.toList();
+
+    int order(Semester s) {
+      switch (s) {
+        case Semester.FIRST:  return 4;
+        case Semester.SUMMER: return 3;
+        case Semester.SECOND: return 2;
+        case Semester.WINTER: return 1;
+      }
+    }
+
+    list.sort((a, b) {
+      final byYear = b.year.compareTo(a.year);
+      if (byYear != 0) return byYear;
+      return order(a.semester).compareTo(order(b.semester));
+    });
+
+    return list;
+  }
+
+  // Chat
   Future<void> saveChatMember(String roomId, ChatRoomMember member) async {
     final memberBox = await chatMemberBoxManager.getBox(roomId);
     await memberBox.put(member.userId, member);
@@ -47,6 +109,17 @@ class HiveService {
   Future<void> saveChatMessage(String roomId, ChatMessage message) async {
     final messageBox = await chatMessageBoxManager.getBox(roomId);
     await messageBox.put(message.messageId, message);
+  }
+
+  Future<void> saveChatDetail(ChatRoomDetail room) async {
+    final chatRoomBox = await chatRoomBoxManager.getBox(room.roomId);
+    await chatRoomBox.put('detail', room);
+  }
+
+  Future<ChatRoomDetail> getChatDetail(String roomId) async {
+    final chatRoomBox = await chatRoomBoxManager.getBox(roomId);
+    final detail = chatRoomBox.get('detail') as ChatRoomDetail;
+    return detail;
   }
 
   Future<List<ChatMessage>> getPagedMessages(String roomId, int offset, int limit) async {

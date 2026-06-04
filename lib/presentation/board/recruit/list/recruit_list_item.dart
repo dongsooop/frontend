@@ -1,15 +1,20 @@
+import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
 import 'package:dongsoop/core/presentation/components/common_recruit_list_item.dart';
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/presentation/board/utils/scroll_listener.dart';
+import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class RecruitItemListSection extends ConsumerWidget {
+class RecruitItemListSection extends HookConsumerWidget {
   final RecruitType recruitType;
   final String departmentCode;
-  final void Function(int id, RecruitType type) onTapRecruitDetail;
+  final Future<void> Function(int id, RecruitType type) onTapRecruitDetail;
   final ScrollController scrollController;
 
   const RecruitItemListSection({
@@ -28,42 +33,85 @@ class RecruitItemListSection extends ConsumerWidget {
     );
 
     final state = ref.watch(viewModelProvider);
+    final viewModel = ref.read(viewModelProvider.notifier);
+
+    useEffect(() {
+      return setupScrollListener(
+        scrollController: scrollController,
+        getState: () => ref.read(viewModelProvider),
+        canFetchMore: (s) => !s.isLoading && s.hasMore,
+        fetchMore: () => viewModel.loadNextPage(),
+      );
+    }, [recruitType, departmentCode, scrollController]);
 
     if (state.error != null) {
-      return Center(child: Text('에러: ${state.error}'));
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Center(
+          child: Text(
+            '${state.error}',
+            style:
+                TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
     }
 
     if (state.isLoading && state.posts.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+          child: CircularProgressIndicator(color: ColorStyles.primaryColor));
     }
 
     if (state.posts.isEmpty) {
       return const Center(child: Text('모집 중인 게시글이 없어요!'));
     }
 
+    const int adInterval = 5;
+
     return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(viewModelProvider.notifier).refresh();
-      },
+      color: ColorStyles.primaryColor,
+      onRefresh: viewModel.refresh,
       child: ListView.builder(
+        key: PageStorageKey(recruitType.name),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: state.posts.length + (state.hasMore ? 1 : 0),
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: state.posts.length +
+            (state.posts.length ~/ adInterval) +
+            ((state.hasMore && state.isLoading) ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == state.posts.length && state.hasMore) {
+          if (index > 0 && index % (adInterval + 1) == adInterval) {
             return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: CircularProgressIndicator()),
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: AdmobNativeAd(),
             );
           }
 
-          final recruit = state.posts[index];
-          final isLast = index == state.posts.length - 1;
+          final int adCount = index ~/ (adInterval + 1);
+          final int actualIndex = index - adCount;
+
+          final showLoading =
+              actualIndex == state.posts.length && state.hasMore && state.isLoading;
+
+          if (showLoading) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                  child: CircularProgressIndicator(
+                      color: ColorStyles.primaryColor)),
+            );
+          }
+
+          if (actualIndex >= state.posts.length) return const SizedBox.shrink();
+
+          final recruit = state.posts[actualIndex];
+          final isLast = actualIndex == state.posts.length - 1;
 
           return RecruitListItem(
             recruit: recruit,
             isLastItem: isLast,
-            onTap: () => onTapRecruitDetail(recruit.id, recruitType),
+            onTap: () async => onTapRecruitDetail(recruit.id, recruitType),
           );
         },
       ),
@@ -73,7 +121,7 @@ class RecruitItemListSection extends ConsumerWidget {
 
 class RecruitListItem extends StatelessWidget {
   final RecruitListEntity recruit;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
   final bool isLastItem;
 
   const RecruitListItem({
@@ -100,7 +148,7 @@ class RecruitListItem extends StatelessWidget {
       title: recruit.title,
       content: recruit.content,
       tags: tags,
-      onTap: onTap,
+      onTapAsync: onTap,
       isLastItem: isLastItem,
     );
   }

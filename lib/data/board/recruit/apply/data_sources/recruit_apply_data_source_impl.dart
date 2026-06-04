@@ -14,9 +14,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
   final Dio _authDio;
-  final Dio _aiDio;
 
-  RecruitApplyDataSourceImpl(this._authDio, this._aiDio);
+  RecruitApplyDataSourceImpl(this._authDio);
 
   @override
   Future<void> filterApply({
@@ -26,7 +25,7 @@ class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
     final url = dotenv.get("RECRUIT_APPLY_FILTER_ENDPOINT");
 
     try {
-      final response = await _aiDio.post(url, data: model.toJson());
+      final response = await _authDio.post(url, data: model.toJson());
 
       if (response.statusCode == HttpStatusCode.ok.code) {
         return;
@@ -67,14 +66,21 @@ class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
     final baseUrl = RecruitTypeConfig.getApplyEndpoint(type);
     final url = '$baseUrl/$boardId';
 
-    final response = await _authDio.get(url);
+    try {
+      final response = await _authDio.get(url);
 
-    if (response.statusCode == HttpStatusCode.ok.code) {
-      final data = response.data;
-      if (data is! List) throw FormatException('응답 데이터 형식이 List가 아닙니다.');
-      return data.map((e) => RecruitApplicantListModel.fromJson(e)).toList();
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        if (data is! List) throw FormatException('응답 데이터 형식이 List가 아닙니다.');
+        return data.map((e) => RecruitApplicantListModel.fromJson(e)).toList();
+      }
+      throw Exception('status: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw NotFoundBoardException();
+      }
+      rethrow;
     }
-    throw Exception('status: ${response.statusCode}');
   }
 
   @override
@@ -94,6 +100,33 @@ class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
       return RecruitApplicantDetailModel.fromJson(data);
     }
     throw Exception('status: ${response.statusCode}');
+  }
+
+  @override
+  Future<RecruitApplicantDetailModel> recruitApplicantDetailStatus({
+    required RecruitType type,
+    required int boardId,
+  }) async {
+    final baseUrl = RecruitTypeConfig.getApplyEndpoint(type);
+    final url = '$baseUrl/self/$boardId';
+
+    try {
+      final response = await _authDio.get(url);
+
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        if (data is! Map<String, dynamic>) {
+          throw FormatException('응답 데이터 형식이 Map<String, dynamic>이 아닙니다.');
+        }
+        return RecruitApplicantDetailModel.fromJson(data);
+      }
+      throw Exception('status: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw NotFoundBoardException();
+      }
+      rethrow;
+    }
   }
 
   @override

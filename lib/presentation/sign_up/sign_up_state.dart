@@ -2,6 +2,7 @@ class SignUpState {
   final bool isLoading;
   final String? errorMessage;
   final EmailValidationState email;
+  final EmailVerificationCodeState emailCode;
   final PasswordValidationState password;
   final NicknameValidationState nickname;
   final DeptValidationState dept;
@@ -14,6 +15,7 @@ class SignUpState {
     required this.isLoading,
     this.errorMessage,
     required this.email,
+    required this.emailCode,
     required this.password,
     required this.nickname,
     required this.dept,
@@ -27,6 +29,7 @@ class SignUpState {
     bool? isLoading,
     String? errorMessage,
     EmailValidationState? email,
+    EmailVerificationCodeState? emailCode,
     PasswordValidationState? password,
     NicknameValidationState? nickname,
     DeptValidationState? dept,
@@ -39,6 +42,7 @@ class SignUpState {
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
       email: email ?? this.email,
+      emailCode: emailCode ?? this.emailCode,
       password: password ?? this.password,
       nickname: nickname ?? this.nickname,
       dept: dept ?? this.dept,
@@ -53,7 +57,7 @@ class SignUpState {
 class EmailValidationState {
   final String? email;
   final bool? isFormatValid;
-  final bool? isDuplicate; // null: 검사 안함, true: 중복, false: 사용가능
+  final bool? isDuplicate;
   final String? message;
   final bool? isError;
   final bool isLoading;
@@ -76,12 +80,56 @@ class EmailValidationState {
     bool? isLoading,
   }) {
     return EmailValidationState(
-      email: email,
-      isFormatValid: isFormatValid,
-      isDuplicate: isDuplicate,
-      message: message,
-      isError: isError,
+      email: email ?? this.email,
+      isFormatValid: isFormatValid ?? this.isFormatValid,
+      isDuplicate: isDuplicate ?? this.isDuplicate,
+      message: message ?? this.message,
+      isError: isError ?? this.isError,
       isLoading: isLoading ?? this.isLoading,
+    );
+  }
+}
+
+class EmailVerificationCodeState {
+  final bool? isTimerRunning;
+  final int? remainingSeconds;
+  final bool? isChecked;
+  final String? message;
+  final bool? isError;
+  final bool isCodeLoading;
+  final bool isCheckLoading;
+  final int failCount;
+
+  EmailVerificationCodeState({
+    this.isTimerRunning,
+    this.remainingSeconds,
+    this.isChecked,
+    this.message,
+    this.isError,
+    required this.isCodeLoading,
+    required this.isCheckLoading,
+    this.failCount = 0,
+  });
+
+  EmailVerificationCodeState copyWith({
+    bool? isTimerRunning,
+    int? remainingSeconds,
+    bool? isChecked,
+    String? message,
+    bool? isError,
+    bool? isCodeLoading,
+    bool? isCheckLoading,
+    int? failCount,
+  }) {
+    return EmailVerificationCodeState(
+      isTimerRunning: isTimerRunning ?? this.isTimerRunning,
+      remainingSeconds: remainingSeconds ?? this.remainingSeconds,
+      isChecked: isChecked,
+      message: message ?? this.message,
+      isError: isError ?? this.isError,
+      isCodeLoading: isCodeLoading ?? this.isCodeLoading,
+      isCheckLoading: isCheckLoading ?? this.isCheckLoading,
+      failCount: failCount ?? this.failCount,
     );
   }
 }

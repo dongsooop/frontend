@@ -82,11 +82,11 @@ class MarketRepositoryImpl implements MarketRepository {
   }
 
   @override
-  Future<void> contactMarket({
+  Future<String> contactMarket({
     required int marketId,
   }) async {
     return _handle(() async {
-      await _dataSource.contactMarket(marketId: marketId);
+      return await _dataSource.contactMarket(marketId: marketId);
     }, MarketContactException());
   }
 
@@ -98,9 +98,12 @@ class MarketRepositoryImpl implements MarketRepository {
       return await action();
     } on ProfanityDetectedException {
       rethrow;
-    } on MarketAlreadyContactException {
+    } on MarketAlreadyContactException{
       rethrow;
-    } catch (e) {
+    } on NotFoundBoardException {
+      rethrow;
+    }
+    catch (_) {
       throw defaultException;
     }
   }

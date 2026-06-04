@@ -2,8 +2,6 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 
-import '../../main.dart';
-
 class ChatBubbleScreen extends StatelessWidget {
   final String nickname;
   final int senderId;
@@ -77,7 +75,7 @@ class ChatBubbleScreen extends StatelessWidget {
       ),
       constraints: BoxConstraints(maxWidth: bubbleMaxWidth),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      child: Text(
+      child: SelectableText(
         message,
         style: TextStyles.normalTextRegular.copyWith(
           color: isMe ? ColorStyles.black : ColorStyles.white,

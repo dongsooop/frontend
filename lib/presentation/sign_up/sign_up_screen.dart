@@ -1,3 +1,5 @@
+import 'package:dongsoop/core/app_scaffold_messenger.dart';
+import 'package:dongsoop/core/utils/upper_case_text_formatter.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/presentation/sign_up/widgets/agreement_bottom_sheet.dart';
 import 'package:dongsoop/presentation/sign_up/widgets/check_duplication_button.dart';
@@ -6,7 +8,9 @@ import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
@@ -14,6 +18,7 @@ import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/auth/enum/agreement_type.dart';
+import 'package:dongsoop/core/utils/time_formatter.dart';
 
 class SignUpScreen extends HookConsumerWidget {
 
@@ -27,6 +32,7 @@ class SignUpScreen extends HookConsumerWidget {
     final signUpState = ref.watch(signUpViewModelProvider);
 
     final emailController = useTextEditingController();
+    final emailCodeController = useTextEditingController();
     final passwordController = useTextEditingController();
     final passwordCheckController = useTextEditingController();
     final nicknameController = useTextEditingController();
@@ -36,6 +42,7 @@ class SignUpScreen extends HookConsumerWidget {
       AgreementType.privacyPolicy: false,
     });
 
+    const createEmail = 'https://www.dongyang.ac.kr/dmu/4888/subview.do';
     const termsOfService = 'https://zircon-football-529.notion.site/Dongsoop-2333ee6f2561800cb85fdc87fbe9b4c2';
     const privacyPolicy = 'https://zircon-football-529.notion.site/Dongsoop-2333ee6f256180a0821fdbf087345a1d';
 
@@ -74,7 +81,6 @@ class SignUpScreen extends HookConsumerWidget {
               title: '회원가입 오류',
               content: signUpState.errorMessage!,
               onConfirm: () async {
-                Navigator.of(context).pop();
               },
             ),
           );
@@ -83,23 +89,24 @@ class SignUpScreen extends HookConsumerWidget {
       return null;
     }, [signUpState.errorMessage]);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '동숲 회원가입',
-        ),
-        body: GestureDetector(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: DetailHeader(
+        title: '동숲 회원가입',
+      ),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: 48),
+            padding: EdgeInsets.symmetric(vertical: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 48,
+              spacing: 40,
               children: [
-                _buildEmailSection(emailController, ref),
+                _dongyangEmailInfo(context, createEmail),
+                _buildEmailSection(emailController, emailCodeController, ref),
                 _buildPasswordSection(passwordController, passwordCheckController, ref),
                 _buildNicknameSection(nicknameController, ref),
                 _buildDeptSection(context, selectedDept, ref),
@@ -108,33 +115,101 @@ class SignUpScreen extends HookConsumerWidget {
             ),
           ),
         ),
-        bottomNavigationBar: PrimaryBottomButton(
-          onPressed: () async {
-            if (!signUpState.isEmailValid ||
-                !signUpState.isNicknameValid ||
-                !signUpState.isPasswordValid ||
-                !signUpState.isDeptValid ||
-                !agreement.value.values.every((v) => v)) {
-              return;
-            }
-            // 회원가입
-            final isSuccessed = await viewModel.signUp();
-            if (isSuccessed) context.pop();
-          },
-          label: '가입하기',
-          isLoading: signUpState.isLoading,
-          isEnabled: signUpState.isEmailValid &&
-              signUpState.isNicknameValid &&
-              signUpState.isPasswordValid &&
-              signUpState.isDeptValid &&
-              agreement.value.values.every((v) => v),
-        ),
+      ),
+      bottomNavigationBar: PrimaryBottomButton(
+        onPressed: () async {
+          if (!signUpState.isEmailValid ||
+              !signUpState.isNicknameValid ||
+              !signUpState.isPasswordValid ||
+              !signUpState.isDeptValid ||
+              !agreement.value.values.every((v) => v)) {
+            return;
+          }
+          final isSuccessed = await viewModel.signUp();
+
+          if (!isSuccessed || !context.mounted) return;
+
+          if (isSuccessed && context.mounted) {
+            rootScaffoldMessengerKey.currentState?.showSnackBar(
+              SnackBar(
+                content: Text(
+                  '회원가입에 성공했습니다.',
+                  style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.white),
+                ),
+                backgroundColor: ColorStyles.gray3,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12,),
+                elevation: 4,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+            await SchedulerBinding.instance.endOfFrame;
+            await Future.delayed(const Duration(milliseconds: 200));
+          }
+          if (!context.mounted) return;
+          context.pop();
+        },
+        label: '가입하기',
+        isLoading: signUpState.isLoading,
+        isEnabled: signUpState.isEmailValid &&
+            signUpState.isNicknameValid &&
+            signUpState.isPasswordValid &&
+            signUpState.isDeptValid &&
+            agreement.value.values.every((v) => v),
       ),
     );
   }
 
-  Widget _buildEmailSection(TextEditingController emailController, WidgetRef ref) {
+  Widget _dongyangEmailInfo(BuildContext context, String url) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Text(
+            '동양미래대학교 Gmail(@dongyang.ac.kr)로만 회원가입이 가능합니다.\n학교 이메일이 없으시다면 아래 버튼을 통해 먼저 발급해 주세요.',
+            style: TextStyles.smallTextRegular.copyWith(
+              color: ColorStyles.gray4,
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              context.push('/mypageWebView?url=$url');
+            },
+            child: Row(
+              spacing: 4,
+              children: [
+                SvgPicture.asset(
+                  'assets/icons/add_circle.svg',
+                  width: 16,
+                  height: 16,
+                  colorFilter: const ColorFilter.mode(
+                    ColorStyles.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                Text(
+                  '학교 이메일 발급하러 가기',
+                  style: TextStyles.smallTextBold.copyWith(
+                    color: ColorStyles.black,
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmailSection(TextEditingController emailController, TextEditingController emailCodeController, WidgetRef ref) {
     final emailState = ref.watch(signUpViewModelProvider).email;
+    final emailCodeState = ref.watch(signUpViewModelProvider).emailCode;
 
     return Container(
       width: double.infinity,
@@ -142,7 +217,6 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -166,17 +240,23 @@ class SignUpScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              Text(
-                emailState.message ?? '동양미래대학교 Gmail을 입력해 주세요',
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: (emailState.isError == true)
-                    ? ColorStyles.warning100
-                    : ColorStyles.gray4,
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Text(
+                    emailState.message ?? '동양미래대학교 Gmail을 입력해 주세요',
+                    style: TextStyles.smallTextRegular.copyWith(
+                      color: (emailState.isDuplicate == false && emailState.message == '이메일 인증이 필요해요')
+                        ? ColorStyles.warning100
+                        : (emailState.isError == true || emailCodeState.isError == true)
+                          ? ColorStyles.warning100
+                          : ColorStyles.gray4,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          // 텍스트 필드 & 버튼
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,6 +265,7 @@ class SignUpScreen extends HookConsumerWidget {
               Expanded(
                 child: Container(
                   height: 44,
+                  alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
@@ -217,11 +298,71 @@ class SignUpScreen extends HookConsumerWidget {
                 ),
               ),
               CheckDuplicationButton(
-                onTab: () {
-                  // 중복 확인 메서드
+                onTap: () {
                   if (emailController.text.isEmpty) return;
                   ref.read(signUpViewModelProvider.notifier).checkEmailDuplication(emailController.text.trim());
                 },
+                isEnabled: emailState.isFormatValid == true && emailState.isDuplicate == null,
+                enabledText: '중복 검사',
+                disabledText: (emailState.isDuplicate == false) ? '확인 완료' : '중복 검사',
+                isLoading: emailState.isLoading,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
+              Expanded(
+                child: Container(
+                  height: 44,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  decoration: ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        width: 1,
+                        color: emailCodeState.isError == true
+                            ? ColorStyles.warning100
+                            : emailCodeState.isError == false
+                            ? ColorStyles.primaryColor
+                            : ColorStyles.gray2,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(child: _customTextFormField(emailCodeController, '인증 코드 입력', forceUppercase: true)),
+                    ],
+                  ),
+                ),
+              ),
+              CheckDuplicationButton(
+                onTap: () async {
+                  await ref.read(signUpViewModelProvider.notifier).sendEmailVerificationCode(emailController.text.trim());
+                },
+                isEnabled: emailState.isDuplicate == false &&
+                  emailCodeState.isTimerRunning != true &&
+                  emailCodeState.isChecked != true,
+                enabledText: '인증 요청',
+                disabledText: (emailCodeState.isTimerRunning == true) ? formatDuration(emailCodeState.remainingSeconds!) : '인증 요청',
+                isLoading: emailCodeState.isCodeLoading,
+              ),
+              CheckDuplicationButton(
+                onTap: () async {
+                  if (emailCodeController.text.isEmpty) return;
+                  await ref.read(signUpViewModelProvider.notifier).checkEmailVerificationCode(emailController.text.trim(), emailCodeController.text.trim());
+                },
+                isEnabled: emailCodeState.isChecked != true &&
+                  emailCodeState.isTimerRunning == true &&
+                  emailCodeState.failCount < 3,
+                enabledText: '확인',
+                disabledText: (emailCodeState.isChecked == true) ? '확인 완료' : '확인',
+                isLoading: emailCodeState.isCheckLoading,
               ),
             ],
           ),
@@ -239,7 +380,6 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -263,19 +403,24 @@ class SignUpScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              Text(
-                passwordState.message ?? '영문, 숫자, 특수문자 포함 8자 이상 입력해 주세요',
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: (passwordState.isError == true)
-                    ? ColorStyles.warning100
-                    : ColorStyles.gray4,
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Text(
+                    passwordState.message ?? '영문, 숫자, 특수문자 포함 8자 이상 입력해 주세요',
+                    style: TextStyles.smallTextRegular.copyWith(
+                      color: (passwordState.isError == true)
+                        ? ColorStyles.warning100
+                        : ColorStyles.gray4,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          // 텍스트 필드 & 버튼
           Container(
             height: 44,
+            alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
@@ -294,6 +439,7 @@ class SignUpScreen extends HookConsumerWidget {
           ),
           Container(
             height: 44,
+            alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
@@ -324,7 +470,6 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -348,17 +493,21 @@ class SignUpScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              Text(
-                nicknameState.message ?? '2~8글자로 입력해 주세요',
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: (nicknameState.isError == true)
-                    ? ColorStyles.warning100
-                    : ColorStyles.gray4,
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Text(
+                    nicknameState.message ?? '2~8글자로 입력해 주세요',
+                    style: TextStyles.smallTextRegular.copyWith(
+                      color: (nicknameState.isError == true)
+                        ? ColorStyles.warning100
+                        : ColorStyles.gray4,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          // 텍스트 필드 & 버튼
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,6 +516,7 @@ class SignUpScreen extends HookConsumerWidget {
               Expanded(
                 child: Container(
                   height: 44,
+                  alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
@@ -385,12 +535,14 @@ class SignUpScreen extends HookConsumerWidget {
                 ),
               ),
               CheckDuplicationButton(
-                onTab: () {
-                  // 중복 확인 메서드
-                  // 중복 확인 메서드
+                onTap: () {
                   if (nicknameController.text.isEmpty) return;
                   ref.read(signUpViewModelProvider.notifier).checkNicknameDuplication(nicknameController.text.trim());
                 },
+                isEnabled: (nicknameState.isNumberFormatValid == true && nicknameState.isSpecialCharacterValid == true && nicknameState.isDuplicate != true),
+                enabledText: '중복 검사',
+                disabledText: (nicknameState.isDuplicate == false) ? '확인 완료' : '중복 검사',
+                isLoading: nicknameState.isLoading,
               ),
             ],
           ),
@@ -406,9 +558,7 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           _sectionLabel('학과', ''),
-          // 텍스트 필드 & 버튼
           GestureDetector(
             onTap: () {
               showModalBottomSheet(
@@ -473,9 +623,7 @@ class SignUpScreen extends HookConsumerWidget {
       child: Column(
         spacing: 16,
         children: [
-          // 필드 구분 & 입력 체크 메시지
           _sectionLabel('이용약관 동의', ''),
-          // 텍스트 필드 & 버튼
           GestureDetector(
             onTap: () {
               showModalBottomSheet(
@@ -483,10 +631,8 @@ class SignUpScreen extends HookConsumerWidget {
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (context) => AgreementBottomSheet(
-                  initialValues: {
-                    AgreementType.termsOfService: false,
-                    AgreementType.privacyPolicy: false,
-                  },
+                  initialValues: Map<AgreementType, bool>.of(agreement.value),
+
                   onViewDetail: (type) {
                     if (type == AgreementType.termsOfService) {
                       context.push(
@@ -499,7 +645,7 @@ class SignUpScreen extends HookConsumerWidget {
                     }
                   },
                   onChanged: (state) {
-                    agreement.value = state;
+                    agreement.value = Map<AgreementType, bool>.of(state);
                   },
                 ),
               );
@@ -583,8 +729,12 @@ class SignUpScreen extends HookConsumerWidget {
     );
   }
 
-  // 텍스트 폼 필드
-  Widget _customTextFormField(textController, String hintText, {bool obscureText = false}) {
+  Widget _customTextFormField(
+    TextEditingController textController,
+    String hintText, {
+      bool obscureText = false,
+      bool forceUppercase = false,
+    }) {
     return TextFormField(
       maxLines: 1,
       keyboardType: TextInputType.emailAddress,
@@ -592,14 +742,21 @@ class SignUpScreen extends HookConsumerWidget {
       obscureText: obscureText,
       textInputAction: TextInputAction.done,
       textAlignVertical: TextAlignVertical.center,
+      textCapitalization: forceUppercase
+          ? TextCapitalization.characters
+          : TextCapitalization.none,
+      inputFormatters: forceUppercase
+          ? [UpperCaseTextFormatter()]
+          : const [],
       style: TextStyles.normalTextRegular.copyWith(
         color: ColorStyles.black,
       ),
       decoration: InputDecoration(
+        isDense: true,
         border: InputBorder.none,
         hintText: hintText,
         hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
-        contentPadding: EdgeInsets.symmetric(vertical: 11),
+        contentPadding: const EdgeInsets.symmetric(vertical: 0),
       ),
     );
   }

@@ -35,7 +35,7 @@ abstract class MarketDataSource {
     required int marketId,
   });
 
-  Future<void> contactMarket({
+  Future<String> contactMarket({
     required int marketId,
   });
 }

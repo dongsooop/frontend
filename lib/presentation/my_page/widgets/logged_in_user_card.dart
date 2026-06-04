@@ -1,3 +1,4 @@
+import 'package:dongsoop/presentation/my_page/widgets/my_activity_item.dart';
 import 'package:flutter/material.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -7,17 +8,29 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class LoggedInUserCard extends HookConsumerWidget {
   final User user;
   final VoidCallback onTapAdminReport;
+  final VoidCallback onTapAdminBlindDate;
+  final VoidCallback onTapAdminFeedback;
+  final VoidCallback onTapUserFeedback;
   final VoidCallback onTapMarket;
   final VoidCallback onTapCalendar;
+  final VoidCallback onTapTimetable;
   final void Function(bool isApply) onTapRecruit;
+  final VoidCallback onTapBlockedUser;
+  final VoidCallback onTapSocialLoginConnect;
 
   const LoggedInUserCard({
     super.key,
     required this.user,
     required this.onTapAdminReport,
+    required this.onTapAdminBlindDate,
+    required this.onTapAdminFeedback,
+    required this.onTapUserFeedback,
     required this.onTapMarket,
     required this.onTapCalendar,
+    required this.onTapTimetable,
     required this.onTapRecruit,
+    required this.onTapBlockedUser,
+    required this.onTapSocialLoginConnect,
   });
 
   @override
@@ -27,10 +40,11 @@ class LoggedInUserCard extends HookConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 16,
       children: [
         Container(
           width: double.infinity,
-          height: 88,
+          constraints: const BoxConstraints(minHeight: 88),
           padding: const EdgeInsets.all(16),
           decoration: ShapeDecoration(
             color: ColorStyles.white,
@@ -78,7 +92,6 @@ class LoggedInUserCard extends HookConsumerWidget {
             ],
           ),
         ),
-        SizedBox(height: 16),
         Container(
           width: double.infinity,
           padding: EdgeInsets.all(16),
@@ -92,12 +105,11 @@ class LoggedInUserCard extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 16,
             children: [
-              // _myPageMenuItem(
-              //   icon: Icons.browse_gallery_outlined,
-              //   label: '시간표 관리',
-              //   routePath: 'schedule',
-              //   context: context,
-              // ),
+              _myPageMenuItem(
+                icon: Icons.browse_gallery_outlined,
+                label: '시간표 관리',
+                onTap: onTapTimetable,
+              ),
               _myPageMenuItem(
                 icon: Icons.calendar_month_outlined,
                 label: '일정 관리',
@@ -106,7 +118,6 @@ class LoggedInUserCard extends HookConsumerWidget {
             ],
           ),
         ),
-        SizedBox(height: 16),
         Container(
           width: double.infinity,
           decoration: ShapeDecoration(
@@ -121,30 +132,93 @@ class LoggedInUserCard extends HookConsumerWidget {
             children: [
               Column(
                 children: [
-                  _myActivityItem(
+                  MyActivityItem(
                     label: '개설한 모집글',
                     onTap: () => onTapRecruit(false),
                   ),
-                  _myActivityItem(
+                  MyActivityItem(
                     label: '지원한 모집글',
                     onTap: () => onTapRecruit(true),
                   ),
-                  _myActivityItem(
+                  MyActivityItem(
                     label: '장터 내역',
                     onTap: onTapMarket,
                   ),
+                  MyActivityItem(
+                    label: '차단 관리',
+                    onTap: onTapBlockedUser,
+                  ),
                   // 관리자
-                  if (user.role == 'ADMIN')
-                    _myActivityItem(
+                  if (user.role.contains('ADMIN')) ...[
+                    MyActivityItem(
                       label: '신고 관리',
                       onTap: onTapAdminReport,
                     ),
+                    MyActivityItem(
+                      label: '과팅 오픈',
+                      onTap: onTapAdminBlindDate,
+                    ),
+                  ],
                 ],
               )
             ],
           ),
         ),
-        SizedBox(height: 16,),
+
+        Container(
+          width: double.infinity,
+          decoration: ShapeDecoration(
+              color: ColorStyles.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  MyActivityItem(
+                    label: '소셜 계정 연동',
+                    onTap: onTapSocialLoginConnect ,
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+
+        Container(
+          width: double.infinity,
+          decoration: ShapeDecoration(
+              color: ColorStyles.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  MyActivityItem(
+                    label: '피드백 하러가기',
+                    onTap: onTapUserFeedback,
+                  ),
+                  // 관리자
+                  if (user.role.contains('ADMIN')) ...[
+                    MyActivityItem(
+                      label: '사용자 피드백 결과',
+                      onTap: onTapAdminFeedback,
+                    ),
+                  ],
+                ],
+              )
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -179,40 +253,6 @@ class LoggedInUserCard extends HookConsumerWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _myActivityItem({
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      hoverColor: Colors.transparent,
-      focusColor: Colors.transparent,
-      child: SizedBox(
-        width: double.infinity,
-        height: 44,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              label,
-              style: TextStyles.normalTextRegular.copyWith(
-                color: ColorStyles.black,
-              ),
-            ),
-            const Icon(
-              Icons.chevron_right,
-              size: 24,
-              color: ColorStyles.black,
-            ),
-          ],
         ),
       ),
     );

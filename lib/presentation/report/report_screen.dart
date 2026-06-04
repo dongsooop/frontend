@@ -35,7 +35,6 @@ class ReportScreen extends HookConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
-            barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
               title: '신고 완료',
               content: '신고가 정상적으로 접수되었어요',
@@ -67,13 +66,13 @@ class ReportScreen extends HookConsumerWidget {
       return null;
     }, [reportState.errorMessage, reportState.isSuccessed]);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-          appBar: DetailHeader(
-            title: '신고',
-          ),
-        body: GestureDetector(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+        appBar: DetailHeader(
+          title: '신고',
+        ),
+      body: SafeArea(
+        child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
           child: SingleChildScrollView(
@@ -196,6 +195,7 @@ class ReportScreen extends HookConsumerWidget {
                 ),
                 selectedReportReason.value != null
                 ? Container(
+                    alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
@@ -217,6 +217,8 @@ class ReportScreen extends HookConsumerWidget {
                         color: ColorStyles.black,
                       ),
                       decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(vertical: 8),
                         border: InputBorder.none,
                         hintText: '최대 500글자까지 입력 가능해요',
                         hintStyle: TextStyles.normalTextRegular.copyWith(color: ColorStyles.gray4),
@@ -229,15 +231,15 @@ class ReportScreen extends HookConsumerWidget {
             ),
           ),
         ),
-        bottomNavigationBar: PrimaryBottomButton(
-          onPressed: () async {
-            await viewModel.reportWrite(ReportWriteRequest(reportType: reportType, targetId: targetId, reason: selectedReportReason.value!.name, description: textController.text));
-          },
-          label: '신고하기',
-          isLoading: reportState.isLoading,
-          isEnabled: selectedReportReason.value != null ? true : false,
-        )
       ),
+      bottomNavigationBar: PrimaryBottomButton(
+        onPressed: () async {
+          await viewModel.reportWrite(ReportWriteRequest(reportType: reportType, targetId: targetId, reason: selectedReportReason.value!.name, description: textController.text));
+        },
+        label: '신고하기',
+        isLoading: reportState.isLoading,
+        isEnabled: selectedReportReason.value != null ? true : false,
+      )
     );
   }
 }

@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/core/network/app_check_interceptor.dart';
+import 'package:dongsoop/core/network/user_agent.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
-import 'package:dongsoop/main.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
+import 'package:dongsoop/providers/session_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -11,26 +14,36 @@ class AuthInterceptor extends Interceptor {
   final SecureStorageService _secureStorageService;
   final PreferencesService _preferencesService;
   final Ref _ref;
+  final AppCheckInterceptor _appCheckInterceptor;
 
   AuthInterceptor(
-    this._secureStorageService,
-    this._preferencesService,
-    this._ref,
-  );
+      this._secureStorageService,
+      this._preferencesService,
+      this._ref,
+      this._appCheckInterceptor,
+      );
+
+  Future<void> _attachAppCheckHeader(Map<String, dynamic> headers) async {
+    try {
+      final token = await _appCheckInterceptor.getToken();
+      if (token != null && token.isNotEmpty) {
+        headers['X-Firebase-AppCheck'] = token;
+      }
+    } catch (_) {}
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     try {
       final accessToken = await _secureStorageService.read('accessToken');
-      options.headers['Authorization'] = 'Bearer $accessToken';
-    } catch (e) {
-    }
-    super.onRequest(options, handler);
-  }
+      if (accessToken != null && accessToken.isNotEmpty) {
+        options.headers['Authorization'] = 'Bearer $accessToken';
+      }
+    } catch (_) {}
 
-  @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    super.onResponse(response, handler);
+    await _attachAppCheckHeader(options.headers);
+
+    handler.next(options);
   }
 
   @override
@@ -38,10 +51,13 @@ class AuthInterceptor extends Interceptor {
     if (err.response?.statusCode == HttpStatusCode.unauthorized.code) {
       try {
         final refreshToken = await _secureStorageService.read('refreshToken');
-        final refreshDio = Dio();
         final baseUrl = dotenv.get('BASE_URL');
         final endpoint = dotenv.get('REISSUE_ENDPOINT');
         final url = '$baseUrl$endpoint';
+
+        final refreshDio = Dio();
+        refreshDio.options.headers['User-Agent'] = getUserAgent();
+        await _attachAppCheckHeader(refreshDio.options.headers);
 
         final refreshResponse = await refreshDio.post(url, data: refreshToken);
         final newAccessToken = refreshResponse.data['accessToken'].toString();
@@ -50,31 +66,52 @@ class AuthInterceptor extends Interceptor {
         await _secureStorageService.write('refreshToken', newRefreshToken);
         final originalRequest = err.requestOptions;
         originalRequest.headers['Authorization'] = 'Bearer $newAccessToken';
-        final retryResponse = await Dio(
-          BaseOptions(baseUrl: baseUrl)
-        ).request(
+        await _attachAppCheckHeader(originalRequest.headers);
+
+        final retryDio = Dio(BaseOptions(baseUrl: baseUrl));
+        final retryResponse = await retryDio.request(
           originalRequest.path,
           options: Options(
             method: originalRequest.method,
-            headers: originalRequest.headers
+            headers: originalRequest.headers,
           ),
           data: originalRequest.data,
-          queryParameters: originalRequest.queryParameters
+          queryParameters: originalRequest.queryParameters,
         );
 
         return handler.resolve(retryResponse);
       } on DioException catch (e) {
         if (e.response?.statusCode == HttpStatusCode.unauthorized.code) {
-          _ref.read(userSessionProvider.notifier).state = null;
-          _ref.read(myPageViewModelProvider.notifier).reset();
-
           await _secureStorageService.delete();
           await _preferencesService.clearUser();
+
+          Future.microtask(() {
+            _ref.read(userSessionProvider.notifier).state = null;
+            _ref.read(myPageViewModelProvider.notifier).reset();
+            _ref.read(sessionExpiredProvider.notifier).state = true;
+          });
+
+          return handler.reject(
+            DioException(
+              requestOptions: e.requestOptions,
+              response: e.response,
+              type: DioExceptionType.unknown,
+              error: const SessionExpiredException(),
+            ),
+          );
         }
         return handler.reject(e);
+
+      } catch (e) {
+        return handler.reject(
+          DioException(
+            requestOptions: err.requestOptions,
+            error: e,
+          ),
+        );
       }
     } else {
-      super.onError(err, handler);
+      return super.onError(err, handler);
     }
   }
 }

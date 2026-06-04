@@ -1,16 +1,16 @@
 import 'package:dongsoop/domain/board/market/use_cases/market_complete_use_case.dart';
-import 'package:dongsoop/domain/board/market/use_cases/market_contact_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_delete_use_case.dart';
 import 'package:dongsoop/domain/board/market/use_cases/market_detail_use_case.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
+import 'package:dongsoop/domain/board/market/use_cases/market_contact_use_case.dart';
 import 'package:dongsoop/presentation/board/market/state/market_detail_state.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_complete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_contact_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_delete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_detail_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:dongsoop/domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
-import 'package:dongsoop/providers/chat_providers.dart';
+import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'market_detail_view_model.g.dart';
 
@@ -41,8 +41,7 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
       ref.watch(marketCompleteUseCaseProvider);
   MarketContactUseCase get _contactUseCase =>
       ref.watch(marketContactUseCaseProvider);
-  CreateOneToOneChatRoomUseCase get _createOneToOneChatRoomUseCase =>
-      ref.watch(createOneToOneChatRoomUseCaseProvider);
+  UserBlockUseCase get _userBlockUseCase => ref.watch(userBlockUseCaseProvider);
 
   @override
   FutureOr<MarketDetailState> build(MarketDetailArgs args) async {
@@ -52,17 +51,18 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
         marketDetail: marketDetail,
         isLoading: false,
       );
+    } on SessionExpiredException {
+      return MarketDetailState(isLoading: false);
     } catch (e) {
-      return MarketDetailState(
-        isLoading: false,
-        error: e.toString(),
-      );
+      rethrow;
     }
   }
 
   Future<void> deleteMarket(int marketId) async {
     try {
       await _deleteUseCase.execute(marketId: marketId);
+    } on SessionExpiredException {
+      // 세션 만료 시 rethrow 하지 않음
     } catch (e) {
       rethrow;
     }
@@ -80,23 +80,28 @@ class MarketDetailViewModel extends _$MarketDetailViewModel {
           ),
         );
       }
+    } on SessionExpiredException {
+      // 세션 만료 시 rethrow 하지 않음
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> contactMarket(int marketId) async {
+  Future<String> contactMarket(int marketId) async {
     try {
-      await _contactUseCase.execute(marketId: marketId);
+      return await _contactUseCase.execute(marketId: marketId);
+    } on SessionExpiredException {
+      return ""; // 세션 만료 시 빈 값 반환
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<UiChatRoom> createChatRoom(String title, int targetUserId) async {
+  Future<void> userBlock(int blockerId, int blockedMemberId) async {
     try {
-      final chatRoom = await _createOneToOneChatRoomUseCase.execute(title, targetUserId);
-      return chatRoom;
+      await _userBlockUseCase.execute(blockerId, blockedMemberId);
+    } on SessionExpiredException {
+      // 세션 만료 시 rethrow 하지 않음
     } catch (e) {
       rethrow;
     }

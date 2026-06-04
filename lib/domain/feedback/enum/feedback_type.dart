@@ -1,0 +1,4 @@
+enum FeedbackType {
+  improvement,
+  featureRequest,
+}

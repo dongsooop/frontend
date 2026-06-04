@@ -1,7 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
+import 'package:dongsoop/domain/auth/enum/login_platform.dart';
+import 'package:dongsoop/domain/mypage/model/blind_date_open_request.dart';
+import 'package:dongsoop/domain/mypage/model/blocked_user.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
+import 'package:dongsoop/domain/mypage/model/social_state.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 
@@ -27,6 +32,9 @@ class MypageDataSourceImpl implements MypageDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }
@@ -46,6 +54,134 @@ class MypageDataSourceImpl implements MypageDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<BlockedUser>?> getBlockedUserList() async {
+    final endpoint = dotenv.get('BLOCK_ENDPOINT');
+
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<dynamic> data = response.data;
+        final List<BlockedUser> list = data.map((e) => BlockedUser.fromJson(e as Map<String, dynamic>)).toList();
+        return list;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> userUnBlock(int blockerId, int blockedMemberId) async {
+    final endpoint = dotenv.get('BLOCK_ENDPOINT');
+    final requestBody = {"blockerId": blockerId, "blockedMemberId": blockedMemberId};
+
+    try {
+      await _authDio.delete(endpoint, data: requestBody);
+    } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> blindDateOpen(BlindDateOpenRequest request) async {
+    final endpoint = dotenv.get('BLIND_DATE_OPEN_ENDPOINT');
+
+    try {
+      final response = await _authDio.post(endpoint, data: request.toJson());
+      if (response.statusCode == HttpStatusCode.created.code) {
+        return true;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<SocialState>> getSocialStateList() async {
+    final endpoint = dotenv.get('SOCIAL_STATE_ENDPOINT');
+
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final List<dynamic> data = response.data;
+        final List<SocialState> list = data.map((e) =>
+            SocialState.fromJson(e as Map<String, dynamic>)).toList();
+        return list;
+      }
+      throw OAuthException();
+    } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<DateTime> linkSocialAccount(LoginPlatform platform, String socialToken) async {
+    final endpoint = dotenv.get('SOCIAL_LINK_ENDPOINT');
+    final url = endpoint + '/${platform.name}';
+    final requestBody = {
+      "providerToken": socialToken,
+    };
+
+    try {
+      final response = await _authDio.post(url, data: requestBody);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final createdAt = DateTime.parse(response.data);
+        return createdAt;
+      }
+      throw OAuthException();
+    } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> unlinkSocialAccount(LoginPlatform platform, String socialToken) async {
+    final endpoint = dotenv.get('SOCIAL_LOGIN_ENDPOINT');
+    final url = endpoint + '/${platform.name}';
+    // 카카오는 토큰 X
+    final requestBody = {
+      "token": platform.name == 'kakao' ? 'mobile' : socialToken,
+    };
+
+    try {
+      final response = await _authDio.delete(url, data: requestBody);
+      if (response.statusCode == HttpStatusCode.noContent.code) {
+        return true;
+      }
+      throw OAuthException();
+    }  on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.unauthorized.code) {
+        throw SocialUnlinkUserException();
+      }
+      throw OAuthException();
+    } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
       rethrow;
     }
   }

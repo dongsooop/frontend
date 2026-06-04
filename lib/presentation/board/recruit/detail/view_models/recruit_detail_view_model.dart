@@ -1,13 +1,16 @@
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_delete_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/recruit_detail_use_case.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
+import 'package:dongsoop/domain/chat/use_case/chat/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_delete_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/recruit_detail_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/recruit/detail/states/recruit_detail_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:dongsoop/domain/chat/model/ui_chat_room.dart';
-import 'package:dongsoop/domain/chat/use_case/create_one_to_one_chat_room_use_case.dart';
 import 'package:dongsoop/providers/chat_providers.dart';
+import 'package:dongsoop/domain/auth/use_case/user_block_use_case.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'recruit_detail_view_model.g.dart';
 
@@ -37,8 +40,9 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
   RecruitDetailUseCase get _useCase => ref.watch(recruitDetailUseCaseProvider);
   RecruitDeleteUseCase get _deleteUseCase =>
       ref.watch(recruitDeleteUseCaseProvider);
-  CreateOneToOneChatRoomUseCase get _createOneToOneChatRoomUseCase =>
-      ref.watch(createOneToOneChatRoomUseCaseProvider);
+  CreateQnaChatRoomUseCase get _createQNAChatRoomUseCase =>
+      ref.watch(createQNAChatRoomUseCaseProvider);
+  UserBlockUseCase get _userBlockUseCase => ref.watch(userBlockUseCaseProvider);
 
   @override
   FutureOr<RecruitDetailState> build(RecruitDetailArgs args) async {
@@ -52,11 +56,10 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
         recruitDetail: recruitDetail,
         isLoading: false,
       );
+    } on SessionExpiredException {
+      throw const SessionExpiredException();
     } catch (e) {
-      return RecruitDetailState(
-        isLoading: false,
-        error: e.toString(),
-      );
+      rethrow;
     }
   }
 
@@ -68,15 +71,27 @@ class RecruitDetailViewModel extends _$RecruitDetailViewModel {
   Future<void> deleteRecruit(int id, RecruitType type) async {
     try {
       await _deleteUseCase.execute(id: id, type: type);
+    } on SessionExpiredException {
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<UiChatRoom> createChatRoom(String title, int targetUserId) async {
+  Future<String> createChatRoom(ChatRoomRequest request) async {
     try {
-      final chatRoom = await _createOneToOneChatRoomUseCase.execute(title, targetUserId);
+      final chatRoom = await _createQNAChatRoomUseCase.execute(request);
       return chatRoom;
+    } on SessionExpiredException {
+      return "";
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> userBlock(int blockerId, int blockedMemberId) async {
+    try {
+      await _userBlockUseCase.execute(blockerId, blockedMemberId);
+    } on SessionExpiredException {
     } catch (e) {
       rethrow;
     }

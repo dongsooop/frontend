@@ -25,3 +25,45 @@ String? formatSanctionTime(DateTime? time) {
   if (time == null) return null;
   return '${time.year}. ${time.month}. ${time.day} ${time.hour}:${time.minute.toString().padLeft(2, '0')}';
 }
+
+String formatDuration(int seconds) {
+  final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+  final secs = (seconds % 60).toString().padLeft(2, '0');
+  return '$minutes:$secs';
+}
+
+extension TimeStringExtensions on String {
+  int toMinutesFrom9AM() {
+    final parts = split(':');
+    final hour = int.tryParse(parts[0]) ?? 0;
+    final minute = int.tryParse(parts[1]) ?? 0;
+    return (hour - 9) * 60 + minute;
+  }
+}
+
+extension MinutesToTimeString on int {
+  String toTimeStringFrom9AM() {
+    final totalMinutes = this + 9 * 60;
+    final hour = totalMinutes ~/ 60;
+    final minute = totalMinutes % 60;
+
+    final hh = hour.toString().padLeft(2, '0');
+    final mm = minute.toString().padLeft(2, '0');
+
+    return '$hh:$mm';
+  }
+}
+
+String formatBlindDate(DateTime dt) {
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${dt.year}. ${dt.month}. ${dt.day}. ${two(dt.hour)}:${two(dt.minute)}';
+}
+
+String formatYmd(DateTime d) {
+  final y = d.year.toString().padLeft(4, '0');
+  final m = d.month.toString().padLeft(2, '0');
+  final da = d.day.toString().padLeft(2, '0');
+  return '$y-$m-$da';
+}
+
+String formatYmdDot(DateTime dt) => '${dt.year}. ${dt.month}. ${dt.day}.';

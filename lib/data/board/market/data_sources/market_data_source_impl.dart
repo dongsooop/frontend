@@ -15,9 +15,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MarketDataSourceImpl implements MarketDataSource {
   final Dio _authDio;
-  final Dio _aiDio;
 
-  MarketDataSourceImpl(this._authDio, this._aiDio);
+  MarketDataSourceImpl(this._authDio);
 
   @override
   Future<List<MarketListModel>> fetchMarketList({
@@ -50,15 +49,24 @@ class MarketDataSourceImpl implements MarketDataSource {
   }) async {
     final baseUrl = dotenv.get("MARKET_ENDPOINT");
     final url = '$baseUrl/$id';
-    final response = await _authDio.get(url);
 
-    if (response.statusCode == HttpStatusCode.ok.code) {
-      final data = response.data;
-      if (data is! Map<String, dynamic>)
-        throw FormatException('응답 데이터 형식이 Map<String, dynamic>이 아닙니다.');
-      return MarketDetailModel.fromJson(data);
+    try {
+      final response = await _authDio.get(url);
+
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        if (data is! Map<String, dynamic>) {
+          throw FormatException('응답 데이터 형식이 Map<String, dynamic>이 아닙니다.');
+        }
+        return MarketDetailModel.fromJson(data);
+      }
+      throw Exception('status: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw NotFoundBoardException();
+      }
+      rethrow;
     }
-    throw Exception('status: ${response.statusCode}');
   }
 
   @override
@@ -69,7 +77,7 @@ class MarketDataSourceImpl implements MarketDataSource {
     final url = dotenv.get("MARKET_FILTER_ENDPOINT");
 
     try {
-      final response = await _aiDio.post(url, data: model.toJson());
+      final response = await _authDio.post(url, data: model.toJson());
 
       if (response.statusCode == HttpStatusCode.ok.code) {
         return;
@@ -201,7 +209,7 @@ class MarketDataSourceImpl implements MarketDataSource {
   }
 
   @override
-  Future<void> contactMarket({required int marketId}) async {
+  Future<String> contactMarket({required int marketId}) async {
     final url = dotenv.get('MARKET_CONTACT_ENDPOINT');
 
     try {
@@ -213,6 +221,8 @@ class MarketDataSourceImpl implements MarketDataSource {
       if (response.statusCode != HttpStatusCode.created.code) {
         throw Exception('status: ${response.statusCode}');
       }
+
+      return response.data['roomId'];
     } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw MarketAlreadyContactException();

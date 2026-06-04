@@ -1,19 +1,24 @@
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_applicant_detail_entity.dart';
+import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
 import 'package:dongsoop/domain/board/recruit/apply/use_case/recruit_applicant_detail_use_case.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/providers/recruit/apply/recruit_applicant_detail_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dongsoop/core/exception/exception.dart';
+
 part 'recruit_applicant_detail_view_model.g.dart';
 
 class RecruitApplicantDetailArgs {
+  final RecruitApplicantViewer viewer;
   final RecruitType type;
   final int boardId;
-  final int memberId;
+  final int? memberId;
 
   const RecruitApplicantDetailArgs({
+    required this.viewer,
     required this.type,
     required this.boardId,
-    required this.memberId,
+    this.memberId,
   });
 
   @override
@@ -21,12 +26,14 @@ class RecruitApplicantDetailArgs {
       identical(this, other) ||
       other is RecruitApplicantDetailArgs &&
           runtimeType == other.runtimeType &&
+          viewer == other.viewer &&
           type == other.type &&
           boardId == other.boardId &&
           memberId == other.memberId;
 
   @override
-  int get hashCode => type.hashCode ^ boardId.hashCode ^ memberId.hashCode;
+  int get hashCode =>
+      viewer.hashCode ^ type.hashCode ^ boardId.hashCode ^ memberId.hashCode;
 }
 
 @riverpod
@@ -40,11 +47,14 @@ class RecruitApplicantDetailViewModel
       RecruitApplicantDetailArgs args) async {
     try {
       final detail = await _useCase.execute(
+        viewer: args.viewer,
         type: args.type,
         boardId: args.boardId,
         memberId: args.memberId,
       );
       return detail;
+    } on SessionExpiredException {
+      throw const SessionExpiredException();
     } catch (e) {
       throw e;
     }
@@ -52,14 +62,16 @@ class RecruitApplicantDetailViewModel
 
   Future<void> refresh(RecruitApplicantDetailArgs args) async {
     state = const AsyncLoading();
-
     try {
       final detail = await _useCase.execute(
+        viewer: args.viewer,
         type: args.type,
         boardId: args.boardId,
         memberId: args.memberId,
       );
       state = AsyncData(detail);
+    } on SessionExpiredException {
+      state = AsyncError(const SessionExpiredException(), StackTrace.current);
     } catch (e, st) {
       state = AsyncError(e, st);
     }

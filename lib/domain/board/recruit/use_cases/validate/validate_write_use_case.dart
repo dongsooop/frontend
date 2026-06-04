@@ -1,10 +1,8 @@
 class ValidateWriteUseCase {
   bool isValidStartTime(DateTime selected) {
     final now = DateTime.now();
-    if (_isSameDay(selected, now)) {
-      return selected.isAfter(now);
-    }
-    return true;
+    final today = DateTime(now.year, now.month, now.day);
+    return !selected.isBefore(today);
   }
 
   bool isValidEndDateTime({
@@ -12,7 +10,8 @@ class ValidateWriteUseCase {
     required DateTime end,
   }) {
     final diff = end.difference(start);
-    return diff.inDays >= 1 || diff.inHours >= 24;
+    return diff >= const Duration(hours: 24) &&
+        diff <= Duration(days: 28);
   }
 
   bool isValidTitle(String title) {
@@ -33,8 +32,22 @@ class ValidateWriteUseCase {
     return tags.length <= 3 && tags.every((t) => t.length <= 8);
   }
 
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
+  bool isWithinThreeMonths(DateTime selected) {
+    final now = DateTime.now();
+    final threeMonthsLater  = DateTime(now.year, now.month + 3, now.day)
+        .subtract(const Duration(days: 1));
+
+    final selectedDate = DateTime(selected.year, selected.month, selected.day);
+    final limitDate = DateTime(threeMonthsLater.year, threeMonthsLater.month, threeMonthsLater.day);
+
+    return selectedDate.isBefore(limitDate) ||
+        selectedDate.isAtSameMomentAs(limitDate);
+  }
+
+  bool isWithinRecruitPeriod(DateTime start, DateTime end) {
+    final diff = end.difference(start);
+    return diff >= const Duration(hours: 24) &&
+        diff <= const Duration(days: 28);
   }
 
   bool isFormValid({
@@ -45,5 +58,11 @@ class ValidateWriteUseCase {
     return isValidRecruitType(selectedIndex) &&
         isValidTitle(title) &&
         isValidContent(content);
+  }
+
+  bool isAfterToday(DateTime selected) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return !selected.isBefore(today);
   }
 }

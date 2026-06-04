@@ -3,6 +3,7 @@ import 'package:dongsoop/domain/board/market/use_cases/market_list_use_case.dart
 import 'package:dongsoop/presentation/board/market/state/market_list_state.dart';
 import 'package:dongsoop/presentation/board/providers/market/market_list_use_case_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 
 part 'market_list_view_model.g.dart';
 
@@ -28,6 +29,8 @@ class MarketListViewModel extends _$MarketListViewModel {
         hasMore: result.length == 10,
         page: 1,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -49,6 +52,8 @@ class MarketListViewModel extends _$MarketListViewModel {
         hasMore: result.length == 10,
         page: state.page + 1,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -65,6 +70,8 @@ class MarketListViewModel extends _$MarketListViewModel {
         hasMore: result.length == 10,
         page: 1,
       );
+    } on SessionExpiredException {
+      state = state.copyWith(isRefreshing: false);
     } catch (e) {
       state = state.copyWith(isRefreshing: false, error: e.toString());
     }

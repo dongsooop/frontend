@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
+import 'package:dongsoop/domain/auth/use_case/check_email_code_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/send_email_code_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,16 +11,22 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/auth/use_case/check_duplicate_use_case.dart';
 
 class SignUpViewModel extends StateNotifier<SignUpState> {
+  Timer? _timer;
   final SignUpUseCase _signUpUseCase;
   final CheckDuplicateUseCase _checkDuplicateUseCase;
+  final CheckEmailCodeUseCase _checkEmailCodeUseCase;
+  final SendEmailCodeUseCase _sendEmailCodeUseCase;
 
   SignUpViewModel(
     this._signUpUseCase,
     this._checkDuplicateUseCase,
+    this._checkEmailCodeUseCase,
+    this._sendEmailCodeUseCase,
   ) : super(
     SignUpState(
       isLoading: false,
       email: EmailValidationState(isLoading: false),
+      emailCode: EmailVerificationCodeState(isCodeLoading: false, isCheckLoading: false),
       password: PasswordValidationState(),
       nickname: NicknameValidationState(isLoading: false),
       dept: DeptValidationState(),
@@ -57,9 +65,19 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
       isError: null,
       isLoading: false,
     );
+    final emailCodeState = EmailVerificationCodeState(
+      isTimerRunning: false,
+      remainingSeconds: null,
+      isChecked: null,
+      message: null,
+      isError: null,
+      isCodeLoading: false,
+      isCheckLoading: false,
+    );
     state = state.copyWith(
       isEmailValid: false,
       email: emailState,
+      emailCode: emailCodeState,
       errorMessage: null
     );
 
@@ -99,11 +117,11 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
     try {
       final isDuplicate = await _checkDuplicateUseCase.execute(email+'@dongyang.ac.kr', 'email');
       state = state.copyWith(
-        isEmailValid: true,
+        isEmailValid: false,
         email: state.email.copyWith(
           email: email,
           isDuplicate: isDuplicate,
-          message: isDuplicate ? '사용 중인 이메일이에요' : '',
+          message: isDuplicate ? '사용 중인 이메일이에요' : '이메일 인증이 필요해요',
           isError: isDuplicate,
           isLoading: false
         ),
@@ -115,6 +133,118 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
         email: state.email.copyWith(
           isDuplicate: null,
           isLoading: false,
+        ),
+      );
+    }
+  }
+
+  // 이메일 인증 코드 요청
+  Future<void> sendEmailVerificationCode(String userEmail) async {
+    if (state.email.isDuplicate != false) return;
+
+    state = state.copyWith(
+      emailCode: state.emailCode.copyWith(
+        isCodeLoading: true,
+        failCount: 0,
+      ),
+    );
+    try {
+      await _sendEmailCodeUseCase.execute(userEmail + '@dongyang.ac.kr');
+      startTimer();
+    } on SendEmailFailed catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.message,
+        emailCode: state.emailCode.copyWith(
+          isCodeLoading: false,
+        ),
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: "회원가입 중 오류가 발생했습니다.",
+        emailCode: state.emailCode.copyWith(
+          isCodeLoading: false,
+        ),
+      );
+    }
+  }
+
+  void startTimer() {
+    _timer?.cancel();
+    state = state.copyWith(
+      emailCode: state.emailCode.copyWith(
+        isCodeLoading: false,
+        isTimerRunning: true,
+        remainingSeconds: 300,
+      ),
+    );
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final next = state.emailCode.remainingSeconds! - 1;
+      if (next <= 0) {
+        timer.cancel();
+        state = state.copyWith(
+          emailCode: state.emailCode.copyWith(
+            isTimerRunning: false,
+            remainingSeconds: 0,
+            failCount: 0,
+          ),
+        );
+      } else {
+        state = state.copyWith(
+          emailCode: state.emailCode.copyWith(
+            remainingSeconds: next,
+            isTimerRunning: true,
+          ),
+        );
+      }
+    });
+  }
+
+  // 이메일 인증 코드 확인
+  Future<void> checkEmailVerificationCode(String userEmail, String code) async {
+    if (state.emailCode.isTimerRunning != true) return;
+
+    state = state.copyWith(
+      emailCode: state.emailCode.copyWith(
+        isCheckLoading: true,
+        message: '',
+      ),
+    );
+    try {
+      final isChecked = await _checkEmailCodeUseCase.execute(userEmail + '@dongyang.ac.kr', code);
+      int nextFailCount = isChecked ? 0 : (state.emailCode.failCount + 1);
+      bool shouldStopTimer = !isChecked && nextFailCount >= 3;
+
+      String? errorMsg;
+      if (shouldStopTimer) {
+        errorMsg = "인증 코드가 3회 틀렸어요. 다시 인증해 주세요.";
+      } else if (!isChecked) {
+        errorMsg = "인증 코드가 일치하지 않아요";
+      }
+
+      if (isChecked || shouldStopTimer) _timer?.cancel();
+
+      state = state.copyWith(
+        isEmailValid: isChecked,
+        email: state.email.copyWith(
+          message: errorMsg ?? '',
+        ),
+        emailCode: state.emailCode.copyWith(
+          isError: !isChecked,
+          isChecked: isChecked,
+          isCheckLoading: false,
+          isTimerRunning: (isChecked || shouldStopTimer) ? false : state.emailCode.isTimerRunning,
+          remainingSeconds: (isChecked || shouldStopTimer) ? 0 : state.emailCode.remainingSeconds,
+          failCount: nextFailCount,
+        ),
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: "회원가입 중 오류가 발생했습니다.",
+        emailCode: state.emailCode.copyWith(
+          isCheckLoading: false,
         ),
       );
     }
@@ -221,7 +351,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
           isNumberFormatValid: true,
           isSpecialCharacterValid: true,
           isChecked: false,
-          message: "비밀번호가 일치하지 않아요.",
+          message: "비밀번호가 일치하지 않아요",
           isError: true,
         ),
       );
@@ -258,7 +388,6 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
 
     state = state.copyWith(isNicknameValid: false);
 
-    // 1. 영문만 사용했는가?
     if (nickname.length < 2 || nickname.length > 8) {
       state = state.copyWith(
         nickname: state.nickname.copyWith(
@@ -271,7 +400,6 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
       return;
     }
 
-    // 2. 특수문자?
     final specialCharReg = RegExp(r'[^a-zA-Z0-9가-힣]');
     if (specialCharReg.hasMatch(nickname)) {
       state = state.copyWith(
@@ -314,7 +442,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
     try {
       final isDuplicate = await _checkDuplicateUseCase.execute(nickname, 'nickname');
       state = state.copyWith(
-        isNicknameValid: true,
+        isNicknameValid: !isDuplicate,
         nickname: state.nickname.copyWith(
           nickname: nickname,
           isDuplicate: isDuplicate,
@@ -367,17 +495,18 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
     } on SignUpException catch (e) {
       state = state.copyWith(
         isLoading: false,
+        errorMessage: e.message,
         email: state.email.copyWith(
           isError: true,
-          message: e.message,
+          message: '입력 정보를 다시 확인해 주세요',
         ),
         password: state.password.copyWith(
           isError: true,
-          message: e.message,
+          message: '입력 정보를 다시 확인해 주세요',
         ),
         nickname: state.nickname.copyWith(
           isError: true,
-          message: e.message,
+          message: '입력 정보를 다시 확인해 주세요',
         ),
       );
       return false;
@@ -388,5 +517,11 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
       );
       return false;
     }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 }

@@ -6,6 +6,8 @@ class SecureStorageService {
 
   static const _accessToken = 'accessToken';
   static const _refreshToken = 'refreshToken';
+  static const _fcmToken = 'fcmToken';
+  static const fcmLastToken = 'fcmLastToken';
 
   Future<void> write(String key, String token) async {
     await _storage.write(key: key, value: token);
@@ -18,6 +20,11 @@ class SecureStorageService {
   Future<void> delete() async {
     await _storage.delete(key: _accessToken);
     await _storage.delete(key: _refreshToken);
+    await _storage.delete(key: fcmLastToken);
+  }
+
+  Future<void> deleteFcmToken() async {
+    await _storage.delete(key: _fcmToken);
   }
 }
 

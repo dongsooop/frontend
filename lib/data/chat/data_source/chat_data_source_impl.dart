@@ -1,52 +1,55 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/core/network/socket_io_service.dart';
 import 'package:dongsoop/core/network/stomp_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/domain/chat/model/blind_date/blind_join_info.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
 import 'chat_data_source.dart';
 
 class ChatDataSourceImpl implements ChatDataSource {
   final Dio _authDio;
   final StompService _stompService;
+  final SocketIoService _socketIoService;
   final HiveService _hiveService;
 
   ChatDataSourceImpl(
     this._authDio,
     this._stompService,
+    this._socketIoService,
     this._hiveService,
   );
 
   @override
-  Future<ChatRoom> createOneToOneChatRoom(String title, int targetUserId) async {
-    final endpoint = dotenv.get('ONE_TO_ONE_CHAT');
-    final requestBody = {'title': title, 'targetUserId': targetUserId};
-
+  Future<String> createQNAChatRoom(ChatRoomRequest request) async {
+    final endpoint = dotenv.get('CHAT_QNA_ENDPOINT');
     try {
-      final response = await _authDio.post(endpoint, data: requestBody);
+      final response = await _authDio.post(endpoint, data: request.toJson());
       if (response.statusCode == HttpStatusCode.ok.code) {
         final data = response.data;
+        final roomId = data['roomId'];
 
-        final ChatRoom room = ChatRoom.fromJson(data as Map<String, dynamic>);
-        return room;
+        return roomId;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
-    } catch (e) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw Exception('잘못된 요청이에요');
+      } else if (e.response?.statusCode == HttpStatusCode.notFound.code) {
+        throw Exception('사용자를 찾을 수 없어요');
+      }
       rethrow;
-    }
-  }
-
-  @override
-  Future<void> createGroupChatRoom(String title, List<int> userId) async {
-    final endpoint = dotenv.get('GROUP_CHAT');
-    final requestBody = {'title': title, 'participants': userId};
-
-    try {
-      await _authDio.post(endpoint, data: requestBody);
     } catch (e) {
       rethrow;
     }
@@ -129,6 +132,20 @@ class ChatDataSourceImpl implements ChatDataSource {
         };
       }
       throw Exception();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
+        throw ChatForbiddenException();
+      }
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ChatRoomDetail> getRoomDetailByRoomId(String roomId) async {
+    try {
+      return await _hiveService.getChatDetail(roomId);
     } catch (e) {
       rethrow;
     }
@@ -138,6 +155,15 @@ class ChatDataSourceImpl implements ChatDataSource {
   Future<void> saveChatMessage(ChatMessage message) async {
     try {
       await _hiveService.saveChatMessage(message.roomId, message);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> saveChatDetail(ChatRoomDetail room) async {
+    try {
+      await _hiveService.saveChatDetail(room);
     } catch (e) {
       rethrow;
     }
@@ -175,7 +201,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<List<ChatMessage>?> getChatInitialize(String roomId) async {
+  Future<(List<ChatMessage>?, ChatRoomDetail)> getChatInitialize(String roomId) async {
     final chat = dotenv.get('CHAT');
     final initialize = dotenv.get('CHAT_INITIALEZE_ENDPOINT');
     final endpoint = '$chat/$roomId$initialize';
@@ -186,9 +212,16 @@ class ChatDataSourceImpl implements ChatDataSource {
         final List<ChatMessage> messages = (response.data['messages'] as List)
             .map((e) => ChatMessage.fromJson(e))
             .toList();
-        return messages;
+        final room = ChatRoomDetail.fromJson(response.data['room']);
+
+        return (messages, room);
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
+        throw ChatForbiddenException();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -210,36 +243,11 @@ class ChatDataSourceImpl implements ChatDataSource {
         return messages;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> updateReadStatus(String roomId) async {
-    final chat = dotenv.get('CHAT');
-    final readStatus = dotenv.get('READ_STATUS_ENDPOINT');
-    final endpoint = '$chat/$roomId$readStatus';
-
-    try {
-      await _authDio.post(endpoint, data: {});
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<int> getUnreadChatMessageCount(String roomId) async {
-    final chat = dotenv.get('CHAT');
-    final unread = dotenv.get('UNREAD_ENDPOINT');
-    final endpoint = '$chat/$roomId$unread';
-
-    try {
-      final response = await _authDio.get(endpoint);
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        return response.data['unreadCount'] as int;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
+        throw ChatForbiddenException();
       }
-      throw Exception('Unexpected status code: ${response.statusCode}');
+      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -255,8 +263,12 @@ class ChatDataSourceImpl implements ChatDataSource {
       final response = await _authDio.post(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
         await _hiveService.deleteChatMessagesByRoomId(roomId);
-      } else
-        ChatLeaveException();
+      } else ChatLeaveException();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        throw ChatLeaveManagerException();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }
@@ -272,8 +284,43 @@ class ChatDataSourceImpl implements ChatDataSource {
     try {
       final response = await _authDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
-      } else
-        ChatLeaveException();
+      } else ChatLeaveException();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, String?>> sendChatbot(String text) async {
+    final endpoint = dotenv.get('CHATBOT_ENDPOINT');
+    final requestBody = {'text': text, };
+
+    try {
+      final response = await _authDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final data = response.data;
+        final answer = data['text'];
+        final url = data['url'];
+
+        return {'text': answer, 'url': url};
+      }
+      throw ChatbotException();
+    } catch (e) {
+      throw ChatbotException();
+    }
+  }
+
+  Future<bool> getBlindDateOpen() async {
+    final endpoint = dotenv.get('BLIND_DATE_OPEN_ENDPOINT');
+    try {
+      final response = await _authDio.get(endpoint);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        if (response.data == 'true') {
+          return true;
+        }
+        else throw BlindDateOpenException();
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
     } catch (e) {
       rethrow;
     }
@@ -291,4 +338,66 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Stream<ChatMessage> subscribeMessages() => _stompService.messageStream;
+
+  @override
+  Stream<String> subscribeBlock() => _stompService.blockStream;
+
+  @override
+  Future<void> connectChatList(int userId) => _stompService.connectRoomList(userId);
+
+  @override
+  void disconnectChatList() => _stompService.disconnectChatRoom();
+
+  @override
+  Stream<ChatRoomWs> subscribeChatList() => _stompService.chatRoomStream;
+
+  // blind
+  @override
+  Future<void> blindConnect(int userId) async {
+    final String url = dotenv.get('BLIND_URL');
+
+    await _socketIoService.connect(url: url, memberId: userId);
+  }
+
+  @override
+  Future<void> blindDisconnect() => _socketIoService.disconnect();
+
+  @override
+  void blindSendMessage(BlindDateRequest message) => _socketIoService.sendUserMessage(message);
+
+  @override
+  void userChoice(BlindChoice data) => _socketIoService.userChoice(data);
+
+  @override
+  Stream<int> get joinedStream => _socketIoService.joinedStream;
+
+  @override
+  Stream<String> get startStream => _socketIoService.startStream;
+
+  @override
+  Stream<BlindDateMessage> get systemStream => _socketIoService.systemStream;
+
+  @override
+  Stream<bool> get freezeStream => _socketIoService.freezeStream;
+
+  @override
+  Stream<BlindDateMessage> get broadcastStream => _socketIoService.broadcastStream;
+
+  @override
+  Stream<BlindJoinInfo> get joinStream => _socketIoService.joinStream;
+
+  @override
+  Stream<Map<int, String>> get participantsStream => _socketIoService.participantsStream;
+
+  @override
+  Stream<String> get matchStream => _socketIoService.matchStream;
+
+  @override
+  Stream<String> get endedStream => _socketIoService.endedStream;
+
+  @override
+  Stream<String> get disconnectStream => _socketIoService.disconnectStream;
+
+  @override
+  bool get isConnected => _socketIoService.isConnected;
 }

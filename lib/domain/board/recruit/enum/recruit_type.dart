@@ -1,15 +1,15 @@
 enum RecruitType {
-  tutoring,
-  study,
-  project;
+  TUTORING,
+  STUDY,
+  PROJECT;
 
   String get label {
     switch (this) {
-      case RecruitType.tutoring:
+      case RecruitType.TUTORING:
         return '튜터링';
-      case RecruitType.study:
+      case RecruitType.STUDY:
         return '스터디';
-      case RecruitType.project:
+      case RecruitType.PROJECT:
         return '프로젝트';
     }
   }

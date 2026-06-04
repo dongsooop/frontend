@@ -7,16 +7,18 @@ class PreferencesService {
   static const _nicknameKey = 'nickname';
   static const _departmentKey = 'departmentType';
   static const _roleKey = 'role';
-
-  static const _noticeCachedOnceKey = 'notice_cached_once';
-  static const _noticeCachedTimeKey = 'notice_last_cached_time';
+  static const _notificationPermissionRequestedKey = 'notification_permission_requested';
+  static const _adsPushConsent = 'ads_push_consent'; // 사용자 동의 여부
+  static const _adsPushPrompted = 'ads_push_prompted'; // 노출 여부
+  static const _searchRecentKey = 'search_recent';
+  static const _searchRecentLimit = 5;
 
   Future<void> saveUser(User user) async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     await _prefs.setInt(_idKey, user.id);
     await _prefs.setString(_nicknameKey, user.nickname);
     await _prefs.setString(_departmentKey, user.departmentType);
-    await _prefs.setString(_roleKey, user.role);
+    await _prefs.setStringList(_roleKey, user.role);
   }
 
   Future<User?> getUser() async {
@@ -24,7 +26,7 @@ class PreferencesService {
     final id = _prefs.getInt(_idKey);
     final nickname = _prefs.getString(_nicknameKey);
     final departmentType = _prefs.getString(_departmentKey);
-    final role = _prefs.getString(_roleKey);
+    final role = _prefs.getStringList(_roleKey);
 
     if (id != null && nickname != null && departmentType != null && role != null) {
       return User(id: id, nickname: nickname, departmentType: departmentType, role: role);
@@ -39,25 +41,69 @@ class PreferencesService {
     await _prefs.remove(_departmentKey);
   }
 
-  Future<DateTime?> getNoticeCachedTime() async {
-    final _prefs = await SharedPreferences.getInstance();
-    final str = _prefs.getString(_noticeCachedTimeKey);
-    return str != null ? DateTime.tryParse(str) : null;
+  Future<bool> isNotificationPermissionRequested() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_notificationPermissionRequestedKey) ?? false;
   }
 
-  Future<void> saveNoticeCachedTime(DateTime dateTime) async {
-    final _prefs = await SharedPreferences.getInstance();
-    await _prefs.setString(_noticeCachedTimeKey, dateTime.toIso8601String());
+  Future<void> setNotificationPermissionRequested() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_notificationPermissionRequestedKey, true);
   }
 
-  Future<bool> getNoticeHasCachedOnce() async {
-    final _prefs = await SharedPreferences.getInstance();
-    return _prefs.getBool(_noticeCachedOnceKey) ?? false;
+  Future<bool> isAdsPushConsentGranted() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_adsPushConsent) ?? false;
   }
 
-  Future<void> saveNoticeHasCachedOnce(bool value) async {
-    final _prefs = await SharedPreferences.getInstance();
-    await _prefs.setBool(_noticeCachedOnceKey, value);
+  Future<void> setAdsPushConsentGranted(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_adsPushConsent, value);
+  }
+
+  Future<bool> isAdsPushPrompted() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_adsPushPrompted) ?? false;
+  }
+
+  Future<void> setAdsPushPrompted() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_adsPushPrompted, true);
+  }
+
+  Future<List<String>> getRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_searchRecentKey) ?? [];
+    return list.take(_searchRecentLimit).toList();
+  }
+
+  Future<void> addRecentSearch(String keyword) async {
+    final prefs = await SharedPreferences.getInstance();
+    final trimmedKeyword = keyword.trim();
+    if (trimmedKeyword.isEmpty) return;
+
+    final list = prefs.getStringList(_searchRecentKey) ?? [];
+
+    final updated = <String>[
+      trimmedKeyword,
+      ...list.where((e) => e != trimmedKeyword),
+    ].take(_searchRecentLimit).toList();
+
+    await prefs.setStringList(_searchRecentKey, updated);
+  }
+
+  Future<void> removeRecentSearch(String keyword) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_searchRecentKey) ?? [];
+    await prefs.setStringList(
+      _searchRecentKey,
+      list.where((e) => e != keyword).toList(),
+    );
+  }
+
+  Future<void> clearRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_searchRecentKey);
   }
 }
 

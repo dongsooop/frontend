@@ -8,26 +8,20 @@ part of 'chat_room.dart';
 
 ChatRoom _$ChatRoomFromJson(Map<String, dynamic> json) => ChatRoom(
       roomId: json['roomId'] as String,
-      title: json['title'] as String?,
-      participants: (json['participants'] as List<dynamic>)
-          .map((e) => (e as num).toInt())
-          .toList(),
-      managerId: (json['managerId'] as num?)?.toInt(),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      title: json['title'] as String,
+      participantCount: (json['participantCount'] as num).toInt(),
+      lastMessage: json['lastMessage'] as String?,
+      unreadCount: (json['unreadCount'] as num).toInt(),
       lastActivityAt: DateTime.parse(json['lastActivityAt'] as String),
-      kickedUsers: (json['kickedUsers'] as List<dynamic>)
-          .map((e) => (e as num).toInt())
-          .toList(),
       groupChat: json['groupChat'] as bool,
     );
 
 Map<String, dynamic> _$ChatRoomToJson(ChatRoom instance) => <String, dynamic>{
       'roomId': instance.roomId,
       'title': instance.title,
-      'participants': instance.participants,
-      'managerId': instance.managerId,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'participantCount': instance.participantCount,
+      'lastMessage': instance.lastMessage,
+      'unreadCount': instance.unreadCount,
       'lastActivityAt': instance.lastActivityAt.toIso8601String(),
-      'kickedUsers': instance.kickedUsers,
       'groupChat': instance.groupChat,
     };

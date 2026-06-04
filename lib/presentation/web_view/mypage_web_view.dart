@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
@@ -22,8 +23,24 @@ class _MypageWebViewState extends State<MypageWebView> {
   @override
   void initState() {
     super.initState();
+
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setOnJavaScriptAlertDialog((request) async {
+        if (!mounted) return;
+
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => CustomConfirmDialog(
+            title: '알림',
+            content: request.message,
+            confirmText: '확인',
+            isSingleAction: true,
+            onConfirm: () {},
+          ),
+        );
+      })
       ..loadRequest(Uri.parse(widget.url));
   }
 
@@ -31,7 +48,7 @@ class _MypageWebViewState extends State<MypageWebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: DetailHeader(),
-      body: WebViewWidget(controller: controller),
+      body: SafeArea(child: WebViewWidget(controller: controller)),
     );
   }
 }

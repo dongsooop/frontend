@@ -61,6 +61,18 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
   }
 
   @override
+  Future<RecruitApplicantDetailEntity> recruitApplicantDetailStatus({
+    required RecruitType type,
+    required int boardId,
+  }) async {
+    return _handle(() async {
+      final model = await _dataSource.recruitApplicantDetailStatus(
+          type: type, boardId: boardId);
+      return model.toEntity();
+    }, RecruitApplicantStatusException());
+  }
+
+  @override
   Future<void> recruitDecision({
     required RecruitType type,
     required int boardId,
@@ -75,7 +87,7 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
         status: status,
       );
       return model;
-    }, RecruitApplicantDetailException());
+    }, RecruitApplicantException());
   }
 
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
@@ -83,7 +95,10 @@ class RecruitApplyRepositoryImpl implements RecruitApplyRepository {
       return await action();
     } on ProfanityDetectedException {
       rethrow;
-    } catch (_) {
+    } on NotFoundBoardException {
+      rethrow;
+    }
+    catch (_) {
       throw exception;
     }
   }
