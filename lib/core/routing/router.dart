@@ -327,6 +327,10 @@ final router = GoRouter(
       builder: (context, state) => const NoticeKeywordScreen(),
     ),
     GoRoute(
+      path: RoutePaths.noticeKeyword,
+      builder: (context, state) => const NoticeKeywordScreen(),
+    ),
+    GoRoute(
       path: RoutePaths.recruitWrite,
       builder: (context, state) => const RecruitWritePageScreen(),
     ),
