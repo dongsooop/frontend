@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_entity.dart';
@@ -24,7 +25,9 @@ class NoticeKeywordScreen extends HookConsumerWidget {
         Future.microtask(() => viewModel.loadKeywords());
       } else {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) LoginRequiredDialog(context);
+          if (context.mounted && ref.read(userSessionProvider) == null) {
+            LoginRequiredDialog(context);
+          }
         });
       }
       return null;
@@ -39,51 +42,56 @@ class NoticeKeywordScreen extends HookConsumerWidget {
       }
     });
 
-    return Scaffold(
-      backgroundColor: ColorStyles.gray1,
-      appBar: DetailHeader(
-        title: '공지 키워드 알림',
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
         backgroundColor: ColorStyles.gray1,
-      ),
-      body: SafeArea(
-        child: state.isLoading && state.keywords.isEmpty
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 24,
+        appBar: DetailHeader(
+          title: '공지 키워드 알림',
+          backgroundColor: ColorStyles.gray1,
+          bottom: TabBar(
+            labelColor: ColorStyles.primary100,
+            unselectedLabelColor: ColorStyles.gray4,
+            indicatorColor: ColorStyles.primary100,
+            dividerColor: ColorStyles.gray2,
+            tabs: const [
+              Tab(text: '알림 키워드'),
+              Tab(text: '제외 키워드'),
+            ],
+          ),
+        ),
+        body: SafeArea(
+          child: state.isLoading && state.keywords.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : TabBarView(
+                  children: [
+                    _KeywordSection(
+                      description: '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.',
+                      type: NoticeKeywordType.include,
+                      keywords: state.includeKeywords,
+                      isLoading: state.isLoading,
+                      onAdd: (keyword) =>
+                          viewModel.addKeyword(keyword, NoticeKeywordType.include),
+                      onDelete: viewModel.deleteKeyword,
+                    ),
+                    _KeywordSection(
+                      description: '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
+                      type: NoticeKeywordType.exclude,
+                      keywords: state.excludeKeywords,
+                      isLoading: state.isLoading,
+                      onAdd: (keyword) =>
+                          viewModel.addKeyword(keyword, NoticeKeywordType.exclude),
+                      onDelete: viewModel.deleteKeyword,
+                    ),
+                  ],
                 ),
-                children: [
-                  _KeywordSection(
-                    title: '알림 받을 키워드',
-                    description: '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.',
-                    type: NoticeKeywordType.include,
-                    keywords: state.includeKeywords,
-                    isLoading: state.isLoading,
-                    onAdd: (keyword) =>
-                        viewModel.addKeyword(keyword, NoticeKeywordType.include),
-                    onDelete: viewModel.deleteKeyword,
-                  ),
-                  const SizedBox(height: 24),
-                  _KeywordSection(
-                    title: '알림 받지 않을 키워드',
-                    description: '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
-                    type: NoticeKeywordType.exclude,
-                    keywords: state.excludeKeywords,
-                    isLoading: state.isLoading,
-                    onAdd: (keyword) =>
-                        viewModel.addKeyword(keyword, NoticeKeywordType.exclude),
-                    onDelete: viewModel.deleteKeyword,
-                  ),
-                ],
-              ),
+        ),
       ),
     );
   }
 }
 
 class _KeywordSection extends HookWidget {
-  final String title;
   final String description;
   final NoticeKeywordType type;
   final List<NoticeKeywordEntity> keywords;
@@ -92,7 +100,6 @@ class _KeywordSection extends HookWidget {
   final Future<void> Function(int keywordId) onDelete;
 
   const _KeywordSection({
-    required this.title,
     required this.description,
     required this.type,
     required this.keywords,
@@ -115,59 +122,45 @@ class _KeywordSection extends HookWidget {
       await onAdd(text);
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-      decoration: BoxDecoration(
-        color: ColorStyles.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: TextStyles.smallTextRegular.copyWith(
-              color: ColorStyles.gray4,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _KeywordInput(
-            controller: controller,
-            focusNode: focusNode,
-            type: type,
-            isLoading: isLoading,
-            onSubmit: submit,
-          ),
-          const SizedBox(height: 16),
-          if (keywords.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                '등록된 키워드가 없어요.',
-                style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.gray4,
-                ),
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      children: [
+        Text(
+          description,
+          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+        ),
+        const SizedBox(height: 16),
+        _KeywordInput(
+          controller: controller,
+          focusNode: focusNode,
+          type: type,
+          isLoading: isLoading,
+          onSubmit: submit,
+        ),
+        const SizedBox(height: 16),
+        if (keywords.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              '등록된 키워드가 없어요.',
+              style: TextStyles.normalTextRegular.copyWith(
+                color: ColorStyles.gray4,
               ),
-            )
-          else
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: keywords
-                  .map((k) => _KeywordChip(
-                        keyword: k.keyword,
-                        type: type,
-                        onDelete: () => onDelete(k.id),
-                      ))
-                  .toList(),
             ),
-        ],
-      ),
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: keywords
+                .map((k) => _KeywordChip(
+                      keyword: k.keyword,
+                      type: type,
+                      onDelete: () => onDelete(k.id),
+                    ))
+                .toList(),
+          ),
+      ],
     );
   }
 }
@@ -264,29 +257,38 @@ class _KeywordChip extends StatelessWidget {
     final bgColor = isInclude ? ColorStyles.primary5 : ColorStyles.gray1;
     final textColor = isInclude ? ColorStyles.primary100 : ColorStyles.gray3;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
+    return GestureDetector(
+      onTap: () => showDialog(
+        context: context,
+        builder: (_) => CustomConfirmDialog(
+          title: '키워드 삭제',
+          content: '"$keyword" 키워드를\n삭제하시겠습니까?',
+          confirmText: '삭제',
+          cancelText: '취소',
+          onConfirm: onDelete,
+        ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            keyword,
-            style: TextStyles.normalTextRegular.copyWith(color: textColor),
-          ),
-          const SizedBox(width: 6),
-          GestureDetector(
-            onTap: onDelete,
-            child: Icon(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              keyword,
+              style: TextStyles.normalTextRegular.copyWith(color: textColor),
+            ),
+            const SizedBox(width: 6),
+            Icon(
               Icons.close,
               size: 16,
               color: textColor,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
