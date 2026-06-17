@@ -155,12 +155,6 @@ class SettingScreen extends HookConsumerWidget {
                 title: '기타',
                 children: [
                   buildSettingsItem(
-                    label: '공지 키워드 알림 설정',
-                    onTap: () {
-                      context.push(RoutePaths.noticeKeyword);
-                    },
-                  ),
-                  buildSettingsItem(
                     label: '로그아웃',
                     onTap: () {
                       // 로그아웃 다이얼로그

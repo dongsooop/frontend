@@ -323,10 +323,6 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-      path: RoutePaths.noticeKeyword,
-      builder: (context, state) => const NoticeKeywordScreen(),
-    ),
-    GoRoute(
       path: RoutePaths.recruitWrite,
       builder: (context, state) => const RecruitWritePageScreen(),
     ),
@@ -710,6 +706,10 @@ final router = GoRouter(
                 ),
               ),
               GoRoute(
+                path: RoutePaths.noticeKeyword,
+                builder: (context, state) => const NoticeKeywordScreen(),
+              ),
+              GoRoute(
                 path: RoutePaths.socialLoginConnect,
                 builder: (context, state) => SocialLoginConnectScreen(),
               ),
@@ -791,6 +791,9 @@ final router = GoRouter(
               },
               onTapBlockedUser: () {
                 context.push(RoutePaths.mypage + RoutePaths.mypageBlock);
+              },
+              onTapNoticeKeyword: () {
+                context.push(RoutePaths.mypage + RoutePaths.noticeKeyword);
               },
               onTapSocialLoginConnect: () {
                 context.push(RoutePaths.mypage + RoutePaths.socialLoginConnect);
