@@ -1,5 +1,5 @@
 import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_type.dart';
+import 'package:dongsoop/domain/notice/keyword/enum/notice_keyword_type.dart';
 import 'package:dongsoop/domain/notice/keyword/use_cases/add_notice_keyword_use_case.dart';
 import 'package:dongsoop/domain/notice/keyword/use_cases/delete_notice_keyword_use_case.dart';
 import 'package:dongsoop/domain/notice/keyword/use_cases/get_notice_keywords_use_case.dart';

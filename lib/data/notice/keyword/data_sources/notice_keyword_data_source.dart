@@ -1,10 +1,11 @@
-import 'package:dongsoop/data/notice/keyword/model/notice_keyword_model.dart';
+import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_entity.dart';
+import 'package:dongsoop/domain/notice/keyword/enum/notice_keyword_type.dart';
 
 abstract class NoticeKeywordDataSource {
-  Future<List<NoticeKeywordModel>> getKeywords();
-  Future<NoticeKeywordModel> addKeyword({
+  Future<List<NoticeKeywordEntity>> getKeywords();
+  Future<NoticeKeywordEntity> addKeyword({
     required String keyword,
-    required String type,
+    required NoticeKeywordType type,
   });
   Future<void> deleteKeyword(int keywordId);
 }

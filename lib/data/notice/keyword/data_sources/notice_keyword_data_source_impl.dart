@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_entity.dart';
+import 'package:dongsoop/domain/notice/keyword/enum/notice_keyword_type.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/notice/keyword/data_sources/notice_keyword_data_source.dart';
-import 'package:dongsoop/data/notice/keyword/model/notice_keyword_model.dart';
 
 class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
   final Dio _authDio;
@@ -10,7 +11,7 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
   NoticeKeywordDataSourceImpl(this._authDio);
 
   @override
-  Future<List<NoticeKeywordModel>> getKeywords() async {
+  Future<List<NoticeKeywordEntity>> getKeywords() async {
     final endpoint = dotenv.get('NOTICE_KEYWORD_ENDPOINT');
 
     try {
@@ -18,7 +19,7 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
 
       if (response.statusCode == HttpStatusCode.ok.code) {
         final list = response.data as List;
-        return list.map((json) => NoticeKeywordModel.fromJson(json)).toList();
+        return list.map((json) => NoticeKeywordEntity.fromJson(json)).toList();
       }
 
       throw Exception('status: ${response.statusCode}');
@@ -28,14 +29,14 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
   }
 
   @override
-  Future<NoticeKeywordModel> addKeyword({
+  Future<NoticeKeywordEntity> addKeyword({
     required String keyword,
-    required String type,
+    required NoticeKeywordType type,
   }) async {
     final endpoint = dotenv.get('NOTICE_KEYWORD_ENDPOINT');
     final requestBody = {
       'keyword': keyword,
-      'type': type
+      'type': type.name.toUpperCase(),
     };
 
     try {
@@ -45,7 +46,7 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
       );
 
       if (response.statusCode == HttpStatusCode.created.code) {
-        return NoticeKeywordModel.fromJson(response.data);
+        return NoticeKeywordEntity.fromJson(response.data);
       }
 
       throw Exception('status: ${response.statusCode}');

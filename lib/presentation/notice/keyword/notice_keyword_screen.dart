@@ -2,7 +2,7 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_entity.dart';
-import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_type.dart';
+import 'package:dongsoop/domain/notice/keyword/enum/notice_keyword_type.dart';
 import 'package:dongsoop/presentation/notice/keyword/providers/notice_keyword_providers.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';

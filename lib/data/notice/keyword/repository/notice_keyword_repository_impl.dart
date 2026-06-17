@@ -3,7 +3,7 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/notice/keyword/data_sources/notice_keyword_data_source.dart';
 import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_entity.dart';
-import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_type.dart';
+import 'package:dongsoop/domain/notice/keyword/enum/notice_keyword_type.dart';
 import 'package:dongsoop/domain/notice/keyword/repository/notice_keyword_repository.dart';
 
 class NoticeKeywordRepositoryImpl implements NoticeKeywordRepository {
@@ -14,8 +14,7 @@ class NoticeKeywordRepositoryImpl implements NoticeKeywordRepository {
   @override
   Future<List<NoticeKeywordEntity>> getKeywords() async {
     try {
-      final models = await _dataSource.getKeywords();
-      return models.map((m) => m.toEntity()).toList();
+      return await _dataSource.getKeywords();
     } catch (_) {
       throw NoticeKeywordException();
     }
@@ -27,11 +26,10 @@ class NoticeKeywordRepositoryImpl implements NoticeKeywordRepository {
     required NoticeKeywordType type,
   }) async {
     try {
-      final model = await _dataSource.addKeyword(
+      return await _dataSource.addKeyword(
         keyword: keyword,
-        type: type.toJson(),
+        type: type,
       );
-      return model.toEntity();
     } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.conflict.code) {
         throw DuplicateNoticeKeywordException();
