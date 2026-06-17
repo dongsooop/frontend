@@ -22,7 +22,7 @@ class NoticeKeywordScreen extends HookConsumerWidget {
 
     useEffect(() {
       if (user != null) {
-        Future.microtask(() async => await viewModel.loadKeywords());
+        Future.microtask(viewModel.loadKeywords);
       } else {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted && user == null) {
@@ -45,13 +45,15 @@ class NoticeKeywordScreen extends HookConsumerWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: ColorStyles.gray1,
+        backgroundColor: ColorStyles.white,
         appBar: DetailHeader(
           title: '공지 키워드 알림',
-          backgroundColor: ColorStyles.gray1,
           bottom: TabBar(
+            overlayColor: const WidgetStatePropertyAll(Colors.transparent),
             labelColor: ColorStyles.primary100,
+            labelStyle: TextStyles.normalTextBold,
             unselectedLabelColor: ColorStyles.gray4,
+            unselectedLabelStyle: TextStyles.normalTextRegular,
             indicatorColor: ColorStyles.primary100,
             dividerColor: ColorStyles.gray2,
             tabs: const [
@@ -62,29 +64,33 @@ class NoticeKeywordScreen extends HookConsumerWidget {
         ),
         body: SafeArea(
           child: state.isLoading && state.keywords.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : TabBarView(
-                  children: [
-                    _KeywordSection(
-                      description: '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.',
-                      type: NoticeKeywordType.include,
-                      keywords: state.includeKeywords,
-                      isLoading: state.isLoading,
-                      onAdd: (keyword) =>
-                          viewModel.addKeyword(keyword, NoticeKeywordType.include),
-                      onDelete: viewModel.deleteKeyword,
-                    ),
-                    _KeywordSection(
-                      description: '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
-                      type: NoticeKeywordType.exclude,
-                      keywords: state.excludeKeywords,
-                      isLoading: state.isLoading,
-                      onAdd: (keyword) =>
-                          viewModel.addKeyword(keyword, NoticeKeywordType.exclude),
-                      onDelete: viewModel.deleteKeyword,
-                    ),
-                  ],
-                ),
+              ? const Center(child: CircularProgressIndicator(color: ColorStyles.primaryColor,))
+              : GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  behavior: HitTestBehavior.opaque,
+                  child: TabBarView(
+                    children: [
+                      _KeywordSection(
+                        description: '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.',
+                        type: NoticeKeywordType.include,
+                        keywords: state.includeKeywords,
+                        isLoading: state.isLoading,
+                        onAdd: (keyword) =>
+                            viewModel.addKeyword(keyword, NoticeKeywordType.include),
+                        onDelete: viewModel.deleteKeyword,
+                      ),
+                      _KeywordSection(
+                        description: '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
+                        type: NoticeKeywordType.exclude,
+                        keywords: state.excludeKeywords,
+                        isLoading: state.isLoading,
+                        onAdd: (keyword) =>
+                            viewModel.addKeyword(keyword, NoticeKeywordType.exclude),
+                        onDelete: viewModel.deleteKeyword,
+                      ),
+                    ],
+                  ),
+              ),
         ),
       ),
     );
@@ -115,19 +121,22 @@ class _KeywordSection extends HookWidget {
 
     Future<void> submit() async {
       final text = controller.text.trim();
-      if (text.isEmpty) return;
+
+      if (text.isEmpty || isLoading) return;
       if (keywords.any((k) => k.keyword == text)) return;
+
+      await onAdd(text);
+
       controller.clear();
       focusNode.unfocus();
-      await onAdd(text);
     }
 
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
       children: [
         Text(
           description,
-          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+          style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray5),
         ),
         const SizedBox(height: 16),
         _KeywordInput(
@@ -137,15 +146,12 @@ class _KeywordSection extends HookWidget {
           isLoading: isLoading,
           onSubmit: submit,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         if (keywords.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              '등록된 키워드가 없어요.',
-              style: TextStyles.normalTextRegular.copyWith(
-                color: ColorStyles.gray4,
-              ),
+          Text(
+            '등록된 키워드가 없어요.',
+            style: TextStyles.normalTextRegular.copyWith(
+              color: ColorStyles.gray4,
             ),
           )
         else
@@ -185,46 +191,58 @@ class _KeywordInput extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: TextField(
-            controller: controller,
-            focusNode: focusNode,
-            maxLength: 20,
-            style: TextStyles.normalTextRegular.copyWith(
-              color: ColorStyles.black,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: 44,
             ),
-            decoration: InputDecoration(
-              hintText: '키워드를 입력하세요',
-              hintStyle: TextStyles.normalTextRegular.copyWith(
-                color: ColorStyles.gray4,
-              ),
-              counterText: '',
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-              enabledBorder: OutlineInputBorder(
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            decoration: ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                side: BorderSide(
+                  width: 1,
+                  color: ColorStyles.gray2,
+                ),
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: ColorStyles.gray2),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: ColorStyles.primary100),
               ),
             ),
-            onSubmitted: (_) => onSubmit(),
+            child: TextField(
+              controller: controller,
+              focusNode: focusNode,
+              maxLength: 20,
+              textAlignVertical: TextAlignVertical.center,
+              style: TextStyles.normalTextRegular.copyWith(
+                color: ColorStyles.black,
+              ),
+              decoration: InputDecoration(
+                isDense: true,
+                border: InputBorder.none,
+                hintText: '키워드를 입력하세요',
+                hintStyle: TextStyles.normalTextRegular.copyWith(
+                  color: ColorStyles.gray4,
+                ),
+                counterText: '',
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+              onSubmitted: (_) => onSubmit(),
+            ),
           ),
         ),
         const SizedBox(width: 8),
         GestureDetector(
           onTap: isLoading ? null : onSubmit,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+            constraints: BoxConstraints(
+              minWidth: 56,
+              minHeight: 44,
+            ),
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: isLoading
                   ? ColorStyles.gray2
                   : type == NoticeKeywordType.include
                       ? ColorStyles.primary100
-                      : ColorStyles.gray3,
+                      : ColorStyles.gray5,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -269,19 +287,19 @@ class _KeywordChip extends StatelessWidget {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(40),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          spacing: 8,
           children: [
             Text(
               keyword,
-              style: TextStyles.normalTextRegular.copyWith(color: textColor),
+              style: TextStyles.normalTextBold.copyWith(color: textColor),
             ),
-            const SizedBox(width: 6),
             Icon(
               Icons.close,
               size: 16,
