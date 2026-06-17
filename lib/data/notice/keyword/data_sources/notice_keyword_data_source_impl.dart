@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/notice/keyword/data_sources/notice_keyword_data_source.dart';
 import 'package:dongsoop/data/notice/keyword/model/notice_keyword_model.dart';
@@ -10,8 +11,10 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
 
   @override
   Future<List<NoticeKeywordModel>> getKeywords() async {
+    final endpoint = dotenv.get('NOTICE_KEYWORD_ENDPOINT');
+
     try {
-      final response = await _authDio.get('/notice/keywords');
+      final response = await _authDio.get(endpoint);
 
       if (response.statusCode == HttpStatusCode.ok.code) {
         final list = response.data as List;
@@ -29,6 +32,7 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
     required String keyword,
     required String type,
   }) async {
+    final endpoint = dotenv.get('NOTICE_KEYWORD_ENDPOINT');
     final requestBody = {
       'keyword': keyword,
       'type': type
@@ -36,7 +40,7 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
 
     try {
       final response = await _authDio.post(
-        '/notice/keywords',
+        endpoint,
         data: requestBody,
       );
 
@@ -52,8 +56,11 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
 
   @override
   Future<void> deleteKeyword(int keywordId) async {
+    final notice = dotenv.get('NOTICE_KEYWORD_ENDPOINT');
+    final endpoint = notice + '/$keywordId';
+
     try {
-      final response = await _authDio.delete('/notice/keywords/$keywordId');
+      final response = await _authDio.delete(endpoint);
 
       if (response.statusCode != HttpStatusCode.noContent.code) {
         throw Exception('status: ${response.statusCode}');
