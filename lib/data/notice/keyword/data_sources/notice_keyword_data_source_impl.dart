@@ -10,15 +10,18 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
 
   @override
   Future<List<NoticeKeywordModel>> getKeywords() async {
-    final response = await _authDio.get('/notice/keywords');
+    try {
+      final response = await _authDio.get('/notice/keywords');
 
-    if (response.statusCode == HttpStatusCode.ok.code) {
-      final list = response.data as List;
-      return list
-          .map((json) => NoticeKeywordModel.fromJson(json))
-          .toList();
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        final list = response.data as List;
+        return list.map((json) => NoticeKeywordModel.fromJson(json)).toList();
+      }
+
+      throw Exception('status: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
     }
-    throw Exception('status: ${response.statusCode}');
   }
 
   @override
@@ -26,23 +29,37 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
     required String keyword,
     required String type,
   }) async {
-    final response = await _authDio.post(
-      '/notice/keywords',
-      data: {'keyword': keyword, 'type': type},
-    );
+    final requestBody = {
+      'keyword': keyword,
+      'type': type
+    };
 
-    if (response.statusCode == HttpStatusCode.created.code) {
-      return NoticeKeywordModel.fromJson(response.data);
+    try {
+      final response = await _authDio.post(
+        '/notice/keywords',
+        data: requestBody,
+      );
+
+      if (response.statusCode == HttpStatusCode.created.code) {
+        return NoticeKeywordModel.fromJson(response.data);
+      }
+
+      throw Exception('status: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
     }
-    throw Exception('status: ${response.statusCode}');
   }
 
   @override
   Future<void> deleteKeyword(int keywordId) async {
-    final response = await _authDio.delete('/notice/keywords/$keywordId');
+    try {
+      final response = await _authDio.delete('/notice/keywords/$keywordId');
 
-    if (response.statusCode != HttpStatusCode.noContent.code) {
-      throw Exception('status: ${response.statusCode}');
+      if (response.statusCode != HttpStatusCode.noContent.code) {
+        throw Exception('status: ${response.statusCode}');
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }

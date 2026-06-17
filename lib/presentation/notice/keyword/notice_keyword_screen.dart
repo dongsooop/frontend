@@ -16,22 +16,22 @@ class NoticeKeywordScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isLoggedIn = ref.watch(userSessionProvider) != null;
+    final user = ref.watch(userSessionProvider);
     final state = ref.watch(noticeKeywordViewModelProvider);
     final viewModel = ref.read(noticeKeywordViewModelProvider.notifier);
 
     useEffect(() {
-      if (isLoggedIn) {
-        Future.microtask(() => viewModel.loadKeywords());
+      if (user != null) {
+        Future.microtask(() async => await viewModel.loadKeywords());
       } else {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted && ref.read(userSessionProvider) == null) {
+          if (context.mounted && user == null) {
             LoginRequiredDialog(context);
           }
         });
       }
       return null;
-    }, [isLoggedIn]);
+    }, [user]);
 
     ref.listen(noticeKeywordViewModelProvider, (_, next) {
       if (next.errorMessage != null) {
