@@ -1,6 +1,5 @@
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
-import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/setting_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -73,7 +72,7 @@ class SettingScreen extends HookConsumerWidget {
                 title: '이용 안내',
                 children: [
                   buildSettingsItem(
-                    label: '버전  1.10.0',
+                    label: '버전  1.11.0',
                     onTap: () {},
                   ),
                   buildSettingsItem(
