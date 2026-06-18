@@ -1,16 +1,13 @@
-import 'package:dongsoop/core/routing/route_paths.dart';
-import 'package:dongsoop/core/routing/router.dart';
-import 'package:dongsoop/domain/auth/enum/login_entry.dart';
-import 'package:dongsoop/presentation/my_page/widgets/logged_in_user_card.dart';
-import 'package:dongsoop/presentation/my_page/widgets/logged_out_prompt_card.dart';
 import 'package:flutter/material.dart';
-import 'package:dongsoop/ui/text_styles.dart';
-import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/presentation/my_page/widgets/logged_in_user_card.dart';
+import 'package:dongsoop/presentation/my_page/widgets/logged_out_prompt_card.dart';
+import 'package:dongsoop/ui/text_styles.dart';
+import 'package:dongsoop/ui/color_styles.dart';
 
 class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapSignIn;
@@ -24,6 +21,7 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapMarket;
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
+  final VoidCallback onTapNoticeKeyword;
   final VoidCallback onTapSocialLoginConnect;
 
   const MyPageScreen({
@@ -39,6 +37,7 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapMarket,
     required this.onTapRecruit,
     required this.onTapBlockedUser,
+    required this.onTapNoticeKeyword,
     required this.onTapSocialLoginConnect,
   });
 
@@ -99,6 +98,7 @@ class MyPageScreen extends HookConsumerWidget {
                       onTapAdminBlindDate: onTapAdminBlindDate,
                       onTapAdminFeedback: onTapAdminFeedback,
                       onTapUserFeedback: onTapUserFeedback,
+                      onTapNoticeKeyword: onTapNoticeKeyword,
                       onTapSocialLoginConnect: onTapSocialLoginConnect,
                     );
                   }

@@ -12,6 +12,13 @@ if (localPropsFile.exists()) {
 }
 def kakaoNativeAppKey = localProps.getProperty("KAKAO_NATIVE_APP_KEY", "")
 
+def envProperties = new Properties()
+def envFile = rootProject.file("../.env")
+if (envFile.exists()) {
+    envProperties.load(new FileInputStream(envFile))
+}
+def admobAndroidAppId = envProperties.getProperty("ADMOB_ANDROID_APP_ID", "ca-app-pub-3940256099942544~3347511713") // 기본값: 테스트 ID
+
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = file("keystore/key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -34,6 +41,7 @@ android {
         manifestPlaceholders = [
                 applicationName      : "android.app.Application",
                 KAKAO_NATIVE_APP_KEY : kakaoNativeAppKey,
+                ADMOB_ANDROID_APP_ID : admobAndroidAppId,
         ]
 
         ndk {

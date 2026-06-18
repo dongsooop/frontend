@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
+import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +26,23 @@ class CommonNoticeList<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const adInterval = 10;
+
     return ListView.builder(
       controller: controller,
-      itemCount: items.length + (hasMore ? 1 : 0),
+      itemCount: items.length + (items.length ~/ adInterval) + (hasMore ? 1 : 0),
       itemBuilder: (context, index) {
-        if (index == items.length) {
+        if (index > 0 && index % (adInterval + 1) == adInterval) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: AdmobNativeAd(),
+          );
+        }
+
+        final int adCount = index ~/ (adInterval + 1);
+        final int actualIndex = index - adCount;
+
+        if (actualIndex == items.length) {
           return isLoading
               ? const Padding(
             padding: EdgeInsets.symmetric(vertical: 24),
@@ -42,7 +55,7 @@ class CommonNoticeList<T> extends StatelessWidget {
               : const SizedBox.shrink();
         }
 
-        final item = items[index];
+        final item = items[actualIndex];
         final isDept = isDepartmentOf(item);
 
         final leftBadgeText = isDept ? '학과공지' : '동양공지';
@@ -53,7 +66,7 @@ class CommonNoticeList<T> extends StatelessWidget {
           leftBadgeText: leftBadgeText,
           rightBadgeText: rightBadgeText,
           onTap: () => onTap(item),
-          isLastItem: index == items.length - 1,
+          isLastItem: actualIndex == items.length - 1,
         );
       },
     );

@@ -55,6 +55,7 @@ import 'package:dongsoop/presentation/timetable/write/lecture_write_screen.dart'
 import 'package:dongsoop/presentation/timetable/write/timetable_write_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
+import 'package:dongsoop/presentation/notice/keyword/notice_keyword_screen.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/restaurant_web_view.dart';
 import 'package:flutter/material.dart';
@@ -705,6 +706,10 @@ final router = GoRouter(
                 ),
               ),
               GoRoute(
+                path: RoutePaths.noticeKeyword,
+                builder: (context, state) => const NoticeKeywordScreen(),
+              ),
+              GoRoute(
                 path: RoutePaths.socialLoginConnect,
                 builder: (context, state) => SocialLoginConnectScreen(),
               ),
@@ -786,6 +791,9 @@ final router = GoRouter(
               },
               onTapBlockedUser: () {
                 context.push(RoutePaths.mypage + RoutePaths.mypageBlock);
+              },
+              onTapNoticeKeyword: () {
+                context.push(RoutePaths.mypage + RoutePaths.noticeKeyword);
               },
               onTapSocialLoginConnect: () {
                 context.push(RoutePaths.mypage + RoutePaths.socialLoginConnect);

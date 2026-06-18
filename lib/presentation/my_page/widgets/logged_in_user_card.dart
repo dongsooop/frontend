@@ -16,6 +16,7 @@ class LoggedInUserCard extends HookConsumerWidget {
   final VoidCallback onTapTimetable;
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
+  final VoidCallback onTapNoticeKeyword;
   final VoidCallback onTapSocialLoginConnect;
 
   const LoggedInUserCard({
@@ -30,6 +31,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.onTapTimetable,
     required this.onTapRecruit,
     required this.onTapBlockedUser,
+    required this.onTapNoticeKeyword,
     required this.onTapSocialLoginConnect,
   });
 
@@ -94,7 +96,7 @@ class LoggedInUserCard extends HookConsumerWidget {
         ),
         Container(
           width: double.infinity,
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8,),
           decoration: ShapeDecoration(
             color: ColorStyles.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
@@ -124,7 +126,7 @@ class LoggedInUserCard extends HookConsumerWidget {
               color: ColorStyles.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
           ),
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -179,6 +181,10 @@ class LoggedInUserCard extends HookConsumerWidget {
             children: [
               Column(
                 children: [
+                  MyActivityItem(
+                    label: '공지 키워드 알림',
+                    onTap: onTapNoticeKeyword,
+                  ),
                   MyActivityItem(
                     label: '소셜 계정 연동',
                     onTap: onTapSocialLoginConnect ,
