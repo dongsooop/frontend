@@ -7,7 +7,7 @@ part of 'notice_list_view_model.dart';
 // **************************************************************************
 
 String _$noticeListViewModelHash() =>
-    r'8e53be84d94bc23d8ad7962eb269810ce76550da';
+    r'9b496ea0b11a90c94e706107fbe52233df32bf6c';
 
 /// Copied from Dart SDK
 class _SystemHash {

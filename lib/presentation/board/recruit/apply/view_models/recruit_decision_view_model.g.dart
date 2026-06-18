@@ -7,7 +7,7 @@ part of 'recruit_decision_view_model.dart';
 // **************************************************************************
 
 String _$recruitDecisionViewModelHash() =>
-    r'3563b2739a679777f70babe7214ad1c138ff3777';
+    r'e4fb87f4b8b7cf6c7d5cbf6f1c4e45e0365b6f78';
 
 /// See also [RecruitDecisionViewModel].
 @ProviderFor(RecruitDecisionViewModel)

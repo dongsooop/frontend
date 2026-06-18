@@ -180,6 +180,22 @@ class NoticeException implements Exception {
   String toString() => message;
 }
 
+class NoticeKeywordException implements Exception {
+  final String message;
+  NoticeKeywordException([this.message = "키워드 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+
+  @override
+  String toString() => message;
+}
+
+class DuplicateNoticeKeywordException implements Exception {
+  final String message;
+  DuplicateNoticeKeywordException([this.message = "이미 등록된 키워드예요."]);
+
+  @override
+  String toString() => message;
+}
+
 class RecruitApplyException implements Exception {
   final String message;
   RecruitApplyException(
