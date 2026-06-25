@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:logger/logger.dart';
+import 'package:dongsoop/ui/color_styles.dart';
 
 class AdmobNativeAd extends StatefulWidget {
   final TemplateType templateType;
@@ -23,13 +25,16 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
   bool _nativeAdIsLoaded = false;
   final Logger _logger = Logger();
 
+  static const String _androidTestAdUnitId = 'ca-app-pub-3940256099942544/2247696110';
+  static const String _iosTestAdUnitId = 'ca-app-pub-3940256099942544/3986624511';
+
   String get _adUnitId {
     if (Platform.isAndroid) {
-      // .env에 ADMOB_ANDROID_NATIVE_ID가 없으면 테스트 ID 사용 (계정 정지 방지)
-      return dotenv.maybeGet('ADMOB_ANDROID_NATIVE_ID') ?? 'ca-app-pub-3940256099942544/2247696110';
+      if (kDebugMode) return _androidTestAdUnitId;
+      return dotenv.maybeGet('ADMOB_ANDROID_NATIVE_ID') ?? _androidTestAdUnitId;
     } else if (Platform.isIOS) {
-      // .env에 ADMOB_IOS_NATIVE_ID가 없으면 테스트 ID 사용
-      return dotenv.maybeGet('ADMOB_IOS_NATIVE_ID') ?? 'ca-app-pub-3940256099942544/3986624511';
+      if (kDebugMode) return _iosTestAdUnitId;
+      return dotenv.maybeGet('ADMOB_IOS_NATIVE_ID') ?? _iosTestAdUnitId;
     }
     return '';
   }
@@ -70,17 +75,17 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
       nativeTemplateStyle: NativeTemplateStyle(
         templateType: widget.templateType,
         mainBackgroundColor: Colors.white,
-        cornerRadius: 10.0,
+        cornerRadius: 8.0,
         callToActionTextStyle: NativeTemplateTextStyle(
           textColor: Colors.white,
-          backgroundColor: const Color(0xFF4B9460), // 앱 테마에 맞춘 초록색 계열 (예시)
-          style: NativeTemplateFontStyle.bold,
-          size: 16.0,
+          backgroundColor: ColorStyles.primaryColor,
+          style: NativeTemplateFontStyle.normal,
+          size: 12.0,
         ),
         primaryTextStyle: NativeTemplateTextStyle(
           textColor: Colors.black,
           style: NativeTemplateFontStyle.bold,
-          size: 16.0,
+          size: 12.0,
         ),
       ),
     )..load();
@@ -91,8 +96,11 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
     if (_nativeAdIsLoaded && _nativeAd != null) {
       return Container(
         alignment: Alignment.center,
+        constraints: BoxConstraints(
+          minHeight: widget.height,
+          maxHeight: 320,
+        ),
         width: double.infinity,
-        height: widget.height,
         child: AdWidget(ad: _nativeAd!),
       );
     }

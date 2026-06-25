@@ -28,7 +28,7 @@ import 'domain/chat/model/chat_room_member.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await MobileAds.instance.initialize();
+  MobileAds.instance.initialize();
   await dotenv.load(); // .env 파일 로드
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
