@@ -581,7 +581,11 @@ final router = GoRouter(
                   pageBuilder: (context, state) {
                     return MaterialPage(
                       key: state.pageKey,
-                      child: const NoticeListPageScreen(),
+                      child: NoticeListPageScreen(
+                        onTapAlarmSetting: () {
+                          context.push(RoutePaths.notification);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -793,7 +797,7 @@ final router = GoRouter(
                 context.push(RoutePaths.mypage + RoutePaths.mypageBlock);
               },
               onTapNoticeKeyword: () {
-                context.push(RoutePaths.mypage + RoutePaths.noticeKeyword);
+                context.push(RoutePaths.notification);
               },
               onTapSocialLoginConnect: () {
                 context.push(RoutePaths.mypage + RoutePaths.socialLoginConnect);

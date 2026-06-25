@@ -12,11 +12,17 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class NoticeListPageScreen extends HookConsumerWidget {
-  const NoticeListPageScreen({super.key});
+  final VoidCallback onTapAlarmSetting;
+
+  const NoticeListPageScreen({
+    super.key,
+    required this.onTapAlarmSetting,
+  });
 
   NoticeTab selectedTab(int index) {
     return NoticeTab.values[index];
@@ -67,7 +73,21 @@ class NoticeListPageScreen extends HookConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorStyles.white,
-        appBar: const DetailHeader(title: '공지'),
+        appBar: DetailHeader(
+          title: '공지',
+          trailing: IconButton(
+            onPressed: onTapAlarmSetting,
+            icon: SvgPicture.asset(
+              'assets/icons/alarm_setting.svg',
+              width: 24,
+              height: 24,
+              colorFilter: const ColorFilter.mode(
+                ColorStyles.black,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+        ),
         body: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
