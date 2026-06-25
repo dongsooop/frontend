@@ -10,13 +10,11 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SettingScreen extends HookConsumerWidget {
-  final VoidCallback onTapNotification;
   final VoidCallback onTapDevice;
   final VoidCallback onTapPasswordReset;
 
   const SettingScreen({
     super.key,
-    required this.onTapNotification,
     required this.onTapDevice,
     required this.onTapPasswordReset,
   });
@@ -101,36 +99,33 @@ class SettingScreen extends HookConsumerWidget {
                   ),
                 ],
               ),
+              SizedBox(height: 24),
 
-              SizedBox(height: 40),
-              buildSettingsSection(
-                title: '앱 설정',
-                children: [
-                  buildSettingsItem(
-                    label: '알림 설정',
-                    onTap: onTapNotification
-                  ),
-                  if (user != null)
-                  buildSettingsItem(
-                    label: '채팅 캐시 삭제',
-                    onTap: () async {
-                      // 채팅 캐시 삭제 다이얼로그
-                      showDialog(
-                        context: context,
-                        builder: (_) => CustomConfirmDialog(
-                          title: '채팅 캐시 삭제',
-                          content: '채팅 내역을 삭제하시겠어요?',
-                          onConfirm: () async {
-                            await viewModel.localDataDelete();
-                            Navigator.of(context).pop(); // 다이얼로그 닫기
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
+              if (user != null) ...[
+                buildSettingsSection(
+                  title: '앱 설정',
+                  children: [
+                    buildSettingsItem(
+                      label: '채팅 캐시 삭제',
+                      onTap: () async {
+                        // 채팅 캐시 삭제 다이얼로그
+                        showDialog(
+                          context: context,
+                          builder: (_) => CustomConfirmDialog(
+                            title: '채팅 캐시 삭제',
+                            content: '채팅 내역을 삭제하시겠어요?',
+                            onConfirm: () async {
+                              await viewModel.localDataDelete();
+                              Navigator.of(context).pop(); // 다이얼로그 닫기
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
 
               if (user != null) ...[
                 buildSettingsSection(
@@ -146,7 +141,7 @@ class SettingScreen extends HookConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
               ],
 
               if (user != null)
@@ -212,10 +207,12 @@ class SettingScreen extends HookConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: TextStyles.largeTextBold.copyWith(
-                color: ColorStyles.black,
-              )),
+          Text(
+            title,
+            style: TextStyles.largeTextBold.copyWith(
+              color: ColorStyles.black,
+            ),
+          ),
           const SizedBox(height: 16),
           ...children,
         ],

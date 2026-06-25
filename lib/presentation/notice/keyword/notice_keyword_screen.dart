@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
@@ -12,7 +13,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class NoticeKeywordScreen extends HookConsumerWidget {
-  const NoticeKeywordScreen({super.key});
+  final VoidCallback onTapNotification;
+
+  const NoticeKeywordScreen({
+    super.key,
+    required this.onTapNotification,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,7 +53,7 @@ class NoticeKeywordScreen extends HookConsumerWidget {
       child: Scaffold(
         backgroundColor: ColorStyles.white,
         appBar: DetailHeader(
-          title: '공지 키워드 알림',
+          title: '알림 설정',
           bottom: TabBar(
             overlayColor: const WidgetStatePropertyAll(Colors.transparent),
             labelColor: ColorStyles.primary100,
@@ -64,8 +70,10 @@ class NoticeKeywordScreen extends HookConsumerWidget {
         ),
         body: SafeArea(
           child: state.isLoading && state.keywords.isEmpty
-              ? const Center(child: CircularProgressIndicator(color: ColorStyles.primaryColor,))
-              : GestureDetector(
+            ? const Center(child: CircularProgressIndicator(color: ColorStyles.primaryColor,))
+            : Stack(
+              children: [
+                GestureDetector(
                   onTap: () => FocusScope.of(context).unfocus(),
                   behavior: HitTestBehavior.opaque,
                   child: TabBarView(
@@ -90,7 +98,28 @@ class NoticeKeywordScreen extends HookConsumerWidget {
                       ),
                     ],
                   ),
-              ),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 24,
+                  child: Center(
+                    child: CategoryTabBar(
+                      tabs: const ['전체', '키워드'],
+                      selectedIndex: 1,
+                      onSelected: (i) {
+                        if (i == 1) return;
+
+                        Future.microtask(() async {
+                          onTapNotification();
+                        });
+                      },
+                      isBoard: false,
+                    ),
+                  ),
+                ),
+              ],
+            ),
         ),
       ),
     );

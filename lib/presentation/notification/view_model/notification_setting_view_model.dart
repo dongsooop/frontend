@@ -1,16 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import 'package:dongsoop/presentation/setting/notification/providers/notification_setting_provider.dart';
-
+import 'package:dongsoop/presentation/notification/providers/notification_setting_provider.dart';
 import 'package:dongsoop/domain/notification/entity/notification_enable_entity.dart';
 import 'package:dongsoop/domain/notification/entity/notification_recruit_entity.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
 import 'package:dongsoop/domain/notification/repository/notification_setting_repository.dart';
-
 import 'notification_setting_state.dart';
 import 'notification_types.dart';
-
 part 'notification_setting_view_model.g.dart';
 
 @riverpod
