@@ -103,6 +103,13 @@ jobs:
           TZ=Asia/Seoul date +"%Y-%m-%d %H:%M" > .build_date
           echo "BUILD_DATE=$(cat .build_date)" >> $GITHUB_ENV
 
+      - name: Build Success Summary
+        run: |
+          echo "🎉 Flutter Android test build completed successfully!"
+          echo "📦 App Bundle uploaded to Google Play Internal track"
+          echo "🔗 Build #${{ github.run_number }}"
+          echo "🗓️ Date (KST): $BUILD_DATE"
+
       - name: Send Discord Notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.APPLE_BUILD_DISCORD_WEBHOOK }}

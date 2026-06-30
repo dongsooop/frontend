@@ -31,7 +31,7 @@ jobs:
           architecture: x64
           cache: true
 
-      - name: Select Xcode 16.4
+      - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '26.2'
@@ -57,7 +57,9 @@ jobs:
 
       - name: Verify decoded files
         run: |
-          test -f lib/firebase_options.dart && head -n 5 lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)
+          test -f lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)
+          test -s .env || (echo ".env is empty — ENV_TEST_B64 secret may not be set" && exit 1)
+          grep -q 'BASE_URL' .env || (echo "BASE_URL missing from .env" && exit 1)
 
       - name: Cache iOS Pods
         uses: actions/cache@v3
@@ -68,6 +70,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          flutter clean
           flutter pub get
           cd ios && pod install --repo-update
 
