@@ -35,9 +35,9 @@ jobs:
         with:
           xcode-version: '26.2'
 
-      - name: Decode and create .env file
+      - name: Decode and create .env file (prod)
         run: |
-          echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
+          echo "${{ secrets.ENV_PROD_B64 }}" | base64 --decode > .env
 
       - name: Decode Secrets.xcconfig
         run: |
@@ -100,7 +100,7 @@ jobs:
 
       - name: Auto-increment build number
         run: |
-          BUILD_NO=$(date +%s)  # 타임스탬프를 빌드 번호로 사용
+          BUILD_NO="9${{ github.run_number }}"
           echo "BUILD_NO=$BUILD_NO" >> $GITHUB_ENV
 
       - name: Build Flutter iOS
