@@ -83,7 +83,7 @@ jobs:
 
       - name: Auto-increment build number
         run: |
-          BUILD_NO=$(date +%s)
+          BUILD_NO="1${{ github.run_number }}"
           echo "BUILD_NO=$BUILD_NO" >> $GITHUB_ENV
 
       - name: Build Flutter Android App Bundle
