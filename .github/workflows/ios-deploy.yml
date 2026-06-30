@@ -35,9 +35,9 @@ jobs:
         with:
           xcode-version: '26.2'
 
-      - name: Decode and create .env file
+      - name: Decode and create .env file (prod)
         run: |
-          echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
+          echo "${{ secrets.ENV_PROD_B64 }}" | base64 --decode > .env
 
       - name: Decode Secrets.xcconfig
         run: |

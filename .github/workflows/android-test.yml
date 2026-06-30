@@ -1,13 +1,13 @@
-name: Google Play Console Deploy - Android
+name: Google Play Console Deploy - Android Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop ]
 
 jobs:
-  build-android:
+  build-android-test:
     timeout-minutes: 30
-    name: Google Play Console Deploy - Android
+    name: Google Play Console Deploy - Android Test
     runs-on: ubuntu-latest
 
     steps:
@@ -21,11 +21,10 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Decode and create .env file (prod)
+      - name: Decode and create .env file (test)
         run: |
-          echo "${{ secrets.ENV_PROD_B64 }}" | base64 --decode > .env
+          echo "${{ secrets.ENV_TEST_B64 }}" | base64 --decode > .env
 
-      # Flutter SDK (subosito) 이전에 pub 캐시 복원
       - name: Cache Flutter pub packages
         uses: actions/cache@v3
         with:
@@ -57,12 +56,12 @@ jobs:
           ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
           echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
           echo "KAKAO_NATIVE_APP_KEY=${{ secrets.KAKAO_NATIVE_APP_KEY }}" >> android/local.properties
-          echo "local.properties created at android/local.properties"
-          cat android/local.properties | sed 's/KAKAO_NATIVE_APP_KEY=.*/KAKAO_NATIVE_APP_KEY=***REDACTED***/'  
+          cat android/local.properties | sed 's/KAKAO_NATIVE_APP_KEY=.*/KAKAO_NATIVE_APP_KEY=***REDACTED***/'
 
-      - name: Verify firebase_options.dart exists
+      - name: Verify decoded files
         run: |
-          test -f lib/firebase_options.dart && head -n 5 lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)
+          test -f lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)
+          test -f .env || (echo "missing .env" && exit 1)
 
       - name: Decode and install signing key
         run: |
@@ -90,7 +89,7 @@ jobs:
       - name: Build Flutter Android App Bundle
         run: flutter build appbundle --release --build-number=$BUILD_NO
 
-      - name: Upload app to Google Play
+      - name: Upload app to Google Play (Internal)
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
@@ -104,23 +103,11 @@ jobs:
           TZ=Asia/Seoul date +"%Y-%m-%d %H:%M" > .build_date
           echo "BUILD_DATE=$(cat .build_date)" >> $GITHUB_ENV
 
-      - name: Extract app version
-        run: |
-          APP_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
-          echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
-
-      - name: Build Success Summary
-        run: |
-          echo "🎉 Flutter Android app bundle built and uploaded successfully!"
-          echo "📦 App Bundle uploaded to Google Play Internal track"
-          echo "🔗 Build #${{ github.run_number }}"
-          echo "🗓️ Date (KST): $BUILD_DATE"
-
       - name: Send Discord Notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.APPLE_BUILD_DISCORD_WEBHOOK }}
         run: |
           curl -H "Content-Type: application/json" \
             -X POST \
-            -d "{\"content\": \"🚀 Android 빌드가 성공적으로 완료되었습니다! 🗓️ 날짜(KST): $BUILD_DATE${APP_VERSION:+\\n🏷️ 버전: $APP_VERSION}\"}" \
+            -d "{\"content\": \"🧪 [Internal] Android 테스트 빌드가 업로드되었습니다! (테스트 광고 적용) 🗓️ 날짜(KST): $BUILD_DATE\"}" \
             $DISCORD_WEBHOOK
