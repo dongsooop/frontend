@@ -52,6 +52,20 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     }
 
     if let controller = window?.rootViewController as? FlutterViewController {
+      let appDistributionChannel = FlutterMethodChannel(
+        name: "dongsoop/app_distribution",
+        binaryMessenger: controller.binaryMessenger
+      )
+
+      appDistributionChannel.setMethodCallHandler { call, result in
+       switch call.method {
+        case "isTestFlight":
+            result(Self.isRunningInTestFlight())
+        default:
+            result(FlutterMethodNotImplemented)
+        }
+      }
+
       pushChannel = FlutterMethodChannel(
         name: "app/push",
         binaryMessenger: controller.binaryMessenger
@@ -177,5 +191,13 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
       self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
     }
     super.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
+  }
+
+   private static func isRunningInTestFlight() -> Bool {
+    guard let receiptURL = Bundle.main.appStoreReceiptURL else {
+        return false
+    }
+
+    return receiptURL.lastPathComponent == "sandboxReceipt"
   }
 }

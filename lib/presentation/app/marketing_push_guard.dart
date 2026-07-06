@@ -1,7 +1,7 @@
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
-import 'package:dongsoop/presentation/setting/notification/view_model/notification_setting_view_model.dart';
-import 'package:dongsoop/presentation/setting/notification/view_model/notification_types.dart';
+import 'package:dongsoop/presentation/notification/view_model/notification_setting_view_model.dart';
+import 'package:dongsoop/presentation/notification/view_model/notification_types.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/device_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

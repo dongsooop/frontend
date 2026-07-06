@@ -6,11 +6,13 @@ import 'package:dongsoop/ui/text_styles.dart';
 
 class LoggedOutPromptCard extends StatelessWidget {
   final VoidCallback onTapLogin;
+  final VoidCallback onTapNotification;
   final VoidCallback onTapUserFeedback;
 
   const LoggedOutPromptCard({
     super.key,
     required this.onTapLogin,
+    required this.onTapNotification,
     required this.onTapUserFeedback,
   });
 
@@ -69,7 +71,7 @@ class LoggedOutPromptCard extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
           Container(
             width: double.infinity,
@@ -80,9 +82,17 @@ class LoggedOutPromptCard extends StatelessWidget {
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: MyActivityItem(
-              label: '피드백 하러가기',
-              onTap: onTapUserFeedback,
+            child: Column(
+              children: [
+                MyActivityItem(
+                  label: '알림 설정',
+                  onTap: onTapNotification,
+                ),
+                MyActivityItem(
+                  label: '피드백 하러가기',
+                  onTap: onTapUserFeedback,
+                ),
+              ],
             ),
           ),
         ],

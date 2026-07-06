@@ -21,7 +21,7 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapMarket;
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
-  final VoidCallback onTapNoticeKeyword;
+  final VoidCallback onTapNotification;
   final VoidCallback onTapSocialLoginConnect;
 
   const MyPageScreen({
@@ -37,7 +37,7 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapMarket,
     required this.onTapRecruit,
     required this.onTapBlockedUser,
-    required this.onTapNoticeKeyword,
+    required this.onTapNotification,
     required this.onTapSocialLoginConnect,
   });
 
@@ -76,37 +76,38 @@ class MyPageScreen extends HookConsumerWidget {
           )
       ),
       body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              child: myPageState.when(
-                data: (user) {
-                  if (user == null) {
-                    return LoggedOutPromptCard(
-                      onTapLogin: onTapSignIn,
-                      onTapUserFeedback: onTapUserFeedback,
-                    );
-                  } else {
-                    return LoggedInUserCard(
-                      user: user,
-                      onTapAdminReport: onTapAdminReport,
-                      onTapMarket: onTapMarket,
-                      onTapRecruit: onTapRecruit,
-                      onTapCalendar: onTapCalendar,
-                      onTapTimetable: onTapTimetable,
-                      onTapBlockedUser: onTapBlockedUser,
-                      onTapAdminBlindDate: onTapAdminBlindDate,
-                      onTapAdminFeedback: onTapAdminFeedback,
-                      onTapUserFeedback: onTapUserFeedback,
-                      onTapNoticeKeyword: onTapNoticeKeyword,
-                      onTapSocialLoginConnect: onTapSocialLoginConnect,
-                    );
-                  }
-                },
-                error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),
-                loading: () => Center(child: CircularProgressIndicator()),
-              ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: myPageState.when(
+              data: (user) {
+                if (user == null) {
+                  return LoggedOutPromptCard(
+                    onTapLogin: onTapSignIn,
+                    onTapNotification: onTapNotification,
+                    onTapUserFeedback: onTapUserFeedback,
+                  );
+                } else {
+                  return LoggedInUserCard(
+                    user: user,
+                    onTapAdminReport: onTapAdminReport,
+                    onTapMarket: onTapMarket,
+                    onTapRecruit: onTapRecruit,
+                    onTapCalendar: onTapCalendar,
+                    onTapTimetable: onTapTimetable,
+                    onTapBlockedUser: onTapBlockedUser,
+                    onTapAdminBlindDate: onTapAdminBlindDate,
+                    onTapAdminFeedback: onTapAdminFeedback,
+                    onTapUserFeedback: onTapUserFeedback,
+                    onTapNotification: onTapNotification,
+                    onTapSocialLoginConnect: onTapSocialLoginConnect,
+                  );
+                }
+              },
+              error: (e, _) => Center(child: Text('$e', style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),)),
+              loading: () => Center(child: CircularProgressIndicator()),
             ),
+          ),
         ),
       ),
     );
