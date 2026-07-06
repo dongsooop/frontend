@@ -1,4 +1,4 @@
-import 'package:dongsoop/presentation/setting/notification/view_model/notification_types.dart';
+import 'package:dongsoop/presentation/notification/view_model/notification_types.dart';
 
 class NotificationSettingState {
   final Map<String, bool> enabled;

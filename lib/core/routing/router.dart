@@ -43,7 +43,7 @@ import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_more_screen.dart';
 import 'package:dongsoop/presentation/setting/device_management/device_management_screen.dart';
-import 'package:dongsoop/presentation/setting/notification/notification_screen.dart';
+import 'package:dongsoop/presentation/notification/notification_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_screen.dart';
@@ -263,23 +263,21 @@ final router = GoRouter(
       ),
     ),
     GoRoute(
-        path: RoutePaths.adminReportSanction,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final reportId = extra?['reportId'] as int? ?? 0;
-          final targetMemberId = extra?['targetMemberId'] as int? ?? 0;
+      path: RoutePaths.adminReportSanction,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final reportId = extra?['reportId'] as int? ?? 0;
+        final targetMemberId = extra?['targetMemberId'] as int? ?? 0;
 
-          return ReportAdminSanctionScreen(
-            reportId: reportId,
-            targetMemberId: targetMemberId,
-          );
-        }),
+        return ReportAdminSanctionScreen(
+          reportId: reportId,
+          targetMemberId: targetMemberId,
+        );
+      }
+    ),
     GoRoute(
       path: RoutePaths.setting,
       builder: (context, state) => SettingScreen(
-        onTapNotification: () {
-          context.push(RoutePaths.notification);
-        },
         onTapDevice: () {
           context.push(RoutePaths.deviceManagement);
         },
@@ -288,7 +286,15 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.notification,
-      builder: (context, state) => NotificationScreen(),
+      builder: (context, state) => NotificationScreen(
+        onTapNoticeKeyword: () => context.replace(RoutePaths.noticeKeyword),
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.noticeKeyword,
+      builder: (context, state) => NoticeKeywordScreen(
+        onTapNotification: () => context.replace(RoutePaths.notification),
+      ),
     ),
     GoRoute(
       path: RoutePaths.deviceManagement,
@@ -581,7 +587,11 @@ final router = GoRouter(
                   pageBuilder: (context, state) {
                     return MaterialPage(
                       key: state.pageKey,
-                      child: const NoticeListPageScreen(),
+                      child: NoticeListPageScreen(
+                        onTapAlarmSetting: () {
+                          context.push(RoutePaths.notification);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -706,10 +716,6 @@ final router = GoRouter(
                 ),
               ),
               GoRoute(
-                path: RoutePaths.noticeKeyword,
-                builder: (context, state) => const NoticeKeywordScreen(),
-              ),
-              GoRoute(
                 path: RoutePaths.socialLoginConnect,
                 builder: (context, state) => SocialLoginConnectScreen(),
               ),
@@ -792,8 +798,8 @@ final router = GoRouter(
               onTapBlockedUser: () {
                 context.push(RoutePaths.mypage + RoutePaths.mypageBlock);
               },
-              onTapNoticeKeyword: () {
-                context.push(RoutePaths.mypage + RoutePaths.noticeKeyword);
+              onTapNotification: () {
+                context.push(RoutePaths.notification);
               },
               onTapSocialLoginConnect: () {
                 context.push(RoutePaths.mypage + RoutePaths.socialLoginConnect);
