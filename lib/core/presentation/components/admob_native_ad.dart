@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:logger/logger.dart';
 import 'package:dongsoop/ui/color_styles.dart';
+import 'package:dongsoop/core/environment/app_distribution.dart';
 
 class AdmobNativeAd extends StatefulWidget {
   final TemplateType templateType;
@@ -23,6 +24,8 @@ class AdmobNativeAd extends StatefulWidget {
 class _AdmobNativeAdState extends State<AdmobNativeAd> {
   NativeAd? _nativeAd;
   bool _nativeAdIsLoaded = false;
+  bool _useTestAds = kDebugMode;
+
   final Logger _logger = Logger();
 
   static const String _androidTestAdUnitId = 'ca-app-pub-3940256099942544/2247696110';
@@ -30,18 +33,27 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
 
   String get _adUnitId {
     if (Platform.isAndroid) {
-      if (kDebugMode) return _androidTestAdUnitId;
+      if (_useTestAds) return _androidTestAdUnitId;
       return dotenv.maybeGet('ADMOB_ANDROID_NATIVE_ID') ?? _androidTestAdUnitId;
     } else if (Platform.isIOS) {
-      if (kDebugMode) return _iosTestAdUnitId;
+      if (_useTestAds) return _iosTestAdUnitId;
       return dotenv.maybeGet('ADMOB_IOS_NATIVE_ID') ?? _iosTestAdUnitId;
     }
+
     return '';
   }
 
   @override
   void initState() {
     super.initState();
+    _initAndLoadAd();
+  }
+
+  Future<void> _initAndLoadAd() async {
+    final isTestFlight = await AppDistribution.isTestFlight();
+    _useTestAds = kDebugMode || isTestFlight;
+    _logger.d('AdMob use test ads: $_useTestAds');
+    if (!mounted) return;
     _loadAd();
   }
 
@@ -69,6 +81,13 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
         onAdFailedToLoad: (ad, error) {
           _logger.e('$NativeAd failed to load: $error');
           ad.dispose();
+
+          if (mounted) {
+            setState(() {
+              _nativeAd = null;
+              _nativeAdIsLoaded = false;
+            });
+          }
         },
       ),
       request: const AdRequest(),
@@ -104,7 +123,7 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
         child: AdWidget(ad: _nativeAd!),
       );
     }
-    // 광고 로딩 중에는 빈 공간 또는 스켈레톤 UI를 보여줄 수 있습니다.
+
     return SizedBox(height: widget.height);
   }
 }
