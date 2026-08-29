@@ -9,15 +9,18 @@ import 'package:dongsoop/presentation/notification/widget/notification_section.d
 import 'package:dongsoop/presentation/notification/widget/notification_toggle_row.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/device_providers.dart';
+import 'package:dongsoop/providers/guest_department_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
   final VoidCallback onTapNoticeKeyword;
+  final VoidCallback onTapGuestDepartment;
 
   const NotificationScreen({
     super.key,
     required this.onTapNoticeKeyword,
+    required this.onTapGuestDepartment,
   });
 
   @override
@@ -25,6 +28,7 @@ class NotificationScreen extends ConsumerStatefulWidget {
 }
 
 class _NotificationScreenState extends ConsumerState<NotificationScreen> {
+  int? _guestDepartmentCount;
 
   void _showSnack(BuildContext context, String message) {
     final messenger = ScaffoldMessenger.of(context);
@@ -71,6 +75,16 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
           deviceToken: deviceToken,
         );
       } catch (_) {}
+
+      if (target == NotificationTarget.guest) {
+        try {
+          final codes = await ref
+              .read(getGuestDepartmentsUseCaseProvider)
+              .execute(deviceToken: deviceToken);
+          if (!mounted) return;
+          setState(() => _guestDepartmentCount = codes.length);
+        } catch (_) {}
+      }
     });
   }
 
@@ -200,6 +214,28 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                         nextValue: v,
                       ),
                     ),
+                    if (target == NotificationTarget.guest)
+                      InkWell(
+                        onTap: widget.onTapGuestDepartment,
+                        child: SizedBox(
+                          height: 44,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '관심 학과 설정 (${_guestDepartmentCount ?? 0}개 선택됨)',
+                                style: TextStyles.smallTextRegular
+                                    .copyWith(color: ColorStyles.gray4),
+                              ),
+                              const Icon(
+                                Icons.navigate_next,
+                                size: 18,
+                                color: ColorStyles.gray4,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),

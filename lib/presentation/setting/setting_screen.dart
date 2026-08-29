@@ -12,11 +12,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class SettingScreen extends HookConsumerWidget {
   final VoidCallback onTapDevice;
   final VoidCallback onTapPasswordReset;
+  final VoidCallback onTapGuestDepartment;
 
   const SettingScreen({
     super.key,
     required this.onTapDevice,
     required this.onTapPasswordReset,
+    required this.onTapGuestDepartment,
   });
 
   @override
@@ -121,6 +123,19 @@ class SettingScreen extends HookConsumerWidget {
                           ),
                         );
                       },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
+
+              if (user == null) ...[
+                buildSettingsSection(
+                  title: '앱 설정',
+                  children: [
+                    buildSettingsItem(
+                      label: '관심 학과 설정',
+                      onTap: onTapGuestDepartment,
                     ),
                   ],
                 ),
