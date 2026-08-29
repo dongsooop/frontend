@@ -2,21 +2,21 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/providers/device_providers.dart';
-import 'package:dongsoop/providers/guest_department_providers.dart';
+import 'package:dongsoop/providers/subscribe_department_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class GuestDepartmentScreen extends ConsumerStatefulWidget {
-  const GuestDepartmentScreen({super.key});
+class SubscribeDepartmentScreen extends ConsumerStatefulWidget {
+  const SubscribeDepartmentScreen({super.key});
 
   @override
-  ConsumerState<GuestDepartmentScreen> createState() =>
-      _GuestDepartmentScreenState();
+  ConsumerState<SubscribeDepartmentScreen> createState() =>
+      _SubscribeDepartmentScreenState();
 }
 
-class _GuestDepartmentScreenState extends ConsumerState<GuestDepartmentScreen> {
+class _SubscribeDepartmentScreenState extends ConsumerState<SubscribeDepartmentScreen> {
   static final _departments = DepartmentType.values
       .where((d) => d != DepartmentType.Unknown)
       .toList(growable: false);
@@ -70,7 +70,7 @@ class _GuestDepartmentScreenState extends ConsumerState<GuestDepartmentScreen> {
 
     try {
       final codes = await ref
-          .read(getGuestDepartmentsUseCaseProvider)
+          .read(getSubscribeDepartmentsUseCaseProvider)
           .execute(deviceToken: deviceToken);
       if (!mounted) return;
       setState(() {
@@ -108,7 +108,7 @@ class _GuestDepartmentScreenState extends ConsumerState<GuestDepartmentScreen> {
     try {
       final codes = _selectedCodes.toList();
       await ref
-          .read(updateGuestDepartmentsUseCaseProvider)
+          .read(updateSubscribeDepartmentsUseCaseProvider)
           .execute(deviceToken: deviceToken, departmentTypes: codes);
 
       _showSnack(

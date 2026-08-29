@@ -1,19 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
-import 'package:dongsoop/data/guest_department/data_source/guest_department_data_source.dart';
-import 'package:dongsoop/data/guest_department/model/guest_department_model.dart';
+import 'package:dongsoop/data/subscribe_department/data_source/subscribe_department_data_source.dart';
+import 'package:dongsoop/data/subscribe_department/model/subscribe_department_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class GuestDepartmentDataSourceImpl implements GuestDepartmentDataSource {
+class SubscribeDepartmentDataSourceImpl implements SubscribeDepartmentDataSource {
   final Dio _plainDio;
 
-  GuestDepartmentDataSourceImpl(this._plainDio);
+  SubscribeDepartmentDataSourceImpl(this._plainDio);
 
   @override
-  Future<GuestDepartmentModel> fetchDepartments({
+  Future<SubscribeDepartmentModel> fetchDepartments({
     required String deviceToken,
   }) async {
-    final url = dotenv.get('GUEST_DEPARTMENT_FIND');
+    final url = dotenv.get('SUBSCRIBE_DEPARTMENT_FIND');
 
     final response = await _plainDio.get(
       url,
@@ -22,26 +22,26 @@ class GuestDepartmentDataSourceImpl implements GuestDepartmentDataSource {
 
     if (response.statusCode != HttpStatusCode.ok.code) {
       throw Exception(
-        'GuestDepartment FIND failed. status: ${response.statusCode}',
+        'SubscribeDepartment FIND failed. status: ${response.statusCode}',
       );
     }
 
     final data = response.data;
     if (data is! Map<String, dynamic>) {
       throw Exception(
-        'GuestDepartment FIND invalid response type: ${data.runtimeType}',
+        'SubscribeDepartment FIND invalid response type: ${data.runtimeType}',
       );
     }
 
-    return GuestDepartmentModel.fromJson(data);
+    return SubscribeDepartmentModel.fromJson(data);
   }
 
   @override
   Future<void> updateDepartments({
     required String deviceToken,
-    required GuestDepartmentModel body,
+    required SubscribeDepartmentModel body,
   }) async {
-    final url = dotenv.get('GUEST_DEPARTMENT_UPDATE');
+    final url = dotenv.get('SUBSCRIBE_DEPARTMENT_UPDATE');
 
     final response = await _plainDio.put(
       url,
@@ -52,7 +52,7 @@ class GuestDepartmentDataSourceImpl implements GuestDepartmentDataSource {
     if (response.statusCode != HttpStatusCode.ok.code &&
         response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception(
-        'GuestDepartment UPDATE failed. status: ${response.statusCode}',
+        'SubscribeDepartment UPDATE failed. status: ${response.statusCode}',
       );
     }
   }

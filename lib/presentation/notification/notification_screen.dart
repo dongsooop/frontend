@@ -9,18 +9,18 @@ import 'package:dongsoop/presentation/notification/widget/notification_section.d
 import 'package:dongsoop/presentation/notification/widget/notification_toggle_row.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/device_providers.dart';
-import 'package:dongsoop/providers/guest_department_providers.dart';
+import 'package:dongsoop/providers/subscribe_department_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
   final VoidCallback onTapNoticeKeyword;
-  final VoidCallback onTapGuestDepartment;
+  final VoidCallback onTapSubscribeDepartment;
 
   const NotificationScreen({
     super.key,
     required this.onTapNoticeKeyword,
-    required this.onTapGuestDepartment,
+    required this.onTapSubscribeDepartment,
   });
 
   @override
@@ -28,7 +28,7 @@ class NotificationScreen extends ConsumerStatefulWidget {
 }
 
 class _NotificationScreenState extends ConsumerState<NotificationScreen> {
-  int? _guestDepartmentCount;
+  int? _subscribeDepartmentCount;
 
   void _showSnack(BuildContext context, String message) {
     final messenger = ScaffoldMessenger.of(context);
@@ -79,10 +79,10 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       if (target == NotificationTarget.guest) {
         try {
           final codes = await ref
-              .read(getGuestDepartmentsUseCaseProvider)
+              .read(getSubscribeDepartmentsUseCaseProvider)
               .execute(deviceToken: deviceToken);
           if (!mounted) return;
-          setState(() => _guestDepartmentCount = codes.length);
+          setState(() => _subscribeDepartmentCount = codes.length);
         } catch (_) {}
       }
     });
@@ -216,14 +216,14 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                     ),
                     if (target == NotificationTarget.guest)
                       InkWell(
-                        onTap: widget.onTapGuestDepartment,
+                        onTap: widget.onTapSubscribeDepartment,
                         child: SizedBox(
                           height: 44,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '관심 학과 설정 (${_guestDepartmentCount ?? 0}개 선택됨)',
+                                '관심 학과 설정 (${_subscribeDepartmentCount ?? 0}개 선택됨)',
                                 style: TextStyles.smallTextRegular
                                     .copyWith(color: ColorStyles.gray4),
                               ),

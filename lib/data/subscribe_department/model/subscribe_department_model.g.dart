@@ -1,21 +1,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'guest_department_model.dart';
+part of 'subscribe_department_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-GuestDepartmentModel _$GuestDepartmentModelFromJson(
+SubscribeDepartmentModel _$SubscribeDepartmentModelFromJson(
         Map<String, dynamic> json) =>
-    GuestDepartmentModel(
+    SubscribeDepartmentModel(
       departmentTypes: (json['departmentTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
     );
 
-Map<String, dynamic> _$GuestDepartmentModelToJson(
-        GuestDepartmentModel instance) =>
+Map<String, dynamic> _$SubscribeDepartmentModelToJson(
+        SubscribeDepartmentModel instance) =>
     <String, dynamic>{
       'departmentTypes': instance.departmentTypes,
     };

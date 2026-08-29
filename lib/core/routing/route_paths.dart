@@ -52,5 +52,5 @@ abstract class RoutePaths {
   static const String socialLoginConnect = '/socialLoginConnect';
   static const String search = '/search';
   static const String noticeKeyword = '/noticeKeyword';
-  static const String guestDepartmentSetting = '/guestDepartmentSetting';
+  static const String subscribeDepartmentSetting = '/subscribeDepartmentSetting';
 }

@@ -1,4 +1,4 @@
-abstract class GuestDepartmentRepository {
+abstract class SubscribeDepartmentRepository {
   Future<List<String>> getDepartments({
     required String deviceToken,
   });
