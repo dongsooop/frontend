@@ -39,6 +39,23 @@ class NoticeRepositoryImpl implements NoticeRepository {
     }, NoticeException());
   }
 
+  @override
+  Future<List<NoticeEntity>> fetchSubscribedNotices({
+    required int page,
+    String? fid,
+    String? deviceToken,
+  }) async {
+    return _handle(() async {
+      final models = await _remote.fetchSubscribedNotices(
+        page: page,
+        fid: fid,
+        deviceToken: deviceToken,
+      );
+
+      return models.map((model) => model.toEntity(isDepartment: true)).toList();
+    }, NoticeException());
+  }
+
   Future<T> _handle<T>(Future<T> Function() action, Exception exception) async {
     try {
       return await action();

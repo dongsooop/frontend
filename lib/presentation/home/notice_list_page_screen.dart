@@ -1,9 +1,9 @@
 import 'package:dongsoop/core/presentation/components/common_notice_list_item.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
-import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
@@ -55,6 +55,12 @@ class NoticeListPageScreen extends HookConsumerWidget {
     final isLastPageList = listVM.isLastPage;
 
     final scrollController = useScrollController();
+    final hasNavigatedToSubscribeSetting = useRef(false);
+
+    useEffect(() {
+      hasNavigatedToSubscribeSetting.value = false;
+      return null;
+    }, [args]);
 
     useEffect(() {
       void onScroll() {
@@ -115,10 +121,6 @@ class NoticeListPageScreen extends HookConsumerWidget {
                                 padding: const EdgeInsets.only(right: 24),
                                 child: GestureDetector(
                                   onTap: () async {
-                                    if (index == 2 && !isLoggedIn) {
-                                      await LoginRequiredDialog(context);
-                                      return;
-                                    }
                                     selectedIndex.value = index;
 
                                     if (scrollController.hasClients) {
@@ -150,7 +152,22 @@ class NoticeListPageScreen extends HookConsumerWidget {
                     loading: () => const Center(
                       child: CircularProgressIndicator(color: ColorStyles.primaryColor),
                     ),
-                    error: (e, _) => Center(child: Text('$e')),
+                    error: (e, _) {
+                      if (e is NoSubscribedDepartmentsException) {
+                        if (!hasNavigatedToSubscribeSetting.value) {
+                          hasNavigatedToSubscribeSetting.value = true;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (context.mounted) {
+                              context.push(RoutePaths.subscribeDepartmentSetting);
+                            }
+                          });
+                        }
+                        return const Center(
+                          child: CircularProgressIndicator(color: ColorStyles.primaryColor),
+                        );
+                      }
+                      return Center(child: Text('$e'));
+                    },
                     data: (notices) {
                       if (notices.isEmpty) {
                         return Center(

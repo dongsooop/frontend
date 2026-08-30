@@ -6,8 +6,8 @@ import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
-  DeviceTokenDataSourceImpl(this._plainDio, this._storage);
-  final Dio _plainDio;
+  DeviceTokenDataSourceImpl(this._dio, this._storage);
+  final Dio _dio;
   final SecureStorageService _storage;
   static const fcmLastToken = 'fcmLastToken';
 
@@ -33,7 +33,7 @@ class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
     final endpoint = dotenv.get('DEVICE_REGISTRATION_ENDPOINT');
     final requestBody = request.toJson();
     try {
-      final response = await _plainDio.post(endpoint, data: requestBody);
+      final response = await _dio.post(endpoint, data: requestBody);
 
       if (response.statusCode == HttpStatusCode.created.code) {
         await _storage.write(SecureStorageService.fcmLastToken, currentToken);

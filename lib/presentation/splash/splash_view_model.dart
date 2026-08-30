@@ -75,10 +75,10 @@ class SplashViewModel extends StateNotifier<SplashState> {
     }
   }
 
+  /// 회원/비회원 구분 없이 앱 실행마다(첫 설치·업데이트 포함) fid/deviceToken을
+  /// 서버에 등록한다. 로그인 상태면 인증된 채널로 나가 기존 회원 기기에 fid가
+  /// 백필되고, 비로그인이면 기존과 동일하게 비회원 기기로 등록/갱신된다.
   Future<String?> requestDeviceTokenPreAuthOnce({Duration? tokenTimeout}) async {
-    final user = _ref.read(userSessionProvider);
-    if (user != null) return null;
-
     try {
       await _ensureFcmInitialized();
       final stream = _ref.read(observeFcmTokenUseCaseProvider).execute()
@@ -104,8 +104,6 @@ class SplashViewModel extends StateNotifier<SplashState> {
 
   Future<void> initFcmAfterAuthGate() async {
     if (_started) return;
-    final user = _ref.read(userSessionProvider);
-    if (user != null) return;
     await _startFcmObservation();
   }
 
@@ -128,9 +126,6 @@ class SplashViewModel extends StateNotifier<SplashState> {
         .where((t) => t.isNotEmpty)
         .distinct()
         .listen((token) async {
-      final user = _ref.read(userSessionProvider);
-      if (user != null) return;
-
       final fid = await _ref.read(getFidUseCaseProvider).execute();
       await _registerOnce(DeviceTokenRequest(
         deviceToken: token,

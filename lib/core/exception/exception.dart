@@ -9,6 +9,17 @@ class LoginRequiredException implements Exception {
   String toString() => message;
 }
 
+class NoSubscribedDepartmentsException implements Exception {
+  final String message;
+
+  NoSubscribedDepartmentsException([
+    this.message = "구독한 학과가 없어요. 관심 학과를 설정해주세요.",
+  ]);
+
+  @override
+  String toString() => message;
+}
+
 class SignUpException implements Exception {
   final String message;
 
