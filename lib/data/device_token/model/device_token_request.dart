@@ -7,10 +7,12 @@ part 'device_token_request.g.dart';
 @JsonSerializable()
 class DeviceTokenRequest with _$DeviceTokenRequest {
   final String deviceToken;
+  final String? fid;
   final String type;
 
  DeviceTokenRequest({
     required this.deviceToken,
+    this.fid,
     required this.type,
   });
 

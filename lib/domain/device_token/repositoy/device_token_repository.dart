@@ -4,6 +4,7 @@ import 'package:dongsoop/domain/device_token/enum/failure_type.dart';
 abstract class DeviceTokenRepository {
   Future<void> init();
   Future<String?> getFcmToken();
+  Future<String?> getFid();
   Stream<String> tokenStreamWithInitial();
   Future<FailureType?> registerDeviceToken(DeviceTokenRequest request);
 }

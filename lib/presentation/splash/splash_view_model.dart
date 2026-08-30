@@ -87,8 +87,9 @@ class SplashViewModel extends StateNotifier<SplashState> {
       final token = tokenTimeout == null
           ? await stream.first
           : await stream.first.timeout(tokenTimeout);
+      final fid = await _ref.read(getFidUseCaseProvider).execute();
       final failure = await _ref.read(registerDeviceTokenUseCaseProvider).execute(
-        DeviceTokenRequest(deviceToken: token, type: _deviceType()),
+        DeviceTokenRequest(deviceToken: token, fid: fid, type: _deviceType()),
       );
       if (failure == null) return null;
 
@@ -130,8 +131,10 @@ class SplashViewModel extends StateNotifier<SplashState> {
       final user = _ref.read(userSessionProvider);
       if (user != null) return;
 
+      final fid = await _ref.read(getFidUseCaseProvider).execute();
       await _registerOnce(DeviceTokenRequest(
         deviceToken: token,
+        fid: fid,
         type: _deviceType(),
       ));
     }, onError: (_, __) {

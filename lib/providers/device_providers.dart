@@ -10,6 +10,7 @@ import 'package:dongsoop/data/device_token/data_source/device_token_data_source_
 import 'package:dongsoop/domain/device_token/repositoy/device_token_repository.dart';
 import 'package:dongsoop/data/device_token/repository/device_token_repository_impl.dart';
 import 'package:dongsoop/domain/device_token/use_case/get_fcm_token_use_case.dart';
+import 'package:dongsoop/domain/device_token/use_case/get_fid_use_case.dart';
 import 'package:dongsoop/domain/device_token/use_case/observe_fcm_token_use_case.dart';
 
 // DataSources
@@ -42,6 +43,11 @@ final initFcmUseCaseProvider = Provider<FcmInitUseCase>((ref) {
 final getFcmTokenUseCaseProvider = Provider<GetFcmTokenUseCase>((ref) {
   final repo = ref.read(deviceTokenRepositoryProvider);
   return GetFcmTokenUseCase(repo);
+});
+
+final getFidUseCaseProvider = Provider<GetFidUseCase>((ref) {
+  final repo = ref.read(deviceTokenRepositoryProvider);
+  return GetFidUseCase(repo);
 });
 
 final observeFcmTokenUseCaseProvider = Provider<ObserveFcmTokenUseCase>((ref) {

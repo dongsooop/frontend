@@ -8,6 +8,7 @@ class SecureStorageService {
   static const _refreshToken = 'refreshToken';
   static const _fcmToken = 'fcmToken';
   static const fcmLastToken = 'fcmLastToken';
+  static const fcmLastFid = 'fcmLastFid';
 
   Future<void> write(String key, String token) async {
     await _storage.write(key: key, value: token);

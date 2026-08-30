@@ -15,6 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DeviceTokenRequest {
   String get deviceToken;
+  String? get fid;
   String get type;
 
   /// Create a copy of DeviceTokenRequest
@@ -32,16 +33,17 @@ mixin _$DeviceTokenRequest {
             other is DeviceTokenRequest &&
             (identical(other.deviceToken, deviceToken) ||
                 other.deviceToken == deviceToken) &&
+            (identical(other.fid, fid) || other.fid == fid) &&
             (identical(other.type, type) || other.type == type));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, deviceToken, type);
+  int get hashCode => Object.hash(runtimeType, deviceToken, fid, type);
 
   @override
   String toString() {
-    return 'DeviceTokenRequest(deviceToken: $deviceToken, type: $type)';
+    return 'DeviceTokenRequest(deviceToken: $deviceToken, fid: $fid, type: $type)';
   }
 }
 
@@ -51,7 +53,7 @@ abstract mixin class $DeviceTokenRequestCopyWith<$Res> {
           DeviceTokenRequest value, $Res Function(DeviceTokenRequest) _then) =
       _$DeviceTokenRequestCopyWithImpl;
   @useResult
-  $Res call({String deviceToken, String type});
+  $Res call({String deviceToken, String? fid, String type});
 }
 
 /// @nodoc
@@ -68,6 +70,7 @@ class _$DeviceTokenRequestCopyWithImpl<$Res>
   @override
   $Res call({
     Object? deviceToken = null,
+    Object? fid = freezed,
     Object? type = null,
   }) {
     return _then(DeviceTokenRequest(
@@ -75,6 +78,10 @@ class _$DeviceTokenRequestCopyWithImpl<$Res>
           ? _self.deviceToken
           : deviceToken // ignore: cast_nullable_to_non_nullable
               as String,
+      fid: freezed == fid
+          ? _self.fid
+          : fid // ignore: cast_nullable_to_non_nullable
+              as String?,
       type: null == type
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable

@@ -17,8 +17,16 @@ class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
     if (currentToken.isEmpty) {
       return;
     }
-    final fcmLastToken = await _storage.read(SecureStorageService.fcmLastToken);
-    if (fcmLastToken != null && fcmLastToken == currentToken) {
+
+    final lastToken = await _storage.read(SecureStorageService.fcmLastToken);
+    final lastFid = await _storage.read(SecureStorageService.fcmLastFid);
+    final tokenUnchanged = lastToken != null && lastToken == currentToken;
+    // fid가 아직 이 기기에서 한 번도 보고되지 않았으면(fid는 있는데 lastFid가 없거나 다르면),
+    // 토큰이 그대로여도 서버 호출을 스킵하지 않는다 — 그래야 오래만에 앱을 켠 기존 사용자도
+    // 백필된다.
+    final fidAlreadyReported =
+        request.fid == null || (lastFid != null && lastFid == request.fid);
+    if (tokenUnchanged && fidAlreadyReported) {
       return;
     }
 
@@ -27,8 +35,11 @@ class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
     try {
       final response = await _plainDio.post(endpoint, data: requestBody);
 
-      if (response.statusCode == HttpStatusCode.noContent.code) {
+      if (response.statusCode == HttpStatusCode.created.code) {
         await _storage.write(SecureStorageService.fcmLastToken, currentToken);
+        if (request.fid != null) {
+          await _storage.write(SecureStorageService.fcmLastFid, request.fid!);
+        }
         return;
       }
 

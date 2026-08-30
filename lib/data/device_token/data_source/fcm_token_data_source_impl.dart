@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:dongsoop/data/device_token/data_source/fcm_token_data_source.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_app_installations/firebase_app_installations.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 
 class FcmTokenDataSourceImpl implements FcmTokenDataSource {
@@ -89,5 +90,15 @@ class FcmTokenDataSourceImpl implements FcmTokenDataSource {
     final token = await currentToken();
     if (token != null && token.isNotEmpty) yield token;
     yield* _fm.onTokenRefresh.distinct();
+  }
+
+  @override
+  Future<String?> currentFid() async {
+    try {
+      final fid = await FirebaseInstallations.instance.getId();
+      return fid.isEmpty ? null : fid;
+    } catch (_) {
+      return null;
+    }
   }
 }
