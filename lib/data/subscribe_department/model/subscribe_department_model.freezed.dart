@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'device_token_request.dart';
+part of 'subscribe_department_model.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,85 +13,72 @@ part of 'device_token_request.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$DeviceTokenRequest {
-  String get deviceToken;
-  String? get fid;
-  String get type;
+mixin _$SubscribeDepartmentModel {
+  List<String> get departmentTypes;
 
-  /// Create a copy of DeviceTokenRequest
+  /// Create a copy of SubscribeDepartmentModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $DeviceTokenRequestCopyWith<DeviceTokenRequest> get copyWith =>
-      _$DeviceTokenRequestCopyWithImpl<DeviceTokenRequest>(
-          this as DeviceTokenRequest, _$identity);
+  $SubscribeDepartmentModelCopyWith<SubscribeDepartmentModel> get copyWith =>
+      _$SubscribeDepartmentModelCopyWithImpl<SubscribeDepartmentModel>(
+          this as SubscribeDepartmentModel, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is DeviceTokenRequest &&
-            (identical(other.deviceToken, deviceToken) ||
-                other.deviceToken == deviceToken) &&
-            (identical(other.fid, fid) || other.fid == fid) &&
-            (identical(other.type, type) || other.type == type));
+            other is SubscribeDepartmentModel &&
+            const DeepCollectionEquality()
+                .equals(other.departmentTypes, departmentTypes));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, deviceToken, fid, type);
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(departmentTypes));
 
   @override
   String toString() {
-    return 'DeviceTokenRequest(deviceToken: $deviceToken, fid: $fid, type: $type)';
+    return 'SubscribeDepartmentModel(departmentTypes: $departmentTypes)';
   }
 }
 
 /// @nodoc
-abstract mixin class $DeviceTokenRequestCopyWith<$Res> {
-  factory $DeviceTokenRequestCopyWith(
-          DeviceTokenRequest value, $Res Function(DeviceTokenRequest) _then) =
-      _$DeviceTokenRequestCopyWithImpl;
+abstract mixin class $SubscribeDepartmentModelCopyWith<$Res> {
+  factory $SubscribeDepartmentModelCopyWith(SubscribeDepartmentModel value,
+          $Res Function(SubscribeDepartmentModel) _then) =
+      _$SubscribeDepartmentModelCopyWithImpl;
   @useResult
-  $Res call({String deviceToken, String? fid, String type});
+  $Res call({List<String> departmentTypes});
 }
 
 /// @nodoc
-class _$DeviceTokenRequestCopyWithImpl<$Res>
-    implements $DeviceTokenRequestCopyWith<$Res> {
-  _$DeviceTokenRequestCopyWithImpl(this._self, this._then);
+class _$SubscribeDepartmentModelCopyWithImpl<$Res>
+    implements $SubscribeDepartmentModelCopyWith<$Res> {
+  _$SubscribeDepartmentModelCopyWithImpl(this._self, this._then);
 
-  final DeviceTokenRequest _self;
-  final $Res Function(DeviceTokenRequest) _then;
+  final SubscribeDepartmentModel _self;
+  final $Res Function(SubscribeDepartmentModel) _then;
 
-  /// Create a copy of DeviceTokenRequest
+  /// Create a copy of SubscribeDepartmentModel
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? deviceToken = null,
-    Object? fid = freezed,
-    Object? type = null,
+    Object? departmentTypes = null,
   }) {
-    return _then(DeviceTokenRequest(
-      deviceToken: null == deviceToken
-          ? _self.deviceToken
-          : deviceToken // ignore: cast_nullable_to_non_nullable
-              as String,
-      fid: freezed == fid
-          ? _self.fid
-          : fid // ignore: cast_nullable_to_non_nullable
-              as String?,
-      type: null == type
-          ? _self.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
+    return _then(SubscribeDepartmentModel(
+      departmentTypes: null == departmentTypes
+          ? _self.departmentTypes
+          : departmentTypes // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ));
   }
 }
 
-/// Adds pattern-matching-related methods to [DeviceTokenRequest].
-extension DeviceTokenRequestPatterns on DeviceTokenRequest {
+/// Adds pattern-matching-related methods to [SubscribeDepartmentModel].
+extension SubscribeDepartmentModelPatterns on SubscribeDepartmentModel {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
