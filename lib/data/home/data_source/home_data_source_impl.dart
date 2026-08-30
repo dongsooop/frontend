@@ -11,7 +11,7 @@ class HomeDataSourceImpl implements HomeDataSource {
   HomeDataSourceImpl(this._plainDio);
 
   @override
-  Future<HomeResponse> fetchGuestHome({String? fid, String? deviceToken}) async {
+  Future<HomeResponse> fetchHome({String? fid, String? deviceToken}) async {
     final url = dotenv.get('HOME_ENDPOINT');
     final headers = <String, String>{
       if (fid != null && fid.isNotEmpty) 'X-Device-Fid': fid,
