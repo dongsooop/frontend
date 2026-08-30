@@ -17,6 +17,9 @@ class DeviceTokenRepositoryImpl implements DeviceTokenRepository {
   Future<String?> getFcmToken() => _fcm.currentToken();
 
   @override
+  Future<String?> getFid() => _fcm.currentFid();
+
+  @override
   Stream<String> tokenStreamWithInitial() => _fcm.tokenStreamWithInitial();
 
   @override
