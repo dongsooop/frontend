@@ -10,14 +10,11 @@ part 'home_view_model.g.dart';
 class HomeViewModel extends _$HomeViewModel {
   @override
   Future<HomeEntity> build({required String? departmentCode}) async {
-    final code = (departmentCode == null || departmentCode.trim().isEmpty)
-        ? null
-        : departmentCode.trim();
     final useCase = ref.read(homeUseCaseProvider);
 
     try {
-      final deviceToken = code == null ? await _resolveDeviceToken() : null;
-      return await useCase.execute(departmentType: code, deviceToken: deviceToken);
+      final (fid, deviceToken) = await _resolveDeviceIds();
+      return await useCase.execute(fid: fid, deviceToken: deviceToken);
     } on SessionExpiredException {
       throw const SessionExpiredException();
     } catch (e) {
@@ -26,17 +23,14 @@ class HomeViewModel extends _$HomeViewModel {
   }
 
   Future<void> refresh() async {
-    final code = (departmentCode == null || departmentCode!.trim().isEmpty)
-        ? null
-        : departmentCode!.trim();
     final useCase = ref.read(homeUseCaseProvider);
 
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(() async {
       try {
-        final deviceToken = code == null ? await _resolveDeviceToken() : null;
-        return await useCase.execute(departmentType: code, deviceToken: deviceToken);
+        final (fid, deviceToken) = await _resolveDeviceIds();
+        return await useCase.execute(fid: fid, deviceToken: deviceToken);
       } on SessionExpiredException {
         throw const SessionExpiredException();
       } catch (e) {
@@ -45,13 +39,19 @@ class HomeViewModel extends _$HomeViewModel {
     });
   }
 
-  /// 관심 학과 기반 홈 개인화를 위한 디바이스 토큰을 가져온다.
+  /// 구독 학과 기반 홈 개인화를 위한 fid/deviceToken을 가져온다 (회원/비회원 공통).
   ///
-  /// 토큰을 못 가져와도 홈 화면 자체는 떠야 하므로, 실패 시 null을 반환해
+  /// 못 가져와도 홈 화면 자체는 떠야 하므로, 실패한 항목은 null로 두어
   /// 서버가 기본(대학 공지만) 홈으로 폴백하게 둔다.
-  Future<String?> _resolveDeviceToken() async {
+  Future<(String?, String?)> _resolveDeviceIds() async {
+    final fid = await _tryGet(() => ref.read(getFidUseCaseProvider).execute());
+    final deviceToken = await _tryGet(() => ref.read(getFcmTokenUseCaseProvider).execute());
+    return (fid, deviceToken);
+  }
+
+  Future<String?> _tryGet(Future<String?> Function() action) async {
     try {
-      return await ref.read(getFcmTokenUseCaseProvider).execute();
+      return await action();
     } catch (_) {
       return null;
     }
