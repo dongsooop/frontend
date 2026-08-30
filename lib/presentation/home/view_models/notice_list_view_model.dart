@@ -1,5 +1,7 @@
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
 import 'package:dongsoop/presentation/home/providers/notice_use_case_provider.dart';
+import 'package:dongsoop/providers/device_providers.dart';
+import 'package:dongsoop/providers/subscribe_department_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 
@@ -97,11 +99,25 @@ class NoticeListViewModel extends _$NoticeListViewModel {
           return await useCase.execute(page: page);
 
         case NoticeTab.department:
-          if (args.departmentType == null) return [];
-          final useCase = ref.read(NoticeDepartmentUseCaseProvider);
+          // 회원/비회원 구분 없이 디바이스가 구독한 학과 기준으로 조회한다.
+          final fid = await ref.read(getFidUseCaseProvider).execute();
+          final deviceToken = await ref.read(getFcmTokenUseCaseProvider).execute();
+
+          if (page == 0) {
+            // 구독한 학과가 없으면 목록 대신 학과 선택 화면으로 보낸다.
+            final subscribed = await ref
+                .read(getSubscribeDepartmentsUseCaseProvider)
+                .execute(fid: fid, deviceToken: deviceToken ?? '');
+            if (subscribed.isEmpty) {
+              throw NoSubscribedDepartmentsException();
+            }
+          }
+
+          final useCase = ref.read(NoticeSubscribedUseCaseProvider);
           return await useCase.execute(
             page: page,
-            departmentType: args.departmentType!,
+            fid: fid,
+            deviceToken: deviceToken,
           );
 
         case NoticeTab.all:

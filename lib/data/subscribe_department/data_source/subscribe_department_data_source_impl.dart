@@ -11,13 +11,17 @@ class SubscribeDepartmentDataSourceImpl implements SubscribeDepartmentDataSource
 
   @override
   Future<SubscribeDepartmentModel> fetchDepartments({
+    String? fid,
     required String deviceToken,
   }) async {
     final url = dotenv.get('SUBSCRIBE_DEPARTMENT_FIND');
 
     final response = await _plainDio.get(
       url,
-      options: Options(headers: {'X-Device-Token': deviceToken}),
+      options: Options(headers: {
+        if (fid != null && fid.isNotEmpty) 'X-Device-Fid': fid,
+        'X-Device-Token': deviceToken,
+      }),
     );
 
     if (response.statusCode != HttpStatusCode.ok.code) {

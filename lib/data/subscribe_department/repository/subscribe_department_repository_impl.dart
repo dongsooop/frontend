@@ -9,9 +9,10 @@ class SubscribeDepartmentRepositoryImpl implements SubscribeDepartmentRepository
 
   @override
   Future<List<String>> getDepartments({
+    String? fid,
     required String deviceToken,
   }) async {
-    final model = await _dataSource.fetchDepartments(deviceToken: deviceToken);
+    final model = await _dataSource.fetchDepartments(fid: fid, deviceToken: deviceToken);
     return model.departmentTypes;
   }
 
