@@ -113,7 +113,7 @@ class NoticeListViewModel extends _$NoticeListViewModel {
             }
           }
 
-          final useCase = ref.read(NoticeGuestUseCaseProvider);
+          final useCase = ref.read(NoticeSubscribedUseCaseProvider);
           return await useCase.execute(
             page: page,
             fid: fid,

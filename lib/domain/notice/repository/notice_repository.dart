@@ -8,7 +8,7 @@ abstract class NoticeRepository {
     required String departmentType,
     bool force = false,
   });
-  Future<List<NoticeEntity>> fetchGuestNotices({
+  Future<List<NoticeEntity>> fetchSubscribedNotices({
     required int page,
     String? fid,
     String? deviceToken,

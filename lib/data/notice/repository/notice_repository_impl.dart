@@ -40,13 +40,13 @@ class NoticeRepositoryImpl implements NoticeRepository {
   }
 
   @override
-  Future<List<NoticeEntity>> fetchGuestNotices({
+  Future<List<NoticeEntity>> fetchSubscribedNotices({
     required int page,
     String? fid,
     String? deviceToken,
   }) async {
     return _handle(() async {
-      final models = await _remote.fetchGuestNotices(
+      final models = await _remote.fetchSubscribedNotices(
         page: page,
         fid: fid,
         deviceToken: deviceToken,

@@ -1,17 +1,17 @@
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
 import 'package:dongsoop/domain/notice/repository/notice_repository.dart';
 
-class NoticeGuestUseCase {
+class NoticeSubscribedUseCase {
   final NoticeRepository repository;
 
-  NoticeGuestUseCase(this.repository);
+  NoticeSubscribedUseCase(this.repository);
 
   Future<List<NoticeEntity>> execute({
     required int page,
     String? fid,
     String? deviceToken,
   }) {
-    return repository.fetchGuestNotices(
+    return repository.fetchSubscribedNotices(
       page: page,
       fid: fid,
       deviceToken: deviceToken,

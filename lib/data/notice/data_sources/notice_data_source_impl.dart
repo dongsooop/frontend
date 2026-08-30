@@ -35,12 +35,12 @@ class NoticeDataSourceImpl implements NoticeDataSource {
   }
 
   @override
-  Future<List<NoticeModel>> fetchGuestNotices({
+  Future<List<NoticeModel>> fetchSubscribedNotices({
     required int page,
     String? fid,
     String? deviceToken,
   }) async {
-    final url = dotenv.get('GUEST_NOTICE_ENDPOINT');
+    final url = dotenv.get('SUBSCRIBED_NOTICE_ENDPOINT');
     final headers = <String, String>{
       if (fid != null && fid.isNotEmpty) 'X-Device-Fid': fid,
       if (deviceToken != null && deviceToken.isNotEmpty)

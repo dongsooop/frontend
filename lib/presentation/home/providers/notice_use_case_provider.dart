@@ -3,7 +3,7 @@ import 'package:dongsoop/data/notice/repository/notice_repository_impl.dart';
 import 'package:dongsoop/domain/notice/repository/notice_repository.dart';
 import 'package:dongsoop/domain/notice/use_cases/notice_combined_use_case.dart';
 import 'package:dongsoop/domain/notice/use_cases/notice_department_use_case.dart';
-import 'package:dongsoop/domain/notice/use_cases/notice_guest_use_case.dart';
+import 'package:dongsoop/domain/notice/use_cases/notice_subscribed_use_case.dart';
 import 'package:dongsoop/domain/notice/use_cases/notice_school_use_case.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
@@ -31,9 +31,9 @@ final NoticeDepartmentUseCaseProvider =
 });
 
 // 비회원 구독 학과 통합 공지용 UseCase (학과 탭 - 게스트)
-final NoticeGuestUseCaseProvider = Provider<NoticeGuestUseCase>((ref) {
+final NoticeSubscribedUseCaseProvider = Provider<NoticeSubscribedUseCase>((ref) {
   final repository = ref.watch(noticeRemoteRepositoryProvider);
-  return NoticeGuestUseCase(repository);
+  return NoticeSubscribedUseCase(repository);
 });
 
 // 전체 공지 병합용 UseCase (리스트 탭에서 사용)
