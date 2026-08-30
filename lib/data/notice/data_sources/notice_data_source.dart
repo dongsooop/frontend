@@ -9,4 +9,10 @@ abstract class NoticeDataSource {
     required int page,
     required String departmentType,
   });
+
+  Future<List<NoticeModel>> fetchGuestNotices({
+    required int page,
+    String? fid,
+    String? deviceToken,
+  });
 }

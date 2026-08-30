@@ -1,5 +1,6 @@
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
 import 'package:dongsoop/presentation/home/providers/notice_use_case_provider.dart';
+import 'package:dongsoop/providers/device_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 
@@ -10,10 +11,12 @@ enum NoticeTab { all, school, department }
 class NoticeListArgs {
   final NoticeTab tab;
   final String? departmentType;
+  final bool isGuest;
 
   const NoticeListArgs({
     required this.tab,
     this.departmentType,
+    this.isGuest = false,
   });
 
   @override
@@ -22,10 +25,12 @@ class NoticeListArgs {
       other is NoticeListArgs &&
           runtimeType == other.runtimeType &&
           tab == other.tab &&
-          departmentType == other.departmentType;
+          departmentType == other.departmentType &&
+          isGuest == other.isGuest;
 
   @override
-  int get hashCode => tab.hashCode ^ (departmentType?.hashCode ?? 0);
+  int get hashCode =>
+      tab.hashCode ^ (departmentType?.hashCode ?? 0) ^ isGuest.hashCode;
 }
 
 @riverpod
@@ -97,6 +102,18 @@ class NoticeListViewModel extends _$NoticeListViewModel {
           return await useCase.execute(page: page);
 
         case NoticeTab.department:
+          if (args.isGuest) {
+            final fid = await ref.read(getFidUseCaseProvider).execute();
+            final deviceToken =
+                await ref.read(getFcmTokenUseCaseProvider).execute();
+            final useCase = ref.read(NoticeGuestUseCaseProvider);
+            return await useCase.execute(
+              page: page,
+              fid: fid,
+              deviceToken: deviceToken,
+            );
+          }
+
           if (args.departmentType == null) return [];
           final useCase = ref.read(NoticeDepartmentUseCaseProvider);
           return await useCase.execute(

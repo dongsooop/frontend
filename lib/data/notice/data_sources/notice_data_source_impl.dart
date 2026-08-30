@@ -34,10 +34,31 @@ class NoticeDataSourceImpl implements NoticeDataSource {
     );
   }
 
+  @override
+  Future<List<NoticeModel>> fetchGuestNotices({
+    required int page,
+    String? fid,
+    String? deviceToken,
+  }) async {
+    final url = dotenv.get('GUEST_NOTICE_ENDPOINT');
+    final headers = <String, String>{
+      if (fid != null && fid.isNotEmpty) 'X-Device-Fid': fid,
+      if (deviceToken != null && deviceToken.isNotEmpty)
+        'X-Device-Token': deviceToken,
+    };
+    return _fetchNoticesFromUrl(
+      dio: _plainDio,
+      url: url,
+      page: page,
+      headers: headers.isEmpty ? null : headers,
+    );
+  }
+
   Future<List<NoticeModel>> _fetchNoticesFromUrl({
     required Dio dio,
     required String url,
     required int page,
+    Map<String, String>? headers,
   }) async {
     try {
       final response = await dio.get(
@@ -47,6 +68,7 @@ class NoticeDataSourceImpl implements NoticeDataSource {
           'size': 10,
           'sort': 'id,desc',
         },
+        options: headers == null ? null : Options(headers: headers),
       );
 
       if (response.statusCode == HttpStatusCode.ok.code) {

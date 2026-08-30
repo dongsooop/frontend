@@ -1,6 +1,5 @@
 import 'package:dongsoop/core/presentation/components/common_notice_list_item.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
-import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
@@ -47,8 +46,9 @@ class NoticeListPageScreen extends HookConsumerWidget {
       return NoticeListArgs(
         tab: selectedTab(selectedIndex.value),
         departmentType: departmentCode,
+        isGuest: !isLoggedIn,
       );
-    }, [selectedIndex.value, departmentCode]);
+    }, [selectedIndex.value, departmentCode, isLoggedIn]);
 
     final noticeState = ref.watch(noticeListViewModelProvider(args));
     final listVM = ref.read(noticeListViewModelProvider(args).notifier);
@@ -115,10 +115,6 @@ class NoticeListPageScreen extends HookConsumerWidget {
                                 padding: const EdgeInsets.only(right: 24),
                                 child: GestureDetector(
                                   onTap: () async {
-                                    if (index == 2 && !isLoggedIn) {
-                                      await LoginRequiredDialog(context);
-                                      return;
-                                    }
                                     selectedIndex.value = index;
 
                                     if (scrollController.hasClients) {
