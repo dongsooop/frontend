@@ -18,9 +18,9 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  Future<HomeEntity> fetchGuestHome() async {
+  Future<HomeEntity> fetchGuestHome({String? deviceToken}) async {
     return _handle(() async {
-      final response = await _dataSource.fetchGuestHome();
+      final response = await _dataSource.fetchGuestHome(deviceToken: deviceToken);
       return response.toEntity();
     });
   }

@@ -28,10 +28,15 @@ class HomeDataSourceImpl implements HomeDataSource {
   }
 
   @override
-  Future<HomeResponse> fetchGuestHome() async {
+  Future<HomeResponse> fetchGuestHome({String? deviceToken}) async {
     final url = dotenv.get('HOME_ENDPOINT');
 
-    final response = await _plainDio.get(url);
+    final response = await _plainDio.get(
+      url,
+      options: (deviceToken == null || deviceToken.isEmpty)
+          ? null
+          : Options(headers: {'X-Device-Token': deviceToken}),
+    );
     if (response.statusCode == HttpStatusCode.ok.code) {
       final data = response.data;
       if (data is! Map<String, dynamic>) {
