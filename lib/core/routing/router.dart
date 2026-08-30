@@ -43,6 +43,7 @@ import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_more_screen.dart';
 import 'package:dongsoop/presentation/setting/device_management/device_management_screen.dart';
+import 'package:dongsoop/presentation/setting/subscribe_department/subscribe_department_screen.dart';
 import 'package:dongsoop/presentation/notification/notification_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
@@ -282,13 +283,21 @@ final router = GoRouter(
           context.push(RoutePaths.deviceManagement);
         },
         onTapPasswordReset: () => context.push(RoutePaths.passwordReset),
+        onTapSubscribeDepartment: () =>
+            context.push(RoutePaths.subscribeDepartmentSetting),
       ),
     ),
     GoRoute(
       path: RoutePaths.notification,
       builder: (context, state) => NotificationScreen(
         onTapNoticeKeyword: () => context.replace(RoutePaths.noticeKeyword),
+        onTapSubscribeDepartment: () =>
+            context.push(RoutePaths.subscribeDepartmentSetting),
       ),
+    ),
+    GoRoute(
+      path: RoutePaths.subscribeDepartmentSetting,
+      builder: (context, state) => const SubscribeDepartmentScreen(),
     ),
     GoRoute(
       path: RoutePaths.noticeKeyword,
