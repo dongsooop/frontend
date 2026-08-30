@@ -1,5 +1,6 @@
 abstract class SubscribeDepartmentRepository {
   Future<List<String>> getDepartments({
+    String? fid,
     required String deviceToken,
   });
 

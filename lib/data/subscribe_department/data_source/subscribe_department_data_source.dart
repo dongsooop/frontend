@@ -2,6 +2,7 @@ import 'package:dongsoop/data/subscribe_department/model/subscribe_department_mo
 
 abstract class SubscribeDepartmentDataSource {
   Future<SubscribeDepartmentModel> fetchDepartments({
+    String? fid,
     required String deviceToken,
   });
 
