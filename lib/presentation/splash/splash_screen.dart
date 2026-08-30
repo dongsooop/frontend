@@ -74,6 +74,40 @@ class SplashScreen extends HookConsumerWidget {
         await viewModel.autoLogin();
         if (cancelled || !context.mounted) return;
 
+        // 회원/비회원 구분 없이 앱 실행마다(첫 설치·업데이트 포함) fid/deviceToken을 등록한다.
+        // 로그인 상태여도 등록해야 기존 회원 기기에 fid가 백필된다.
+        final message = await viewModel.requestDeviceTokenPreAuthOnce(
+          tokenTimeout: const Duration(seconds: 3),
+        );
+        if (cancelled || !context.mounted) return;
+
+        if (message != null) {
+          rootScaffoldMessengerKey.currentState?.showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: TextStyles.normalTextRegular.copyWith(
+                  color: ColorStyles.white
+                ),
+              ),
+              backgroundColor: ColorStyles.gray3,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              elevation: 4,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+          await SchedulerBinding.instance.endOfFrame;
+          await Future.delayed(const Duration(milliseconds: 200));
+        }
+        if (cancelled || !context.mounted) return;
+
         // 제재 대상 확인
         final user = container.read(userSessionProvider);
         if (cancelled || !context.mounted) return;
@@ -108,36 +142,6 @@ class SplashScreen extends HookConsumerWidget {
           return;
         }
 
-          final message = await viewModel.requestDeviceTokenPreAuthOnce(
-            tokenTimeout: const Duration(seconds: 3),
-          );
-          if (cancelled || !context.mounted) return;
-
-          if (message != null) {
-            rootScaffoldMessengerKey.currentState?.showSnackBar(
-              SnackBar(
-                content: Text(
-                  message,
-                  style: TextStyles.normalTextRegular.copyWith(
-                    color: ColorStyles.white
-                  ),
-                ),
-                backgroundColor: ColorStyles.gray3,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                elevation: 4,
-                duration: const Duration(seconds: 3),
-              ),
-            );
-            await SchedulerBinding.instance.endOfFrame;
-            await Future.delayed(const Duration(milliseconds: 200));
-          }
         if (cancelled || !context.mounted) return;
         await goNextWithConsent();
       });

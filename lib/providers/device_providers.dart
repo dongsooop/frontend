@@ -1,7 +1,7 @@
 import 'package:dongsoop/domain/device_token/use_case/device_token_register_use_case.dart';
 import 'package:dongsoop/domain/device_token/use_case/fcm_token_init_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dongsoop/providers/plain_dio.dart';
+import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/data/device_token/data_source/fcm_token_data_source_impl.dart';
 import 'package:dongsoop/data/device_token/data_source/fcm_token_data_source.dart';
@@ -22,7 +22,10 @@ final fcmTokenDataSourceProvider = Provider<FcmTokenDataSource>((ref) {
 });
 
 final deviceTokenRemoteDataSourceProvider = Provider<DeviceTokenDataSource>((ref) {
-  final dio = ref.read(plainDioProvider);
+  // authDio를 쓴다 — 로그인 상태면 JWT가 자동으로 붙어서 백엔드가 existingDeviceId로
+  // 회원 디바이스를 식별/갱신할 수 있고(fid 백필 포함), 비로그인이면 헤더 없이 그대로
+  // 나가서 plainDio와 동일하게 동작한다(AuthInterceptor는 토큰 없으면 그냥 통과시킴).
+  final dio = ref.read(authDioProvider);
   final storage = ref.read(secureStorageProvider);
   return DeviceTokenDataSourceImpl(dio, storage);
 });
