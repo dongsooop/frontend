@@ -375,26 +375,26 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 ),
               ],
             ),
-            if (user != null)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 24,
-                child: Center(
-                  child: CategoryTabBar(
-                    tabs: const ['전체', '키워드'],
-                    selectedIndex: 0,
-                    onSelected: (i) {
-                      if (i == 0) return;
+            // 키워드는 기기 단위라 비회원에게도 보여준다
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 24,
+              child: Center(
+                child: CategoryTabBar(
+                  tabs: const ['전체', '키워드'],
+                  selectedIndex: 0,
+                  onSelected: (i) {
+                    if (i == 0) return;
 
-                      Future.microtask(() async {
-                        widget.onTapNoticeKeyword();
-                      });
-                    },
-                    isBoard: false,
-                  ),
+                    Future.microtask(() async {
+                      widget.onTapNoticeKeyword();
+                    });
+                  },
+                  isBoard: false,
                 ),
               ),
+            ),
           ],
         ),
       ),

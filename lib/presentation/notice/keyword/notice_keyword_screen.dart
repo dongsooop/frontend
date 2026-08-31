@@ -1,11 +1,9 @@
 import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
-import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_entity.dart';
 import 'package:dongsoop/domain/notice/keyword/enum/notice_keyword_type.dart';
 import 'package:dongsoop/presentation/notice/keyword/providers/notice_keyword_providers.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -22,22 +20,14 @@ class NoticeKeywordScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userSessionProvider);
     final state = ref.watch(noticeKeywordViewModelProvider);
     final viewModel = ref.read(noticeKeywordViewModelProvider.notifier);
 
+    // 키워드는 기기 단위라 로그인 여부와 무관하게 불러온다
     useEffect(() {
-      if (user != null) {
-        Future.microtask(viewModel.loadKeywords);
-      } else {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted && user == null) {
-            LoginRequiredDialog(context);
-          }
-        });
-      }
+      Future.microtask(viewModel.loadKeywords);
       return null;
-    }, [user]);
+    }, const []);
 
     ref.listen(noticeKeywordViewModelProvider, (_, next) {
       if (next.errorMessage != null) {
