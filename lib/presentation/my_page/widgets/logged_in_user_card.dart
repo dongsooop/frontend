@@ -17,6 +17,7 @@ class LoggedInUserCard extends HookConsumerWidget {
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
   final VoidCallback onTapNotification;
+  final VoidCallback onTapSubscribeDepartment;
   final VoidCallback onTapSocialLoginConnect;
 
   const LoggedInUserCard({
@@ -32,6 +33,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.onTapRecruit,
     required this.onTapBlockedUser,
     required this.onTapNotification,
+    required this.onTapSubscribeDepartment,
     required this.onTapSocialLoginConnect,
   });
 
@@ -184,6 +186,10 @@ class LoggedInUserCard extends HookConsumerWidget {
                   MyActivityItem(
                     label: '알림 설정',
                     onTap: onTapNotification,
+                  ),
+                  MyActivityItem(
+                    label: '관심 학과 설정',
+                    onTap: onTapSubscribeDepartment,
                   ),
                   MyActivityItem(
                     label: '소셜 계정 연동',

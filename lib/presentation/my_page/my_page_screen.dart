@@ -22,6 +22,7 @@ class MyPageScreen extends HookConsumerWidget {
   final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
   final VoidCallback onTapNotification;
+  final VoidCallback onTapSubscribeDepartment;
   final VoidCallback onTapSocialLoginConnect;
 
   const MyPageScreen({
@@ -38,6 +39,7 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapRecruit,
     required this.onTapBlockedUser,
     required this.onTapNotification,
+    required this.onTapSubscribeDepartment,
     required this.onTapSocialLoginConnect,
   });
 
@@ -85,6 +87,7 @@ class MyPageScreen extends HookConsumerWidget {
                   return LoggedOutPromptCard(
                     onTapLogin: onTapSignIn,
                     onTapNotification: onTapNotification,
+                    onTapSubscribeDepartment: onTapSubscribeDepartment,
                     onTapUserFeedback: onTapUserFeedback,
                   );
                 } else {
@@ -100,6 +103,7 @@ class MyPageScreen extends HookConsumerWidget {
                     onTapAdminFeedback: onTapAdminFeedback,
                     onTapUserFeedback: onTapUserFeedback,
                     onTapNotification: onTapNotification,
+                    onTapSubscribeDepartment: onTapSubscribeDepartment,
                     onTapSocialLoginConnect: onTapSocialLoginConnect,
                   );
                 }
