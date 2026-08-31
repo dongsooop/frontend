@@ -283,8 +283,6 @@ final router = GoRouter(
           context.push(RoutePaths.deviceManagement);
         },
         onTapPasswordReset: () => context.push(RoutePaths.passwordReset),
-        onTapSubscribeDepartment: () =>
-            context.push(RoutePaths.subscribeDepartmentSetting),
       ),
     ),
     GoRoute(
@@ -809,6 +807,9 @@ final router = GoRouter(
               },
               onTapNotification: () {
                 context.push(RoutePaths.notification);
+              },
+              onTapSubscribeDepartment: () {
+                context.push(RoutePaths.subscribeDepartmentSetting);
               },
               onTapSocialLoginConnect: () {
                 context.push(RoutePaths.mypage + RoutePaths.socialLoginConnect);
