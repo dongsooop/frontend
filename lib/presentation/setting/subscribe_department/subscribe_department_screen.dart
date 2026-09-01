@@ -8,15 +8,35 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class SubscribeDepartmentScreen extends ConsumerStatefulWidget {
+/// 관심 학과 설정 화면. 자기 헤더를 갖는 독립 라우트용이다.
+///
+/// 헤더를 공유하는 곳(공지 목록 등)에서는 [SubscribeDepartmentView] 를 직접 쓴다.
+class SubscribeDepartmentScreen extends StatelessWidget {
   const SubscribeDepartmentScreen({super.key});
 
   @override
-  ConsumerState<SubscribeDepartmentScreen> createState() =>
-      _SubscribeDepartmentScreenState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      appBar: const DetailHeader(
+        title: '관심 학과 설정',
+        backgroundColor: ColorStyles.white,
+      ),
+      body: const SubscribeDepartmentView(),
+    );
+  }
 }
 
-class _SubscribeDepartmentScreenState extends ConsumerState<SubscribeDepartmentScreen> {
+/// 다른 화면 안에 끼워 넣는 관심 학과 설정 본문.
+class SubscribeDepartmentView extends ConsumerStatefulWidget {
+  const SubscribeDepartmentView({super.key});
+
+  @override
+  ConsumerState<SubscribeDepartmentView> createState() =>
+      _SubscribeDepartmentViewState();
+}
+
+class _SubscribeDepartmentViewState extends ConsumerState<SubscribeDepartmentView> {
   static final _departments = DepartmentType.values
       .where((d) => d != DepartmentType.Unknown)
       .toList(growable: false);
@@ -142,13 +162,7 @@ class _SubscribeDepartmentScreenState extends ConsumerState<SubscribeDepartmentS
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorStyles.white,
-      appBar: const DetailHeader(
-        title: '관심 학과 설정',
-        backgroundColor: ColorStyles.white,
-      ),
-      body: SafeArea(
+    return SafeArea(
         child: Column(
           children: [
             Padding(
@@ -190,7 +204,6 @@ class _SubscribeDepartmentScreenState extends ConsumerState<SubscribeDepartmentS
             ),
           ],
         ),
-      ),
     );
   }
 

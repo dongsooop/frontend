@@ -43,7 +43,6 @@ import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_more_screen.dart';
 import 'package:dongsoop/presentation/setting/device_management/device_management_screen.dart';
-import 'package:dongsoop/presentation/setting/subscribe_department/subscribe_department_screen.dart';
 import 'package:dongsoop/presentation/notification/notification_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
@@ -56,7 +55,7 @@ import 'package:dongsoop/presentation/timetable/write/lecture_write_screen.dart'
 import 'package:dongsoop/presentation/timetable/write/timetable_write_screen.dart';
 import 'package:dongsoop/presentation/web_view/library_banner_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/mypage_web_view.dart';
-import 'package:dongsoop/presentation/notice/keyword/notice_keyword_screen.dart';
+import 'package:dongsoop/presentation/notice/setting/notice_alarm_setting_screen.dart';
 import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/restaurant_web_view.dart';
 import 'package:flutter/material.dart';
@@ -293,14 +292,18 @@ final router = GoRouter(
             context.push(RoutePaths.subscribeDepartmentSetting),
       ),
     ),
+    // 학과 구독과 키워드는 한 화면에 모여 있다. 기존 진입점을 그대로 두려고
+    // 두 경로를 남기고 시작 탭만 다르게 준다
     GoRoute(
       path: RoutePaths.subscribeDepartmentSetting,
-      builder: (context, state) => const SubscribeDepartmentScreen(),
+      builder: (context, state) => const NoticeAlarmSettingScreen(
+        initialTab: NoticeAlarmSettingTab.department,
+      ),
     ),
     GoRoute(
       path: RoutePaths.noticeKeyword,
-      builder: (context, state) => NoticeKeywordScreen(
-        onTapNotification: () => context.replace(RoutePaths.notification),
+      builder: (context, state) => const NoticeAlarmSettingScreen(
+        initialTab: NoticeAlarmSettingTab.keyword,
       ),
     ),
     GoRoute(
