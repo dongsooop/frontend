@@ -1,5 +1,5 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
-import 'package:dongsoop/core/presentation/components/notice_setting_icon_button.dart';
+import 'package:dongsoop/core/presentation/components/notice_setting_link.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -23,23 +23,11 @@ class HomeNewNotice extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Text(
-                    '새로운 공지',
-                    style: TextStyles.titleTextBold.copyWith(
-                      color: ColorStyles.black,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // 관심 학과를 안 고르면 학과 공지가 아예 안 오므로 목록 옆에 바로 둔다
-                  NoticeSettingIconButton(
-                    icon: Icons.bookmark_outline,
-                    tooltip: '학과 구독 설정',
-                    onTap: () =>
-                        context.push(RoutePaths.subscribeDepartmentSetting),
-                  ),
-                ],
+              Text(
+                '새로운 공지',
+                style: TextStyles.titleTextBold.copyWith(
+                  color: ColorStyles.black,
+                ),
               ),
               GestureDetector(
                 onTap: () => context.goNamed('noticeList'),
@@ -73,8 +61,22 @@ class HomeNewNotice extends StatelessWidget {
               color: ColorStyles.white,
               borderRadius: BorderRadius.circular(8),
             ),
-            padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
-            child: _buildNoticeList(context),
+            padding: const EdgeInsets.fromLTRB(16, 32, 16, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildNoticeList(context),
+                const SizedBox(height: 24),
+                // 관심 학과를 안 고르면 학과 공지가 아예 안 온다.
+                // 목록을 다 본 자리에 두어야 "학과 공지가 왜 없지" 하는 순간 바로 닿는다
+                NoticeSettingLink(
+                  icon: Icons.bookmark,
+                  label: '학과 구독 설정',
+                  onTap: () =>
+                      context.push(RoutePaths.subscribeDepartmentSetting),
+                ),
+              ],
+            ),
           ),
         ],
       ),
