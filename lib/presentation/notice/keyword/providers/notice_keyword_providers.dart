@@ -7,15 +7,18 @@ import 'package:dongsoop/domain/notice/keyword/use_cases/delete_notice_keyword_u
 import 'package:dongsoop/domain/notice/keyword/use_cases/get_notice_keywords_use_case.dart';
 import 'package:dongsoop/presentation/notice/keyword/view_models/notice_keyword_state.dart';
 import 'package:dongsoop/presentation/notice/keyword/view_models/notice_keyword_view_model.dart';
-import 'package:dongsoop/providers/auth_dio.dart';
+import 'package:dongsoop/providers/device_providers.dart';
+import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
 // Data Source
 final noticeDataSourceProvider = Provider<NoticeKeywordDataSource>((ref) {
-  final authDio = ref.watch(authDioProvider);
+  // 키워드는 기기 단위라 인증 대신 기기 헤더로 대상을 정한다 (비회원도 사용 가능)
+  final plainDio = ref.watch(plainDioProvider);
+  final getFcmTokenUseCase = ref.watch(getFcmTokenUseCaseProvider);
 
-  return NoticeKeywordDataSourceImpl(authDio);
+  return NoticeKeywordDataSourceImpl(plainDio, getFcmTokenUseCase);
 });
 
 // Repository

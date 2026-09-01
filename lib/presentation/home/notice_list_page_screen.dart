@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/presentation/components/common_notice_list_item.dart';
+import 'package:dongsoop/core/presentation/components/notice_setting_icon_button.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
@@ -7,6 +8,7 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
+import 'package:dongsoop/presentation/notice/widgets/notice_setting_fab.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -81,20 +83,32 @@ class NoticeListPageScreen extends HookConsumerWidget {
         backgroundColor: ColorStyles.white,
         appBar: DetailHeader(
           title: '공지',
-          trailing: IconButton(
-            onPressed: onTapAlarmSetting,
-            icon: SvgPicture.asset(
-              'assets/icons/alarm_setting.svg',
-              width: 24,
-              height: 24,
-              colorFilter: const ColorFilter.mode(
-                ColorStyles.black,
-                BlendMode.srcIn,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              NoticeSettingIconButton(
+                icon: Icons.bookmark_outline,
+                tooltip: '학과 구독 설정',
+                onTap: () => context.push(RoutePaths.subscribeDepartmentSetting),
               ),
-            ),
+              IconButton(
+                onPressed: onTapAlarmSetting,
+                icon: SvgPicture.asset(
+                  'assets/icons/alarm_setting.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                    ColorStyles.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        body: GestureDetector(
+        body: Stack(
+          children: [
+            GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
             FocusManager.instance.primaryFocus?.unfocus();
@@ -197,6 +211,14 @@ class NoticeListPageScreen extends HookConsumerWidget {
               ],
             ),
           ),
+        ),
+            NoticeSettingFab(
+              scrollController: scrollController,
+              onTapKeyword: () => context.push(RoutePaths.noticeKeyword),
+              onTapSubscribe: () =>
+                  context.push(RoutePaths.subscribeDepartmentSetting),
+            ),
+          ],
         ),
       ),
     );

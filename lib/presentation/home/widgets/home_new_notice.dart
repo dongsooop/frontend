@@ -1,4 +1,6 @@
 import 'package:dongsoop/core/presentation/components/common_tag.dart';
+import 'package:dongsoop/core/presentation/components/notice_setting_icon_button.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -21,11 +23,23 @@ class HomeNewNotice extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '새로운 공지',
-                style: TextStyles.titleTextBold.copyWith(
-                  color: ColorStyles.black,
-                ),
+              Row(
+                children: [
+                  Text(
+                    '새로운 공지',
+                    style: TextStyles.titleTextBold.copyWith(
+                      color: ColorStyles.black,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // 관심 학과를 안 고르면 학과 공지가 아예 안 오므로 목록 옆에 바로 둔다
+                  NoticeSettingIconButton(
+                    icon: Icons.bookmark_outline,
+                    tooltip: '학과 구독 설정',
+                    onTap: () =>
+                        context.push(RoutePaths.subscribeDepartmentSetting),
+                  ),
+                ],
               ),
               GestureDetector(
                 onTap: () => context.goNamed('noticeList'),
