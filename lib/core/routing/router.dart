@@ -290,6 +290,8 @@ final router = GoRouter(
         onTapNoticeKeyword: () => context.replace(RoutePaths.noticeKeyword),
         onTapSubscribeDepartment: () =>
             context.push(RoutePaths.subscribeDepartmentSetting),
+        // 목록 안의 행이라 되돌아올 수 있게 replace 가 아니라 push 한다
+        onTapKeywordSetting: () => context.push(RoutePaths.noticeKeyword),
       ),
     ),
     // 학과 구독과 키워드는 한 화면에 모여 있다. 기존 진입점을 그대로 두려고

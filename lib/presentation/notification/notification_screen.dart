@@ -16,11 +16,13 @@ import 'package:dongsoop/domain/notification/enum/notification_target.dart';
 class NotificationScreen extends ConsumerStatefulWidget {
   final VoidCallback onTapNoticeKeyword;
   final VoidCallback onTapSubscribeDepartment;
+  final VoidCallback onTapKeywordSetting;
 
   const NotificationScreen({
     super.key,
     required this.onTapNoticeKeyword,
     required this.onTapSubscribeDepartment,
+    required this.onTapKeywordSetting,
   });
 
   @override
@@ -215,27 +217,16 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                       ),
                     ),
                     if (target == NotificationTarget.guest)
-                      InkWell(
+                      _SettingLinkRow(
+                        label:
+                            '관심 학과 설정 (${_subscribeDepartmentCount ?? 0}개 선택됨)',
                         onTap: widget.onTapSubscribeDepartment,
-                        child: SizedBox(
-                          height: 44,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                '관심 학과 설정 (${_subscribeDepartmentCount ?? 0}개 선택됨)',
-                                style: TextStyles.smallTextRegular
-                                    .copyWith(color: ColorStyles.gray4),
-                              ),
-                              const Icon(
-                                Icons.navigate_next,
-                                size: 18,
-                                color: ColorStyles.gray4,
-                              ),
-                            ],
-                          ),
-                        ),
                       ),
+                    // 키워드는 기기 단위라 회원·비회원 모두 쓸 수 있다
+                    _SettingLinkRow(
+                      label: '키워드 설정',
+                      onTap: widget.onTapKeywordSetting,
+                    ),
                   ],
                 ),
                 const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),
@@ -394,6 +385,39 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                   isBoard: false,
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 알림 설정 섹션 안에서 다른 설정 화면으로 보내는 행.
+class _SettingLinkRow extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _SettingLinkRow({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: SizedBox(
+        height: 44,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style:
+                  TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
+            ),
+            const Icon(
+              Icons.navigate_next,
+              size: 18,
+              color: ColorStyles.gray4,
             ),
           ],
         ),
