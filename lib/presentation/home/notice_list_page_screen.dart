@@ -1,5 +1,4 @@
 import 'package:dongsoop/core/presentation/components/common_notice_list_item.dart';
-import 'package:dongsoop/core/presentation/components/notice_setting_icon_button.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
@@ -83,27 +82,17 @@ class NoticeListPageScreen extends HookConsumerWidget {
         backgroundColor: ColorStyles.white,
         appBar: DetailHeader(
           title: '공지',
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              NoticeSettingIconButton(
-                icon: Icons.bookmark_outline,
-                tooltip: '학과 구독 설정',
-                onTap: () => context.push(RoutePaths.subscribeDepartmentSetting),
+          trailing: IconButton(
+            onPressed: onTapAlarmSetting,
+            icon: SvgPicture.asset(
+              'assets/icons/alarm_setting.svg',
+              width: 24,
+              height: 24,
+              colorFilter: const ColorFilter.mode(
+                ColorStyles.black,
+                BlendMode.srcIn,
               ),
-              IconButton(
-                onPressed: onTapAlarmSetting,
-                icon: SvgPicture.asset(
-                  'assets/icons/alarm_setting.svg',
-                  width: 24,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    ColorStyles.black,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         body: Stack(
