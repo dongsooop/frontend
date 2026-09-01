@@ -1,126 +1,50 @@
-import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
-import 'package:dongsoop/core/presentation/components/detail_header.dart';
-import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_entity.dart';
 import 'package:dongsoop/domain/notice/keyword/enum/notice_keyword_type.dart';
 import 'package:dongsoop/presentation/notice/keyword/providers/notice_keyword_providers.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class NoticeKeywordScreen extends HookConsumerWidget {
-  final VoidCallback onTapNotification;
+/// 키워드 설정 본문 한 종류(포함 또는 제외).
+///
+/// 헤더와 탭은 이 위젯을 감싸는 화면이 갖는다. 통합 설정 화면이 알림/제외를
+/// 하단 플로팅으로 오가며 이 위젯의 [type] 만 바꿔 끼운다.
+///
+/// 목록을 불러오는 일과 오류 표시는 이 위젯을 감싸는 화면이 한 번만 맡는다 —
+/// 여기서 하면 포함/제외 두 벌이 각각 조회해 같은 요청이 두 번 나간다.
+class NoticeKeywordSectionView extends ConsumerWidget {
+  final NoticeKeywordType type;
 
-  const NoticeKeywordScreen({
-    super.key,
-    required this.onTapNotification,
-  });
+  const NoticeKeywordSectionView({super.key, required this.type});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userSessionProvider);
     final state = ref.watch(noticeKeywordViewModelProvider);
     final viewModel = ref.read(noticeKeywordViewModelProvider.notifier);
 
-    useEffect(() {
-      if (user != null) {
-        Future.microtask(viewModel.loadKeywords);
-      } else {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted && user == null) {
-            LoginRequiredDialog(context);
-          }
-        });
-      }
-      return null;
-    }, [user]);
+    if (state.isLoading && state.keywords.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(color: ColorStyles.primaryColor),
+      );
+    }
 
-    ref.listen(noticeKeywordViewModelProvider, (_, next) {
-      if (next.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
-        viewModel.clearError();
-      }
-    });
+    final isInclude = type == NoticeKeywordType.include;
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        appBar: DetailHeader(
-          title: '알림 설정',
-          bottom: TabBar(
-            overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-            labelColor: ColorStyles.primary100,
-            labelStyle: TextStyles.normalTextBold,
-            unselectedLabelColor: ColorStyles.gray4,
-            unselectedLabelStyle: TextStyles.normalTextRegular,
-            indicatorColor: ColorStyles.primary100,
-            dividerColor: ColorStyles.gray2,
-            tabs: const [
-              Tab(text: '알림 키워드'),
-              Tab(text: '제외 키워드'),
-            ],
-          ),
-        ),
-        body: SafeArea(
-          child: state.isLoading && state.keywords.isEmpty
-            ? const Center(child: CircularProgressIndicator(color: ColorStyles.primaryColor,))
-            : Stack(
-              children: [
-                GestureDetector(
-                  onTap: () => FocusScope.of(context).unfocus(),
-                  behavior: HitTestBehavior.opaque,
-                  child: TabBarView(
-                    children: [
-                      _KeywordSection(
-                        description: '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.',
-                        type: NoticeKeywordType.include,
-                        keywords: state.includeKeywords,
-                        isLoading: state.isLoading,
-                        onAdd: (keyword) =>
-                            viewModel.addKeyword(keyword, NoticeKeywordType.include),
-                        onDelete: viewModel.deleteKeyword,
-                      ),
-                      _KeywordSection(
-                        description: '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
-                        type: NoticeKeywordType.exclude,
-                        keywords: state.excludeKeywords,
-                        isLoading: state.isLoading,
-                        onAdd: (keyword) =>
-                            viewModel.addKeyword(keyword, NoticeKeywordType.exclude),
-                        onDelete: viewModel.deleteKeyword,
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 24,
-                  child: Center(
-                    child: CategoryTabBar(
-                      tabs: const ['전체', '키워드'],
-                      selectedIndex: 1,
-                      onSelected: (i) {
-                        if (i == 1) return;
-
-                        Future.microtask(() async {
-                          onTapNotification();
-                        });
-                      },
-                      isBoard: false,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-        ),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: _KeywordSection(
+        description: isInclude
+            ? '해당 키워드가 포함된 공지가 올라오면 알림을 받아요.'
+            : '해당 키워드가 포함된 공지는 알림을 받지 않아요.',
+        type: type,
+        keywords: isInclude ? state.includeKeywords : state.excludeKeywords,
+        isLoading: state.isLoading,
+        onAdd: (keyword) => viewModel.addKeyword(keyword, type),
+        onDelete: viewModel.deleteKeyword,
       ),
     );
   }
