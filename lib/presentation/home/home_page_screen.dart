@@ -3,6 +3,7 @@ import 'package:dongsoop/core/presentation/components/login_required_dialog.dart
 import 'package:dongsoop/presentation/home/widgets/chatbot_button.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
 import 'package:dongsoop/presentation/home/widgets/home_greeting.dart';
+import 'package:dongsoop/presentation/home/widgets/home_meal_section.dart';
 import 'package:dongsoop/presentation/home/widgets/home_notice_list.dart';
 import 'package:dongsoop/presentation/home/widgets/home_quick_links.dart';
 import 'package:dongsoop/presentation/home/widgets/home_today_card.dart';
@@ -87,9 +88,9 @@ class HomePageScreen extends HookConsumerWidget {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  // 공지는 세 건으로 잘려 오고 읽음 여부도 몰라 아직 세지 않는다
                   HomeGreeting(
                     classCount: homeEntity.timeTable.length,
+                    scheduleCount: homeEntity.schedule.length,
                     isLoggedOut: user == null,
                   ),
                   HomeTodayCard(
@@ -97,6 +98,7 @@ class HomePageScreen extends HookConsumerWidget {
                     schedule: homeEntity.schedule,
                     isLoggedOut: user == null,
                   ),
+                  const HomeMealSection(),
                   HomeNoticeList(notices: homeEntity.notices),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
