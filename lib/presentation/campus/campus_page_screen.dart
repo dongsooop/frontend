@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/section_header.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_link_card.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_meal_card.dart';
@@ -51,13 +52,20 @@ class CampusPageScreen extends StatelessWidget {
             const CampusSearchBar(),
             CampusSection(
               title: '오늘 뭐 먹지',
-              trailingLabel: '전체',
-              onTapTrailing: () => context.push(RoutePaths.restaurants),
+              action: SectionHeaderAction(
+                label: '전체',
+                onTap: () => context.push(RoutePaths.restaurants),
+              ),
               child: const CampusRestaurantList(),
             ),
             CampusSection(
               title: '학식',
-              trailingDate: today,
+              suffix: Text(
+                '· ${DateFormat('M월 d일(E)', 'ko').format(today)}',
+                style: TextStyles.largeTextBold.copyWith(
+                  color: ColorStyles.gray6,
+                ),
+              ),
               child: const CampusMealCard(),
             ),
             CampusSection(
