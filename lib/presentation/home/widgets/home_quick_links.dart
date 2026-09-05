@@ -1,23 +1,49 @@
+import 'package:dongsoop/core/presentation/components/authenticated_action.dart';
 import 'package:dongsoop/core/presentation/components/section_header.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 자주 쓰는 화면 네 개.
-///
-/// 아이콘을 새로 그리는 대신 배경 색 면과 이모지로 구분한다.
-class HomeQuickLinks extends StatelessWidget {
+class HomeQuickLinks extends ConsumerWidget {
   const HomeQuickLinks({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isAuthenticated = ref.watch(
+      userSessionProvider.select((user) => user != null),
+    );
+
     final items = <_QuickItem>[
-      _QuickItem('🍽️', '맛집', ColorStyles.primary5, RoutePaths.restaurants),
-      _QuickItem('📚', '도서관', ColorStyles.mintBg, RoutePaths.libraryWebView),
-      _QuickItem('💬', '챗봇', ColorStyles.amberBg, RoutePaths.chatbot),
-      _QuickItem('🗓️', '학사일정', ColorStyles.gray1, RoutePaths.schedule),
+      const _QuickItem(
+        emoji: '🍽️',
+        label: '맛집',
+        background: ColorStyles.primary5,
+        path: RoutePaths.restaurants,
+      ),
+      const _QuickItem(
+        emoji: '📚',
+        label: '도서관',
+        background: ColorStyles.mintBg,
+        path: RoutePaths.libraryWebView,
+      ),
+      const _QuickItem(
+        emoji: '💬',
+        label: '챗봇',
+        background: ColorStyles.amberBg,
+        path: RoutePaths.chatbot,
+        requiresAuth: true,
+      ),
+      const _QuickItem(
+        emoji: '🗓️',
+        label: '학사일정',
+        background: ColorStyles.gray1,
+        path: RoutePaths.schedule,
+      ),
     ];
 
     return Padding(
@@ -31,7 +57,12 @@ class HomeQuickLinks extends StatelessWidget {
             children: [
               for (var i = 0; i < items.length; i++) ...[
                 if (i > 0) const SizedBox(width: 8),
-                Expanded(child: _QuickTile(item: items[i])),
+                Expanded(
+                  child: _QuickTile(
+                    item: items[i],
+                    isAuthenticated: isAuthenticated,
+                  ),
+                ),
               ],
             ],
           ),
@@ -46,14 +77,25 @@ class _QuickItem {
   final String label;
   final Color background;
   final String path;
+  final bool requiresAuth;
 
-  const _QuickItem(this.emoji, this.label, this.background, this.path);
+  const _QuickItem({
+    required this.emoji,
+    required this.label,
+    required this.background,
+    required this.path,
+    this.requiresAuth = false,
+  });
 }
 
 class _QuickTile extends StatelessWidget {
   final _QuickItem item;
+  final bool isAuthenticated;
 
-  const _QuickTile({required this.item});
+  const _QuickTile({
+    required this.item,
+    required this.isAuthenticated,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +103,18 @@ class _QuickTile extends StatelessWidget {
       color: ColorStyles.gray7,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        onTap: () => context.push(item.path),
+        onTap: () {
+          if (!item.requiresAuth) {
+            context.push(item.path);
+            return;
+          }
+
+          runAuthenticatedAction(
+            context,
+            isAuthenticated: isAuthenticated,
+            action: () => context.push(item.path),
+          );
+        },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
