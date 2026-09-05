@@ -244,7 +244,8 @@ class PushRouter {
       final recruitType = _parseRecruitTypeSafe(type);
       if (recruitType == null) return false;
 
-      router.go(RoutePaths.board);
+      // 게시판을 닫아 목록으로 돌아갈 곳이 없다. 홈을 받침으로 두고 상세만 띄운다
+      router.go(RoutePaths.home);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         router.push(
@@ -272,7 +273,8 @@ class PushRouter {
     final recruitType = _parseRecruitTypeSafe(type);
     if (id == null || id <= 0 || recruitType == null) return false;
 
-      router.go(RoutePaths.board);
+      // 게시판을 닫아 목록으로 돌아갈 곳이 없다. 홈을 받침으로 두고 상세만 띄운다
+      router.go(RoutePaths.home);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router.push(
