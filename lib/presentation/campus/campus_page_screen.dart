@@ -61,7 +61,7 @@ class CampusPageScreen extends StatelessWidget {
             CampusSection(
               title: '학식',
               suffix: Text(
-                '· \${DateFormat('M월 d일(E)', 'ko').format(today)}',
+                '· ${DateFormat('M월 d일(E)', 'ko').format(today)}',
                 style: TextStyles.largeTextBold.copyWith(
                   color: ColorStyles.gray6,
                 ),
