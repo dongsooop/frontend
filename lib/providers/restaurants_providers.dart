@@ -17,7 +17,6 @@ import 'package:dongsoop/presentation/restaurants/write/restaurants_write_view_m
 import 'package:dongsoop/presentation/restaurants/write/search_kakao_state.dart';
 import 'package:dongsoop/presentation/restaurants/write/search_kakao_view_model.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'auth_dio.dart';
 
