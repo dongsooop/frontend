@@ -136,18 +136,9 @@ class LoggedInUserCard extends HookConsumerWidget {
             children: [
               Column(
                 children: [
-                  MyActivityItem(
-                    label: '개설한 모집글',
-                    onTap: () => onTapRecruit(false),
-                  ),
-                  MyActivityItem(
-                    label: '지원한 모집글',
-                    onTap: () => onTapRecruit(true),
-                  ),
-                  MyActivityItem(
-                    label: '장터 내역',
-                    onTap: onTapMarket,
-                  ),
+                  // 게시판을 닫으면서 모집·장터 진입점도 함께 내렸다.
+                  // onTapRecruit/onTapMarket 배선과 화면·라우트는 그대로 두었다.
+                  // 되살릴 때 항목 세 개만 다시 얹으면 된다
                   MyActivityItem(
                     label: '차단 관리',
                     onTap: onTapBlockedUser,

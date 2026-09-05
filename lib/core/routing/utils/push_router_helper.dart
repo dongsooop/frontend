@@ -68,7 +68,8 @@ class PushRouterHelper {
       final firstPath = first is Map ? first['path'] : null;
       final firstExtra = first is Map ? first['extra'] : null;
 
-      context.go(RoutePaths.board);
+      // 게시판을 닫아 목록으로 돌아갈 곳이 없다. 홈을 받침으로 두고 상세만 띄운다
+      context.go(RoutePaths.home);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
