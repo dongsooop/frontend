@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/cafeteria/entities/cafeteria_entity.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
@@ -106,7 +107,7 @@ class HomeTodayCard extends HookConsumerWidget {
       emoji: '📘',
       background: ColorStyles.primary5,
       title: slot.title,
-      description: '${slot.startAt} - ${slot.endAt}',
+      description: '${slot.startAt.toHourMinute()} - ${slot.endAt.toHourMinute()}',
       showChevron: true,
     );
   }
