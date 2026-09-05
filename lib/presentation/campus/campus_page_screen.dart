@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/authenticated_action.dart';
 import 'package:dongsoop/core/presentation/components/section_header.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_link_card.dart';
@@ -5,22 +6,25 @@ import 'package:dongsoop/presentation/campus/widgets/campus_meal_card.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_restaurant_list.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_search_bar.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_section.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
 /// 학교 다니면서 쓰는 것들을 모아둔 탭.
 ///
 /// 게시판이 빠진 자리다. 맛집·학식·도서관·챗봇은 "모임" 이 아니라 "탐색" 에
 /// 가까워서 탭 이름도 모여봐요에서 캠퍼스로 바꿨다.
-class CampusPageScreen extends StatelessWidget {
+class CampusPageScreen extends ConsumerWidget {
   const CampusPageScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final today = DateTime.now();
+    final isAuthenticated = ref.watch(userSessionProvider) != null;
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
@@ -85,7 +89,11 @@ class CampusPageScreen extends StatelessWidget {
                     title: '학사 챗봇',
                     description: '학사일정·수강신청 물어보기',
                     background: ColorStyles.primary5,
-                    onTap: () => context.push(RoutePaths.chatbot),
+                    onTap: () => runAuthenticatedAction(
+                      context,
+                      isAuthenticated: isAuthenticated,
+                      action: () => context.push(RoutePaths.chatbot),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   CampusLinkCard(
