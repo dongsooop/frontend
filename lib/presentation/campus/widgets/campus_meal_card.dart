@@ -16,9 +16,13 @@ class CampusMealCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(cafeteriaViewModelProvider);
 
-    final menu = state.maybeWhen(
-      data: (data) => data.todayMeal?.koreanMenu,
-      orElse: () => null,
+    final menu = state.when(
+      data: (data) {
+        final menu = data.todayMeal?.koreanMenu;
+        return menu?.isNotEmpty == true ? menu! : '오늘은 학식이 제공되지 않아요';
+      },
+      loading: () => '학식을 불러오는 중...',
+      error: (_, __) => '학식을 불러오지 못했어요',
     );
 
     return Container(
@@ -35,11 +39,9 @@ class CampusMealCard extends ConsumerWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              menu?.isNotEmpty == true ? menu! : '오늘은 학식이 제공되지 않아요',
+              menu,
               style: TextStyles.normalTextBold.copyWith(
-                color: menu?.isNotEmpty == true
-                    ? ColorStyles.gray6
-                    : ColorStyles.gray4,
+                color: state.hasValue ? ColorStyles.gray6 : ColorStyles.gray4,
                 height: 1.5,
               ),
             ),
