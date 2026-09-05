@@ -74,7 +74,11 @@ class _RestaurantCard extends StatelessWidget {
       onTap: () {
         final url = restaurant.placeUrl;
         if (url == null || url.isEmpty) return;
-        context.push('/restaurantWebView?url=$url');
+        final location = Uri(
+          path: '/restaurantWebView',
+          queryParameters: {'url': url},
+        ).toString();
+        context.push(location);
       },
       child: SizedBox(
         width: CampusRestaurantList._cardWidth,
