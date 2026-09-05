@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
 import 'package:dongsoop/presentation/campus/restaurant_category_style.dart';
 import 'package:dongsoop/presentation/campus/providers/top_restaurants_provider.dart';
@@ -75,7 +76,7 @@ class _RestaurantCard extends StatelessWidget {
         final url = restaurant.placeUrl;
         if (url == null || url.isEmpty) return;
         final location = Uri(
-          path: '/restaurantWebView',
+          path: RoutePaths.restaurantWebView,
           queryParameters: {'url': url},
         ).toString();
         context.push(location);
