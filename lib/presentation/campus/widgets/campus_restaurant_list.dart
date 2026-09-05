@@ -1,6 +1,6 @@
 import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
 import 'package:dongsoop/presentation/campus/restaurant_category_style.dart';
-import 'package:dongsoop/providers/restaurants_providers.dart';
+import 'package:dongsoop/presentation/campus/providers/top_restaurants_provider.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
