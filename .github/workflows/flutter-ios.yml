@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ develop ]
 
+concurrency:
+  group: flutter-ios-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-ios:
     timeout-minutes: 15
