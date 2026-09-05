@@ -297,37 +297,6 @@ final router = GoRouter(
     ),
     // 학과 구독과 키워드는 한 화면에 모여 있다. 기존 진입점을 그대로 두려고
     // 두 경로를 남기고 시작 탭만 다르게 준다
-    // 하단 탭에서는 뺐지만 라우트는 남긴다.
-    // 모집·장터 푸시 딥링크와 홈 인기 모집이 아직 이 경로로 이동한다
-    GoRoute(
-      path: RoutePaths.board,
-      builder: (context, state) => BoardPageScreen(
-        onTapRecruitDetail: (id, type) async {
-          final didApply = await context.push<bool>(
-            RoutePaths.recruitDetail,
-            extra: {'id': id, 'type': type},
-          );
-          return didApply ?? false;
-        },
-        onTapMarketDetail: (id, type) async {
-          final didComplete = await context.push<bool>(
-            RoutePaths.marketDetail,
-            extra: {'id': id, 'type': type},
-          );
-          return didComplete ?? false;
-        },
-        onTapWrite: (isRecruit) async {
-          if (isRecruit) {
-            return await context.push<bool>(RoutePaths.recruitWrite) ?? false;
-          }
-          return await context.push<bool>(
-                RoutePaths.marketWrite,
-                extra: {'isEditing': false, 'marketId': null},
-              ) ??
-              false;
-        },
-      ),
-    ),
     GoRoute(
       path: RoutePaths.subscribeDepartmentSetting,
       builder: (context, state) => const NoticeAlarmSettingScreen(
@@ -671,13 +640,46 @@ final router = GoRouter(
                 ),
               ]),
         ]),
-        // 게시판을 진입점에서 뺀 자리. /board 라우트와 화면 코드는 남겨두어
-        // 되돌리기 쉽게 한다
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: RoutePaths.campus,
               builder: (context, state) => const CampusPageScreen(),
+            ),
+            // 기존 게시판 딥링크도 같은 셸에 남겨 하단 탭으로 돌아갈 수 있게 한다.
+            GoRoute(
+              path: RoutePaths.board,
+              builder: (context, state) => BoardPageScreen(
+                onTapRecruitDetail: (id, type) async {
+                  final didApply = await context.push<bool>(
+                    RoutePaths.recruitDetail,
+                    extra: {'id': id, 'type': type},
+                  );
+                  return didApply ?? false;
+                },
+                onTapMarketDetail: (id, type) async {
+                  final didComplete = await context.push<bool>(
+                    RoutePaths.marketDetail,
+                    extra: {'id': id, 'type': type},
+                  );
+                  return didComplete ?? false;
+                },
+                onTapWrite: (isRecruit) async {
+                  if (isRecruit) {
+                    return await context.push<bool>(RoutePaths.recruitWrite) ??
+                        false;
+                  } else {
+                    return await context.push<bool>(
+                          RoutePaths.marketWrite,
+                          extra: {
+                            'isEditing': false,
+                            'marketId': null,
+                          },
+                        ) ??
+                        false;
+                  }
+                },
+              ),
             ),
           ],
         ),

@@ -1,5 +1,4 @@
-import 'package:dongsoop/core/presentation/components/authenticated_action.dart';
-import 'package:dongsoop/core/presentation/components/section_header.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_link_card.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_meal_card.dart';
@@ -24,7 +23,7 @@ class CampusPageScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final today = DateTime.now();
-    final isAuthenticated = ref.watch(userSessionProvider) != null;
+    final user = ref.watch(userSessionProvider);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,
@@ -56,9 +55,25 @@ class CampusPageScreen extends ConsumerWidget {
             const CampusSearchBar(),
             CampusSection(
               title: '오늘 뭐 먹지',
-              action: SectionHeaderAction(
-                label: '전체',
-                onTap: () => context.push(RoutePaths.restaurants),
+              action: InkWell(
+                onTap: () => context.pushNamed('restaurants'),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '전체',
+                        style: TextStyles.smallTextRegular.copyWith(
+                          color: ColorStyles.gray5,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(Icons.arrow_forward_ios, size: 12, color: ColorStyles.gray5),
+                    ],
+                  ),
+                ),
               ),
               child: const CampusRestaurantList(),
             ),
@@ -81,7 +96,7 @@ class CampusPageScreen extends ConsumerWidget {
                     title: '도서관',
                     description: '열람실 좌석 확인하기',
                     background: ColorStyles.gray1,
-                    onTap: () => context.push(RoutePaths.libraryWebView),
+                    onTap: () => context.pushNamed('libraryWebView'),
                   ),
                   const SizedBox(height: 10),
                   CampusLinkCard(
@@ -89,11 +104,13 @@ class CampusPageScreen extends ConsumerWidget {
                     title: '학사 챗봇',
                     description: '학사일정·수강신청 물어보기',
                     background: ColorStyles.primary5,
-                    onTap: () => runAuthenticatedAction(
-                      context,
-                      isAuthenticated: isAuthenticated,
-                      action: () => context.push(RoutePaths.chatbot),
-                    ),
+                    onTap: () async {
+                      if (user == null) {
+                        await LoginRequiredDialog(context);
+                        return;
+                      }
+                      context.push(RoutePaths.chatbot);
+                    },
                   ),
                   const SizedBox(height: 10),
                   CampusLinkCard(
