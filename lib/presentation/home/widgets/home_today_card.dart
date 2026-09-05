@@ -17,11 +17,13 @@ import 'package:intl/intl.dart';
 /// 우측 셰브런만 그 사실을 알린다. 제목 줄을 없애면 카드가 한 뼘 짧아진다.
 class HomeTodayCard extends HookConsumerWidget {
   final List<Slot> timeTable;
+  final List<Schedule> schedule;
   final bool isLoggedOut;
 
   const HomeTodayCard({
     super.key,
     required this.timeTable,
+    required this.schedule,
     required this.isLoggedOut,
   });
 
@@ -64,11 +66,10 @@ class HomeTodayCard extends HookConsumerWidget {
                     : _classRow(timeTable[index]),
                 onTapItem: () => context.push(RoutePaths.timetable),
               ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 14, 16, 14),
-                child: Divider(height: 1, thickness: 1, color: ColorStyles.gray2),
-              ),
+              _divider(),
             ],
+            _scheduleDeck(context),
+            _divider(),
             cafeteriaState.when(
               data: (_) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,6 +110,45 @@ class HomeTodayCard extends HookConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _divider() {
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(16, 14, 16, 14),
+      child: Divider(height: 1, thickness: 1, color: ColorStyles.gray2),
+    );
+  }
+
+  /// 오늘 일정. 비회원에게는 개인 일정이 없으므로 학사 일정만 남긴다.
+  Widget _scheduleDeck(BuildContext context) {
+    final items = isLoggedOut
+        ? schedule.where((s) => s.type == ScheduleType.official).toList()
+        : schedule;
+
+    return SwipeDeck(
+      itemCount: items.isEmpty ? 1 : items.length,
+      itemBuilder: (context, index) => items.isEmpty
+          ? _TodayRow(
+              emoji: '🗓️',
+              background: ColorStyles.mintBg,
+              title: isLoggedOut ? '오늘 학사 일정이 없어요' : '오늘 일정이 없어요',
+              isMuted: true,
+            )
+          : _scheduleRow(items[index]),
+      onTapItem: () => context.push(RoutePaths.schedule),
+    );
+  }
+
+  Widget _scheduleRow(Schedule item) {
+    return _TodayRow(
+      emoji: '🗓️',
+      background: ColorStyles.mintBg,
+      title: item.title,
+      description: item.type == ScheduleType.official
+          ? '학사'
+          : _formatHourMinute(item.startAt),
+      showChevron: true,
     );
   }
 

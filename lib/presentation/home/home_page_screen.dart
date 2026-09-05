@@ -94,6 +94,7 @@ class HomePageScreen extends HookConsumerWidget {
                   ),
                   HomeTodayCard(
                     timeTable: homeEntity.timeTable,
+                    schedule: homeEntity.schedule,
                     isLoggedOut: user == null,
                   ),
                   HomeNoticeList(notices: homeEntity.notices),
