@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -10,12 +8,12 @@ import 'package:flutter/material.dart';
 Future<void> runAuthenticatedAction(
   BuildContext context, {
   required bool isAuthenticated,
-  required FutureOr<void> Function() action,
+  required VoidCallback action,
 }) async {
   if (!isAuthenticated) {
     await LoginRequiredDialog(context);
     return;
   }
 
-  await action();
+  action();
 }
