@@ -2,14 +2,17 @@ import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/presentation/home/widgets/chatbot_button.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
-import 'package:dongsoop/presentation/home/widgets/home_new_notice.dart';
-import 'package:dongsoop/presentation/home/widgets/home_popular_recruits.dart';
-import 'package:dongsoop/presentation/home/widgets/home_today.dart';
+import 'package:dongsoop/presentation/home/widgets/home_greeting.dart';
+import 'package:dongsoop/presentation/home/widgets/home_meal_section.dart';
+import 'package:dongsoop/presentation/home/widgets/home_notice_list.dart';
+import 'package:dongsoop/presentation/home/widgets/home_quick_links.dart';
+import 'package:dongsoop/presentation/home/widgets/home_today_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/presentation/home/view_models/home_view_model.dart';
@@ -59,9 +62,9 @@ class HomePageScreen extends HookConsumerWidget {
             onTap: () async {
               if (user == null) {
                 await LoginRequiredDialog(context);
-              } else {
-                onTapChatbot(); // 기존 이동/동작
+                return;
               }
+              onTapChatbot();
             },
           ),
         ),
@@ -85,17 +88,30 @@ class HomePageScreen extends HookConsumerWidget {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  HomeToday(
+                  HomeGreeting(
+                    classCount: homeEntity.timeTable.length,
+                    scheduleCount: homeEntity.schedule.length,
+                    isLoggedOut: user == null,
+                  ),
+                  HomeTodayCard(
                     timeTable: homeEntity.timeTable,
                     schedule: homeEntity.schedule,
                     isLoggedOut: user == null,
                   ),
-                  HomeNewNotice(notices: homeEntity.notices),
+                  const HomeMealSection(),
+                  HomeNoticeList(notices: homeEntity.notices),
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                    child: AdmobNativeAd(),
+                    padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+                    child: SizedBox(
+                      height: 100,
+                      child: AdmobNativeAd(
+                        templateType: TemplateType.small,
+                        height: 100,
+                      ),
+                    ),
                   ),
-                  HomePopularRecruits(recruits: homeEntity.popularRecruits),
+                  const HomeQuickLinks(),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
