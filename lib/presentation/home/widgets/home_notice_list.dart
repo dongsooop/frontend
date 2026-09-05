@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/presentation/components/notice_setting_link.dart';
+import 'package:dongsoop/core/presentation/components/section_header.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -23,36 +24,12 @@ class HomeNoticeList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '새로운 공지',
-                style: TextStyles.largeTextBold.copyWith(
-                  color: ColorStyles.black,
-                ),
-              ),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => context.goNamed('noticeList'),
-                child: Row(
-                  children: [
-                    Text(
-                      '더보기',
-                      style: TextStyles.smallTextRegular.copyWith(
-                        color: ColorStyles.gray5,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 12,
-                      color: ColorStyles.gray5,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          SectionHeader(
+            title: '새로운 공지',
+            action: SectionHeaderAction(
+              label: '더보기',
+              onTap: () => context.goNamed('noticeList'),
+            ),
           ),
           const SizedBox(height: 4),
           if (notices.isEmpty)
