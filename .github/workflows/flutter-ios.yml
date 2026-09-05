@@ -71,7 +71,7 @@ jobs:
 
       # 코드 분석 수행 (경고는 허용, analyzer error는 즉시 실패)
       - name: Analyze code
-        run: flutter analyze --no-fatal-warnings
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
       # 무료 버전 - Apple Developer 계정 없이 빌드만
       - name: Build iOS (no codesign)
