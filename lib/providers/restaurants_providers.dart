@@ -1,6 +1,7 @@
 import 'package:dongsoop/data/restaurants/data_source/restaurants_data_source.dart';
 import 'package:dongsoop/data/restaurants/data_source/restaurants_data_source_impl.dart';
 import 'package:dongsoop/data/restaurants/repository/restaurants_repository_impl.dart';
+import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
 import 'package:dongsoop/domain/restaurants/repository/restaurants_repository.dart';
 import 'package:dongsoop/domain/restaurants/use_case/check_restaurants_duplication_use_case.dart';
 import 'package:dongsoop/domain/restaurants/use_case/create_restaurants_use_case.dart';
