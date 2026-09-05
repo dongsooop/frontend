@@ -1,26 +1,22 @@
-import 'package:dongsoop/ui/color_styles.dart';
-import 'package:dongsoop/ui/text_styles.dart';
+import 'package:dongsoop/core/presentation/components/section_header.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 /// 캠퍼스 탭의 한 구획.
 ///
-/// 제목 오른쪽에는 `전체 ›` 같은 이동 링크나 날짜 중 하나만 붙는다.
-/// 날짜는 제목 옆 중점으로 붙여 홈의 학식 표기와 같은 꼴을 유지한다.
+/// 구획 레이아웃만 담당한다. 제목 옆/오른쪽 표현은 Widget으로 열어 두어
+/// 새로운 배지나 액션이 추가되어도 이 컴포넌트를 수정하지 않는다.
 class CampusSection extends StatelessWidget {
   final String title;
   final Widget child;
-  final String? trailingLabel;
-  final VoidCallback? onTapTrailing;
-  final DateTime? trailingDate;
+  final Widget? suffix;
+  final Widget? action;
 
   const CampusSection({
     super.key,
     required this.title,
     required this.child,
-    this.trailingLabel,
-    this.onTapTrailing,
-    this.trailingDate,
+    this.suffix,
+    this.action,
   });
 
   @override
@@ -30,65 +26,15 @@ class CampusSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(child: _buildTitle()),
-              if (trailingLabel != null)
-                GestureDetector(
-                  onTap: onTapTrailing,
-                  behavior: HitTestBehavior.opaque,
-                  child: Row(
-                    children: [
-                      Text(
-                        trailingLabel!,
-                        style: TextStyles.smallTextRegular.copyWith(
-                          color: ColorStyles.gray5,
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 12,
-                        color: ColorStyles.gray5,
-                      ),
-                    ],
-                  ),
-                ),
-            ],
+          SectionHeader(
+            title: title,
+            suffix: suffix,
+            action: action,
           ),
           const SizedBox(height: 12),
           child,
         ],
       ),
-    );
-  }
-
-  Widget _buildTitle() {
-    final titleStyle = TextStyles.largeTextBold.copyWith(
-      color: ColorStyles.black,
-    );
-
-    if (trailingDate == null) {
-      return Text(title, style: titleStyle);
-    }
-
-    return Text.rich(
-      TextSpan(
-        style: titleStyle,
-        children: [
-          TextSpan(text: title),
-          TextSpan(
-            text: ' · ',
-            style: titleStyle.copyWith(color: ColorStyles.gray3),
-          ),
-          TextSpan(
-            text: DateFormat('M월 d일(E)', 'ko').format(trailingDate!),
-            style: titleStyle.copyWith(color: ColorStyles.gray6),
-          ),
-        ],
-      ),
-      overflow: TextOverflow.ellipsis,
     );
   }
 }
