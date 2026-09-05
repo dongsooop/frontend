@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/section_header.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -24,10 +25,7 @@ class HomeQuickLinks extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '바로가기',
-            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
-          ),
+          const SectionHeader(title: '바로가기'),
           const SizedBox(height: 12),
           Row(
             children: [
