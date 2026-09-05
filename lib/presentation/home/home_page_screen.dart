@@ -1,10 +1,11 @@
-import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
+import 'package:dongsoop/core/presentation/components/admob_banner_ad.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/presentation/home/widgets/chatbot_button.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
-import 'package:dongsoop/presentation/home/widgets/home_new_notice.dart';
-import 'package:dongsoop/presentation/home/widgets/home_popular_recruits.dart';
-import 'package:dongsoop/presentation/home/widgets/home_today.dart';
+import 'package:dongsoop/presentation/home/widgets/home_greeting.dart';
+import 'package:dongsoop/presentation/home/widgets/home_notice_list.dart';
+import 'package:dongsoop/presentation/home/widgets/home_quick_links.dart';
+import 'package:dongsoop/presentation/home/widgets/home_today_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -85,17 +86,18 @@ class HomePageScreen extends HookConsumerWidget {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  HomeToday(
-                    timeTable: homeEntity.timeTable,
-                    schedule: homeEntity.schedule,
-                    isLoggedOut: user == null,
+                  HomeGreeting(
+                    classCount: homeEntity.timeTable.length,
+                    noticeCount: homeEntity.notices.length,
                   ),
-                  HomeNewNotice(notices: homeEntity.notices),
+                  HomeTodayCard(timeTable: homeEntity.timeTable),
+                  HomeNoticeList(notices: homeEntity.notices),
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                    child: AdmobNativeAd(),
+                    padding: EdgeInsets.symmetric(vertical: 22),
+                    child: AdmobBannerAd(),
                   ),
-                  HomePopularRecruits(recruits: homeEntity.popularRecruits),
+                  const HomeQuickLinks(),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
