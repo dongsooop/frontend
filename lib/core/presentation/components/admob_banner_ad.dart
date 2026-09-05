@@ -107,7 +107,6 @@ class _AdmobBannerAdState extends State<AdmobBannerAd> {
           }
 
           setState(() {
-            _bannerAd = ad;
             _loadedSize = platformSize ?? ad.size;
             _isLoaded = true;
           });
@@ -127,6 +126,7 @@ class _AdmobBannerAdState extends State<AdmobBannerAd> {
       ),
     );
 
+    _bannerAd = ad;
     ad.load();
   }
 
