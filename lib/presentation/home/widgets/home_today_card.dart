@@ -22,11 +22,17 @@ class HomeTodayCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mealIndex = useState(0);
     final meals = ref.watch(cafeteriaViewModelProvider).maybeWhen(
           data: (data) => data.weekMeals,
           orElse: () => const <DailyMealEntity>[],
         );
+    final todayMealIndex = _findTodayMealIndex(meals);
+    final mealIndex = useState(todayMealIndex);
+
+    useEffect(() {
+      mealIndex.value = todayMealIndex;
+      return null;
+    }, [meals]);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
@@ -58,6 +64,7 @@ class HomeTodayCard extends HookConsumerWidget {
             _MealHeader(meals: meals, index: mealIndex.value),
             SwipeDeck(
               itemCount: meals.isEmpty ? 1 : meals.length,
+              initialPage: mealIndex.value,
               onPageChanged: (index) => mealIndex.value = index,
               itemBuilder: (context, index) => meals.isEmpty
                   ? const _TodayRow(
@@ -76,6 +83,22 @@ class HomeTodayCard extends HookConsumerWidget {
         ),
       ),
     );
+  }
+
+  int _findTodayMealIndex(List<DailyMealEntity> meals) {
+    if (meals.isEmpty) return 0;
+
+    final now = DateTime.now();
+    final index = meals.indexWhere((meal) {
+      final date = DateTime.tryParse(meal.date);
+      if (date == null) return false;
+
+      return date.year == now.year &&
+          date.month == now.month &&
+          date.day == now.day;
+    });
+
+    return index >= 0 ? index : 0;
   }
 
   Widget _classRow(Slot slot) {
