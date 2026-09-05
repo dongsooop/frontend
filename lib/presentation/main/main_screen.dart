@@ -72,9 +72,9 @@ class MainScreen extends StatelessWidget {
                         label: '홈',
                       ),
                       const NavigationDestination(
-                        icon: Icon(Icons.grid_view_outlined, color: ColorStyles.gray4,),
-                        selectedIcon: Icon(Icons.grid_view_outlined, color: ColorStyles.primaryColor,),
-                        label: '모여봐요',
+                        icon: Icon(Icons.search, color: ColorStyles.gray4,),
+                        selectedIcon: Icon(Icons.search, color: ColorStyles.primaryColor,),
+                        label: '캠퍼스',
                       ),
                       const NavigationDestination(
                         icon: Icon(Icons.chat_bubble_outline, color: ColorStyles.gray4,),
