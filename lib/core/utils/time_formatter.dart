@@ -33,22 +33,6 @@ String formatDuration(int seconds) {
 }
 
 extension TimeStringExtensions on String {
-  /// 서버 시간 문자열(H:mm, HH:mm, HH:mm:ss)을 HH:mm으로 정규화한다.
-  ///
-  /// 파싱할 수 없는 값은 원문을 그대로 반환한다.
-  String toHourMinute() {
-    final parts = trim().split(':');
-    if (parts.length < 2) return this;
-
-    final hour = int.tryParse(parts[0]);
-    final minute = int.tryParse(parts[1]);
-    if (hour == null || minute == null || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-      return this;
-    }
-
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-  }
-
   int toMinutesFrom9AM() {
     final parts = split(':');
     final hour = int.tryParse(parts[0]) ?? 0;

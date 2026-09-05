@@ -1,5 +1,4 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
-import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/cafeteria/entities/cafeteria_entity.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
@@ -18,15 +17,21 @@ import 'package:intl/intl.dart';
 /// 우측 셰브런만 그 사실을 알린다. 제목 줄을 없애면 카드가 한 뼘 짧아진다.
 class HomeTodayCard extends HookConsumerWidget {
   final List<Slot> timeTable;
+  final bool isLoggedOut;
 
-  const HomeTodayCard({super.key, required this.timeTable});
+  const HomeTodayCard({
+    super.key,
+    required this.timeTable,
+    required this.isLoggedOut,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final meals = ref.watch(cafeteriaViewModelProvider).maybeWhen(
-          data: (data) => data.weekMeals,
-          orElse: () => const <DailyMealEntity>[],
-        );
+    final cafeteriaState = ref.watch(cafeteriaViewModelProvider);
+    final meals = cafeteriaState.maybeWhen(
+      data: (data) => data.weekMeals,
+      orElse: () => const <DailyMealEntity>[],
+    );
     final todayMealIndex = _findTodayMealIndex(meals);
     final mealIndex = useState(todayMealIndex);
 
@@ -46,39 +51,60 @@ class HomeTodayCard extends HookConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SwipeDeck(
-              itemCount: timeTable.isEmpty ? 1 : timeTable.length,
-              itemBuilder: (context, index) => timeTable.isEmpty
-                  ? const _TodayRow(
-                      emoji: '📘',
-                      background: ColorStyles.primary5,
-                      title: '오늘은 수업이 없어요',
-                      isMuted: true,
-                    )
-                  : _classRow(timeTable[index]),
-              onTapItem: () => context.push(RoutePaths.timetable),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 14, 16, 14),
-              child: Divider(height: 1, thickness: 1, color: ColorStyles.gray2),
-            ),
-            _MealHeader(meals: meals, index: mealIndex.value),
-            SwipeDeck(
-              itemCount: meals.isEmpty ? 1 : meals.length,
-              initialPage: mealIndex.value,
-              onPageChanged: (index) => mealIndex.value = index,
-              itemBuilder: (context, index) => meals.isEmpty
-                  ? const _TodayRow(
-                      emoji: '🍚',
-                      background: ColorStyles.gray2,
-                      title: '이번 주 학식 정보가 없어요',
-                      isMuted: true,
-                    )
-                  : _TodayRow(
-                      emoji: '🍚',
-                      background: ColorStyles.amberBg,
-                      title: meals[index].koreanMenu,
-                    ),
+            if (!isLoggedOut) ...[
+              SwipeDeck(
+                itemCount: timeTable.isEmpty ? 1 : timeTable.length,
+                itemBuilder: (context, index) => timeTable.isEmpty
+                    ? const _TodayRow(
+                        emoji: '📘',
+                        background: ColorStyles.primary5,
+                        title: '오늘은 수업이 없어요',
+                        isMuted: true,
+                      )
+                    : _classRow(timeTable[index]),
+                onTapItem: () => context.push(RoutePaths.timetable),
+              ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 14, 16, 14),
+                child: Divider(height: 1, thickness: 1, color: ColorStyles.gray2),
+              ),
+            ],
+            cafeteriaState.when(
+              data: (_) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _MealHeader(meals: meals, index: mealIndex.value),
+                  SwipeDeck(
+                    itemCount: meals.isEmpty ? 1 : meals.length,
+                    initialPage: mealIndex.value,
+                    onPageChanged: (index) => mealIndex.value = index,
+                    itemBuilder: (context, index) => meals.isEmpty
+                        ? const _TodayRow(
+                            emoji: '🍚',
+                            background: ColorStyles.gray2,
+                            title: '이번 주 학식 정보가 없어요',
+                            isMuted: true,
+                          )
+                        : _TodayRow(
+                            emoji: '🍚',
+                            background: ColorStyles.amberBg,
+                            title: meals[index].koreanMenu,
+                          ),
+                  ),
+                ],
+              ),
+              loading: () => const _TodayRow(
+                emoji: '🍚',
+                background: ColorStyles.gray2,
+                title: '학식을 불러오는 중...',
+                isMuted: true,
+              ),
+              error: (_, __) => const _TodayRow(
+                emoji: '🍚',
+                background: ColorStyles.gray2,
+                title: '학식을 불러오지 못했어요',
+                isMuted: true,
+              ),
             ),
           ],
         ),
@@ -107,9 +133,16 @@ class HomeTodayCard extends HookConsumerWidget {
       emoji: '📘',
       background: ColorStyles.primary5,
       title: slot.title,
-      description: '${slot.startAt.toHourMinute()} - ${slot.endAt.toHourMinute()}',
+      description: '${_formatHourMinute(slot.startAt)} - ${_formatHourMinute(slot.endAt)}',
       showChevron: true,
     );
+  }
+
+  // 기존 HomeToday에서 사용하던 서버 시간 표시 형식.
+  String _formatHourMinute(String value) {
+    final match = RegExp(r'^\s*(\d{1,2}):(\d{2})(?::\d{2})?\s*$').firstMatch(value);
+    if (match == null) return value;
+    return '${match.group(1)!.padLeft(2, '0')}:${match.group(2)!}';
   }
 }
 
@@ -124,31 +157,31 @@ class _MealHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = _dateLabel(index);
     return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-          child: Text.rich(
-            TextSpan(
-              style: TextStyles.normalTextBold.copyWith(
-                color: ColorStyles.black,
-              ),
-              children: [
-                const TextSpan(text: '학식'),
-                if (label != null) ...[
-                  TextSpan(
-                    text: ' · ',
-                    style: const TextStyle(color: ColorStyles.gray4),
-                  ),
-                  TextSpan(
-                    text: label,
-                    style: const TextStyle(color: ColorStyles.gray6),
-                  ),
-                ],
-              ],
-            ),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      child: Text.rich(
+        TextSpan(
+          style: TextStyles.normalTextBold.copyWith(
+            color: ColorStyles.black,
           ),
+          children: [
+            const TextSpan(text: '학식'),
+            if (label != null) ...[
+              const TextSpan(
+                text: ' · ',
+                style: TextStyle(color: ColorStyles.gray4),
+              ),
+              TextSpan(
+                text: label,
+                style: const TextStyle(color: ColorStyles.gray6),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
-  /// 서버가 `dayOfWeek` 를 함께 내려주므로 요일을 따로 계산하지 않는다.
+  /// 메뉴가 없는 날은 서버 요일이 비어 있으므로 기존 요일 표기를 사용한다.
   String? _dateLabel(int index) {
     if (meals.isEmpty) return null;
     final meal = meals[index.clamp(0, meals.length - 1)];
@@ -156,7 +189,11 @@ class _MealHeader extends StatelessWidget {
     final parsed = DateTime.tryParse(meal.date);
     if (parsed == null) return meal.date;
 
-    return '${DateFormat('M월 d일', 'ko').format(parsed)}(${meal.dayOfWeek})';
+    const weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+    final weekday = meal.dayOfWeek.isNotEmpty
+        ? meal.dayOfWeek
+        : weekdays[parsed.weekday - 1];
+    return '${DateFormat('M월 d일', 'ko').format(parsed)}($weekday)';
   }
 }
 

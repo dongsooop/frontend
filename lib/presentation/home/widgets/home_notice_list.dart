@@ -1,5 +1,4 @@
 import 'package:dongsoop/core/presentation/components/notice_setting_link.dart';
-import 'package:dongsoop/core/presentation/components/section_header.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -8,10 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 /// 홈의 새로운 공지 세 건.
-///
-/// 앞의 점은 읽음 여부 자리다. 지금은 서버 응답(`HomeNotice`)에 공지 id 가 없어
-/// 로컬 읽음 기록과 대조할 수 없으므로 전부 안 읽음으로 둔다.
-/// 백엔드에서 id 가 내려오면 [isUnread] 만 채우면 된다.
 class HomeNoticeList extends StatelessWidget {
   final List<Notice> notices;
 
@@ -24,12 +19,33 @@ class HomeNoticeList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: '새로운 공지',
-            action: SectionHeaderAction(
-              label: '더보기',
-              onTap: () => context.goNamed('noticeList'),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '새로운 공지',
+                  style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                ),
+              ),
+              InkWell(
+                onTap: () => context.goNamed('noticeList'),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '더보기',
+                        style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray5),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(Icons.arrow_forward_ios, size: 12, color: ColorStyles.gray5),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           if (notices.isEmpty)
@@ -66,13 +82,9 @@ class _NoticeRow extends StatelessWidget {
   final Notice notice;
   final bool isLast;
 
-  /// 서버가 공지 id 를 내려주기 전까지는 모두 안 읽음으로 본다.
-  final bool isUnread;
-
   const _NoticeRow({
     required this.notice,
     required this.isLast,
-    this.isUnread = true,
   });
 
   @override
@@ -100,7 +112,7 @@ class _NoticeRow extends StatelessWidget {
               height: 6,
               margin: const EdgeInsets.only(top: 8, right: 10),
               decoration: BoxDecoration(
-                color: isUnread ? ColorStyles.primary100 : ColorStyles.gray2,
+                color: ColorStyles.primary100,
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -113,7 +125,7 @@ class _NoticeRow extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyles.normalTextBold.copyWith(
-                      color: isUnread ? ColorStyles.black : ColorStyles.gray6,
+                      color: ColorStyles.black,
                       height: 1.45,
                     ),
                   ),

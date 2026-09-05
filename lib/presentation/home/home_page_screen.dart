@@ -1,5 +1,5 @@
-import 'package:dongsoop/core/presentation/components/admob_banner_ad.dart';
-import 'package:dongsoop/core/presentation/components/authenticated_action.dart';
+import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/presentation/home/widgets/chatbot_button.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
 import 'package:dongsoop/presentation/home/widgets/home_greeting.dart';
@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/presentation/home/view_models/home_view_model.dart';
@@ -58,11 +58,13 @@ class HomePageScreen extends HookConsumerWidget {
         floatingActionButton: Padding(
           padding: EdgeInsets.only(bottom: 24,),
           child: ChatbotButton(
-            onTap: () => runAuthenticatedAction(
-              context,
-              isAuthenticated: user != null,
-              action: onTapChatbot,
-            ),
+            onTap: () async {
+              if (user == null) {
+                await LoginRequiredDialog(context);
+                return;
+              }
+              onTapChatbot();
+            },
           ),
         ),
         appBar: MainHeader(
@@ -80,24 +82,30 @@ class HomePageScreen extends HookConsumerWidget {
             top: false,
             bottom: true,
             child: RefreshIndicator(
-              onRefresh: () async {
-                await Future.wait([
-                  homeViewModel.refresh(),
-                  ref.refresh(cafeteriaViewModelProvider.future),
-                  if (user != null) badge.refreshBadge(force: true),
-                ]);
-              },
+              onRefresh: homeViewModel.refresh,
               color:  ColorStyles.primary100,
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
                   // 공지는 세 건으로 잘려 오고 읽음 여부도 몰라 아직 세지 않는다
-                  HomeGreeting(classCount: homeEntity.timeTable.length),
-                  HomeTodayCard(timeTable: homeEntity.timeTable),
+                  HomeGreeting(
+                    classCount: homeEntity.timeTable.length,
+                    isLoggedOut: user == null,
+                  ),
+                  HomeTodayCard(
+                    timeTable: homeEntity.timeTable,
+                    isLoggedOut: user == null,
+                  ),
                   HomeNoticeList(notices: homeEntity.notices),
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 22),
-                    child: AdmobBannerAd(),
+                    padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+                    child: SizedBox(
+                      height: 100,
+                      child: AdmobNativeAd(
+                        templateType: TemplateType.small,
+                        height: 100,
+                      ),
+                    ),
                   ),
                   const HomeQuickLinks(),
                   const SizedBox(height: 24),
