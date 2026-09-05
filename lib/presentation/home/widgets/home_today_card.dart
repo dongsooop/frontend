@@ -46,6 +46,7 @@ class HomeTodayCard extends HookConsumerWidget {
                       emoji: '📘',
                       background: ColorStyles.primary5,
                       title: '오늘은 수업이 없어요',
+                      isMuted: true,
                     )
                   : _classRow(timeTable[index]),
               onTapItem: () => context.push(RoutePaths.timetable),
@@ -63,10 +64,11 @@ class HomeTodayCard extends HookConsumerWidget {
                       emoji: '🍚',
                       background: ColorStyles.gray2,
                       title: '이번 주 학식 정보가 없어요',
+                      isMuted: true,
                     )
                   : _TodayRow(
                       emoji: '🍚',
-                      background: const Color(0xFFFFF6E0),
+                      background: ColorStyles.amberBg,
                       title: meals[index].koreanMenu,
                     ),
             ),
@@ -109,11 +111,11 @@ class _MealHeader extends StatelessWidget {
                 if (label != null) ...[
                   TextSpan(
                     text: ' · ',
-                    style: TextStyle(color: ColorStyles.gray4),
+                    style: const TextStyle(color: ColorStyles.gray4),
                   ),
                   TextSpan(
                     text: label,
-                    style: TextStyle(color: ColorStyles.gray6),
+                    style: const TextStyle(color: ColorStyles.gray6),
                   ),
                 ],
               ],
@@ -141,12 +143,16 @@ class _TodayRow extends StatelessWidget {
   final String? description;
   final bool showChevron;
 
+  /// 비어 있음을 알리는 줄은 흐리게 둔다
+  final bool isMuted;
+
   const _TodayRow({
     required this.emoji,
     required this.background,
     required this.title,
     this.description,
     this.showChevron = false,
+    this.isMuted = false,
   });
 
   @override
@@ -175,9 +181,7 @@ class _TodayRow extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyles.normalTextBold.copyWith(
-                    color: ColorStyles.gray7 == background
-                        ? ColorStyles.gray4
-                        : ColorStyles.black,
+                    color: isMuted ? ColorStyles.gray4 : ColorStyles.black,
                     height: 1.4,
                   ),
                 ),

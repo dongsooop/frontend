@@ -14,8 +14,8 @@ class HomeQuickLinks extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = <_QuickItem>[
       _QuickItem('🍽️', '맛집', ColorStyles.primary5, RoutePaths.restaurants),
-      _QuickItem('📚', '도서관', const Color(0xFFE4F7EE), RoutePaths.libraryWebView),
-      _QuickItem('💬', '챗봇', const Color(0xFFFFF6E0), RoutePaths.chatbot),
+      _QuickItem('📚', '도서관', ColorStyles.mintBg, RoutePaths.libraryWebView),
+      _QuickItem('💬', '챗봇', ColorStyles.amberBg, RoutePaths.chatbot),
       _QuickItem('🗓️', '학사일정', ColorStyles.gray1, RoutePaths.schedule),
     ];
 

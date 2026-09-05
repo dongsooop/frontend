@@ -86,10 +86,8 @@ class HomePageScreen extends HookConsumerWidget {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  HomeGreeting(
-                    classCount: homeEntity.timeTable.length,
-                    noticeCount: homeEntity.notices.length,
-                  ),
+                  // 공지는 세 건으로 잘려 오고 읽음 여부도 몰라 아직 세지 않는다
+                  HomeGreeting(classCount: homeEntity.timeTable.length),
                   HomeTodayCard(timeTable: homeEntity.timeTable),
                   HomeNoticeList(notices: homeEntity.notices),
                   const Padding(

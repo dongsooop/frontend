@@ -7,6 +7,10 @@ import 'package:intl/intl.dart';
 ///
 /// 0 인 항목은 문장에서 뺀다. 둘 다 없으면 다른 문장으로 바꾼다 —
 /// "수업 0개, 공지 0개" 는 읽는 사람에게 아무것도 알려주지 않는다.
+///
+/// [noticeCount] 는 아직 채우지 않는다. 홈 응답의 공지는 서버에서 세 건으로 잘려 오고
+/// (`searchHomeNotices` 의 limit(3)) 읽음 여부도 알 수 없어, 그 길이를 그대로 쓰면
+/// 매일 "새 공지 3개" 가 뜬다. 안 읽은 공지를 셀 수 있게 되면 그때 넘긴다.
 class HomeGreeting extends StatelessWidget {
   final int classCount;
   final int noticeCount;
@@ -14,7 +18,7 @@ class HomeGreeting extends StatelessWidget {
   const HomeGreeting({
     super.key,
     required this.classCount,
-    required this.noticeCount,
+    this.noticeCount = 0,
   });
 
   @override
@@ -72,7 +76,7 @@ class HomeGreeting extends StatelessWidget {
         TextSpan(text: label),
         TextSpan(
           text: '$count개',
-          style: TextStyle(color: ColorStyles.primary100),
+          style: const TextStyle(color: ColorStyles.primary100),
         ),
       ],
     );
