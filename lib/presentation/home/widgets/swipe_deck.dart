@@ -42,8 +42,14 @@ class _SwipeDeckState extends State<SwipeDeck> {
   void didUpdateWidget(covariant SwipeDeck oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final target = _normalizePage(widget.initialPage);
+    final initialPageChanged = widget.initialPage != oldWidget.initialPage;
     final currentIsInvalid = _index >= widget.itemCount;
+
+    if (!initialPageChanged && !currentIsInvalid) return;
+
+    final target = _normalizePage(
+      initialPageChanged ? widget.initialPage : _index,
+    );
 
     if (target == _index && !currentIsInvalid) return;
 
