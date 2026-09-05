@@ -17,6 +17,7 @@ import 'package:dongsoop/presentation/restaurants/write/restaurants_write_view_m
 import 'package:dongsoop/presentation/restaurants/write/search_kakao_state.dart';
 import 'package:dongsoop/presentation/restaurants/write/search_kakao_view_model.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
+import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'auth_dio.dart';
 
@@ -96,4 +97,17 @@ StateNotifierProvider.autoDispose<RestaurantsSearchViewModel, RestaurantsSearchS
   final sendRestaurantLikeUseCase = ref.watch(sendRestaurantLikeUseCaseProvider);
 
   return RestaurantsSearchViewModel(getSearchRestaurantsUseCase, sendRestaurantLikeUseCase);
+});
+
+/// 캠퍼스 탭의 "오늘 뭐 먹지" 목록.
+///
+/// `/restaurants/nearby` 가 이미 좋아요 내림차순으로 정렬해 내려주므로 앞에서 몇 개만
+/// 받는다. 화면이 리빌드될 때마다 다시 부르지 않도록 프로바이더로 감싼다.
+final topRestaurantsProvider =
+    FutureProvider.autoDispose<List<Restaurant>>((ref) async {
+  final isLogin = ref.watch(userSessionProvider) != null;
+  final useCase = ref.watch(getRestaurantsUseCaseProvider);
+
+  final restaurants = await useCase.execute(isLogin: isLogin, page: 0, size: 6);
+  return restaurants ?? const [];
 });

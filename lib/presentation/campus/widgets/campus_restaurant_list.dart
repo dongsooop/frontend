@@ -1,6 +1,5 @@
 import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
 import 'package:dongsoop/presentation/campus/restaurant_category_style.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/restaurants_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
@@ -15,52 +14,48 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class CampusRestaurantList extends ConsumerWidget {
   const CampusRestaurantList({super.key});
 
-  static const int _count = 6;
   static const double _cardWidth = 150;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isLogin = ref.watch(userSessionProvider) != null;
-    final useCase = ref.watch(getRestaurantsUseCaseProvider);
-
-    return FutureBuilder<List<Restaurant>?>(
-      future: useCase.execute(isLogin: isLogin, page: 0, size: _count),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox(
-            height: 160,
+    return ref.watch(topRestaurantsProvider).when(
+          loading: () => const SizedBox(
+            height: 172,
             child: Center(
               child: CircularProgressIndicator(color: ColorStyles.primaryColor),
             ),
-          );
-        }
-
-        final restaurants = snapshot.data ?? const <Restaurant>[];
-        if (restaurants.isEmpty) {
-          return SizedBox(
-            height: 100,
-            child: Center(
-              child: Text(
-                '등록된 맛집이 아직 없어요',
-                style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.gray4,
-                ),
-              ),
-            ),
-          );
-        }
-
-        return SizedBox(
-          height: 172,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: restaurants.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, index) =>
-                _RestaurantCard(restaurant: restaurants[index]),
           ),
+          error: (_, __) => _message('맛집을 불러오지 못했어요'),
+          data: (restaurants) {
+            if (restaurants.isEmpty) {
+              return _message('등록된 맛집이 아직 없어요');
+            }
+
+            return SizedBox(
+              height: 172,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: restaurants.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) =>
+                    _RestaurantCard(restaurant: restaurants[index]),
+              ),
+            );
+          },
         );
-      },
+  }
+
+  Widget _message(String text) {
+    return SizedBox(
+      height: 100,
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyles.normalTextRegular.copyWith(
+            color: ColorStyles.gray4,
+          ),
+        ),
+      ),
     );
   }
 }

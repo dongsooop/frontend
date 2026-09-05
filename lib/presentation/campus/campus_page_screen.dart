@@ -8,24 +8,23 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
 /// 학교 다니면서 쓰는 것들을 모아둔 탭.
 ///
 /// 게시판이 빠진 자리다. 맛집·학식·도서관·챗봇은 "모임" 이 아니라 "탐색" 에
 /// 가까워서 탭 이름도 모여봐요에서 캠퍼스로 바꿨다.
-class CampusPageScreen extends ConsumerWidget {
+class CampusPageScreen extends StatelessWidget {
   const CampusPageScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final today = DateTime.now();
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorStyles.white,
-        body: ListView(
+    return Scaffold(
+      backgroundColor: ColorStyles.white,
+      body: SafeArea(
+        child: ListView(
           padding: const EdgeInsets.only(bottom: 24),
           children: [
             Padding(
