@@ -18,11 +18,11 @@ jobs:
 
       # Flutter SDK (subosito) 이전에 pub 캐시 복원
       - name: Cache Flutter pub packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.pub-cache
-          key: pubcache-${{ runner.os }}-stable-3.27.1-${{ hashFiles('pubspec.lock') }}
-          restore-keys: pubcache-${{ runner.os }}-stable-3.27.1-
+          key: pubcache-${{ runner.os }}-stable-3.35.4-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pubcache-${{ runner.os }}-stable-3.35.4-
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -58,7 +58,7 @@ jobs:
 
       # iOS Pods 캐시 복원
       - name: Cache iOS Pods
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ios/Pods
           key: iospods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
@@ -69,10 +69,9 @@ jobs:
           flutter pub get
           cd ios && pod install --repo-update
 
-      # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
+      # 코드 분석 수행 (경고는 허용, analyzer error는 즉시 실패)
       - name: Analyze code
-        run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
-        continue-on-error: false
+        run: flutter analyze --no-fatal-warnings
 
       # 무료 버전 - Apple Developer 계정 없이 빌드만
       - name: Build iOS (no codesign)
