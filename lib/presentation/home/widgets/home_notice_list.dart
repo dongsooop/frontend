@@ -138,7 +138,7 @@ class _NoticeRow extends ConsumerWidget {
                     notice.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyles.normalTextBold.copyWith(
+                    style: TextStyles.largeTextBold.copyWith(
                       color: ColorStyles.black,
                       height: 1.45,
                     ),

@@ -127,7 +127,7 @@ class CommonNoticeListItem extends ConsumerWidget {
         onTap();
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           border: isLastItem
               ? null
@@ -155,7 +155,9 @@ class CommonNoticeListItem extends ConsumerWidget {
                     title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyles.normalTextBold.copyWith(
+                    // 이 화면에 온 이유가 공지 제목이다. 홈의 곁다리 목록을
+                    // 그대로 복사해 15 로 줄였다가 원래 크기로 되돌린다
+                    style: TextStyles.largeTextBold.copyWith(
                       color: ColorStyles.black,
                       height: 1.45,
                     ),
