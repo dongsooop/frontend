@@ -33,7 +33,7 @@ class CampusSection extends StatelessWidget {
                       child: Text(
                         title,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyles.largeTextBold.copyWith(
+                        style: TextStyles.sectionTitleBold.copyWith(
                           color: ColorStyles.black,
                         ),
                       ),

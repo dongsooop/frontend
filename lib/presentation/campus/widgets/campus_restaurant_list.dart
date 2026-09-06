@@ -28,18 +28,16 @@ class CampusRestaurantList extends ConsumerWidget {
           ),
           error: (_, __) => _message('맛집을 불러오지 못했어요'),
           data: (restaurants) {
-            if (restaurants.isEmpty) {
-              return _message('등록된 맛집이 아직 없어요');
-            }
-
+            // 맛집이 하나도 없어도 카드는 남긴다. 빈 자리만 남기지 않는다
             return SizedBox(
               height: 172,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: restaurants.length,
+                itemCount: restaurants.length + 1,
                 separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, index) =>
-                    _RestaurantCard(restaurant: restaurants[index]),
+                itemBuilder: (context, index) => index == restaurants.length
+                    ? const _MoreCard()
+                    : _RestaurantCard(restaurant: restaurants[index]),
               ),
             );
           },
@@ -55,6 +53,72 @@ class CampusRestaurantList extends ConsumerWidget {
           style: TextStyles.normalTextRegular.copyWith(
             color: ColorStyles.gray4,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 목록 끝에 붙는 전체 보기 카드.
+///
+/// 구획 제목 옆자리는 `추천하러 가기` 가 가져갔다. 그 자리가 더 눈에 띄어
+/// 올리는 쪽에 줬고, 전체 목록으로 가는 길은 여기에 남긴다.
+///
+/// 카드 크기와 자리를 맛집 카드와 같게 두고 색만 비운다. 목록의 일부로
+/// 자연스럽게 걸리되 가게로 오해받지는 않는다.
+class _MoreCard extends StatelessWidget {
+  const _MoreCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => context.pushNamed('restaurants'),
+      child: SizedBox(
+        width: CampusRestaurantList._cardWidth,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 104,
+              decoration: BoxDecoration(
+                color: ColorStyles.gray1,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.more_horiz_rounded,
+                size: 32,
+                color: ColorStyles.gray4,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '더 많은 맛집',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyles.normalTextBold.copyWith(
+                color: ColorStyles.black,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Row(
+              children: [
+                Text(
+                  '전체 보기',
+                  style: TextStyles.smallTextRegular.copyWith(
+                    color: ColorStyles.gray5,
+                  ),
+                ),
+                const SizedBox(width: 2),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 10,
+                  color: ColorStyles.gray5,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

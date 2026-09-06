@@ -22,7 +22,7 @@ class HomeQuickLinks extends ConsumerWidget {
         children: [
           Text(
             '바로가기',
-            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+            style: TextStyles.sectionTitleBold.copyWith(color: ColorStyles.black),
           ),
           const SizedBox(height: 12),
           Row(

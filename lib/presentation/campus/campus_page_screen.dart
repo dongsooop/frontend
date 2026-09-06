@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_link_card.dart';
@@ -9,6 +10,7 @@ import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -54,9 +56,20 @@ class CampusPageScreen extends ConsumerWidget {
             ),
             const CampusSearchBar(),
             CampusSection(
-              title: '오늘 뭐 먹지',
+              // `오늘 뭐 먹지` 는 앱이 골라 주는 것처럼 들린다. 실제로는
+              // 학생들이 올리고 좋아요로 정렬된 목록이라 그대로 말한다
+              title: '학생들이 추천한 맛집',
+              // 눈에 잘 띄는 자리를 올리는 쪽에 준다. 전체 목록으로 가는
+              // 길은 목록 끝 카드에 남겼다
               action: InkWell(
-                onTap: () => context.pushNamed('restaurants'),
+                onTap: () async {
+                  if (user == null) {
+                    await LoginRequiredDialog(context);
+                    return;
+                  }
+                  if (!context.mounted) return;
+                  context.push(RoutePaths.restaurantsWrite);
+                },
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
@@ -64,13 +77,14 @@ class CampusPageScreen extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '전체',
+                        '추천하러 가기',
                         style: TextStyles.smallTextRegular.copyWith(
-                          color: ColorStyles.gray5,
+                          color: ColorStyles.primary100,
                         ),
                       ),
                       const SizedBox(width: 2),
-                      const Icon(Icons.arrow_forward_ios, size: 12, color: ColorStyles.gray5),
+                      const Icon(Icons.arrow_forward_ios,
+                          size: 12, color: ColorStyles.primary100),
                     ],
                   ),
                 ),
@@ -83,6 +97,18 @@ class CampusPageScreen extends ConsumerWidget {
             const CampusSection(
               title: '학식',
               child: CampusMealCard(),
+            ),
+            // 홈과 같은 자리 — 마지막 구획 바로 앞이다. 구획 사이에 두면
+            // 스크롤 도중 갑자기 끼어들고, 맨 아래에 두면 거의 안 보인다
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+              child: SizedBox(
+                height: 100,
+                child: AdmobNativeAd(
+                  templateType: TemplateType.small,
+                  height: 100,
+                ),
+              ),
             ),
             CampusSection(
               title: '캠퍼스 생활',

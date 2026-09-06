@@ -26,7 +26,7 @@ class HomeMealSection extends ConsumerWidget {
         children: [
           Text(
             '학식',
-            style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+            style: TextStyles.sectionTitleBold.copyWith(color: ColorStyles.black),
           ),
           const SizedBox(height: 12),
           state.when(
