@@ -23,5 +23,9 @@ abstract class ColorStyles {
   static const Color warning100 = Color(0xFFC70000);
   static const Color warning10 = Color(0xFFF3DADA);
 
+  // 기능 구분용 옅은 배경. 아이콘을 새로 그리지 않고 색 면으로 나눌 때 쓴다
+  static const Color mintBg = Color(0xFFE4F7EE);
+  static const Color amberBg = Color(0xFFFFF6E0);
+
   static const Color primaryColor = primary100;
 }
