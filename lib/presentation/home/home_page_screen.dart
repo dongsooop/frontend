@@ -1,4 +1,6 @@
 import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/presentation/home/widgets/chatbot_button.dart';
@@ -10,6 +12,7 @@ import 'package:dongsoop/presentation/home/widgets/home_quick_links.dart';
 import 'package:dongsoop/presentation/home/widgets/home_today_card.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -70,6 +73,12 @@ class HomePageScreen extends HookConsumerWidget {
           ),
         ),
         appBar: MainHeader(
+          // 도달 가능한 검색은 공지 검색뿐이다. 모집·장터 모드로 여는 곳은
+          // 게시판 화면인데 그 화면은 닫혀 있다
+          onTapSearch: () => context.push(
+            RoutePaths.search,
+            extra: SearchBoardType.notice,
+          ),
           onTapAlarm: () async {
             final changed = await onTapAlarm();
             if (changed == true) {
