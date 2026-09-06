@@ -1,4 +1,4 @@
-import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
+import 'package:dongsoop/core/presentation/components/admob_banner_ad.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_link_card.dart';
@@ -10,7 +10,6 @@ import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -87,10 +86,8 @@ class CampusPageScreen extends ConsumerWidget {
             // 홈과 같은 자리 — 마지막 구획 바로 앞이다. 구획 사이에 두면
             // 스크롤 도중 갑자기 끼어들고, 맨 아래에 두면 거의 안 보인다
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-              // 높이를 못 박지 않는다. 100 으로 묶어 두면 템플릿이 잘리면서
-              // 광고 자산이 광고 뷰 밖으로 나간다
-              child: AdmobNativeAd(templateType: TemplateType.small),
+              padding: EdgeInsets.symmetric(vertical: 22),
+              child: AdmobBannerAd(),
             ),
             CampusSection(
               title: '캠퍼스 생활',
