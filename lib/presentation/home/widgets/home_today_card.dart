@@ -1,7 +1,7 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/presentation/home/widgets/home_today_row.dart';
-import 'package:dongsoop/presentation/home/widgets/swipe_deck.dart';
+import 'package:dongsoop/core/presentation/components/swipe_deck.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
