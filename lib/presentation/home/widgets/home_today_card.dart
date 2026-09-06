@@ -28,6 +28,8 @@ class HomeTodayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
+      // 인사말 바로 밑이라 구획 사이 여백(40)을 주지 않는다. 인사말과 이
+      // 카드는 붙어서 한 덩어리로 읽히는 게 맞다
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
       child: Container(
         decoration: BoxDecoration(

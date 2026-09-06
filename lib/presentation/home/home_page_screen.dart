@@ -119,7 +119,7 @@ class HomePageScreen extends HookConsumerWidget {
                   // 설명·버튼을 담는 카드라 얇은 띠가 될 수 없다. 스크롤
                   // 안이므로 anchored 가 아니라 inline adaptive 를 쓴다
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 22),
+                    padding: EdgeInsets.symmetric(vertical: 40),
                     child: AdmobBannerAd(),
                   ),
                   const HomeQuickLinks(),

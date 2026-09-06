@@ -20,7 +20,7 @@ class HomeMealSection extends ConsumerWidget {
     final state = ref.watch(cafeteriaViewModelProvider);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
