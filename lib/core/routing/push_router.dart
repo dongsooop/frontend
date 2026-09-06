@@ -339,8 +339,10 @@ class PushRouter {
     final recruitType = _parseRecruitTypeSafe(type);
     if (id == null || id <= 0 || recruitType == null) return _fallbackToNotificationList(isColdStart: true);
 
-      // 게시판을 닫아 모집 상세로 가지 않는다. 스플래시를 지나 홈에서 멈춘다
-      _setNextRoute(RoutePaths.home);
+      // 게시판을 닫아 모집 상세로 가지 않는다. 다음 목적지를 아예 두지
+      // 않으면 PushRouterHelper.goNextOrHome 이 스플래시에서 홈으로 한 번만
+      // 보낸다. home 을 목적지로 두면 그쪽 마지막 분기가 go(home) 뒤에
+      // push(home) 을 해서 홈이 두 장 쌓인다
 
       // _setNextRoute(
       //   RoutePaths.recruitDetail,
@@ -363,8 +365,10 @@ class PushRouter {
     final recruitType = _parseRecruitTypeSafe(type);
     if (id == null || id <= 0 || recruitType == null) return _fallbackToNotificationList(isColdStart: true);
 
-      // 게시판을 닫아 모집 상세로 가지 않는다. 스플래시를 지나 홈에서 멈춘다
-      _setNextRoute(RoutePaths.home);
+      // 게시판을 닫아 모집 상세로 가지 않는다. 다음 목적지를 아예 두지
+      // 않으면 PushRouterHelper.goNextOrHome 이 스플래시에서 홈으로 한 번만
+      // 보낸다. home 을 목적지로 두면 그쪽 마지막 분기가 go(home) 뒤에
+      // push(home) 을 해서 홈이 두 장 쌓인다
 
       // _setNextRoute(
       //   RoutePaths.recruitDetail,
