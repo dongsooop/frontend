@@ -61,34 +61,36 @@ class PushRouterHelper {
       return;
     }
 
-    // 모집: board → recruitDetail → recruitApplicantList / recruitApplicantDetail
-    if (pending.path == RoutePaths.recruitDetail && pending.extra is Map) {
-      final extra = pending.extra as Map;
-      final first = extra['first'];
-      final firstPath = first is Map ? first['path'] : null;
-      final firstExtra = first is Map ? first['extra'] : null;
-
-      // 게시판을 닫아 목록으로 돌아갈 곳이 없다. 홈을 받침으로 두고 상세만 띄운다
+    // 모집: 게시판을 닫아 상세로 가지 않는다. 홈에서 멈춘다.
+    //
+    // 예전 버전이 남겨 둔 pending 이 아직 들어올 수 있어 분기 자체는 남긴다.
+    // 되살릴 때는 아래 주석을 풀면 된다
+    if (pending.path == RoutePaths.recruitDetail) {
       context.go(RoutePaths.home);
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!context.mounted) return;
-
-        context.push(
-          RoutePaths.recruitDetail,
-          extra: {
-            'id': extra['id'],
-            'type': extra['type'],
-          },
-        );
-
-        if (firstPath is String) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!context.mounted) return;
-            context.push(firstPath, extra: firstExtra);
-          });
-        }
-      });
+      // final extra = pending.extra as Map;
+      // final first = extra['first'];
+      // final firstPath = first is Map ? first['path'] : null;
+      // final firstExtra = first is Map ? first['extra'] : null;
+      //
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   if (!context.mounted) return;
+      //
+      //   context.push(
+      //     RoutePaths.recruitDetail,
+      //     extra: {
+      //       'id': extra['id'],
+      //       'type': extra['type'],
+      //     },
+      //   );
+      //
+      //   if (firstPath is String) {
+      //     WidgetsBinding.instance.addPostFrameCallback((_) {
+      //       if (!context.mounted) return;
+      //       context.push(firstPath, extra: firstExtra);
+      //     });
+      //   }
+      // });
 
       return;
     }

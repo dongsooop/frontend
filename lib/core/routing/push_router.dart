@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
+// 게시판을 닫으면서 이 파일에서 쓰는 곳이 주석으로 내려갔다. 되살릴 때
+// 다시 필요하므로 import 만 남겨 둔다
+// ignore: unused_import
 import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:flutter/widgets.dart';
@@ -244,22 +247,24 @@ class PushRouter {
       final recruitType = _parseRecruitTypeSafe(type);
       if (recruitType == null) return false;
 
-      // 게시판을 닫아 목록으로 돌아갈 곳이 없다. 홈을 받침으로 두고 상세만 띄운다
+      // 게시판을 닫으면서 모집 상세로 가는 길도 함께 닫았다. 알림을 눌러도
+      // 홈까지만 간다. 라우트와 화면은 그대로 살아 있으니 되살릴 때는 아래
+      // 주석만 풀면 된다
       router.go(RoutePaths.home);
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        router.push(
-          RoutePaths.recruitDetail,
-          extra: {'id': id, 'type': recruitType},
-        );
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        router.push(
-          RoutePaths.recruitApplicantList,
-          extra: {'id': id, 'type': recruitType},
-        );
-      });
-    });
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   router.push(
+      //     RoutePaths.recruitDetail,
+      //     extra: {'id': id, 'type': recruitType},
+      //   );
+      //
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     router.push(
+      //       RoutePaths.recruitApplicantList,
+      //       extra: {'id': id, 'type': recruitType},
+      //     );
+      //   });
+      // });
 
       return true;
     }
@@ -273,26 +278,27 @@ class PushRouter {
     final recruitType = _parseRecruitTypeSafe(type);
     if (id == null || id <= 0 || recruitType == null) return false;
 
-      // 게시판을 닫아 목록으로 돌아갈 곳이 없다. 홈을 받침으로 두고 상세만 띄운다
+      // 게시판을 닫으면서 모집 상세로 가는 길도 함께 닫았다. 알림을 눌러도
+      // 홈까지만 간다
       router.go(RoutePaths.home);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      router.push(
-        RoutePaths.recruitDetail,
-        extra: {'id': id, 'type': recruitType},
-      );
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      router.push(
-        RoutePaths.recruitApplicantDetail,
-        extra: {
-          'viewer': RecruitApplicantViewer.APPLICANT,
-          'id': id,
-          'type': recruitType,
-        },
-      );
-    });
-  });
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   router.push(
+      //     RoutePaths.recruitDetail,
+      //     extra: {'id': id, 'type': recruitType},
+      //   );
+      //
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     router.push(
+      //       RoutePaths.recruitApplicantDetail,
+      //       extra: {
+      //         'viewer': RecruitApplicantViewer.APPLICANT,
+      //         'id': id,
+      //         'type': recruitType,
+      //       },
+      //     );
+      //   });
+      // });
 
       return true;
     }
@@ -333,17 +339,20 @@ class PushRouter {
     final recruitType = _parseRecruitTypeSafe(type);
     if (id == null || id <= 0 || recruitType == null) return _fallbackToNotificationList(isColdStart: true);
 
-      _setNextRoute(
-        RoutePaths.recruitDetail,
-        extra: {
-          'id': id,
-          'type': recruitType,
-          'first': {
-            'path': RoutePaths.recruitApplicantList,
-            'extra': {'id': id, 'type': recruitType},
-          },
-        },
-      );
+      // 게시판을 닫아 모집 상세로 가지 않는다. 스플래시를 지나 홈에서 멈춘다
+      _setNextRoute(RoutePaths.home);
+
+      // _setNextRoute(
+      //   RoutePaths.recruitDetail,
+      //   extra: {
+      //     'id': id,
+      //     'type': recruitType,
+      //     'first': {
+      //       'path': RoutePaths.recruitApplicantList,
+      //       'extra': {'id': id, 'type': recruitType},
+      //     },
+      //   },
+      // );
 
       if (!_isAtSplash) router.go(RoutePaths.splash);
       return true;
@@ -354,21 +363,24 @@ class PushRouter {
     final recruitType = _parseRecruitTypeSafe(type);
     if (id == null || id <= 0 || recruitType == null) return _fallbackToNotificationList(isColdStart: true);
 
-      _setNextRoute(
-        RoutePaths.recruitDetail,
-        extra: {
-          'id': id,
-          'type': recruitType,
-          'first': {
-            'path': RoutePaths.recruitApplicantDetail,
-            'extra': {
-              'viewer': RecruitApplicantViewer.APPLICANT,
-              'id': id,
-              'type': recruitType,
-            },
-          },
-        },
-      );
+      // 게시판을 닫아 모집 상세로 가지 않는다. 스플래시를 지나 홈에서 멈춘다
+      _setNextRoute(RoutePaths.home);
+
+      // _setNextRoute(
+      //   RoutePaths.recruitDetail,
+      //   extra: {
+      //     'id': id,
+      //     'type': recruitType,
+      //     'first': {
+      //       'path': RoutePaths.recruitApplicantDetail,
+      //       'extra': {
+      //         'viewer': RecruitApplicantViewer.APPLICANT,
+      //         'id': id,
+      //         'type': recruitType,
+      //       },
+      //     },
+      //   },
+      // );
       if (!_isAtSplash) router.go(RoutePaths.splash);
       return true;
   }
