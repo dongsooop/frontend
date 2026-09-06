@@ -1,7 +1,7 @@
 import 'package:dongsoop/core/presentation/components/notice_setting_link.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
-import 'package:dongsoop/presentation/home/view_models/read_notice_view_model.dart';
+import 'package:dongsoop/providers/read_notice_provider.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +26,7 @@ class HomeNoticeList extends StatelessWidget {
               Expanded(
                 child: Text(
                   '새로운 공지',
-                  style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                  style: TextStyles.sectionTitleBold.copyWith(color: ColorStyles.black),
                 ),
               ),
               InkWell(
@@ -138,7 +138,7 @@ class _NoticeRow extends ConsumerWidget {
                     notice.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyles.normalTextBold.copyWith(
+                    style: TextStyles.largeTextBold.copyWith(
                       color: ColorStyles.black,
                       height: 1.45,
                     ),
