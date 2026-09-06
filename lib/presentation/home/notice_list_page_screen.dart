@@ -189,6 +189,8 @@ class NoticeListPageScreen extends HookConsumerWidget {
                         controller: scrollController,
                         titleOf: (e) => e.title,
                         isDepartmentOf: (e) => e.isDepartment,
+                        idOf: (e) => e.id,
+                        createdAtOf: (e) => e.createdAt,
                         onTap: (e) => context.pushNamed(
                           'noticeWebView',
                           queryParameters: {'path': e.link},

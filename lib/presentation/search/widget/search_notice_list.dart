@@ -55,13 +55,12 @@ class SearchNoticeList extends StatelessWidget {
         }
 
         final e = items[index];
-        final leftBadgeText = e.isDepartment ? '학과공지' : '동양공지';
-        final rightBadgeText = e.isDepartment ? '학부' : '학교생활';
 
         return CommonNoticeListItem(
           title: e.title,
-          leftBadgeText: leftBadgeText,
-          rightBadgeText: rightBadgeText,
+          isDepartment: e.isDepartment,
+          noticeId: e.id,
+          createdAt: e.createdAt,
           isLastItem: index == items.length - 1,
           onTap: () => onTap?.call(e),
         );
