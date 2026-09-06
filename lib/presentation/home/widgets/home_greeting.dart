@@ -38,6 +38,9 @@ class HomeGreeting extends StatelessWidget {
           Text.rich(
             _buildMessage(),
             style: TextStyles.titleTextBold.copyWith(
+              // 구획 제목이 20 으로 올라가 22 로는 한 단계 위라는 게 잘
+              // 드러나지 않는다
+              fontSize: 25,
               color: ColorStyles.black,
               height: 1.32,
             ),

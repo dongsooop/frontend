@@ -26,7 +26,7 @@ class HomeNoticeList extends StatelessWidget {
               Expanded(
                 child: Text(
                   '새로운 공지',
-                  style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                  style: TextStyles.sectionTitleBold.copyWith(color: ColorStyles.black),
                 ),
               ),
               InkWell(
