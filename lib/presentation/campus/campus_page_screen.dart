@@ -88,13 +88,9 @@ class CampusPageScreen extends ConsumerWidget {
             // 스크롤 도중 갑자기 끼어들고, 맨 아래에 두면 거의 안 보인다
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-              child: SizedBox(
-                height: 100,
-                child: AdmobNativeAd(
-                  templateType: TemplateType.small,
-                  height: 100,
-                ),
-              ),
+              // 높이를 못 박지 않는다. 100 으로 묶어 두면 템플릿이 잘리면서
+              // 광고 자산이 광고 뷰 밖으로 나간다
+              child: AdmobNativeAd(templateType: TemplateType.small),
             ),
             CampusSection(
               title: '캠퍼스 생활',

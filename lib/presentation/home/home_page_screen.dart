@@ -118,13 +118,9 @@ class HomePageScreen extends HookConsumerWidget {
                   HomeNoticeList(notices: homeEntity.notices),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-                    child: SizedBox(
-                      height: 100,
-                      child: AdmobNativeAd(
-                        templateType: TemplateType.small,
-                        height: 100,
-                      ),
-                    ),
+                    // 높이를 못 박지 않는다. 100 으로 묶어 두면 템플릿이
+                    // 잘리면서 광고 자산이 광고 뷰 밖으로 나간다
+                    child: AdmobNativeAd(templateType: TemplateType.small),
                   ),
                   const HomeQuickLinks(),
                   const SizedBox(height: 24),
