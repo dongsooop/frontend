@@ -86,7 +86,7 @@ class CampusPageScreen extends ConsumerWidget {
             // 홈과 같은 자리 — 마지막 구획 바로 앞이다. 구획 사이에 두면
             // 스크롤 도중 갑자기 끼어들고, 맨 아래에 두면 거의 안 보인다
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 22),
+              padding: EdgeInsets.symmetric(vertical: 40),
               child: AdmobBannerAd(),
             ),
             CampusSection(
