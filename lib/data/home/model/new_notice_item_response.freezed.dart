@@ -14,6 +14,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$NewNoticeItemResponse {
+  int? get id;
   String get title;
   String get link;
   String get type;
@@ -31,6 +32,7 @@ mixin _$NewNoticeItemResponse {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is NewNoticeItemResponse &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.link, link) || other.link == link) &&
             (identical(other.type, type) || other.type == type));
@@ -38,11 +40,11 @@ mixin _$NewNoticeItemResponse {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, title, link, type);
+  int get hashCode => Object.hash(runtimeType, id, title, link, type);
 
   @override
   String toString() {
-    return 'NewNoticeItemResponse(title: $title, link: $link, type: $type)';
+    return 'NewNoticeItemResponse(id: $id, title: $title, link: $link, type: $type)';
   }
 }
 
@@ -52,7 +54,7 @@ abstract mixin class $NewNoticeItemResponseCopyWith<$Res> {
           $Res Function(NewNoticeItemResponse) _then) =
       _$NewNoticeItemResponseCopyWithImpl;
   @useResult
-  $Res call({String title, String link, String type});
+  $Res call({int? id, String title, String link, String type});
 }
 
 /// @nodoc
@@ -68,11 +70,16 @@ class _$NewNoticeItemResponseCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = freezed,
     Object? title = null,
     Object? link = null,
     Object? type = null,
   }) {
     return _then(NewNoticeItemResponse(
+      id: freezed == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
       title: null == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
