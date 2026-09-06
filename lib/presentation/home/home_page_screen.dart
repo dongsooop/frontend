@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
+import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/presentation/home/widgets/chatbot_button.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
@@ -90,7 +91,13 @@ class HomePageScreen extends HookConsumerWidget {
                 children: [
                   HomeGreeting(
                     classCount: homeEntity.timeTable.length,
-                    scheduleCount: homeEntity.schedule.length,
+                    // 비회원에게는 개인 일정이 없다. 오늘 카드가 학사 일정만
+                    // 보여주므로 인사말도 같은 것을 세야 숫자가 맞는다
+                    scheduleCount: user == null
+                        ? homeEntity.schedule
+                            .where((s) => s.type == ScheduleType.official)
+                            .length
+                        : homeEntity.schedule.length,
                     isLoggedOut: user == null,
                   ),
                   HomeTodayCard(
