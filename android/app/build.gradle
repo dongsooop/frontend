@@ -77,11 +77,17 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
+
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
 }
 
 flutter { source = "../.." }
 
 dependencies {
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.robolectric:robolectric:4.14.1"
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
     implementation platform("com.google.firebase:firebase-bom:34.10.0")
     implementation "com.google.firebase:firebase-analytics"

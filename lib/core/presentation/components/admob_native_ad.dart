@@ -4,18 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:logger/logger.dart';
-import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/core/environment/app_distribution.dart';
 
 class AdmobNativeAd extends StatefulWidget {
-  final TemplateType templateType;
-  final double height;
+  // Keep these dimensions in sync with the Android and iOS horizontal factories.
+  // 12 padding + 32 header + 12 gap + 128 media + 12 padding = 196.
+  static const double height = 196;
+  static const double minWidth = 320;
+  static const String factoryId = 'dongsoopHorizontalNativeAd';
 
-  const AdmobNativeAd({
-    super.key,
-    this.templateType = TemplateType.medium,
-    this.height = 250,
-  });
+  const AdmobNativeAd({super.key});
 
   @override
   State<AdmobNativeAd> createState() => _AdmobNativeAdState();
@@ -69,6 +67,7 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
 
     _nativeAd = NativeAd(
       adUnitId: adUnitId,
+      factoryId: AdmobNativeAd.factoryId,
       listener: NativeAdListener(
         onAdLoaded: (ad) {
           _logger.d('$NativeAd loaded.');
@@ -91,39 +90,29 @@ class _AdmobNativeAdState extends State<AdmobNativeAd> {
         },
       ),
       request: const AdRequest(),
-      nativeTemplateStyle: NativeTemplateStyle(
-        templateType: widget.templateType,
-        mainBackgroundColor: Colors.white,
-        cornerRadius: 8.0,
-        callToActionTextStyle: NativeTemplateTextStyle(
-          textColor: Colors.white,
-          backgroundColor: ColorStyles.primaryColor,
-          style: NativeTemplateFontStyle.normal,
-          size: 12.0,
-        ),
-        primaryTextStyle: NativeTemplateTextStyle(
-          textColor: Colors.black,
-          style: NativeTemplateFontStyle.bold,
-          size: 12.0,
-        ),
-      ),
     )..load();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_nativeAdIsLoaded && _nativeAd != null) {
-      return Container(
-        alignment: Alignment.center,
-        constraints: BoxConstraints(
-          minHeight: widget.height,
-          maxHeight: 320,
-        ),
-        width: double.infinity,
-        child: AdWidget(ad: _nativeAd!),
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Never squeeze the native assets into a smaller parent or scale the
+        // MediaView below the SDK's 120 x 120 video minimum.
+        if (!constraints.hasBoundedWidth ||
+            constraints.maxWidth < AdmobNativeAd.minWidth ||
+            constraints.maxHeight < AdmobNativeAd.height) {
+          return const SizedBox.shrink();
+        }
 
-    return SizedBox(height: widget.height);
+        return SizedBox(
+          width: constraints.maxWidth,
+          height: AdmobNativeAd.height,
+          child: _nativeAdIsLoaded && _nativeAd != null
+              ? AdWidget(ad: _nativeAd!)
+              : null,
+        );
+      },
+    );
   }
 }

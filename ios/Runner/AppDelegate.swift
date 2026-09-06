@@ -4,6 +4,7 @@ import UserNotifications
 import flutter_local_notifications
 import FirebaseAppCheck
 import FirebaseCore
+import google_mobile_ads
 
 class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
@@ -45,6 +46,12 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     }
 
     GeneratedPluginRegistrant.register(with: self)
+
+    FLTGoogleMobileAdsPlugin.registerNativeAdFactory(
+      self,
+      factoryId: HorizontalNativeAdFactory.factoryId,
+      nativeAdFactory: HorizontalNativeAdFactory()
+    )
 
     if let remoteNotif = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
         print("[PUSH][iOS] Cold Start detected via launchOptions")

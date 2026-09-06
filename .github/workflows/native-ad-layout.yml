@@ -1,0 +1,90 @@
+name: Native ad layout checks
+
+on:
+  pull_request:
+    branches: [develop]
+    paths:
+      - '.github/workflows/native-ad-layout.yml'
+      - 'android/app/**'
+      - 'ios/Runner/**'
+      - 'ios/RunnerTests/**'
+      - 'ios/Runner.xcodeproj/**'
+      - 'lib/core/presentation/components/admob_native_ad.dart'
+      - 'pubspec.*'
+
+jobs:
+  android-layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.4'
+          cache: true
+      - name: Prepare build configuration
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          FIREBASE_OPTIONS_B64: ${{ secrets.FIREBASE_OPTIONS_B64 }}
+        run: |
+          touch .env
+          echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > android/app/google-services.json
+          echo "$FIREBASE_OPTIONS_B64" | base64 --decode > lib/firebase_options.dart
+          flutter pub get
+          flutter build apk --debug --no-pub
+      - name: Test native asset bounds
+        working-directory: android
+        run: ./gradlew :app:testDebugUnitTest --tests '*HorizontalNativeAdLayoutTest'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-native-ad-layout
+          path: |
+            build/app/reports/tests/
+            build/app/test-results/
+            android/app/build/reports/native-ad-layout/
+          retention-days: 7
+
+  ios-layout:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.4'
+          architecture: arm64
+          cache: true
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.2'
+      - name: Prepare build configuration
+        env:
+          SECRETS_XCCONFIG_B64: ${{ secrets.SECRETS_XCCONFIG_B64 }}
+          GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+          FIREBASE_OPTIONS_B64: ${{ secrets.FIREBASE_OPTIONS_B64 }}
+        run: |
+          touch .env
+          echo "$SECRETS_XCCONFIG_B64" | base64 --decode > ios/Flutter/Secrets.xcconfig
+          echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          echo "$FIREBASE_OPTIONS_B64" | base64 --decode > lib/firebase_options.dart
+          flutter pub get
+          flutter build ios --simulator --debug --no-pub
+      - name: Test native asset bounds
+        run: |
+          SIMULATOR_ID=$(xcrun simctl list devices available -j | ruby -rjson -e 'puts JSON.parse(STDIN.read)["devices"].values.flatten.find { |d| d["name"].start_with?("iPhone") }.fetch("udid")')
+          xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner \
+            -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -only-testing:RunnerTests/HorizontalNativeAdLayoutTests \
+            -resultBundlePath build/native-ad-layout.xcresult CODE_SIGNING_ALLOWED=NO
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-native-ad-layout
+          path: build/native-ad-layout.xcresult
+          retention-days: 7

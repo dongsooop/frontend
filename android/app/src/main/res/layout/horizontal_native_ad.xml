@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Must match AdmobNativeAd.height (196 logical pixels) on the Flutter side. -->
+<com.google.android.gms.ads.nativead.NativeAdView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/horizontal_ad_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/horizontal_ad_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/horizontal_ad_badge"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="광고"
+                android:textColor="#545961"
+                android:textSize="11sp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <com.google.android.gms.ads.nativead.AdChoicesView
+                android:id="@+id/horizontal_ad_choices"
+                android:layout_width="24dp"
+                android:layout_height="24dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="128dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <!-- A fixed square, never weighted or scaled below 120 x 120dp. -->
+            <com.google.android.gms.ads.nativead.MediaView
+                android:id="@+id/horizontal_ad_media"
+                android:layout_width="128dp"
+                android:layout_height="128dp"
+                android:background="#F3F5F8" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/horizontal_ad_headline"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:ellipsize="end"
+                    android:gravity="top"
+                    android:includeFontPadding="false"
+                    android:maxLines="3"
+                    android:textColor="#252525"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/horizontal_ad_advertiser"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:layout_marginTop="6dp"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
+                    android:maxLines="2"
+                    android:textColor="#545961"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/horizontal_ad_call_to_action"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_marginTop="6dp"
+                    android:autoSizeMaxTextSize="13sp"
+                    android:autoSizeMinTextSize="10sp"
+                    android:autoSizeTextType="uniform"
+                    android:background="@drawable/horizontal_ad_button"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.gms.ads.nativead.NativeAdView>

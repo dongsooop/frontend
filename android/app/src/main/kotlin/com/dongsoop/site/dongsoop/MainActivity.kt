@@ -4,6 +4,7 @@ import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.googlemobileads.GoogleMobileAdsPlugin
 
 class MainActivity : FlutterActivity() {
 
@@ -15,6 +16,12 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        GoogleMobileAdsPlugin.registerNativeAdFactory(
+            flutterEngine,
+            HorizontalNativeAdFactory.FACTORY_ID,
+            HorizontalNativeAdFactory(layoutInflater)
+        )
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
@@ -42,5 +49,13 @@ class MainActivity : FlutterActivity() {
             }
 
         Log.d("MainActivity", "MethodChannel($CHANNEL) registered, activeChat=$activeChatRoomId")
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        GoogleMobileAdsPlugin.unregisterNativeAdFactory(
+            flutterEngine,
+            HorizontalNativeAdFactory.FACTORY_ID
+        )
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 }
