@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intl/intl.dart';
 
 /// 학교 다니면서 쓰는 것들을 모아둔 탭.
 ///
@@ -24,7 +23,6 @@ class CampusPageScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final today = DateTime.now();
     final user = ref.watch(userSessionProvider);
 
     return Scaffold(
@@ -35,23 +33,11 @@ class CampusPageScreen extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    DateFormat('M월 d일 EEEE', 'ko').format(today),
-                    style: TextStyles.smallTextBold.copyWith(
-                      color: ColorStyles.gray5,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '캠퍼스',
-                    style: TextStyles.titleTextBold.copyWith(
-                      color: ColorStyles.black,
-                    ),
-                  ),
-                ],
+              child: Text(
+                '캠퍼스',
+                style: TextStyles.titleTextBold.copyWith(
+                  color: ColorStyles.black,
+                ),
               ),
             ),
             const CampusSearchBar(),
@@ -102,13 +88,9 @@ class CampusPageScreen extends ConsumerWidget {
             // 스크롤 도중 갑자기 끼어들고, 맨 아래에 두면 거의 안 보인다
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-              child: SizedBox(
-                height: 100,
-                child: AdmobNativeAd(
-                  templateType: TemplateType.small,
-                  height: 100,
-                ),
-              ),
+              // 높이를 못 박지 않는다. 100 으로 묶어 두면 템플릿이 잘리면서
+              // 광고 자산이 광고 뷰 밖으로 나간다
+              child: AdmobNativeAd(templateType: TemplateType.small),
             ),
             CampusSection(
               title: '캠퍼스 생활',
