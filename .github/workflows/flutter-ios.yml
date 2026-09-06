@@ -6,31 +6,32 @@ on:
   pull_request:
     branches: [ develop ]
 
+env:
+  FLUTTER_VERSION: '3.35.4'
+  XCODE_VERSION: '26.2'
+
 jobs:
   build-ios:
     timeout-minutes: 15
     name: Build Flutter iOS App
-    runs-on: macos-latest
+    runs-on: macos-15
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Flutter SDK (subosito) 이전에 pub 캐시 복원
-      - name: Cache Flutter pub packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.pub-cache
-          key: pubcache-${{ runner.os }}-stable-3.27.1-${{ hashFiles('pubspec.lock') }}
-          restore-keys: pubcache-${{ runner.os }}-stable-3.27.1-
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.4'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
-          architecture: x64
+          architecture: arm64
           cache: true
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Decode and create .env file
         run: |
@@ -56,28 +57,42 @@ jobs:
         run: |
           test -f lib/firebase_options.dart && head -n 5 lib/firebase_options.dart || (echo "missing lib/firebase_options.dart" && exit 1)
 
-      # iOS Pods 캐시 복원
-      - name: Cache iOS Pods
-        uses: actions/cache@v3
-        with:
-          path: ios/Pods
-          key: iospods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
-          restore-keys: iospods-${{ runner.os }}-
+      - name: Install Flutter dependencies
+        run: flutter pub get
 
-      - name: Install dependencies
-        run: |
-          flutter pub get
-          cd ios && pod install --repo-update
+      # Hash the resolved Dart dependencies too, even when Podfile.lock is absent.
+      - name: Cache iOS Pods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+          key: iospods-v2-${{ runner.os }}-${{ runner.arch }}-flutter${{ env.FLUTTER_VERSION }}-xcode${{ env.XCODE_VERSION }}-${{ hashFiles('pubspec.lock', 'ios/Podfile', 'ios/Podfile.lock') }}
+          restore-keys: iospods-v2-${{ runner.os }}-${{ runner.arch }}-flutter${{ env.FLUTTER_VERSION }}-xcode${{ env.XCODE_VERSION }}-
+
+      - name: Install iOS dependencies
+        working-directory: ios
+        run: pod install || pod install --repo-update
+
+      - name: Upload resolved dependency locks
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-dependency-locks
+          path: |
+            pubspec.lock
+            ios/Podfile.lock
+          if-no-files-found: error
+          retention-days: 7
 
       # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
       - name: Analyze code
-        run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
+        run: flutter analyze --no-pub --no-fatal-warnings || echo "Analysis completed with warnings"
         continue-on-error: false
 
       # 무료 버전 - Apple Developer 계정 없이 빌드만
       - name: Build iOS (no codesign)
         run: |
-          flutter build ios --release --no-codesign
+          flutter build ios --release --no-pub --no-codesign
           echo "iOS build completed successfully!"
 
       # 빌드 결과 확인

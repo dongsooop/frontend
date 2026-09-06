@@ -3,37 +3,32 @@ name: Apple Connect Deploy
 on:
   push:
     branches: [ main ]
-    
+
+env:
+  FLUTTER_VERSION: '3.35.4'
+  XCODE_VERSION: '26.2'
+
 jobs:
   build-ios:
     timeout-minutes: 30
     name: Apple Connect Deploy
     runs-on: macos-15
-#    runs-on: self-hosted
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Flutter SDK (subosito) 이전에 pub 캐시 복원
-      - name: Cache Flutter pub packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.pub-cache
-          key: pubcache-${{ runner.os }}-stable-3.27.1-${{ hashFiles('pubspec.lock') }}
-          restore-keys: pubcache-${{ runner.os }}-stable-3.27.1-
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.4'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
-          architecture: x64
+          architecture: arm64
           cache: true
 
-      - name: Select Xcode 16.4
+      - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '26.2'
+          xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Decode and create .env file
         run: |
@@ -60,23 +55,26 @@ jobs:
           test -f ios/Runner/GoogleService-Info.plist || (echo "missing GoogleService-Info.plist" && exit 1)
           test -f .env || (echo "missing .env" && exit 1)
 
-      # iOS Pods 캐시 복원
-      - name: Cache iOS Pods
-        uses: actions/cache@v3
-        with:
-          path: ios/Pods
-          key: iospods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
-          restore-keys: iospods-${{ runner.os }}-
+      - name: Install Flutter dependencies
+        run: flutter pub get
 
-      - name: Install dependencies
-        run: |
-          flutter clean
-          flutter pub get
-          cd ios && pod install --repo-update
+      # Hash the resolved Dart dependencies too, even when Podfile.lock is absent.
+      - name: Cache iOS Pods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+          key: iospods-v2-${{ runner.os }}-${{ runner.arch }}-flutter${{ env.FLUTTER_VERSION }}-xcode${{ env.XCODE_VERSION }}-${{ hashFiles('pubspec.lock', 'ios/Podfile', 'ios/Podfile.lock') }}
+          restore-keys: iospods-v2-${{ runner.os }}-${{ runner.arch }}-flutter${{ env.FLUTTER_VERSION }}-xcode${{ env.XCODE_VERSION }}-
+
+      - name: Install iOS dependencies
+        working-directory: ios
+        run: pod install || pod install --repo-update
 
       # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
       - name: Analyze code
-        run: flutter analyze --no-fatal-warnings || echo "Analysis completed with warnings"
+        run: flutter analyze --no-pub --no-fatal-warnings || echo "Analysis completed with warnings"
         continue-on-error: false
 
       - name: Decode certificates/profiles
@@ -104,7 +102,7 @@ jobs:
           echo "BUILD_NO=$BUILD_NO" >> $GITHUB_ENV
 
       - name: Build Flutter iOS
-        run: flutter build ipa --release --build-number=$BUILD_NO --export-options-plist=ios/ExportOptions_AppStore.plist
+        run: flutter build ipa --release --no-pub --build-number=$BUILD_NO --export-options-plist=ios/ExportOptions_AppStore.plist
 
       # TestFlight 업로드
       - name: Upload app to TestFlight
