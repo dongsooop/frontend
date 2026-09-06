@@ -56,8 +56,12 @@ class MealDeck extends StatelessWidget {
         ),
         const SizedBox(height: 7),
         if (meal.koreanMenu.isEmpty)
+          // 서버가 이 날 보내는 값은 `식단 정보 없음` 이다. 급식을 안 한다는
+          // 뜻인지 메뉴를 못 받아 왔다는 뜻인지 구분해 주지 않으므로, 앱이
+          // `학식을 하지 않는 날` 이라고 단정하면 안 된다. 서버가 말한
+          // 만큼만 말한다
           Text(
-            '학식을 하지 않는 날이에요',
+            '식단 정보가 없어요',
             style: TextStyles.normalTextBold.copyWith(
               color: ColorStyles.gray5,
             ),
