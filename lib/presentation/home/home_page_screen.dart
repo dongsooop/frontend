@@ -1,4 +1,4 @@
-import 'package:dongsoop/core/presentation/components/admob_native_ad.dart';
+import 'package:dongsoop/core/presentation/components/admob_banner_ad.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
@@ -16,7 +16,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/presentation/home/view_models/home_view_model.dart';
@@ -116,11 +115,12 @@ class HomePageScreen extends HookConsumerWidget {
                   ),
                   const HomeMealSection(),
                   HomeNoticeList(notices: homeEntity.notices),
+                  // 네이티브가 아니라 배너다. 네이티브 템플릿은 아이콘·제목·
+                  // 설명·버튼을 담는 카드라 얇은 띠가 될 수 없다. 스크롤
+                  // 안이므로 anchored 가 아니라 inline adaptive 를 쓴다
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-                    // 높이를 못 박지 않는다. 100 으로 묶어 두면 템플릿이
-                    // 잘리면서 광고 자산이 광고 뷰 밖으로 나간다
-                    child: AdmobNativeAd(templateType: TemplateType.small),
+                    padding: EdgeInsets.symmetric(vertical: 22),
+                    child: AdmobBannerAd(),
                   ),
                   const HomeQuickLinks(),
                   const SizedBox(height: 24),
