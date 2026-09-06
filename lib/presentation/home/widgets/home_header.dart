@@ -11,9 +11,11 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
   const MainHeader({
     super.key,
     required this.onTapAlarm,
+    required this.onTapSearch,
   });
 
   final VoidCallback onTapAlarm;
+  final VoidCallback onTapSearch;
 
   @override
   Size get preferredSize => const Size.fromHeight(44);
@@ -35,6 +37,9 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SvgPicture.asset('assets/icons/logo.svg', width: 28, height: 28),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -70,6 +75,35 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
+              // 알림 오른쪽에 둔다. 검색은 로그인 없이도 쓸 수 있어 알림처럼
+              // 로그인 확인을 두지 않는다
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(64),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  onTap: onTapSearch,
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Center(
+                      child: SvgPicture.asset(
+                        'assets/icons/search.svg',
+                        width: 28,
+                        height: 28,
+                        colorFilter: const ColorFilter.mode(
+                          ColorStyles.black,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              ],
+            ),
           ],
         ),
       ),
