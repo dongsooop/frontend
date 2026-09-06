@@ -16,15 +16,12 @@ import 'package:intl/intl.dart';
 /// 날짜를 판 안에 둔다. 구획 제목에 두면 넘길 때마다 제목이 바뀌어야 해서
 /// 화면마다 페이지 상태를 들고 있어야 하는데, 홈과 캠퍼스가 같은 것을 두 번
 /// 만들 이유가 없다.
-class MealDeck extends StatelessWidget {
+class MealDeck extends StatefulWidget {
   /// 이번 주 월~금. 급식이 없는 날은 `koreanMenu` 가 비어 있다.
   final List<DailyMealEntity> weekMeals;
 
   /// 그 주 내내 되풀이돼 뒤로 물릴 항목. `findMealStaples` 참고.
   final List<String> staples;
-
-  /// 판 높이. `PageView` 는 장마다 높이를 달리 주지 못해 하나로 고정한다.
-  static const double _deckHeight = 118;
 
   const MealDeck({
     super.key,
@@ -33,52 +30,95 @@ class MealDeck extends StatelessWidget {
   });
 
   @override
+  State<MealDeck> createState() => _MealDeckState();
+}
+
+class _MealDeckState extends State<MealDeck> {
+  /// 판 높이. `PageView` 는 장마다 높이를 달리 주지 못해 하나로 고정한다.
+  static const double _deckHeight = 118;
+
+  /// 다음 장이 오른쪽에 걸치는 만큼. 넘길 게 더 있다는 걸 알린다.
+  static const double _viewportFraction = 0.94;
+
+  late int _index;
+
+  @override
+  void initState() {
+    super.initState();
+    _index = _todayIndex();
+  }
+
+  @override
+  void didUpdateWidget(covariant MealDeck oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.weekMeals != oldWidget.weekMeals) {
+      _index = _todayIndex();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (weekMeals.isEmpty) {
-      return const MealNoticeView('이번 주 학식 정보가 없어요');
+    if (widget.weekMeals.isEmpty) {
+      return const MealFrame(
+        muted: true,
+        child: MealNoticeView('이번 주 학식 정보가 없어요'),
+      );
     }
 
-    return SwipeDeck(
-      itemCount: weekMeals.length,
-      initialPage: _todayIndex(),
-      height: _deckHeight,
-      itemBuilder: (context, index) => _page(weekMeals[index]),
+    return MealFrame(
+      // 오늘 자리에 있을 때만 선이 켜진다. 넘겨서 다른 날을 보고 있으면
+      // 꺼져서, 지금 보는 게 오늘이 아니라는 걸 날짜를 읽기 전에 안다
+      isToday: _isToday(widget.weekMeals[_index]),
+      child: SwipeDeck(
+        itemCount: widget.weekMeals.length,
+        initialPage: _index,
+        height: _deckHeight,
+        viewportFraction: _viewportFraction,
+        dimInactive: true,
+        onPageChanged: (page) => setState(() => _index = page),
+        itemBuilder: (context, index) => _page(widget.weekMeals[index]),
+      ),
     );
   }
 
   Widget _page(DailyMealEntity meal) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _dateLabel(meal),
-          style: TextStyles.smallTextBold.copyWith(color: ColorStyles.gray5),
-        ),
-        const SizedBox(height: 7),
-        if (meal.koreanMenu.isEmpty)
-          // 서버가 이 날 보내는 값은 `식단 정보 없음` 이다. 급식을 안 한다는
-          // 뜻인지 메뉴를 못 받아 왔다는 뜻인지 구분해 주지 않으므로, 앱이
-          // `학식을 하지 않는 날` 이라고 단정하면 안 된다. 서버가 말한
-          // 만큼만 말한다
+    return Padding(
+      // 장끼리 맞닿아 있어 여백이 없으면 다음 날 메뉴 첫 글자가 이 날 줄 끝에
+      // 이어 붙은 것처럼 읽힌다
+      padding: const EdgeInsets.only(right: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Text(
-            '식단 정보가 없어요',
-            style: TextStyles.normalTextBold.copyWith(
-              color: ColorStyles.gray5,
-            ),
-          )
-        else
-          MealMenuView(menu: meal.koreanMenu, staples: staples),
-      ],
+            _dateLabel(meal),
+            style: TextStyles.smallTextBold.copyWith(color: ColorStyles.gray5),
+          ),
+          const SizedBox(height: 7),
+          if (meal.koreanMenu.isEmpty)
+            // 서버가 이 날 보내는 값은 `식단 정보 없음` 이다. 급식을 안 한다는
+            // 뜻인지 메뉴를 못 받아 왔다는 뜻인지 구분해 주지 않으므로, 앱이
+            // `학식을 하지 않는 날` 이라고 단정하면 안 된다. 서버가 말한
+            // 만큼만 말한다
+            Text(
+              '식단 정보가 없어요',
+              style: TextStyles.normalTextBold.copyWith(
+                color: ColorStyles.gray5,
+              ),
+            )
+          else
+            MealMenuView(menu: meal.koreanMenu, staples: widget.staples),
+        ],
+      ),
     );
   }
 
+  bool _isToday(DailyMealEntity meal) =>
+      meal.date == DateFormat('yyyy-MM-dd').format(DateTime.now());
+
   /// 처음 보일 장. 오늘이 이번 주 급식일이면 오늘, 아니면 첫 날이다.
   int _todayIndex() {
-    final now = DateTime.now();
-    final today = DateFormat('yyyy-MM-dd').format(now);
-
-    for (var i = 0; i < weekMeals.length; i++) {
-      if (weekMeals[i].date == today) return i;
+    for (var i = 0; i < widget.weekMeals.length; i++) {
+      if (_isToday(widget.weekMeals[i])) return i;
     }
     return 0;
   }
@@ -94,6 +134,55 @@ class MealDeck extends StatelessWidget {
         : weekdays[parsed.weekday - 1];
 
     return '${DateFormat('M월 d일', 'ko').format(parsed)}($dayOfWeek)';
+  }
+}
+
+/// 왼쪽 세로선 + 본문.
+///
+/// 홈과 캠퍼스가 같이 쓴다. 채운 면을 쓰지 않는 이유는 홈에서 바로 위 오늘
+/// 카드가 이미 둥근 회색 면이라, 학식까지 면을 깔면 색만 다른 같은 덩어리
+/// 둘이 붙어 있게 되기 때문이다. 캠퍼스도 같은 모양으로 맞춘다.
+///
+/// 선은 회색이다. 갈라 주는 건 색이 아니라 면을 쓰지 않는다는 사실이라
+/// 색이 할 일이 없다.
+class MealFrame extends StatelessWidget {
+  final Widget child;
+
+  /// 보여줄 메뉴가 없는 상태에서는 선도 함께 물러난다
+  final bool muted;
+
+  /// 오늘 급식을 보고 있으면 선이 켜진다
+  final bool isToday;
+
+  const MealFrame({
+    super.key,
+    required this.child,
+    this.muted = false,
+    this.isToday = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            width: 3,
+            decoration: BoxDecoration(
+              color: muted
+                  ? ColorStyles.gray1
+                  : isToday
+                      ? ColorStyles.primary100
+                      : ColorStyles.gray2,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 13),
+          Expanded(child: child),
+        ],
+      ),
+    );
   }
 }
 

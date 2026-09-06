@@ -86,13 +86,16 @@ class CampusPageScreen extends ConsumerWidget {
             ),
             CampusSection(
               title: '캠퍼스 생활',
+              // 카드마다 다른 색 면을 준다. 셋이 모두 회색이던 자리라 무엇이
+              // 무엇인지 이모지로만 갈렸다. 일정의 민트와 수업의 파랑은 홈
+              // 오늘 카드에서 쓰는 뜻을 그대로 가져온다
               child: Column(
                 children: [
                   CampusLinkCard(
                     emoji: '📚',
                     title: '도서관',
                     description: '열람실 좌석 확인하기',
-                    background: ColorStyles.gray1,
+                    background: ColorStyles.amberBg,
                     onTap: () => context.pushNamed('libraryWebView'),
                   ),
                   const SizedBox(height: 10),
@@ -114,7 +117,7 @@ class CampusPageScreen extends ConsumerWidget {
                     emoji: '🗓️',
                     title: '학사일정',
                     description: '이번 학기 주요 일정 보기',
-                    background: ColorStyles.gray1,
+                    background: ColorStyles.mintBg,
                     onTap: () => context.push(RoutePaths.schedule),
                   ),
                 ],

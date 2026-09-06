@@ -48,8 +48,18 @@ class HomeGreeting extends StatelessWidget {
   }
 
   TextSpan _buildMessage() {
+    // 비회원에게는 수업이 없다. `오늘의 캠퍼스 소식` 은 무슨 소식이 있는지
+    // 아무것도 알려주지 않으므로, 회원과 마찬가지로 오늘 있는 것을 말한다
     if (isLoggedOut) {
-      return const TextSpan(text: '오늘의 캠퍼스 소식');
+      if (scheduleCount == 0) {
+        return const TextSpan(text: '오늘은 학사 일정이 없어요');
+      }
+      return TextSpan(
+        children: [
+          _countPhrase('오늘 학사 일정 ', scheduleCount),
+          const TextSpan(text: ' 있어요'),
+        ],
+      );
     }
 
     final parts = <TextSpan>[
