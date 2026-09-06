@@ -83,6 +83,7 @@ extension ScheduleItemResponseMapper on ScheduleItemResponse {
 
 extension NewNoticeItemResponseMapper on NewNoticeItemResponse {
   Notice toNotice() => (
+  id: id,
   title: _string(title),
   link: _string(link),
   type: _noticeTypeFrom(type),

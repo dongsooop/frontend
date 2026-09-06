@@ -38,29 +38,44 @@ class HomeTodayCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (!isLoggedOut) ...[
-              SwipeDeck(
-                itemCount: timeTable.isEmpty ? 1 : timeTable.length,
-                itemBuilder: (context, index) => timeTable.isEmpty
-                    ? const HomeTodayRow(
-                        emoji: '📘',
-                        background: ColorStyles.primary5,
-                        title: '오늘은 수업이 없어요',
-                        isMuted: true,
-                      )
-                    : _classRow(timeTable[index]),
-                onTapItem: () => context.push(RoutePaths.timetable),
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 14, 16, 14),
-                child:
-                    Divider(height: 1, thickness: 1, color: ColorStyles.gray2),
-              ),
-            ],
+            _classDeck(context),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 14, 16, 14),
+              child: Divider(height: 1, thickness: 1, color: ColorStyles.gray2),
+            ),
             _scheduleDeck(context),
           ],
         ),
       ),
+    );
+  }
+
+  /// 오늘 수업.
+  ///
+  /// 비회원에게는 시간표가 없지만 칸을 지우지는 않는다. 자리가 통째로
+  /// 사라지면 이 카드가 무엇을 담는 카드인지 알 수 없고, 로그인하면 여기에
+  /// 무엇이 생기는지도 알 수 없다. 자리를 두고 비었다고 말한다.
+  Widget _classDeck(BuildContext context) {
+    if (isLoggedOut) {
+      return const HomeTodayRow(
+        emoji: '📘',
+        background: ColorStyles.primary5,
+        title: '로그인하면 오늘 수업을 볼 수 있어요',
+        isMuted: true,
+      );
+    }
+
+    return SwipeDeck(
+      itemCount: timeTable.isEmpty ? 1 : timeTable.length,
+      itemBuilder: (context, index) => timeTable.isEmpty
+          ? const HomeTodayRow(
+              emoji: '📘',
+              background: ColorStyles.primary5,
+              title: '오늘은 수업이 없어요',
+              isMuted: true,
+            )
+          : _classRow(timeTable[index]),
+      onTapItem: () => context.push(RoutePaths.timetable),
     );
   }
 

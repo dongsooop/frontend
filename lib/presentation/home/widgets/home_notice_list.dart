@@ -1,10 +1,12 @@
 import 'package:dongsoop/core/presentation/components/notice_setting_link.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
+import 'package:dongsoop/presentation/home/view_models/read_notice_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 홈의 새로운 공지 세 건.
 class HomeNoticeList extends StatelessWidget {
@@ -78,7 +80,7 @@ class HomeNoticeList extends StatelessWidget {
   }
 }
 
-class _NoticeRow extends StatelessWidget {
+class _NoticeRow extends ConsumerWidget {
   final Notice notice;
   final bool isLast;
 
@@ -88,13 +90,23 @@ class _NoticeRow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // id 를 주지 않는 서버에서는 읽음을 기록할 키가 없다. 그 경우 예전처럼
+    // 늘 안 읽음으로 두고, 여는 것만 그대로 동작한다
+    final id = notice.id;
+    final isRead = id != null && ref.watch(readNoticeProvider).contains(id);
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => context.pushNamed(
-        'noticeWebView',
-        queryParameters: {'path': notice.link},
-      ),
+      onTap: () {
+        if (id != null) {
+          ref.read(readNoticeProvider.notifier).markAsRead(id);
+        }
+        context.pushNamed(
+          'noticeWebView',
+          queryParameters: {'path': notice.link},
+        );
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
@@ -112,7 +124,9 @@ class _NoticeRow extends StatelessWidget {
               height: 6,
               margin: const EdgeInsets.only(top: 8, right: 10),
               decoration: BoxDecoration(
-                color: ColorStyles.primary100,
+                // 지금까지는 조건 없이 파랑이라 모든 공지가 늘 안 읽음으로
+                // 보였다. 읽은 공지는 점을 흐리게 둔다
+                color: isRead ? ColorStyles.gray2 : ColorStyles.primary100,
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
