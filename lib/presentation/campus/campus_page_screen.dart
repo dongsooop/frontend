@@ -77,15 +77,12 @@ class CampusPageScreen extends ConsumerWidget {
               ),
               child: const CampusRestaurantList(),
             ),
-            CampusSection(
+            // 날짜는 제목이 아니라 판 안에 둔다. 좌우로 넘기면 날짜가 따라
+            // 바뀌어야 하는데, 제목에 두면 화면이 페이지 상태를 들고 있어야
+            // 한다. 홈도 같은 이유로 판 안에 둔다
+            const CampusSection(
               title: '학식',
-              suffix: Text(
-                '· ${DateFormat('M월 d일(E)', 'ko').format(today)}',
-                style: TextStyles.largeTextBold.copyWith(
-                  color: ColorStyles.gray6,
-                ),
-              ),
-              child: const CampusMealCard(),
+              child: CampusMealCard(),
             ),
             CampusSection(
               title: '캠퍼스 생활',
