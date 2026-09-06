@@ -21,6 +21,10 @@ const int _maxKeptIds = 200;
 /// 재크롤링해도 바뀌지 않는다. 링크 문자열을 키로 쓰면 학교가 주소 체계를
 /// 바꿀 때 기록이 통째로 날아간다.
 ///
+/// 홈과 공지 목록과 검색이 함께 쓰므로 lib/providers 에 둔다. 한때 홈
+/// 아래에 있었는데, core 의 공지 목록 조각이 이 값을 보게 되면서 core 가
+/// presentation/home 을 거꾸로 import 하게 됐다.
+///
 /// `riverpod_generator` 를 쓰지 않는다. 이 저장소의 다른 프로바이더들처럼
 /// 손으로 선언해 둔다.
 class ReadNoticeNotifier extends StateNotifier<Set<int>> {
