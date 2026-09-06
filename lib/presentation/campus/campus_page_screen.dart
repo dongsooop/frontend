@@ -10,7 +10,6 @@ import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -102,13 +101,7 @@ class CampusPageScreen extends ConsumerWidget {
             // 스크롤 도중 갑자기 끼어들고, 맨 아래에 두면 거의 안 보인다
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-              child: SizedBox(
-                height: 100,
-                child: AdmobNativeAd(
-                  templateType: TemplateType.small,
-                  height: 100,
-                ),
-              ),
+              child: AdmobNativeAd(),
             ),
             CampusSection(
               title: '캠퍼스 생활',
