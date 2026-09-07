@@ -123,7 +123,7 @@ class HomePageScreen extends HookConsumerWidget {
                     child: AdmobBannerAd(),
                   ),
                   const HomeQuickLinks(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 128),
                 ],
               ),
             ),

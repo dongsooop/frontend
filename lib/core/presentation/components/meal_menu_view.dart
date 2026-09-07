@@ -38,7 +38,7 @@ class _MealDeckState extends State<MealDeck> {
   static const double _deckHeight = 118;
 
   /// 다음 장이 오른쪽에 걸치는 만큼. 넘길 게 더 있다는 걸 알린다.
-  static const double _viewportFraction = 0.94;
+  static const double _viewportFraction = 0.90;
 
   late int _index;
 
@@ -75,6 +75,7 @@ class _MealDeckState extends State<MealDeck> {
         height: _deckHeight,
         viewportFraction: _viewportFraction,
         dimInactive: true,
+        showIndicator: false,
         onPageChanged: (page) => setState(() => _index = page),
         itemBuilder: (context, index) => _page(widget.weekMeals[index]),
       ),
