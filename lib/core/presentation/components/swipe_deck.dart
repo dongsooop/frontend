@@ -21,6 +21,10 @@ class SwipeDeck extends StatefulWidget {
   /// 들어와 지금 보는 장이 어느 것인지 흐려진다.
   final bool dimInactive;
 
+  /// 인디케이터가 필요 없는 화면에서는 다음 장 미리보기만으로 넘김 가능성을
+  /// 알릴 수 있다.
+  final bool showIndicator;
+
   const SwipeDeck({
     super.key,
     required this.itemCount,
@@ -31,6 +35,7 @@ class SwipeDeck extends StatefulWidget {
     this.height = 68,
     this.viewportFraction = 1,
     this.dimInactive = false,
+    this.showIndicator = true,
   });
 
   @override
@@ -125,7 +130,7 @@ class _SwipeDeckState extends State<SwipeDeck> {
             },
           ),
         ),
-        if (widget.itemCount > 1) ...[
+        if (widget.showIndicator && widget.itemCount > 1) ...[
           const SizedBox(height: 10),
           if (widget.itemCount <= 7)
             Row(
