@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 
@@ -71,9 +72,25 @@ class MainScreen extends StatelessWidget {
                         selectedIcon: Icon(Icons.home_filled, color: ColorStyles.primaryColor,),
                         label: '홈',
                       ),
-                      const NavigationDestination(
-                        icon: Icon(Icons.search, color: ColorStyles.gray4,),
-                        selectedIcon: Icon(Icons.search, color: ColorStyles.primaryColor,),
+                      NavigationDestination(
+                        icon: SvgPicture.asset(
+                          'assets/icons/search.svg',
+                          width: 28,
+                          height: 28,
+                          colorFilter: const ColorFilter.mode(
+                            ColorStyles.gray4,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        selectedIcon: SvgPicture.asset(
+                          'assets/icons/search.svg',
+                          width: 28,
+                          height: 28,
+                          colorFilter: const ColorFilter.mode(
+                            ColorStyles.primaryColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         label: '캠퍼스',
                       ),
                       const NavigationDestination(
