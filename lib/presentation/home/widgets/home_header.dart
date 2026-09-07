@@ -91,8 +91,8 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                     child: Center(
                       child: SvgPicture.asset(
                         'assets/icons/search.svg',
-                        width: 28,
-                        height: 28,
+                        width: 24,
+                        height: 24,
                         colorFilter: const ColorFilter.mode(
                           ColorStyles.black,
                           BlendMode.srcIn,
