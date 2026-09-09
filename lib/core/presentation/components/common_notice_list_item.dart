@@ -3,13 +3,10 @@ import 'package:dongsoop/providers/read_notice_provider.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
-/// 공지 목록.
-///
-/// 홈의 새로운 공지와 같은 모양으로 읽힌다 — 읽음을 알리는 점, 두 줄까지의
-/// 제목, 그 아래 출처와 날짜 한 줄.
 class CommonNoticeList<T> extends StatelessWidget {
   const CommonNoticeList({
     super.key,
@@ -22,6 +19,8 @@ class CommonNoticeList<T> extends StatelessWidget {
     required this.onTap,
     this.idOf,
     this.createdAtOf,
+    this.onReminder,
+    this.showSwipeHint = false,
   });
 
   final List<T> items;
@@ -31,12 +30,10 @@ class CommonNoticeList<T> extends StatelessWidget {
   final String Function(T) titleOf;
   final bool Function(T) isDepartmentOf;
   final void Function(T) onTap;
-
-  /// 읽음을 기록할 키. 없으면 점이 늘 안 읽음으로 남는다.
   final int Function(T)? idOf;
-
-  /// 없으면 출처만 적는다.
   final DateTime Function(T)? createdAtOf;
+  final void Function(T)? onReminder;
+  final bool showSwipeHint;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +69,7 @@ class CommonNoticeList<T> extends StatelessWidget {
         final item = items[actualIndex];
         final idGetter = idOf;
         final createdAtGetter = createdAtOf;
+        final reminderCallback = onReminder;
 
         return CommonNoticeListItem(
           title: titleOf(item),
@@ -79,6 +77,9 @@ class CommonNoticeList<T> extends StatelessWidget {
           noticeId: idGetter == null ? null : idGetter(item),
           createdAt: createdAtGetter == null ? null : createdAtGetter(item),
           onTap: () => onTap(item),
+          onReminder:
+              reminderCallback == null ? null : () => reminderCallback(item),
+          showSwipeHint: showSwipeHint && actualIndex == 0,
           isLastItem: actualIndex == items.length - 1,
         );
       },
@@ -86,13 +87,7 @@ class CommonNoticeList<T> extends StatelessWidget {
   }
 }
 
-/// 공지 한 줄.
-///
-/// 예전에는 제목 아래에 `동양공지` + `학교생활` 두 태그를 달았다. 둘 다
-/// `isDepartment` 하나에서 나오는 값이라 둘째 태그는 아무것도 더 말해 주지
-/// 않았고, 태그 두 개와 위아래 24 여백이 한 줄을 매우 두껍게 만들었다.
-/// 출처 하나만 남기고 그 자리에 날짜를 붙인다.
-class CommonNoticeListItem extends ConsumerWidget {
+class CommonNoticeListItem extends ConsumerStatefulWidget {
   const CommonNoticeListItem({
     super.key,
     required this.title,
@@ -101,93 +96,265 @@ class CommonNoticeListItem extends ConsumerWidget {
     required this.isLastItem,
     this.noticeId,
     this.createdAt,
+    this.onReminder,
+    this.showSwipeHint = false,
   });
 
   final String title;
   final bool isDepartment;
   final VoidCallback onTap;
   final bool isLastItem;
-
-  /// 읽음을 기록할 키. 없으면 점이 늘 안 읽음으로 남는다.
   final int? noticeId;
-
   final DateTime? createdAt;
+  final VoidCallback? onReminder;
+  final bool showSwipeHint;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final id = noticeId;
+  ConsumerState<CommonNoticeListItem> createState() =>
+      _CommonNoticeListItemState();
+}
+
+class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
+  static const double _actionSize = 64;
+  static const double _revealThreshold = 32;
+
+  double _offset = 0;
+  bool _isDragging = false;
+  bool _revealHapticPlayed = false;
+  bool _fullHapticPlayed = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.showSwipeHint && widget.onReminder != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _playSwipeHint());
+    }
+  }
+
+  Future<void> _playSwipeHint() async {
+    if (!mounted || _isDragging) return;
+
+    setState(() => _offset = 12);
+    await Future<void>.delayed(const Duration(milliseconds: 260));
+    if (!mounted || _isDragging) return;
+    setState(() => _offset = 0);
+  }
+
+  void _onHorizontalDragStart(DragStartDetails details) {
+    if (widget.onReminder == null) return;
+
+    _isDragging = true;
+    _revealHapticPlayed = _offset >= _actionSize;
+    _fullHapticPlayed = false;
+  }
+
+  void _onHorizontalDragUpdate(DragUpdateDetails details) {
+    if (widget.onReminder == null) return;
+
+    final width = context.size?.width ?? MediaQuery.sizeOf(context).width;
+    final maxOffset = width * 0.6;
+    final fullThreshold = width * 0.45;
+
+    final next = (_offset - details.delta.dx).clamp(0.0, maxOffset);
+
+    if (!_revealHapticPlayed && next >= _actionSize) {
+      _revealHapticPlayed = true;
+      HapticFeedback.selectionClick();
+    }
+
+    if (!_fullHapticPlayed && next >= fullThreshold) {
+      _fullHapticPlayed = true;
+      HapticFeedback.mediumImpact();
+    }
+
+    setState(() => _offset = next);
+  }
+
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    if (widget.onReminder == null) return;
+
+    final width = context.size?.width ?? MediaQuery.sizeOf(context).width;
+    final fullThreshold = width * 0.45;
+    final shouldOpenReminder = _offset >= fullThreshold;
+
+    _isDragging = false;
+    setState(() {
+      _offset = shouldOpenReminder
+          ? 0
+          : (_offset >= _revealThreshold ? _actionSize : 0);
+    });
+
+    if (shouldOpenReminder) {
+      widget.onReminder?.call();
+    }
+  }
+
+  void _onTapItem() {
+    if (_offset > 0) {
+      setState(() => _offset = 0);
+      return;
+    }
+
+    final id = widget.noticeId;
+    if (id != null) {
+      ref.read(readNoticeProvider.notifier).markAsRead(id);
+    }
+    widget.onTap();
+  }
+
+  void _onTapReminder() {
+    setState(() => _offset = 0);
+    widget.onReminder?.call();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final id = widget.noticeId;
     final isRead = id != null && ref.watch(readNoticeProvider).contains(id);
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        if (id != null) {
-          ref.read(readNoticeProvider.notifier).markAsRead(id);
-        }
-        onTap();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          border: isLastItem
-              ? null
-              : const Border(
-                  bottom: BorderSide(color: ColorStyles.gray1, width: 1),
-                ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 6,
-              height: 6,
-              margin: const EdgeInsets.only(top: 8, right: 10),
-              decoration: BoxDecoration(
-                color: isRead ? ColorStyles.gray2 : ColorStyles.primary100,
-                borderRadius: BorderRadius.circular(3),
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.showSwipeHint && widget.onReminder != null)
+          Container(
+            margin: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            decoration: BoxDecoration(
+              color: ColorStyles.gray1,
+              borderRadius: BorderRadius.circular(10),
             ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    // 이 화면에 온 이유가 공지 제목이다. 홈의 곁다리 목록을
-                    // 그대로 복사해 15 로 줄였다가 원래 크기로 되돌린다
-                    style: TextStyles.largeTextBold.copyWith(
-                      color: ColorStyles.black,
-                      height: 1.45,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _meta(),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.swipe_left_rounded,
+                  size: 18,
+                  color: ColorStyles.gray5,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '공지를 왼쪽으로 밀어 리마인더를 설정할 수 있어요.',
                     style: TextStyles.smallTextRegular.copyWith(
                       color: ColorStyles.gray5,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
+        ClipRect(
+          child: Stack(
+            alignment: Alignment.centerRight,
+            children: [
+              if (widget.onReminder != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: SizedBox(
+                    width: _actionSize,
+                    height: _actionSize,
+                    child: Material(
+                      color: ColorStyles.primary100,
+                      borderRadius: BorderRadius.circular(10),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: _onTapReminder,
+                        child: const Icon(
+                          Icons.notifications_none_rounded,
+                          color: ColorStyles.white,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              AnimatedContainer(
+                duration: _isDragging
+                    ? Duration.zero
+                    : const Duration(milliseconds: 180),
+                curve: Curves.easeOutCubic,
+                transform: Matrix4.translationValues(-_offset, 0, 0),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _onTapItem,
+                  onHorizontalDragStart: widget.onReminder == null
+                      ? null
+                      : _onHorizontalDragStart,
+                  onHorizontalDragUpdate: widget.onReminder == null
+                      ? null
+                      : _onHorizontalDragUpdate,
+                  onHorizontalDragEnd:
+                      widget.onReminder == null ? null : _onHorizontalDragEnd,
+                  child: Container(
+                    color: ColorStyles.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      border: widget.isLastItem
+                          ? null
+                          : const Border(
+                              bottom: BorderSide(
+                                color: ColorStyles.gray1,
+                                width: 1,
+                              ),
+                            ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          margin: const EdgeInsets.only(top: 8, right: 10),
+                          decoration: BoxDecoration(
+                            color: isRead
+                                ? ColorStyles.gray2
+                                : ColorStyles.primary100,
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyles.largeTextBold.copyWith(
+                                  color: ColorStyles.black,
+                                  height: 1.45,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _meta(),
+                                style: TextStyles.smallTextRegular.copyWith(
+                                  color: ColorStyles.gray5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
   String _meta() {
-    final source = isDepartment ? '학과공지' : '동양공지';
-    final date = createdAt;
+    final source = widget.isDepartment ? '학과공지' : '동양공지';
+    final date = widget.createdAt;
     if (date == null) return source;
 
     return '$source · ${_dateLabel(date)}';
   }
 
-  /// 공지의 날짜는 서버에서 날짜만 내려온다. 시각을 적을 것이 없으므로
-  /// `N시간 전` 같은 상대 표기는 쓰지 않는다.
   String _dateLabel(DateTime date) {
     final now = DateTime.now();
     if (date.year != now.year) {
