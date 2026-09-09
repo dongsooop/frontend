@@ -1,12 +1,15 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/presentation/components/common_notice_list_item.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
+import 'package:dongsoop/presentation/notice/reminder/providers/notice_reminder_providers.dart';
+import 'package:dongsoop/presentation/notice/reminder/widgets/notice_reminder_bottom_sheet.dart';
 import 'package:dongsoop/presentation/notice/widgets/notice_setting_fab.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -16,8 +19,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NoticeListPageScreen extends HookConsumerWidget {
+  static const _reminderSwipeGuideSeenKey =
+      'notice_reminder_swipe_guide_seen';
+
   final VoidCallback onTapAlarmSetting;
 
   const NoticeListPageScreen({
@@ -32,17 +39,18 @@ class NoticeListPageScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
+    final showSwipeHint = useState(false);
 
     final user = ref.watch(userSessionProvider);
     final isLoggedIn = user != null;
 
     final departmentName = user?.departmentType ?? '';
     final departmentType =
-    DepartmentTypeExtension.fromDisplayName(departmentName);
+        DepartmentTypeExtension.fromDisplayName(departmentName);
     final departmentCode =
-    (isLoggedIn && departmentType != DepartmentType.Unknown)
-        ? departmentType.code
-        : null;
+        (isLoggedIn && departmentType != DepartmentType.Unknown)
+            ? departmentType.code
+            : null;
 
     final args = useMemoized(() {
       return NoticeListArgs(
@@ -57,6 +65,21 @@ class NoticeListPageScreen extends HookConsumerWidget {
 
     final scrollController = useScrollController();
     final hasNavigatedToSubscribeSetting = useRef(false);
+
+    useEffect(() {
+      Future<void> loadSwipeGuide() async {
+        final prefs = await SharedPreferences.getInstance();
+        final hasSeen = prefs.getBool(_reminderSwipeGuideSeenKey) ?? false;
+
+        if (!hasSeen) {
+          showSwipeHint.value = true;
+          await prefs.setBool(_reminderSwipeGuideSeenKey, true);
+        }
+      }
+
+      loadSwipeGuide();
+      return null;
+    }, const []);
 
     useEffect(() {
       hasNavigatedToSubscribeSetting.value = false;
@@ -76,6 +99,36 @@ class NoticeListPageScreen extends HookConsumerWidget {
       scrollController.addListener(onScroll);
       return () => scrollController.removeListener(onScroll);
     }, [scrollController, args, listVM]);
+
+    Future<void> openReminder(NoticeEntity notice) async {
+      if (!isLoggedIn) {
+        await LoginRequiredDialog(context);
+        return;
+      }
+
+      if (!context.mounted) return;
+
+      await NoticeReminderBottomSheet.show(
+        context,
+        noticeId: notice.id,
+        title: notice.title,
+        onSubmit: (remindAt) async {
+          final useCase = ref.read(setNoticeReminderUseCaseProvider);
+          await useCase(
+            noticeId: notice.id,
+            remindAt: remindAt,
+          );
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('리마인더를 설정했어요.'),
+              ),
+            );
+          }
+        },
+      );
+    }
 
     return SafeArea(
       child: Scaffold(
@@ -98,111 +151,127 @@ class NoticeListPageScreen extends HookConsumerWidget {
         body: Stack(
           children: [
             GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            FocusManager.instance.primaryFocus?.unfocus();
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: [
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 44,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: List.generate(3, (index) {
-                              final labels = ['전체', '학교', '학과'];
-                              final isSelected = selectedIndex.value == index;
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 44,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: List.generate(3, (index) {
+                                  final labels = ['전체', '학교', '학과'];
+                                  final isSelected =
+                                      selectedIndex.value == index;
 
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 24),
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    selectedIndex.value = index;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 24),
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        selectedIndex.value = index;
 
-                                    if (scrollController.hasClients) {
-                                      scrollController.jumpTo(0);
-                                    }
-                                  },
-                                  child: _buildUnderlineTab(labels[index], isSelected),
-                                ),
+                                        if (scrollController.hasClients) {
+                                          scrollController.jumpTo(0);
+                                        }
+                                      },
+                                      child: _buildUnderlineTab(
+                                        labels[index],
+                                        isSelected,
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.search,
+                              color: ColorStyles.gray3,
+                            ),
+                            onPressed: () {
+                              context.push(
+                                RoutePaths.search,
+                                extra: SearchBoardType.notice,
                               );
-                            }),
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: noticeState.when(
+                        loading: () => const Center(
+                          child: CircularProgressIndicator(
+                            color: ColorStyles.primaryColor,
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.search, color: ColorStyles.gray3),
-                        onPressed: () {
-                          context.push(
-                            RoutePaths.search,
-                            extra: SearchBoardType.notice,
+                        error: (e, _) {
+                          if (e is NoSubscribedDepartmentsException) {
+                            if (!hasNavigatedToSubscribeSetting.value) {
+                              hasNavigatedToSubscribeSetting.value = true;
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (context.mounted) {
+                                  context.push(
+                                    RoutePaths.subscribeDepartmentSetting,
+                                  );
+                                }
+                              });
+                            }
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: ColorStyles.primaryColor,
+                              ),
+                            );
+                          }
+                          return Center(child: Text('$e'));
+                        },
+                        data: (notices) {
+                          if (notices.isEmpty) {
+                            return Center(
+                              child: Text(
+                                '공지 리스트가 비어있어요!',
+                                style: TextStyles.largeTextRegular.copyWith(
+                                  color: ColorStyles.gray4,
+                                ),
+                              ),
+                            );
+                          }
+                          return CommonNoticeList<NoticeEntity>(
+                            items: notices,
+                            isLoading: false,
+                            hasMore: !isLastPageList,
+                            controller: scrollController,
+                            titleOf: (e) => e.title,
+                            isDepartmentOf: (e) => e.isDepartment,
+                            idOf: (e) => e.id,
+                            createdAtOf: (e) => e.createdAt,
+                            showSwipeHint: showSwipeHint.value,
+                            onReminder: openReminder,
+                            onTap: (e) => context.pushNamed(
+                              'noticeWebView',
+                              queryParameters: {'path': e.link},
+                            ),
                           );
                         },
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: noticeState.when(
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(color: ColorStyles.primaryColor),
                     ),
-                    error: (e, _) {
-                      if (e is NoSubscribedDepartmentsException) {
-                        if (!hasNavigatedToSubscribeSetting.value) {
-                          hasNavigatedToSubscribeSetting.value = true;
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (context.mounted) {
-                              context.push(RoutePaths.subscribeDepartmentSetting);
-                            }
-                          });
-                        }
-                        return const Center(
-                          child: CircularProgressIndicator(color: ColorStyles.primaryColor),
-                        );
-                      }
-                      return Center(child: Text('$e'));
-                    },
-                    data: (notices) {
-                      if (notices.isEmpty) {
-                        return Center(
-                          child: Text(
-                            '공지 리스트가 비어있어요!',
-                            style: TextStyles.largeTextRegular
-                                .copyWith(
-                                color: ColorStyles.gray4),
-                          ),
-                        );
-                      }
-                      return CommonNoticeList<NoticeEntity>(
-                        items: notices,
-                        isLoading: false,
-                        hasMore: !isLastPageList,
-                        controller: scrollController,
-                        titleOf: (e) => e.title,
-                        isDepartmentOf: (e) => e.isDepartment,
-                        idOf: (e) => e.id,
-                        createdAtOf: (e) => e.createdAt,
-                        onTap: (e) => context.pushNamed(
-                          'noticeWebView',
-                          queryParameters: {'path': e.link},
-                        ),
-                      );
-                    },
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
             NoticeSettingFab(
               scrollController: scrollController,
               onTapKeyword: () => context.push(RoutePaths.noticeKeyword),
@@ -227,10 +296,12 @@ class NoticeListPageScreen extends HookConsumerWidget {
             child: Text(
               label,
               style: isSelected
-                  ? TextStyles.largeTextBold
-                      .copyWith(color: ColorStyles.primary100)
-                  : TextStyles.largeTextRegular
-                      .copyWith(color: ColorStyles.gray4),
+                  ? TextStyles.largeTextBold.copyWith(
+                      color: ColorStyles.primary100,
+                    )
+                  : TextStyles.largeTextRegular.copyWith(
+                      color: ColorStyles.gray4,
+                    ),
             ),
           ),
           if (isSelected)
