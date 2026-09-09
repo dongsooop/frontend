@@ -1,7 +1,6 @@
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/presentation/components/common_notice_list_item.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
-import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
@@ -101,11 +100,6 @@ class NoticeListPageScreen extends HookConsumerWidget {
     }, [scrollController, args, listVM]);
 
     Future<void> openReminder(NoticeEntity notice) async {
-      if (!isLoggedIn) {
-        await LoginRequiredDialog(context);
-        return;
-      }
-
       if (!context.mounted) return;
 
       await NoticeReminderBottomSheet.show(
