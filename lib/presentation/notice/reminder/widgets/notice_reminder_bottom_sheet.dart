@@ -49,13 +49,19 @@ class _NoticeReminderBottomSheetState extends State<NoticeReminderBottomSheet> {
 
   DateTime get _now => DateTime.now();
 
-  DateTime get _tonight {
+  DateTime get _evening {
     final now = _now;
     final todayEvening = DateTime(now.year, now.month, now.day, 18);
     if (todayEvening.isAfter(now)) {
       return todayEvening;
     }
     return DateTime(now.year, now.month, now.day + 1, 18);
+  }
+
+  String get _eveningLabel {
+    final now = _now;
+    final todayEvening = DateTime(now.year, now.month, now.day, 18);
+    return todayEvening.isAfter(now) ? '오늘 저녁' : '내일 저녁';
   }
 
   DateTime get _tomorrow {
@@ -75,6 +81,14 @@ class _NoticeReminderBottomSheetState extends State<NoticeReminderBottomSheet> {
       await widget.onSubmit(remindAt);
       if (mounted) {
         Navigator.of(context).pop();
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('리마인더 설정에 실패했어요. 잠시 후 다시 시도해주세요.'),
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -123,8 +137,8 @@ class _NoticeReminderBottomSheetState extends State<NoticeReminderBottomSheet> {
             onTap: () => _submit(_now.add(const Duration(hours: 1))),
           ),
           _QuickOption(
-            label: '오늘 저녁',
-            onTap: () => _submit(_tonight),
+            label: _eveningLabel,
+            onTap: () => _submit(_evening),
           ),
           _QuickOption(
             label: '내일 오전 9시',
