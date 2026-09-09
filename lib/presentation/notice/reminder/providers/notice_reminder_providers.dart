@@ -3,13 +3,21 @@ import 'package:dongsoop/data/notice/reminder/data_sources/notice_reminder_data_
 import 'package:dongsoop/data/notice/reminder/repository/notice_reminder_repository_impl.dart';
 import 'package:dongsoop/domain/notice/reminder/repository/notice_reminder_repository.dart';
 import 'package:dongsoop/domain/notice/reminder/use_cases/set_notice_reminder_use_case.dart';
-import 'package:dongsoop/providers/auth_dio.dart';
+import 'package:dongsoop/providers/device_providers.dart';
+import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final noticeReminderDataSourceProvider =
     Provider<NoticeReminderDataSource>((ref) {
-  final authDio = ref.watch(authDioProvider);
-  return NoticeReminderDataSourceImpl(authDio);
+  final plainDio = ref.watch(plainDioProvider);
+  final getFidUseCase = ref.watch(getFidUseCaseProvider);
+  final getFcmTokenUseCase = ref.watch(getFcmTokenUseCaseProvider);
+
+  return NoticeReminderDataSourceImpl(
+    plainDio,
+    getFidUseCase,
+    getFcmTokenUseCase,
+  );
 });
 
 final noticeReminderRepositoryProvider =
