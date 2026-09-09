@@ -1,0 +1,51 @@
+name: Flutter CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+env:
+  FLUTTER_VERSION: '3.35.4'
+
+jobs:
+  analyze:
+    name: Analyze Flutter
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          architecture: x64
+          cache: true
+
+      - name: Restore .env
+        run: |
+          echo "${{ secrets.ENV_B64 }}" | base64 --decode > .env
+          test -s .env
+
+      - name: Restore firebase_options.dart
+        run: |
+          echo "${{ secrets.FIREBASE_OPTIONS_B64 }}" | base64 --decode > lib/firebase_options.dart
+          test -s lib/firebase_options.dart
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze --no-pub --no-fatal-warnings
+
+      - name: Run tests when present
+        shell: bash
+        run: |
+          if find test -type f -name '*_test.dart' -print -quit 2>/dev/null | grep -q .; then
+            flutter test --no-pub
+          else
+            echo "No Flutter tests found; skipping."
+          fi
