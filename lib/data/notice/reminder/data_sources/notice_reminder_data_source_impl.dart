@@ -7,7 +7,7 @@ class NoticeReminderDataSourceImpl implements NoticeReminderDataSource {
   NoticeReminderDataSourceImpl(this._authDio);
 
   @override
-  Future<void> upsert({
+  Future<void> setReminder({
     required int noticeId,
     required DateTime remindAt,
   }) async {
@@ -20,7 +20,7 @@ class NoticeReminderDataSourceImpl implements NoticeReminderDataSource {
   }
 
   @override
-  Future<void> delete({
+  Future<void> deleteReminder({
     required int noticeId,
   }) async {
     await _authDio.delete('/notice/$noticeId/reminder');
