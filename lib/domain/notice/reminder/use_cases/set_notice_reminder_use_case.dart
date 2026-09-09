@@ -5,7 +5,7 @@ class SetNoticeReminderUseCase {
 
   SetNoticeReminderUseCase(this._repository);
 
-  Future<void> call({
+  Future<void> execute({
     required int noticeId,
     required DateTime remindAt,
   }) {
