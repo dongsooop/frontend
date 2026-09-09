@@ -132,6 +132,17 @@ class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
     }
   }
 
+  @override
+  void didUpdateWidget(covariant CommonNoticeListItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!oldWidget.showSwipeHint &&
+        widget.showSwipeHint &&
+        widget.onReminder != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _playSwipeHint());
+    }
+  }
+
   Future<void> _playSwipeHint() async {
     if (!mounted || _isDragging) return;
 
