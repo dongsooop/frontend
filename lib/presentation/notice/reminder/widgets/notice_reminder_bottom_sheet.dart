@@ -173,7 +173,7 @@ class _NoticeReminderBottomSheetState extends State<NoticeReminderBottomSheet> {
                       )
                     : Text(
                         '리마인더 설정',
-                        style: TextStyles.mediumTextBold.copyWith(
+                        style: TextStyles.normalTextBold.copyWith(
                           color: ColorStyles.white,
                         ),
                       ),
@@ -213,7 +213,7 @@ class _QuickOption extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyles.mediumTextRegular.copyWith(
+                style: TextStyles.normalTextRegular.copyWith(
                   color: ColorStyles.black,
                 ),
               ),
