@@ -114,7 +114,7 @@ class NoticeListPageScreen extends HookConsumerWidget {
         title: notice.title,
         onSubmit: (remindAt) async {
           final useCase = ref.read(setNoticeReminderUseCaseProvider);
-          await useCase(
+          await useCase.execute(
             noticeId: notice.id,
             remindAt: remindAt,
           );
