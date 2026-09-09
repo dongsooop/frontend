@@ -9,7 +9,7 @@ class SetNoticeReminderUseCase {
     required int noticeId,
     required DateTime remindAt,
   }) {
-    return _repository.upsert(
+    return _repository.setReminder(
       noticeId: noticeId,
       remindAt: remindAt,
     );
