@@ -1,10 +1,10 @@
 abstract class NoticeReminderDataSource {
-  Future<void> upsert({
+  Future<void> setReminder({
     required int noticeId,
     required DateTime remindAt,
   });
 
-  Future<void> delete({
+  Future<void> deleteReminder({
     required int noticeId,
   });
 }
