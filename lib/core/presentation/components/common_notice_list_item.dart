@@ -286,9 +286,9 @@ class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
                   onHorizontalDragEnd:
                       widget.onReminder == null ? null : _onHorizontalDragEnd,
                   child: Container(
-                    color: ColorStyles.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
+                      color: ColorStyles.white,
                       border: widget.isLastItem
                           ? null
                           : const Border(
