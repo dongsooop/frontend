@@ -117,6 +117,7 @@ class CommonNoticeListItem extends ConsumerStatefulWidget {
 class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
   static const double _actionSize = 64;
   static const double _revealThreshold = 32;
+  static const double _cardRadius = 10;
 
   double _offset = 0;
   bool _isDragging = false;
@@ -254,7 +255,8 @@ class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
               ],
             ),
           ),
-        ClipRect(
+        ClipRRect(
+          borderRadius: BorderRadius.circular(_cardRadius),
           child: Stack(
             alignment: Alignment.centerRight,
             children: [
@@ -301,9 +303,14 @@ class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
                   onHorizontalDragEnd:
                       widget.onReminder == null ? null : _onHorizontalDragEnd,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.only(
+                      top: 14,
+                      right: 12,
+                      bottom: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: ColorStyles.white,
+                      borderRadius: BorderRadius.circular(_cardRadius),
                       border: widget.isLastItem
                           ? null
                           : const Border(
