@@ -15,7 +15,11 @@ class ScheduleUseCase {
     final month = DateTime(currentMonth.year, currentMonth.month, 1);
     switch (type) {
       case MemberType.member:
-        return repository.fetchScheduleList(currentMonth: month);
+        final results = await Future.wait([
+          repository.fetchScheduleList(currentMonth: month),
+          repository.fetchGuestSchedule(currentMonth: month),
+        ]);
+        return [...results[0], ...results[1]];
       case MemberType.guest:
         return repository.fetchGuestSchedule(currentMonth: month);
     }
