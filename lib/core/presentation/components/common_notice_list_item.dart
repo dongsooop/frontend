@@ -118,7 +118,9 @@ class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
   static const double _actionSize = 64;
   static const double _revealThreshold = 32;
   static const double _cardRadius = 10;
+  static final ValueNotifier<Object?> _activeSwipe = ValueNotifier(null);
 
+  final Object _swipeToken = Object();
   double _offset = 0;
   bool _isDragging = false;
   bool _revealHapticPlayed = false;
@@ -127,10 +129,17 @@ class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
   @override
   void initState() {
     super.initState();
+    _activeSwipe.addListener(_closeWhenAnotherItemSwipes);
 
     if (widget.showSwipeHint && widget.onReminder != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _playSwipeHint());
     }
+  }
+
+  @override
+  void dispose() {
+    _activeSwipe.removeListener(_closeWhenAnotherItemSwipes);
+    super.dispose();
   }
 
   @override
@@ -142,6 +151,14 @@ class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
         widget.onReminder != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _playSwipeHint());
     }
+  }
+
+  void _closeWhenAnotherItemSwipes() {
+    if (_activeSwipe.value == _swipeToken || _offset == 0 || !mounted) {
+      return;
+    }
+
+    setState(() => _offset = 0);
   }
 
   Future<void> _playSwipeHint() async {
@@ -156,6 +173,7 @@ class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
   void _onHorizontalDragStart(DragStartDetails details) {
     if (widget.onReminder == null) return;
 
+    _activeSwipe.value = _swipeToken;
     _isDragging = true;
     _revealHapticPlayed = _offset >= _actionSize;
     _fullHapticPlayed = false;
