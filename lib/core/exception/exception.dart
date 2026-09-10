@@ -597,6 +597,16 @@ class FeedbackException implements Exception {
   String toString() => message;
 }
 
+class NoticeReminderException implements Exception {
+  final String message;
+
+  NoticeReminderException(
+      [this.message = "리마인더 설정 중 오류가 발생했어요. 잠시 후 다시 시도해주세요."]);
+
+  @override
+  String toString() => message;
+}
+
 class NotificationSettingException implements Exception {
   final String message;
 
