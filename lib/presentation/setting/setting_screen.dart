@@ -70,7 +70,7 @@ class SettingScreen extends HookConsumerWidget {
                 title: '이용 안내',
                 children: [
                   buildSettingsItem(
-                    label: '버전  1.13.0',
+                    label: '버전  1.13.1',
                     onTap: () {},
                   ),
                   buildSettingsItem(
@@ -108,7 +108,6 @@ class SettingScreen extends HookConsumerWidget {
                     buildSettingsItem(
                       label: '채팅 캐시 삭제',
                       onTap: () async {
-                        // 채팅 캐시 삭제 다이얼로그
                         showDialog(
                           context: context,
                           builder: (_) => CustomConfirmDialog(
@@ -116,7 +115,7 @@ class SettingScreen extends HookConsumerWidget {
                             content: '채팅 내역을 삭제하시겠어요?',
                             onConfirm: () async {
                               await viewModel.localDataDelete();
-                              Navigator.of(context).pop(); // 다이얼로그 닫기
+                              Navigator.of(context).pop();
                             },
                           ),
                         );
@@ -151,16 +150,14 @@ class SettingScreen extends HookConsumerWidget {
                   buildSettingsItem(
                     label: '로그아웃',
                     onTap: () {
-                      // 로그아웃 다이얼로그
                       showDialog(
                         context: context,
                         builder: (_) => CustomConfirmDialog(
                           title: '로그아웃',
                           content: '로그아웃 하시겠어요?',
                           onConfirm: () async {
-                            // 로그아웃
                             await viewModel.logout();
-                            Navigator.of(context).pop(); // 다이얼로그 닫기
+                            Navigator.of(context).pop();
                           },
                         ),
                       );
@@ -169,7 +166,6 @@ class SettingScreen extends HookConsumerWidget {
                   buildSettingsItem(
                     label: '탈퇴',
                     onTap: () {
-                      // 탈퇴 다이얼로그
                       showDialog(
                         context: context,
                         builder: (_) => CustomConfirmDialog(
@@ -177,7 +173,6 @@ class SettingScreen extends HookConsumerWidget {
                           content: '탈퇴한 이메일로는 재가입 할 수 없어요.\n정말로 탈퇴하시겠어요?',
                           confirmText: '탈퇴',
                           onConfirm: () async {
-                            // 회원탈퇴
                             await viewModel.deleteUser();
                             Navigator.of(context).pop();
                           },
