@@ -259,16 +259,20 @@ class _CommonNoticeListItemState extends ConsumerState<CommonNoticeListItem> {
             alignment: Alignment.centerRight,
             children: [
               if (widget.onReminder != null)
+                const Positioned.fill(
+                  child: ColoredBox(
+                    color: ColorStyles.primary100,
+                  ),
+                ),
+              if (widget.onReminder != null)
                 Align(
                   alignment: Alignment.centerRight,
                   child: SizedBox(
                     width: _actionSize,
                     height: _actionSize,
                     child: Material(
-                      color: ColorStyles.primary100,
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.transparent,
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(10),
                         onTap: _onTapReminder,
                         child: const Icon(
                           Icons.notifications_none_rounded,
