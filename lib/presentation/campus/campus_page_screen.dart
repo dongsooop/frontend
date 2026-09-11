@@ -1,6 +1,7 @@
 import 'package:dongsoop/core/presentation/components/admob_banner_ad.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/presentation/campus/campus_map_screen.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_link_card.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_meal_card.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_restaurant_list.dart';
@@ -96,6 +97,18 @@ class CampusPageScreen extends ConsumerWidget {
               // 오늘 카드에서 쓰는 뜻을 그대로 가져온다
               child: Column(
                 children: [
+                  CampusLinkCard(
+                    emoji: '🗺️',
+                    title: '캠퍼스 지도',
+                    description: '교내 건물 위치 확인하기',
+                    background: ColorStyles.primary5,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const CampusMapScreen(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   CampusLinkCard(
                     emoji: '📚',
                     title: '도서관',
