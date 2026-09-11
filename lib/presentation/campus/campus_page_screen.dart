@@ -3,6 +3,7 @@ import 'package:dongsoop/core/presentation/components/login_required_dialog.dart
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/campus/campus_map_screen.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_link_card.dart';
+import 'package:dongsoop/presentation/campus/widgets/campus_map_preview.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_meal_card.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_restaurant_list.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_search_bar.dart';
@@ -83,6 +84,16 @@ class CampusPageScreen extends ConsumerWidget {
             const CampusSection(
               title: '학식',
               child: CampusMealCard(),
+            ),
+            CampusSection(
+              title: '우리 학교 알아보기',
+              child: CampusMapPreview(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const CampusMapScreen(),
+                  ),
+                ),
+              ),
             ),
             // 홈과 같은 자리 — 마지막 구획 바로 앞이다. 구획 사이에 두면
             // 스크롤 도중 갑자기 끼어들고, 맨 아래에 두면 거의 안 보인다
