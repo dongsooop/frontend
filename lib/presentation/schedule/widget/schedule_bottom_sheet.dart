@@ -1,4 +1,6 @@
 import 'package:dongsoop/domain/schedule/entities/schedule_list_entity.dart';
+import 'package:dongsoop/presentation/campus/campus_map_screen.dart';
+import 'package:dongsoop/presentation/campus/widgets/campus_map_models.dart';
 import 'package:dongsoop/presentation/schedule/providers/schedule_filter_provider.dart';
 import 'package:dongsoop/presentation/schedule/util/schedule_date_utils.dart';
 import 'package:dongsoop/presentation/schedule/util/schedule_utils.dart';
@@ -16,7 +18,7 @@ class CalendarBottomSheet extends ConsumerWidget {
 
   final DateTime selectedDate;
   final Future<bool?> Function(ScheduleListEntity? item, DateTime selectedDate)?
-  onTapCalendarDetail;
+      onTapCalendarDetail;
 
   String _formatFullDate(DateTime date) {
     final weekdayLabel = weekdays[date.weekday % 7];
@@ -61,7 +63,6 @@ class CalendarBottomSheet extends ConsumerWidget {
                 ),
               ),
             ),
-
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -75,9 +76,9 @@ class CalendarBottomSheet extends ConsumerWidget {
 
                   final startTimeText = _formatHHmm(event.startAt);
                   final endTimeText =
-                  (event.endAt.hour == 23 && event.endAt.minute == 59)
-                      ? '24:00'
-                      : _formatHHmm(event.endAt);
+                      (event.endAt.hour == 23 && event.endAt.minute == 59)
+                          ? '24:00'
+                          : _formatHHmm(event.endAt);
 
                   return Column(
                     children: [
@@ -120,7 +121,6 @@ class CalendarBottomSheet extends ConsumerWidget {
                                     ],
                                   ),
                                 ),
-
                                 Container(
                                   width: 4,
                                   height: double.infinity,
@@ -130,7 +130,6 @@ class CalendarBottomSheet extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
-
                                 Expanded(
                                   child: Row(
                                     children: [
@@ -147,7 +146,10 @@ class CalendarBottomSheet extends ConsumerWidget {
                                                 color: ColorStyles.black,
                                               ),
                                             ),
-                                            _buildLocationLine(locationText),
+                                            _buildLocationLine(
+                                              context,
+                                              locationText,
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -164,7 +166,6 @@ class CalendarBottomSheet extends ConsumerWidget {
                           ),
                         ),
                       ),
-
                       if (!isLastItem)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 16),
@@ -179,7 +180,6 @@ class CalendarBottomSheet extends ConsumerWidget {
                 },
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
@@ -208,8 +208,11 @@ class CalendarBottomSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildLocationLine(String locationText) {
+  Widget _buildLocationLine(BuildContext context, String locationText) {
     if (locationText.isEmpty) return const SizedBox.shrink();
+
+    final buildingId = campusBuildingIdFromLocation(locationText);
+
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Row(
@@ -226,6 +229,28 @@ class CalendarBottomSheet extends ConsumerWidget {
               ),
             ),
           ),
+          if (buildingId != null) ...[
+            const SizedBox(width: 6),
+            InkWell(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => CampusMapScreen(
+                    initialBuildingId: buildingId,
+                  ),
+                ),
+              ),
+              borderRadius: BorderRadius.circular(6),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Text(
+                  '위치 보기',
+                  style: TextStyles.smallTextRegular.copyWith(
+                    color: ColorStyles.primary100,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
