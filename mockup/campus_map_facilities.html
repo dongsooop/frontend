@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>동숲 캠퍼스 지도 목업</title>
+  <meta name="description" content="건물별 층 시설 정보를 확인하는 캠퍼스 지도 목업">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23006DFF'/%3E%3Cpath d='M14 25 32 14l18 11v24H14z' fill='white'/%3E%3Cpath d='M24 49V34h16v15' fill='%23006DFF'/%3E%3C/svg%3E">
+  <style>
+    @font-face { font-family: Pretendard; src: url('../assets/fonts/Pretendard-Regular.ttf'); font-weight: 400; }
+    @font-face { font-family: Pretendard; src: url('../assets/fonts/Pretendard-SemiBold.ttf'); font-weight: 600 800; }
+
+    :root {
+      --blue: #006dff;
+      --blue-soft: #ebf3ff;
+      --ink: #252525;
+      --muted: #767676;
+      --line: #e7e9ed;
+      --map: #f5f7fa;
+      --white: #fff;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: #eef1f5; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; }
+
+    .phone {
+      width: min(100%, 430px);
+      min-height: 100dvh;
+      margin: 0 auto;
+      background: var(--white);
+      box-shadow: 0 0 40px rgb(25 37 56 / 10%);
+      overflow: hidden;
+    }
+
+    .topbar {
+      height: 60px;
+      padding: 8px 12px;
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      background: rgb(255 255 255 / 94%);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.4;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .icon-button:active { background: #f2f2f2; }
+
+    .intro {
+      padding: 8px 20px 18px;
+    }
+
+    .intro strong {
+      display: block;
+      font-size: 17px;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .intro span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    /* 지도는 페이지의 20px 콘텐츠 패딩 밖에 둔다. 화면 너비를 그대로 쓰고,
+       높이는 항상 너비 이상이어서 모바일에서 지도가 납작해지지 않는다. */
+    .map-stage {
+      position: relative;
+      width: 100%;
+      min-height: 100vw;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background: var(--map);
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .map-stage:active { cursor: grabbing; }
+
+    @media (min-width: 430px) {
+      .map-stage { min-height: 430px; }
+    }
+
+    .map-board {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      aspect-ratio: 2048 / 928;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    .map-vector {
+      width: 100%;
+      height: 100%;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .map-hint {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: max-content;
+      padding: 8px 12px;
+      border: 1px solid rgb(255 255 255 / 70%);
+      border-radius: 999px;
+      color: #545961;
+      background: rgb(255 255 255 / 88%);
+      box-shadow: 0 4px 14px rgb(41 55 74 / 10%);
+      backdrop-filter: blur(8px);
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    .detail {
+      padding: 24px 20px 40px;
+      background: var(--white);
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 5px;
+      color: var(--blue);
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 700;
+    }
+
+    .detail h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+    }
+
+    .count {
+      flex: 0 0 auto;
+      margin-top: 4px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: #545961;
+      background: #f3f5f8;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .floors { margin-top: 4px; }
+    .floor {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 12px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .floor:last-child { border-bottom: 0; }
+    .floor-name {
+      color: var(--blue);
+      font-size: 16px;
+      line-height: 1.55;
+      font-weight: 700;
+    }
+
+    .facilities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .facility {
+      padding: 7px 10px;
+      border: 1px solid #dfe6f1;
+      border-radius: 8px;
+      color: #454951;
+      background: #fafcff;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <header class="topbar">
+      <button class="icon-button" aria-label="뒤로 가기">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m15 18-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h1>캠퍼스 지도</h1>
+      <span aria-hidden="true"></span>
+    </header>
+
+    <section class="intro" aria-labelledby="guide-title">
+      <strong id="guide-title"><span id="selected-title" style="display:inline;margin:0;color:inherit;font-size:inherit">1호관</span>을 선택했어요</strong>
+      <span>건물을 누르면 층별 시설을 확인할 수 있어요.</span>
+    </section>
+
+    <section class="map-stage" aria-label="동양미래대학교 캠퍼스 지도">
+      <div class="map-board">
+<svg class="map-vector" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 928" aria-label="캠퍼스 건물 배치도">
+  <style>
+    .site{fill:none;stroke:#d0d4dd;stroke-width:3;stroke-linejoin:round}
+    .map-detail{fill:white;stroke:#c4c9d5;stroke-width:3}
+    .site-building{fill:white;stroke:#c4c9d5;stroke-width:3;stroke-linejoin:miter}
+    .building{fill:white;stroke:#3123ed;stroke-width:4;stroke-linejoin:miter;cursor:pointer;transition:fill .15s}
+    .building:hover{fill:#e5e3ff}
+    .building.selected{fill:#3123ed}
+    .building:focus-visible{outline:none;stroke:#006dff;stroke-width:8}
+  </style>
+  <!-- Coordinates traced against the supplied 2048 × 928 reference.
+       Text, number badges and text-label backgrounds intentionally omitted. -->
+  <rect width="2048" height="928" fill="#f7f7f7"/>
+  <g class="site">
+    <path d="M385 76Q389 65 417 57Q500 53 576 53L596 56 618 53V310H1282L1563 235 1642 195 1634 172 1636 141Q1634 122 1655 130L1694 138Q1700 139 1704 151L1873 493Q1886 512 1869 541L1848 573Q1838 589 1816 576L1798 562"/>
+    <path d="M385 76L394 162 380 166 476 425 372 581 607 727Q645 752 699 755L986 765 986 747 1041 745 1185 773 1263 783 1311 780 1320 786V748L1353 761 1355 796 1393 812 1499 771 1757 634Q1787 618 1775 589L1757 554"/>
+    <path d="M1634 172L1670 156 1696 191Q1714 211 1730 215L1850 496Q1863 514 1852 530L1837 555 1824 520"/>
+    <path d="M76 807L304 641 381 775 458 750 476 829 376 854 245 861 168 838Z"/>
+    <path d="M618 310H958M1152 374L1580 265 1742 225"/>
+    <path d="M957 442L939 456 984 692Q987 715 1002 723L1200 674"/>
+    <path d="M1002 723L1239 661M1239 661L1232 655Q1226 637 1249 630L1362 603 1368 624 1582 572 1572 547Q1562 530 1580 526L1705 499Q1724 494 1730 510L1760 579"/>
+    <path d="M1607 521L1599 504Q1594 492 1608 489L1704 467Q1753 456 1777 500L1805 558"/>
+  </g>
+  <g class="map-detail">
+    <path d="M503 97L531 90 541 128 514 136Z"/>
+    <path d="M546 67H590V110H576V96H546Z"/>
+    <path d="M501 422V436H561V423M582 423V445H837V423M582 455H837" fill="none"/>
+    <path d="M470 474H542V600H470Z"/>
+    <path d="M440 538H463V597H440Z"/>
+    <path d="M456 600V611H554M470 537H542" fill="none"/>
+    <circle cx="506" cy="537" r="10"/>
+    <path d="M562 480H908V680H562Z"/>
+    <path d="M555 650V472H694V480M725 480V472H919V681M733 488V557M733 601V672" fill="none"/>
+    <circle cx="733" cy="579" r="22"/>
+    <path d="M562 680L604 698H669V713H863M756 715Q768 733 762 754" fill="none"/>
+    <path d="M863 447H919V479H863Z"/>
+    <path d="M952 324V402H1061V394" fill="none"/>
+    <path d="M1080 611L1100 603 1122 713 1193 695 1184 659 1128 673" fill="none"/>
+    <path d="M1122 521L1168 511 1176 541 1130 552Z M1127 538L1154 532 1151 516" fill="none"/>
+    <path d="M1410 592L1467 578 1471 597 1414 612Z M1500 590L1495 579 1526 571 1530 583"/>
+    <path d="M1673 302L1687 337 1710 331M1537 343L1554 403 1585 394 1565 330" fill="none"/>
+  </g>
+  <g stroke="#bfc5d0" stroke-width="2" fill="none">
+    <path d="M1393 284L1403 321M1398 282L1408 319M1403 281L1413 317M1532 254L1540 280M1537 252L1545 278M1542 251L1550 277M1675 218L1684 244M1680 216L1689 242M1685 214L1694 240"/>
+    <path d="M475 355H488M475 360H488M475 365H488M475 370H488M475 375H488M475 380H488M804 736V750M810 736V750M816 736V750M822 736V750M828 736V750M834 736V750M840 736V750M846 736V750"/>
+  </g>
+  <g fill="none" stroke="#c5cad5" stroke-width="3">
+    <circle cx="597" cy="142" r="10"/><circle cx="558" cy="272" r="8"/><circle cx="599" cy="261" r="9"/>
+    <circle cx="1654" cy="225" r="9"/><circle cx="1586" cy="335" r="9"/><circle cx="1621" cy="378" r="9"/>
+    <circle cx="647" cy="719" r="9"/><circle cx="703" cy="733" r="10"/><circle cx="687" cy="739" r="5"/>
+    <circle cx="427" cy="574" r="7"/><circle cx="417" cy="591" r="5"/>
+    <circle cx="1442" cy="770" r="8"/><circle cx="1461" cy="773" r="7"/><circle cx="1622" cy="695" r="9"/>
+  </g>
+  <g stroke="#151515" stroke-width="8">
+    <path d="M920 303V316M957 303V316M763 750V762M790 750V762M1517 758L1523 770M1550 745L1556 757M1756 572L1763 582M1801 551L1808 563"/>
+  </g>
+  <g class="site-building">
+    <path d="M230 713L302 661 330 708 318 718 334 736 279 778Z M112 803L214 726 220 735 226 730 242 749 202 776 213 781 206 800 244 814 234 843Z"/>
+    <path d="M376 797L440 778 450 817 389 835Z"/>
+  </g>
+  <g class="building" data-building="7" role="button" tabindex="0" aria-label="7호관 선택"><path d="M413 108L483 91 525 260 497 267 500 283 490 284 494 301 487 301 483 351 475 351Z"/></g>
+  <g class="building" data-building="6" role="button" tabindex="0" aria-label="6호관 선택"><path d="M486 332H504V340L919 335V422H502V389H490V343H486Z"/></g>
+  <g class="building" data-building="5" role="button" tabindex="0" aria-label="5호관 선택"><path d="M959 320L1031 318V310H1152V372H1080V393H959Z"/></g>
+  <g class="building" data-building="3" role="button" tabindex="0" aria-label="3호관 선택"><path d="M1062 416L1518 308 1540 403 1083 511Z"/></g>
+  <g class="building" data-building="2" role="button" tabindex="0" aria-label="2호관 선택"><path d="M1537 280L1728 234 1737 254 1733 256 1811 433 1788 444 1789 450 1776 457 1773 451 1763 456 1757 441 1764 437 1694 292 1549 326Z"/></g>
+  <g class="building" data-building="4" role="button" tabindex="0" aria-label="4호관 선택"><path d="M952 456L985 445V435L1000 428V442L1038 431 1102 706 1015 727Z"/></g>
+  <g class="building" data-building="8" role="button" tabindex="0" aria-label="8호관 선택"><path d="M857 690H933V744H857Z"/></g>
+  <g class="building" data-building="lib" role="button" tabindex="0" aria-label="도서관 선택"><path d="M1308 647L1476 606 1480 614 1495 687 1504 735 1370 767 1360 726 1327 733Z"/></g>
+  <g class="building" data-building="1" role="button" tabindex="0" aria-label="1호관 선택"><path d="M1480 614L1514 605 1512 598 1588 579 1583 537 1723 507 1739 586 1697 595Q1692 625 1668 643L1670 660 1530 694 1526 678 1495 687Z"/></g>
+</svg>
+      </div>
+      <div class="map-hint">밀어서 이동, 두 손가락으로 확대해 보세요</div>
+    </section>
+
+    <section class="detail" aria-live="polite" aria-labelledby="building-name">
+      <div class="detail-header">
+        <div>
+          <p class="eyebrow">층별 시설</p>
+          <h2 id="building-name">1호관</h2>
+        </div>
+        <span class="count" id="floor-count">9개 층</span>
+      </div>
+      <div class="floors" id="floors"></div>
+    </section>
+  </main>
+
+  <script>
+    const buildings = {
+      '1': { name: '1호관', floors: [
+        ['9F', '법인사무국'],
+        ['8F', '총장실', '학생처장실', '사무처장실', '종합회의실', '부속실'],
+        ['7F', '교무입학처', '교무입학처장실', '감사장/대외평가실'],
+        ['6F', '산학협력단', '기획혁신처', '기획혁신처장실'],
+        ['5F', '사무처', '소강당'],
+        ['4F', '학생서비스센터(휴/복학,수업,장학)', '취업지원센터', '현장실습지원센터', '공학기술교육혁신센터', 'KB국민 ATM', '증명서발급기'],
+        ['3F', '강의실', '예비군연대', '교양과사무실', '전산실습실'],
+        ['2F', '강의실', '유학생지원실', '국제교류센터', 'HiVE 센터'],
+        ['1F', '강의실', '입시지원팀', '웰컴라운지', '웰컴갤러리']
+      ] },
+      lib: { name: '도서관', floors: [
+        ['6F', '인문사회자료실'],
+        ['5F', '중앙전산소', '별별마루(오디토리움, VR룸)', '열린마루', '그룹스터디룸'],
+        ['4F', '도서관 사무실', '톡톡마루', '너나마루', '온빛마루', '그룹스터디룸', '대출실'],
+        ['3F', '과학기술자료실', '그룹스터디룸'],
+        ['2F', '어문학자료실', '그룹스터디룸'],
+        ['1F', 'D-Study', 'D-Culture', '그룹스터디룸', '디자인홍보센터', '홍보대사단실', '동양학보기자단실']
+      ] },
+      '2': { name: '2호관', floors: [
+        ['7F', '교수연구실'],
+        ['6F', '교수연구실'],
+        ['5F', '교수연구실'],
+        ['4F', '교수연구실', '교수학습지원센터', '스튜디오실'],
+        ['3F', '경영학부사무실', '스마트강의실'],
+        ['2F', '전산실습실', '강의실'],
+        ['1F', '전산실습실', '칵테일 실습실'],
+        ['B1F', '강의실'],
+        ['B2F', '강의실']
+      ] },
+      '3': { name: '3호관', floors: [
+        ['5F', '실험실습실', '강의실', '전산실습실'],
+        ['4F', '전기전자통신공학부사무실', '실험실습실', '전산실습실'],
+        ['3F', '전산실습실', 'PD Lab'],
+        ['2F', '컴퓨터공학부사무실', '전산실습실'],
+        ['1F', '총학생회', '대의원회', '보건실', '학생상담센터', '장애학생지원실', '여학생휴게실', '부트캠프클린룸', 'P-Tech 사무실', '전산실습실']
+      ] },
+      '4': { name: '4호관', floors: [
+        ['6F', 'C.I Lab(취미동아리)'],
+        ['5F', '실험실습실', '전산실습실'],
+        ['4F', '전산실습실'],
+        ['3F', '생명화학공학과사무실', '바이오융합공학과사무실', '실험실습실', '전산실습실'],
+        ['2F', '기계공학부사무실', '로봇자동화공학부사무실', '부트캠프사업단', '실험실습실'],
+        ['1F', '실험실습실'],
+        ['B1F', '실험실습실']
+      ] },
+      '5': { name: '5호관', floors: [
+        ['3F', 'DM Lab'],
+        ['2F', '실험실습실'],
+        ['1F', '튜터링카페', '실습실', 'PD Lab Star'],
+        ['B1F', '스마트융합제작 실습실']
+      ] },
+      '6': { name: '6호관', floors: [
+        ['5F', '교수연구실'],
+        ['4F', '강의실', '실험실습실', '촬영스튜디오', '전산실습실'],
+        ['3F', '강의실', '실험실습실', '전산실습실'],
+        ['2F', '강의실', '체력측정실', '원격강의공용실습실'],
+        ['1F', '갤러리', '강의실', '실험실습실', '전산실습실'],
+        ['B1F', 'DM Gallery', '강의실'],
+        ['B2F', '동창회사무실', '실험실습실', '공동장비운영센터'],
+        ['B3F', '휘트니스센터', '다목적실습실']
+      ] },
+      '7': { name: '7호관', floors: [
+        ['5F', '실험실습실', '통합설계실', '전산실습실'],
+        ['4F', '강의실', '설계실', '동아리실', '실험실습실'],
+        ['3F', '생활환경공학부사무실(건축,실내,시각,AR·VR)', '교수연구실'],
+        ['2F', '동아리실', '강의실', '실험실습실'],
+        ['1F', '전산실습실', '실험실습실', '강의실'],
+        ['B1F', '실험실습실']
+      ] },
+      '8': { name: '8호관', floors: [
+        ['3F', '식당', '강의실', 'XR스튜디오', '전산실습실'],
+        ['2F', '글로세움(서점)', '모닝글로리(문구점)', '제주몰빵(카페)'],
+        ['1F', '대강당', 'CU', '써브웨이', 'KB금융은행 및 ATM', '여행사(GHRC)', '유료(택배)사물함'],
+        ['B1F', '주차장']
+      ] }
+    };
+
+    const groups = [...document.querySelectorAll('[data-building]')];
+    const floors = document.querySelector('#floors');
+    const name = document.querySelector('#building-name');
+    const count = document.querySelector('#floor-count');
+    const selectedTitle = document.querySelector('#selected-title');
+
+    function selectBuilding(id) {
+      const building = buildings[id];
+
+      groups.forEach(group => {
+        const active = group.dataset.building === id;
+        group.classList.toggle('selected', active);
+        group.setAttribute('aria-pressed', String(active));
+      });
+
+      selectedTitle.textContent = building.name;
+      name.textContent = building.name;
+      count.textContent = `${building.floors.length}개 층`;
+      floors.innerHTML = building.floors.map(([floor, ...items]) => `
+        <div class="floor">
+          <div class="floor-name">${floor}</div>
+          <div class="facilities">${items.map(item => `<span class="facility">${item}</span>`).join('')}</div>
+        </div>
+      `).join('');
+    }
+
+    groups.forEach(group => {
+      group.addEventListener('click', () => selectBuilding(group.dataset.building));
+      group.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          selectBuilding(group.dataset.building);
+        }
+      });
+    });
+
+    selectBuilding('1');
+
+    /* 지도 팬 · 줌: 축마다 지도가 무대를 벗어나지 않도록 이동량을 가둔다.
+       지도가 무대보다 작은 축은 항상 가운데 정렬된다. */
+    const stage = document.querySelector('.map-stage');
+    const board = document.querySelector('.map-board');
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 4;
+    let scale = 1.9;
+    let tx = -1e6;
+    let ty = 0;
+
+    function clampAxis(offset, content, view) {
+      return content >= view
+        ? Math.min(0, Math.max(view - content, offset))
+        : (view - content) / 2;
+    }
+
+    function apply() {
+      tx = clampAxis(tx, board.offsetWidth * scale, stage.clientWidth);
+      ty = clampAxis(ty, board.offsetHeight * scale, stage.clientHeight);
+      board.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    }
+
+    function zoomTo(px, py, next) {
+      next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, next));
+      const ratio = next / scale;
+      tx = px - (px - tx) * ratio;
+      ty = py - (py - ty) * ratio;
+      scale = next;
+      apply();
+    }
+
+    const pointers = new Map();
+    let gesture = null;
+    let dragged = false;
+
+    function gestureState() {
+      const points = [...pointers.values()];
+      const rect = stage.getBoundingClientRect();
+      const second = points[1] ?? points[0];
+      return {
+        x: (points[0].x + second.x) / 2 - rect.left,
+        y: (points[0].y + second.y) / 2 - rect.top,
+        spread: points.length > 1 ? Math.hypot(points[0].x - second.x, points[0].y - second.y) : 0
+      };
+    }
+
+    stage.addEventListener('pointerdown', event => {
+      stage.setPointerCapture(event.pointerId);
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      gesture = gestureState();
+      dragged = false;
+    });
+
+    stage.addEventListener('pointermove', event => {
+      if (!pointers.has(event.pointerId)) return;
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      const next = gestureState();
+      if (gesture) {
+        if (Math.abs(next.x - gesture.x) + Math.abs(next.y - gesture.y) > 4) dragged = true;
+        tx += next.x - gesture.x;
+        ty += next.y - gesture.y;
+        if (next.spread && gesture.spread) {
+          dragged = true;
+          zoomTo(next.x, next.y, scale * (next.spread / gesture.spread));
+        } else {
+          apply();
+        }
+      }
+      gesture = next;
+    });
+
+    function endPointer(event) {
+      pointers.delete(event.pointerId);
+      gesture = pointers.size ? gestureState() : null;
+    }
+
+    stage.addEventListener('pointerup', endPointer);
+    stage.addEventListener('pointercancel', endPointer);
+
+    stage.addEventListener('wheel', event => {
+      event.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      zoomTo(event.clientX - rect.left, event.clientY - rect.top, scale * Math.exp(-event.deltaY * 0.0015));
+    }, { passive: false });
+
+    // 지도를 끌고 난 뒤 손을 뗄 때 건물이 선택되는 것을 막는다.
+    stage.addEventListener('click', event => {
+      if (dragged) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    }, true);
+
+    window.addEventListener('resize', apply);
+    requestAnimationFrame(apply);
+  </script>
+</body>
+</html>
