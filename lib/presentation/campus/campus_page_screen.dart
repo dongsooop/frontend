@@ -42,7 +42,11 @@ class CampusPageScreen extends ConsumerWidget {
             ),
             const CampusSearchBar(),
             CampusSection(
+              // `오늘 뭐 먹지` 는 앱이 골라 주는 것처럼 들린다. 실제로는
+              // 학생들이 올리고 좋아요로 정렬된 목록이라 그대로 말한다
               title: '학생들이 추천한 맛집',
+              // 눈에 잘 띄는 자리를 올리는 쪽에 준다. 전체 목록으로 가는
+              // 길은 목록 끝 카드에 남겼다
               action: InkWell(
                 onTap: () async {
                   if (user == null) {
@@ -65,27 +69,32 @@ class CampusPageScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 2),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 12,
-                        color: ColorStyles.primary100,
-                      ),
+                      const Icon(Icons.arrow_forward_ios,
+                          size: 12, color: ColorStyles.primary100),
                     ],
                   ),
                 ),
               ),
               child: const CampusRestaurantList(),
             ),
+            // 날짜는 제목이 아니라 판 안에 둔다. 좌우로 넘기면 날짜가 따라
+            // 바뀌어야 하는데, 제목에 두면 화면이 페이지 상태를 들고 있어야
+            // 한다. 홈도 같은 이유로 판 안에 둔다
             const CampusSection(
               title: '학식',
               child: CampusMealCard(),
             ),
+            // 홈과 같은 자리 — 마지막 구획 바로 앞이다. 구획 사이에 두면
+            // 스크롤 도중 갑자기 끼어들고, 맨 아래에 두면 거의 안 보인다
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 40),
               child: AdmobBannerAd(),
             ),
             CampusSection(
               title: '캠퍼스 생활',
+              // 카드마다 다른 색 면을 준다. 셋이 모두 회색이던 자리라 무엇이
+              // 무엇인지 이모지로만 갈렸다. 일정의 민트와 수업의 파랑은 홈
+              // 오늘 카드에서 쓰는 뜻을 그대로 가져온다
               child: Column(
                 children: [
                   CampusLinkCard(
@@ -118,7 +127,6 @@ class CampusPageScreen extends ConsumerWidget {
                         await LoginRequiredDialog(context);
                         return;
                       }
-                      if (!context.mounted) return;
                       context.push(RoutePaths.chatbot);
                     },
                   ),
