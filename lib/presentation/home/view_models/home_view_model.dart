@@ -14,7 +14,11 @@ class HomeViewModel extends _$HomeViewModel {
 
     try {
       final (fid, deviceToken) = await _resolveDeviceIds();
-      return await useCase.execute(fid: fid, deviceToken: deviceToken);
+      return await useCase.execute(
+        departmentCode: departmentCode,
+        fid: fid,
+        deviceToken: deviceToken,
+      );
     } on SessionExpiredException {
       throw const SessionExpiredException();
     } catch (e) {
@@ -30,7 +34,11 @@ class HomeViewModel extends _$HomeViewModel {
     state = await AsyncValue.guard(() async {
       try {
         final (fid, deviceToken) = await _resolveDeviceIds();
-        return await useCase.execute(fid: fid, deviceToken: deviceToken);
+        return await useCase.execute(
+          departmentCode: departmentCode,
+          fid: fid,
+          deviceToken: deviceToken,
+        );
       } on SessionExpiredException {
         throw const SessionExpiredException();
       } catch (e) {
@@ -39,10 +47,6 @@ class HomeViewModel extends _$HomeViewModel {
     });
   }
 
-  /// 구독 학과 기반 홈 개인화를 위한 fid/deviceToken을 가져온다 (회원/비회원 공통).
-  ///
-  /// 못 가져와도 홈 화면 자체는 떠야 하므로, 실패한 항목은 null로 두어
-  /// 서버가 기본(대학 공지만) 홈으로 폴백하게 둔다.
   Future<(String?, String?)> _resolveDeviceIds() async {
     final fid = await _tryGet(() => ref.read(getFidUseCaseProvider).execute());
     final deviceToken = await _tryGet(() => ref.read(getFcmTokenUseCaseProvider).execute());
