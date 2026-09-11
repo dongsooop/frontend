@@ -1,7 +1,6 @@
 import 'package:dongsoop/core/presentation/components/admob_banner_ad.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
-import 'package:dongsoop/presentation/campus/campus_map_screen.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_link_card.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_preview.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_meal_card.dart';
@@ -85,14 +84,14 @@ class CampusPageScreen extends ConsumerWidget {
               title: '학식',
               child: CampusMealCard(),
             ),
+            const Padding(
+              padding: EdgeInsets.only(top: 40),
+              child: AdmobBannerAd(),
+            ),
             CampusSection(
               title: '우리 학교 알아보기',
               child: CampusMapPreview(
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const CampusMapScreen(),
-                  ),
-                ),
+                onTap: () => context.push(RoutePaths.campusMap),
               ),
             ),
             // 홈과 같은 자리 — 마지막 구획 바로 앞이다. 구획 사이에 두면
@@ -113,11 +112,7 @@ class CampusPageScreen extends ConsumerWidget {
                     title: '캠퍼스 지도',
                     description: '교내 건물 위치 확인하기',
                     background: ColorStyles.primary5,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const CampusMapScreen(),
-                      ),
-                    ),
+                    onTap: () => context.push(RoutePaths.campusMap),
                   ),
                   const SizedBox(height: 10),
                   CampusLinkCard(
