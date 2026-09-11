@@ -53,18 +53,20 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                '두 손가락으로 지도를 확대하거나 이동할 수 있어요.',
+                '지도를 확대하거나 상하좌우로 움직여 볼 수 있어요.',
                 style: TextStyles.smallTextRegular.copyWith(
                   color: ColorStyles.gray5,
                 ),
               ),
               const SizedBox(height: 16),
               Expanded(
+                flex: 3,
                 child: Center(
                   child: InteractiveViewer(
                     minScale: 1,
                     maxScale: 4,
-                    boundaryMargin: const EdgeInsets.all(80),
+                    // 여백을 두지 않아야 지도가 화면 밖으로 밀려나지 않는다.
+                    boundaryMargin: EdgeInsets.zero,
                     child: AspectRatio(
                       aspectRatio: CampusMapGeometry.sourceSize.aspectRatio,
                       child: LayoutBuilder(
@@ -99,25 +101,110 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
               ),
               if (selectedBuildingId != null) ...[
                 const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: ColorStyles.primary5,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    campusBuildingName(selectedBuildingId!),
-                    style: TextStyles.normalTextBold.copyWith(
-                      color: ColorStyles.primary100,
-                    ),
-                  ),
+                Expanded(
+                  flex: 2,
+                  child: _BuildingFloors(buildingId: selectedBuildingId!),
                 ),
               ],
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _BuildingFloors extends StatelessWidget {
+  const _BuildingFloors({required this.buildingId});
+
+  final String buildingId;
+
+  @override
+  Widget build(BuildContext context) {
+    final floors = campusBuildingFloors(buildingId);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ColorStyles.primary5,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            campusBuildingName(buildingId),
+            style: TextStyles.normalTextBold.copyWith(
+              color: ColorStyles.primary100,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: floors.isEmpty
+                ? Text(
+                    '등록된 층별 시설 정보가 없어요.',
+                    style: TextStyles.smallTextRegular.copyWith(
+                      color: ColorStyles.gray5,
+                    ),
+                  )
+                : ListView.separated(
+                    padding: EdgeInsets.zero,
+                    itemCount: floors.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) => _FloorRow(floor: floors[index]),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FloorRow extends StatelessWidget {
+  const _FloorRow({required this.floor});
+
+  final CampusFloor floor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 40,
+          child: Text(
+            floor.name,
+            style: TextStyles.smallTextBold.copyWith(
+              color: ColorStyles.primary100,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: floor.facilities
+                .map(
+                  (facility) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: ColorStyles.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      facility,
+                      style: TextStyles.smallTextRegular.copyWith(
+                        color: ColorStyles.gray6,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      ],
     );
   }
 }
