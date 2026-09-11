@@ -4,6 +4,7 @@ abstract class RoutePaths {
   // 게시판은 이 경로로 이동하는 코드를 모두 닫았다. 라우트와 화면은 그대로 살아 있다
   static const String board = '/board';
   static const String campus = '/campus';
+  static const String campusMap = '/campusMap';
   static const String chat = '/chat';
   static const String mypage = '/mypage';
   static const String signIn = '/signIn';

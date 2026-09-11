@@ -7,6 +7,7 @@ import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
 import 'package:dongsoop/presentation/board/board_page_screen.dart';
+import 'package:dongsoop/presentation/campus/campus_map_screen.dart';
 import 'package:dongsoop/presentation/campus/campus_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
 import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
@@ -645,6 +646,19 @@ final router = GoRouter(
             GoRoute(
               path: RoutePaths.campus,
               builder: (context, state) => const CampusPageScreen(),
+            ),
+            // 같은 셸에 둬야 하단 탭이 남고, 캠퍼스 탭을 다시 누르면 닫힌다.
+            GoRoute(
+              path: RoutePaths.campusMap,
+              name: 'campusMap',
+              pageBuilder: (context, state) {
+                return MaterialPage(
+                  key: state.pageKey,
+                  child: CampusMapScreen(
+                    initialBuildingId: state.extra as String?,
+                  ),
+                );
+              },
             ),
             // 기존 게시판 딥링크도 같은 셸에 남겨 하단 탭으로 돌아갈 수 있게 한다.
             GoRoute(
