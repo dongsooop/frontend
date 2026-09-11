@@ -54,11 +54,7 @@ class CampusMapPainter extends CustomPainter {
 
       final textPainter = TextPainter(
         text: TextSpan(
-          text: building.id == 'dmmc'
-              ? 'D'
-              : building.id == 'dorm'
-                  ? '기'
-                  : building.id,
+          text: _badgeText(building.id),
           style: TextStyle(
             color: isSelected ? ColorStyles.primary100 : Colors.white,
             fontSize: 20,
@@ -78,6 +74,19 @@ class CampusMapPainter extends CustomPainter {
     _paintLabel(canvas, 'Plaza', const Offset(905, 334));
 
     canvas.restore();
+  }
+
+  String _badgeText(String id) {
+    switch (id) {
+      case 'lib':
+        return '도';
+      case 'dmmc':
+        return 'D';
+      case 'dorm':
+        return '기';
+      default:
+        return id;
+    }
   }
 
   void _paintLabel(Canvas canvas, String text, Offset position) {
