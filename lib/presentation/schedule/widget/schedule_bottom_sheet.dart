@@ -1,10 +1,11 @@
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/schedule/entities/schedule_list_entity.dart';
-import 'package:dongsoop/presentation/campus/campus_map_screen.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_models.dart';
 import 'package:dongsoop/presentation/schedule/providers/schedule_filter_provider.dart';
 import 'package:dongsoop/presentation/schedule/util/schedule_date_utils.dart';
 import 'package:dongsoop/presentation/schedule/util/schedule_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -232,12 +233,9 @@ class CalendarBottomSheet extends ConsumerWidget {
           if (buildingId != null) ...[
             const SizedBox(width: 6),
             InkWell(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => CampusMapScreen(
-                    initialBuildingId: buildingId,
-                  ),
-                ),
+              onTap: () => context.push(
+                RoutePaths.campusMap,
+                extra: buildingId,
               ),
               borderRadius: BorderRadius.circular(6),
               child: Padding(
