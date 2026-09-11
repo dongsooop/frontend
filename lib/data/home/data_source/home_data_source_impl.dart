@@ -7,22 +7,32 @@ import 'home_data_source.dart';
 
 class HomeDataSourceImpl implements HomeDataSource {
   final Dio _plainDio;
+  final Dio _authDio;
 
-  HomeDataSourceImpl(this._plainDio);
+  HomeDataSourceImpl(this._plainDio, this._authDio);
 
   @override
-  Future<HomeResponse> fetchHome({String? fid, String? deviceToken}) async {
+  Future<HomeResponse> fetchHome({
+    String? departmentCode,
+    String? fid,
+    String? deviceToken,
+  }) async {
     final url = dotenv.get('HOME_ENDPOINT');
-    final headers = <String, String>{
-      if (fid != null && fid.isNotEmpty) 'X-Device-Fid': fid,
-      if (deviceToken != null && deviceToken.isNotEmpty)
-        'X-Device-Token': deviceToken,
-    };
+    final isMember = departmentCode != null && departmentCode.isNotEmpty;
 
-    final response = await _plainDio.get(
-      url,
-      options: headers.isEmpty ? null : Options(headers: headers),
-    );
+    final response = isMember
+        ? await _authDio.get('$url/$departmentCode')
+        : await _plainDio.get(
+            url,
+            options: Options(
+              headers: <String, String>{
+                if (fid != null && fid.isNotEmpty) 'X-Device-Fid': fid,
+                if (deviceToken != null && deviceToken.isNotEmpty)
+                  'X-Device-Token': deviceToken,
+              },
+            ),
+          );
+
     if (response.statusCode == HttpStatusCode.ok.code) {
       final data = response.data;
       if (data is! Map<String, dynamic>) {
