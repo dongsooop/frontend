@@ -1,4 +1,5 @@
 import 'package:dongsoop/domain/home/use_case/home_use_case.dart';
+import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/providers/plain_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/data/home/data_source/home_data_source.dart';
@@ -8,7 +9,8 @@ import 'package:dongsoop/domain/home/repository/home_repository.dart';
 
 final homeDataSourceProvider = Provider<HomeDataSource>((ref) {
   final plainDio = ref.watch(plainDioProvider);
-  return HomeDataSourceImpl(plainDio);
+  final authDio = ref.watch(authDioProvider);
+  return HomeDataSourceImpl(plainDio, authDio);
 });
 
 final homeRepositoryProvider = Provider<HomeRepository>((ref) {
