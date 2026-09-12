@@ -1,20 +1,15 @@
-import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
-import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 자주 쓰는 화면 네 개.
-class HomeQuickLinks extends ConsumerWidget {
+class HomeQuickLinks extends StatelessWidget {
   const HomeQuickLinks({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userSessionProvider);
-
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
       child: Column(
@@ -22,53 +17,45 @@ class HomeQuickLinks extends ConsumerWidget {
         children: [
           Text(
             '바로가기',
-            style: TextStyles.sectionTitleBold.copyWith(color: ColorStyles.black),
+            style: TextStyles.sectionTitleBold.copyWith(
+              color: ColorStyles.black,
+            ),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _QuickTile(
-                  emoji: '🍽️',
+          SizedBox(
+            height: 98,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              children: [
+                _QuickTile(
+                  icon: Icons.restaurant_rounded,
                   label: '맛집',
-                  background: ColorStyles.primary5,
                   onTap: () => context.pushNamed('restaurants'),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _QuickTile(
-                  emoji: '📚',
+                const SizedBox(width: 8),
+                _QuickTile(
+                  icon: Icons.menu_book_rounded,
                   label: '도서관',
-                  background: ColorStyles.mintBg,
                   onTap: () => context.pushNamed('libraryWebView'),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _QuickTile(
-                  emoji: '💬',
-                  label: '챗봇',
-                  background: ColorStyles.amberBg,
-                  onTap: () async {
-                    if (user == null) {
-                      await LoginRequiredDialog(context);
-                      return;
-                    }
-                    context.push(RoutePaths.chatbot);
-                  },
+                const SizedBox(width: 8),
+                _QuickTile(
+                  icon: Icons.map_rounded,
+                  label: '캠퍼스 지도',
+                  isNew: true,
+                  isHighlighted: true,
+                  onTap: () => context.push(RoutePaths.campusMap),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _QuickTile(
-                  emoji: '🗓️',
+                const SizedBox(width: 8),
+                _QuickTile(
+                  icon: Icons.calendar_month_rounded,
                   label: '학사일정',
-                  background: ColorStyles.gray1,
                   onTap: () => context.push(RoutePaths.schedule),
                 ),
-              ),
-            ],
+                const SizedBox(width: 4),
+              ],
+            ),
           ),
         ],
       ),
@@ -77,48 +64,98 @@ class HomeQuickLinks extends ConsumerWidget {
 }
 
 class _QuickTile extends StatelessWidget {
-  final String emoji;
+  final IconData icon;
   final String label;
-  final Color background;
+  final bool isNew;
+  final bool isHighlighted;
   final VoidCallback onTap;
 
   const _QuickTile({
-    required this.emoji,
+    required this.icon,
     required this.label,
-    required this.background,
+    this.isNew = false,
+    this.isHighlighted = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: ColorStyles.gray7,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-          child: Column(
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: background,
-                  borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        width: 92,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(3, 4, 3, 6),
+            child: Column(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: isHighlighted
+                            ? ColorStyles.primary5
+                            : ColorStyles.gray7,
+                        borderRadius: BorderRadius.circular(19),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        icon,
+                        size: 28,
+                        color: isHighlighted
+                            ? ColorStyles.primary100
+                            : ColorStyles.gray6,
+                      ),
+                    ),
+                    if (isNew)
+                      Positioned(
+                        top: -5,
+                        right: -8,
+                        child: Container(
+                          height: 17,
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: ColorStyles.primary100,
+                            borderRadius: BorderRadius.circular(99),
+                            border: Border.all(
+                              color: ColorStyles.white,
+                              width: 2,
+                            ),
+                          ),
+                          child: Text(
+                            'NEW',
+                            style: TextStyles.smallTextBold.copyWith(
+                              color: ColorStyles.white,
+                              fontSize: 8,
+                              height: 1,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                alignment: Alignment.center,
-                child: Text(emoji, style: const TextStyle(fontSize: 17)),
-              ),
-              const SizedBox(height: 7),
-              Text(
-                label,
-                style: TextStyles.smallTextBold.copyWith(
-                  color: ColorStyles.gray6,
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.visible,
+                  style: TextStyles.smallTextBold.copyWith(
+                    color: isHighlighted
+                        ? ColorStyles.primaryGray
+                        : ColorStyles.gray6,
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
