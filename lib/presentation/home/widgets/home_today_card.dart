@@ -108,13 +108,14 @@ class _HomeTodayCardState extends State<HomeTodayCard> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Container(
-                height: 46,
+                height: 50,
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: ColorStyles.gray7,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
                       child: _TodayTab(
