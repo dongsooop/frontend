@@ -60,7 +60,7 @@ jobs:
       - name: Install Flutter dependencies
         run: flutter pub get
 
-      # Hash the resolved Dart dependencies too, even when Podfile.lock is absent.
+      # Include Dart/native dependency inputs and the build toolchain in the key.
       - name: Cache iOS Pods
         uses: actions/cache@v4
         with:
@@ -74,15 +74,8 @@ jobs:
         working-directory: ios
         run: pod install || pod install --repo-update
 
-      - name: Upload resolved dependency locks
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-dependency-locks
-          path: |
-            pubspec.lock
-            ios/Podfile.lock
-          if-no-files-found: error
-          retention-days: 7
+      - name: Verify dependency locks
+        run: git diff --exit-code -- pubspec.lock ios/Podfile.lock
 
       # 코드 분석 수행 (경고는 허용, 에러만 실패 처리)
       - name: Analyze code

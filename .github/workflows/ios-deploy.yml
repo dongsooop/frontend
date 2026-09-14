@@ -58,7 +58,7 @@ jobs:
       - name: Install Flutter dependencies
         run: flutter pub get
 
-      # Hash the resolved Dart dependencies too, even when Podfile.lock is absent.
+      # Include Dart/native dependency inputs and the build toolchain in the key.
       - name: Cache iOS Pods
         uses: actions/cache@v4
         with:
