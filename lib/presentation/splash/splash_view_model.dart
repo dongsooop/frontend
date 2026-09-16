@@ -12,6 +12,7 @@ import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/providers/device_providers.dart';
 import 'package:dongsoop/data/device_token/model/device_token_request.dart';
 import 'package:dongsoop/domain/device_token/enum/failure_type.dart';
+import 'package:dongsoop/providers/eclass_link_restore_providers.dart';
 
 class SplashViewModel extends StateNotifier<SplashState> {
   final LoadUserUseCase _loadUserUseCase;
@@ -105,6 +106,12 @@ class SplashViewModel extends StateNotifier<SplashState> {
   Future<void> initFcmAfterAuthGate() async {
     if (_started) return;
     await _startFcmObservation();
+  }
+
+  void restoreExpiredEclassLinkInBackground() {
+    unawaited(
+      _ref.read(eclassLinkRestoreControllerProvider).restoreIfExpired(),
+    );
   }
 
   Future<void> _ensureFcmInitialized() async {
