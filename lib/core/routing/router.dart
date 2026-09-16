@@ -45,6 +45,7 @@ import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_more_screen.dart';
 import 'package:dongsoop/presentation/setting/device_management/device_management_screen.dart';
+import 'package:dongsoop/presentation/eclass/link/eclass_link_screen.dart';
 import 'package:dongsoop/presentation/notification/notification_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
@@ -280,11 +281,16 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.setting,
       builder: (context, state) => SettingScreen(
+        onTapEclass: () => context.push(RoutePaths.eclassLink),
         onTapDevice: () {
           context.push(RoutePaths.deviceManagement);
         },
         onTapPasswordReset: () => context.push(RoutePaths.passwordReset),
       ),
+    ),
+    GoRoute(
+      path: RoutePaths.eclassLink,
+      builder: (context, state) => const EclassLinkScreen(),
     ),
     GoRoute(
       path: RoutePaths.notification,
