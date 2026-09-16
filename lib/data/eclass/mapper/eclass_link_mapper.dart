@@ -4,7 +4,7 @@ import 'package:dongsoop/domain/eclass/enum/eclass_link_status.dart';
 
 extension EclassLinkResponseMapper on EclassLinkResponse {
   EclassLinkEntity toEntity() {
-    final mappedStatus = _toStatus(status);
+    final mappedStatus = mapEclassLinkStatus(status);
 
     if (linked && mappedStatus == null) {
       throw const FormatException('Linked Eclass response has no status.');
@@ -25,7 +25,7 @@ extension EclassLinkResponseMapper on EclassLinkResponse {
   }
 }
 
-EclassLinkStatus? _toStatus(String? value) {
+EclassLinkStatus? mapEclassLinkStatus(String? value) {
   switch (value) {
     case null:
       return null;

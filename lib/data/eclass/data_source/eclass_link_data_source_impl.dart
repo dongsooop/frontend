@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/exception/eclass_exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:dongsoop/data/eclass/data_source/eclass_device_request_options.dart';
 import 'package:dongsoop/data/eclass/data_source/eclass_link_data_source.dart';
 import 'package:dongsoop/data/eclass/model/eclass_link_request.dart';
 import 'package:dongsoop/data/eclass/model/eclass_link_response.dart';
@@ -23,7 +24,10 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
       final response = await _plainDio.post(
         endpoint,
         data: request.toJson(),
-        options: _deviceOptions(fid: fid, deviceToken: deviceToken),
+        options: buildEclassDeviceRequestOptions(
+          fid: fid,
+          deviceToken: deviceToken,
+        ),
       );
       if (response.statusCode != HttpStatusCode.ok.code) {
         throw EclassLinkException(
@@ -52,7 +56,10 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
     try {
       final response = await _plainDio.get(
         endpoint,
-        options: _deviceOptions(fid: fid, deviceToken: deviceToken),
+        options: buildEclassDeviceRequestOptions(
+          fid: fid,
+          deviceToken: deviceToken,
+        ),
       );
       if (response.statusCode != HttpStatusCode.ok.code) {
         throw EclassLinkException(
@@ -81,7 +88,10 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
     try {
       final response = await _plainDio.delete(
         endpoint,
-        options: _deviceOptions(fid: fid, deviceToken: deviceToken),
+        options: buildEclassDeviceRequestOptions(
+          fid: fid,
+          deviceToken: deviceToken,
+        ),
       );
       if (response.statusCode != HttpStatusCode.noContent.code) {
         throw EclassLinkException(
@@ -93,31 +103,6 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
     } on DioException catch (error) {
       throw EclassLinkException(_problemDetail(error.response?.data));
     }
-  }
-
-  Options _deviceOptions({
-    String? fid,
-    String? deviceToken,
-  }) {
-    final normalizedFid = _nonEmpty(fid);
-    final normalizedDeviceToken = _nonEmpty(deviceToken);
-
-    if (normalizedFid == null && normalizedDeviceToken == null) {
-      throw const EclassDeviceIdentityException();
-    }
-
-    return Options(
-      headers: {
-        if (normalizedFid != null) 'X-Device-Fid': normalizedFid,
-        if (normalizedDeviceToken != null)
-          'X-Device-Token': normalizedDeviceToken,
-      },
-    );
-  }
-
-  String? _nonEmpty(String? value) {
-    final normalized = value?.trim();
-    return normalized == null || normalized.isEmpty ? null : normalized;
   }
 
   Map<String, dynamic> _jsonMap(Object? value) {

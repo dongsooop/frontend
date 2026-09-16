@@ -1,0 +1,4 @@
+enum EclassSyncResult {
+  completed,
+  cooldown,
+}

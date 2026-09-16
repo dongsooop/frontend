@@ -33,6 +33,24 @@ class EclassLinkException extends EclassException {
   ]);
 }
 
+class EclassAssignmentException extends EclassException {
+  const EclassAssignmentException([
+    super.message = 'Eclass 과제를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.',
+  ]);
+}
+
+class EclassSyncException extends EclassException {
+  const EclassSyncException([
+    super.message = 'Eclass 과제를 동기화하지 못했어요. 잠시 후 다시 시도해 주세요.',
+  ]);
+}
+
+class EclassNotLinkedException extends EclassException {
+  const EclassNotLinkedException([
+    super.message = 'Eclass 연동 정보가 없어요. 먼저 Eclass를 연동해 주세요.',
+  ]);
+}
+
 class EclassMalformedResponseException extends EclassException {
   const EclassMalformedResponseException([
     super.message = 'Eclass 응답을 처리할 수 없어요. 잠시 후 다시 시도해 주세요.',
