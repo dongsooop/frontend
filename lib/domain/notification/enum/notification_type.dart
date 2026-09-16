@@ -22,10 +22,18 @@ enum NotificationType {
   final String code;
   const NotificationType(this.code);
 
+  static NotificationType? tryFromCode(String code) {
+    for (final type in NotificationType.values) {
+      if (type.code == code) return type;
+    }
+    return null;
+  }
+
   static NotificationType fromCode(String code) {
-    return NotificationType.values.firstWhere(
-          (e) => e.code == code,
-      orElse: () => throw ArgumentError('Unknown NotificationType: $code'),
-    );
+    final type = tryFromCode(code);
+    if (type == null) {
+      throw ArgumentError('Unknown NotificationType: $code');
+    }
+    return type;
   }
 }
