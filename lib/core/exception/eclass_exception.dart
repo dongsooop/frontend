@@ -38,3 +38,9 @@ class EclassMalformedResponseException extends EclassException {
     super.message = 'Eclass 응답을 처리할 수 없어요. 잠시 후 다시 시도해 주세요.',
   ]);
 }
+
+class EclassCredentialsStorageException extends EclassException {
+  const EclassCredentialsStorageException([
+    super.message = 'Eclass 자동 로그인 정보를 처리할 수 없어요. 잠시 후 다시 시도해 주세요.',
+  ]);
+}
