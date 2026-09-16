@@ -259,6 +259,28 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 ),
                 const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),
 
+                NotificationSection(
+                  title: '이클래스',
+                  subtitle: '과제 마감과 일정 변경을 빠르게 알려드려요',
+                  children: [
+                    NotificationToggleRow(
+                      label: '과제 알림',
+                      value: state.isEnabled(
+                        NotificationTypes.eclassAssignment,
+                      ),
+                      loading: state.isLoading(
+                        NotificationTypes.eclassAssignment,
+                      ),
+                      onChanged: (v) => onToggle(
+                        label: '이클래스 과제',
+                        type: NotificationTypes.eclassAssignment,
+                        nextValue: v,
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),
+
                 if (user != null)
                   NotificationSection(
                     title: '모집 알림',

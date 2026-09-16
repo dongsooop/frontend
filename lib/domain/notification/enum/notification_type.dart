@@ -2,6 +2,7 @@ enum NotificationType {
   notice('NOTICE'),
   timetable('TIMETABLE'),
   calendar('CALENDAR'),
+  eclassAssignment('ECLASS_ASSIGNMENT'),
   chat('CHAT'),
 
   tutoringApplicant('RECRUITMENT_TUTORING_APPLY'),
