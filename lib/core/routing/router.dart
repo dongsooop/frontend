@@ -45,6 +45,7 @@ import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_more_screen.dart';
 import 'package:dongsoop/presentation/setting/device_management/device_management_screen.dart';
+import 'package:dongsoop/presentation/eclass/assignment/eclass_assignment_screen.dart';
 import 'package:dongsoop/presentation/eclass/link/eclass_link_screen.dart';
 import 'package:dongsoop/presentation/notification/notification_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
@@ -63,6 +64,7 @@ import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/restaurant_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -290,7 +292,20 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.eclassLink,
-      builder: (context, state) => const EclassLinkScreen(),
+      builder: (context, state) => EclassLinkScreen(
+        onTapAssignments: () {
+          context.push(RoutePaths.eclassAssignments);
+        },
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.eclassAssignments,
+      builder: (context, state) => EclassAssignmentScreen(
+        onTapLinkManagement: () async {
+          await context.push(RoutePaths.eclassLink);
+        },
+        onOpenAssignment: _openEclassAssignment,
+      ),
     ),
     GoRoute(
       path: RoutePaths.notification,
@@ -863,3 +878,18 @@ final router = GoRouter(
     return null;
   },
 );
+
+Future<bool> _openEclassAssignment(String rawUrl) async {
+  final uri = Uri.tryParse(rawUrl.trim());
+  if (uri == null ||
+      uri.scheme != 'https' ||
+      uri.host != 'eclass.dongyang.ac.kr') {
+    return false;
+  }
+
+  try {
+    return await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } catch (_) {
+    return false;
+  }
+}

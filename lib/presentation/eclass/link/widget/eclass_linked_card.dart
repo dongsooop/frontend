@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 class EclassLinkedCard extends StatelessWidget {
   final EclassLinkEntity link;
   final bool isUnlinking;
+  final VoidCallback onViewAssignments;
   final VoidCallback onUnlink;
 
   const EclassLinkedCard({
     super.key,
     required this.link,
     required this.isUnlinking,
+    required this.onViewAssignments,
     required this.onUnlink,
   });
 
@@ -92,6 +94,26 @@ class EclassLinkedCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          ElevatedButton(
+            key: const Key('eclass-view-assignments-button'),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size.fromHeight(44),
+              backgroundColor: ColorStyles.primary100,
+              disabledBackgroundColor: ColorStyles.gray2,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: isUnlinking ? null : onViewAssignments,
+            child: Text(
+              '과제 확인하기',
+              style: TextStyles.normalTextBold.copyWith(
+                color: ColorStyles.white,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           OutlinedButton(
             key: const Key('eclass-unlink-button'),
             style: OutlinedButton.styleFrom(

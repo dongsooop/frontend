@@ -12,7 +12,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class EclassLinkScreen extends HookConsumerWidget {
-  const EclassLinkScreen({super.key});
+  final VoidCallback onTapAssignments;
+
+  const EclassLinkScreen({
+    super.key,
+    required this.onTapAssignments,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -125,6 +130,7 @@ class EclassLinkScreen extends HookConsumerWidget {
                       EclassLinkedCard(
                         link: link!,
                         isUnlinking: state.isUnlinking,
+                        onViewAssignments: onTapAssignments,
                         onUnlink: () => _showUnlinkDialog(
                           context,
                           viewModel.unlink,
