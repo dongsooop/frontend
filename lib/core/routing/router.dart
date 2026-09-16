@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/core/routing/utils/eclass_assignment_link_launcher.dart';
 import 'package:dongsoop/domain/auth/enum/login_entry.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
@@ -64,7 +65,6 @@ import 'package:dongsoop/presentation/web_view/notice_web_view_screen.dart';
 import 'package:dongsoop/presentation/web_view/restaurant_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -304,7 +304,7 @@ final router = GoRouter(
         onTapLinkManagement: () async {
           await context.push(RoutePaths.eclassLink);
         },
-        onOpenAssignment: _openEclassAssignment,
+        onOpenAssignment: openEclassAssignmentLink,
       ),
     ),
     GoRoute(
@@ -878,18 +878,3 @@ final router = GoRouter(
     return null;
   },
 );
-
-Future<bool> _openEclassAssignment(String rawUrl) async {
-  final uri = Uri.tryParse(rawUrl.trim());
-  if (uri == null ||
-      uri.scheme != 'https' ||
-      uri.host != 'eclass.dongyang.ac.kr') {
-    return false;
-  }
-
-  try {
-    return await launchUrl(uri, mode: LaunchMode.externalApplication);
-  } catch (_) {
-    return false;
-  }
-}

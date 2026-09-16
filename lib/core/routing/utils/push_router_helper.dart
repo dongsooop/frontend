@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/core/routing/push_router.dart';
+import 'package:dongsoop/core/routing/utils/eclass_assignment_link_launcher.dart';
 
 class PushRouterHelper {
   static void goNextOrHome(BuildContext context) {
@@ -56,6 +57,25 @@ class PushRouterHelper {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
         context.push(RoutePaths.notificationList);
+      });
+
+      return;
+    }
+
+    if (pending.path == RoutePaths.eclassAssignments) {
+      final assignmentUrl = pending.extra is String
+          ? pending.extra as String
+          : null;
+      final appRouter = GoRouter.of(context);
+
+      appRouter.go(RoutePaths.home);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (assignmentUrl != null) {
+          final opened = await openEclassAssignmentLink(assignmentUrl);
+          if (opened) return;
+        }
+
+        appRouter.push(RoutePaths.eclassAssignments);
       });
 
       return;
