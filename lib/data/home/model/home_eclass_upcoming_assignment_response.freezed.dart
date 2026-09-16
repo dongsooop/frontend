@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'home_response.dart';
+part of 'home_eclass_upcoming_assignment_response.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,113 +13,110 @@ part of 'home_response.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$HomeResponse {
-  List<TimeTableItemResponse> get timeTableItems;
-  List<ScheduleItemResponse> get scheduleItems;
-  List<NewNoticeItemResponse> get newNoticeItems;
-  List<PopularRecruitItemResponse> get popularRecruitItems;
-  HomeEclassAssignmentResponse? get eclassAssignment;
+mixin _$HomeEclassUpcomingAssignmentResponse {
+  String get courseName;
+  String get title;
+  DateTime get dueAt;
+  int get dDay;
+  bool get submitted;
 
-  /// Create a copy of HomeResponse
+  /// Create a copy of HomeEclassUpcomingAssignmentResponse
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $HomeResponseCopyWith<HomeResponse> get copyWith =>
-      _$HomeResponseCopyWithImpl<HomeResponse>(
-          this as HomeResponse, _$identity);
+  $HomeEclassUpcomingAssignmentResponseCopyWith<
+          HomeEclassUpcomingAssignmentResponse>
+      get copyWith => _$HomeEclassUpcomingAssignmentResponseCopyWithImpl<
+              HomeEclassUpcomingAssignmentResponse>(
+          this as HomeEclassUpcomingAssignmentResponse, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is HomeResponse &&
-            const DeepCollectionEquality()
-                .equals(other.timeTableItems, timeTableItems) &&
-            const DeepCollectionEquality()
-                .equals(other.scheduleItems, scheduleItems) &&
-            const DeepCollectionEquality()
-                .equals(other.newNoticeItems, newNoticeItems) &&
-            const DeepCollectionEquality()
-                .equals(other.popularRecruitItems, popularRecruitItems) &&
-            (identical(other.eclassAssignment, eclassAssignment) ||
-                other.eclassAssignment == eclassAssignment));
+            other is HomeEclassUpcomingAssignmentResponse &&
+            (identical(other.courseName, courseName) ||
+                other.courseName == courseName) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.dueAt, dueAt) || other.dueAt == dueAt) &&
+            (identical(other.dDay, dDay) || other.dDay == dDay) &&
+            (identical(other.submitted, submitted) ||
+                other.submitted == submitted));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(timeTableItems),
-      const DeepCollectionEquality().hash(scheduleItems),
-      const DeepCollectionEquality().hash(newNoticeItems),
-      const DeepCollectionEquality().hash(popularRecruitItems),
-      eclassAssignment);
+  int get hashCode =>
+      Object.hash(runtimeType, courseName, title, dueAt, dDay, submitted);
 
   @override
   String toString() {
-    return 'HomeResponse(timeTableItems: $timeTableItems, scheduleItems: $scheduleItems, newNoticeItems: $newNoticeItems, popularRecruitItems: $popularRecruitItems, eclassAssignment: $eclassAssignment)';
+    return 'HomeEclassUpcomingAssignmentResponse(courseName: $courseName, title: $title, dueAt: $dueAt, dDay: $dDay, submitted: $submitted)';
   }
 }
 
 /// @nodoc
-abstract mixin class $HomeResponseCopyWith<$Res> {
-  factory $HomeResponseCopyWith(
-          HomeResponse value, $Res Function(HomeResponse) _then) =
-      _$HomeResponseCopyWithImpl;
+abstract mixin class $HomeEclassUpcomingAssignmentResponseCopyWith<$Res> {
+  factory $HomeEclassUpcomingAssignmentResponseCopyWith(
+          HomeEclassUpcomingAssignmentResponse value,
+          $Res Function(HomeEclassUpcomingAssignmentResponse) _then) =
+      _$HomeEclassUpcomingAssignmentResponseCopyWithImpl;
   @useResult
   $Res call(
-      {List<TimeTableItemResponse> timeTableItems,
-      List<ScheduleItemResponse> scheduleItems,
-      List<NewNoticeItemResponse> newNoticeItems,
-      List<PopularRecruitItemResponse> popularRecruitItems,
-      HomeEclassAssignmentResponse? eclassAssignment});
+      {String courseName,
+      String title,
+      DateTime dueAt,
+      int dDay,
+      bool submitted});
 }
 
 /// @nodoc
-class _$HomeResponseCopyWithImpl<$Res> implements $HomeResponseCopyWith<$Res> {
-  _$HomeResponseCopyWithImpl(this._self, this._then);
+class _$HomeEclassUpcomingAssignmentResponseCopyWithImpl<$Res>
+    implements $HomeEclassUpcomingAssignmentResponseCopyWith<$Res> {
+  _$HomeEclassUpcomingAssignmentResponseCopyWithImpl(this._self, this._then);
 
-  final HomeResponse _self;
-  final $Res Function(HomeResponse) _then;
+  final HomeEclassUpcomingAssignmentResponse _self;
+  final $Res Function(HomeEclassUpcomingAssignmentResponse) _then;
 
-  /// Create a copy of HomeResponse
+  /// Create a copy of HomeEclassUpcomingAssignmentResponse
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? timeTableItems = null,
-    Object? scheduleItems = null,
-    Object? newNoticeItems = null,
-    Object? popularRecruitItems = null,
-    Object? eclassAssignment = freezed,
+    Object? courseName = null,
+    Object? title = null,
+    Object? dueAt = null,
+    Object? dDay = null,
+    Object? submitted = null,
   }) {
-    return _then(HomeResponse(
-      timeTableItems: null == timeTableItems
-          ? _self.timeTableItems
-          : timeTableItems // ignore: cast_nullable_to_non_nullable
-              as List<TimeTableItemResponse>,
-      scheduleItems: null == scheduleItems
-          ? _self.scheduleItems
-          : scheduleItems // ignore: cast_nullable_to_non_nullable
-              as List<ScheduleItemResponse>,
-      newNoticeItems: null == newNoticeItems
-          ? _self.newNoticeItems
-          : newNoticeItems // ignore: cast_nullable_to_non_nullable
-              as List<NewNoticeItemResponse>,
-      popularRecruitItems: null == popularRecruitItems
-          ? _self.popularRecruitItems
-          : popularRecruitItems // ignore: cast_nullable_to_non_nullable
-              as List<PopularRecruitItemResponse>,
-      eclassAssignment: freezed == eclassAssignment
-          ? _self.eclassAssignment
-          : eclassAssignment // ignore: cast_nullable_to_non_nullable
-              as HomeEclassAssignmentResponse?,
+    return _then(HomeEclassUpcomingAssignmentResponse(
+      courseName: null == courseName
+          ? _self.courseName
+          : courseName // ignore: cast_nullable_to_non_nullable
+              as String,
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      dueAt: null == dueAt
+          ? _self.dueAt
+          : dueAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      dDay: null == dDay
+          ? _self.dDay
+          : dDay // ignore: cast_nullable_to_non_nullable
+              as int,
+      submitted: null == submitted
+          ? _self.submitted
+          : submitted // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
 
-/// Adds pattern-matching-related methods to [HomeResponse].
-extension HomeResponsePatterns on HomeResponse {
+/// Adds pattern-matching-related methods to [HomeEclassUpcomingAssignmentResponse].
+extension HomeEclassUpcomingAssignmentResponsePatterns
+    on HomeEclassUpcomingAssignmentResponse {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
