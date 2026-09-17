@@ -2,6 +2,7 @@ import 'package:dongsoop/core/storage/firebase_messaging_service.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
+import 'package:dongsoop/providers/eclass_link_restore_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final deviceControllerProvider = Provider((ref) => DeviceController(ref));
@@ -29,6 +30,10 @@ class DeviceController {
     fms.setReadCallback((id) async {
       await readNotification(id);
     });
+
+    fms.setEclassRelinkCallback(() async {
+      await _ref.read(eclassLinkRestoreControllerProvider).restoreIfExpired();
+    });
     fms.init(localNotificationsService: lns);
 
     _ref.listen(notificationBadgeViewModelProvider, (prev, next) {
@@ -52,12 +57,28 @@ class DeviceController {
     final now = DateTime.now();
     if (!force &&
         _lastBadgeRefreshAt != null &&
-        now.difference(_lastBadgeRefreshAt!) < const Duration(milliseconds: 350)) {
+        now.difference(_lastBadgeRefreshAt!) <
+            const Duration(milliseconds: 350)) {
       return;
     }
     _lastBadgeRefreshAt = now;
     try {
-      await _ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: force);
+      await _ref
+          .read(notificationBadgeViewModelProvider.notifier)
+          .refreshBadge(force: force);
+    } catch (_) {}
+  }
+
+  Future<void> handleAppResumed() async {
+    await refreshBadge(force: false);
+
+    try {
+      final refreshRequired = await _ref
+          .read(eclassRelinkRefreshStoreProvider)
+          .consumeRefreshRequired();
+      if (refreshRequired) {
+        invalidateEclassPresentationProviders(_ref);
+      }
     } catch (_) {}
   }
 }

@@ -1,3 +1,9 @@
+const eclassRelinkPushType = 'ECLASS_RELINK';
+
+bool isEclassRelinkPush(Object? type) {
+  return type?.toString().trim().toUpperCase() == eclassRelinkPushType;
+}
+
 class PushPayload {
   final String type;
   final String? value;
