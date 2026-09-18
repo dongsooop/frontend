@@ -62,14 +62,13 @@ class HomeEclassAssignmentCard extends StatelessWidget {
                           key: const Key('home-eclass-assignment-count'),
                           style: TextStyles.smallTextRegular.copyWith(
                             color: ColorStyles.gray4,
-                            fontSize: 13,
                           ),
                         ),
                         const SizedBox(width: 8),
                         const Icon(
                           Icons.chevron_right,
-                          size: 20,
-                          color: ColorStyles.gray4,
+                          size: 16,
+                          color: ColorStyles.gray5,
                         ),
                       ],
                     ],
@@ -137,27 +136,27 @@ class _HomeEclassAssignmentSummary extends StatelessWidget {
       children: [
         Container(
           constraints: const BoxConstraints(minWidth: 52),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: badgeColors.background,
-            borderRadius: BorderRadius.circular(9),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             formatEclassDDay(assignment.dDay),
             key: const Key('home-eclass-assignment-dday'),
             style: TextStyles.smallTextBold.copyWith(
               color: badgeColors.foreground,
-              fontSize: 13,
             ),
           ),
         ),
-        const SizedBox(width: 11),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     child: Text(
@@ -166,17 +165,16 @@ class _HomeEclassAssignmentSummary extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyles.smallTextRegular.copyWith(
                         color: ColorStyles.gray4,
-                        fontSize: 13,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   EclassSubmissionBadge(
                     submitted: assignment.submitted,
                   ),
                 ],
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 assignment.title,
                 maxLines: 1,
@@ -189,8 +187,7 @@ class _HomeEclassAssignmentSummary extends StatelessWidget {
               Text(
                 formatEclassDueAt(assignment.dueAt, assignment.dDay),
                 style: TextStyles.smallTextRegular.copyWith(
-                  color: ColorStyles.gray5,
-                  fontSize: 13,
+                  color: ColorStyles.gray4,
                 ),
               ),
             ],
@@ -228,18 +225,17 @@ class _HomeEclassMessage extends StatelessWidget {
             color: isWarning ? ColorStyles.warning100 : ColorStyles.gray6,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               action,
-              style: TextStyles.normalTextBold.copyWith(
+              style: TextStyles.smallTextBold.copyWith(
                 color: ColorStyles.primary100,
-                fontSize: 14,
               ),
             ),
-            const SizedBox(width: 2),
+            const SizedBox(width: 4),
             const Icon(
               Icons.chevron_right,
               size: 16,

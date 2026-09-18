@@ -40,7 +40,7 @@ class EclassLinkedCard extends StatelessWidget {
                 ),
                 child: const Icon(
                   Icons.check,
-                  size: 22,
+                  size: 24,
                   color: ColorStyles.primary100,
                 ),
               ),
@@ -55,7 +55,7 @@ class EclassLinkedCard extends StatelessWidget {
                         color: ColorStyles.black,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
                     Text(
                       link.moodleFullname ?? '이클래스 사용자',
                       style: TextStyles.normalTextRegular.copyWith(

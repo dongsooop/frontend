@@ -7,8 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final eclassAssignmentListViewModelProvider = StateNotifierProvider.autoDispose<
     EclassAssignmentListViewModel, EclassAssignmentListState>((ref) {
   return EclassAssignmentListViewModel(
-    ref.watch(getEclassAssignmentsUseCaseProvider),
-    ref.watch(syncEclassAssignmentsUseCaseProvider),
+    ref.watch(syncAndGetEclassAssignmentsUseCaseProvider),
     ref.watch(getFidUseCaseProvider),
     ref.watch(getFcmTokenUseCaseProvider),
   );
