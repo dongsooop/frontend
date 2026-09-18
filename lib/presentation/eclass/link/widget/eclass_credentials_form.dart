@@ -166,6 +166,7 @@ class _EclassTextField extends StatelessWidget {
         textInputAction: textInputAction,
         autofillHints: autofillHints,
         onChanged: onChanged,
+        textAlignVertical: TextAlignVertical.center,
         onFieldSubmitted: onSubmitted,
         cursorColor: ColorStyles.gray4,
         style: TextStyles.normalTextRegular.copyWith(

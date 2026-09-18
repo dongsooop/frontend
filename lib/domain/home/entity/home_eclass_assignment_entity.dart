@@ -35,9 +35,18 @@ class HomeEclassAssignmentEntity {
 
   bool get isExpired => linked && status == EclassLinkStatus.expired;
 
+  int get assignmentCount =>
+      upcomingCount +
+      upcoming.where((assignment) => assignment.submitted).length;
+
   bool get hasAssignments =>
-      linked && status == EclassLinkStatus.active && upcomingCount > 0;
+      linked &&
+      status == EclassLinkStatus.active &&
+      (assignmentCount > 0 || primaryAssignment != null);
 
   bool get hasNoAssignments =>
-      linked && status == EclassLinkStatus.active && upcomingCount == 0;
+      linked &&
+      status == EclassLinkStatus.active &&
+      upcomingCount == 0 &&
+      primaryAssignment == null;
 }

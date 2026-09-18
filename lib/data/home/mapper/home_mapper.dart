@@ -92,16 +92,6 @@ extension HomeEclassAssignmentResponseMapper on HomeEclassAssignmentResponse {
     if (upcomingCount < 0 || mappedUpcoming.length > 3) {
       throw const FormatException('Invalid home Eclass assignment count.');
     }
-    if (mappedUpcoming.any((assignment) => assignment.submitted)) {
-      throw const FormatException(
-        'Home Eclass response contains a submitted assignment.',
-      );
-    }
-    if (mappedUpcoming.length > upcomingCount) {
-      throw const FormatException(
-        'Home Eclass response has more summaries than assignments.',
-      );
-    }
     if ((!linked || mappedStatus == EclassLinkStatus.expired) &&
         (upcomingCount != 0 || mappedUpcoming.isNotEmpty)) {
       throw const FormatException(
@@ -112,11 +102,6 @@ extension HomeEclassAssignmentResponseMapper on HomeEclassAssignmentResponse {
     final legacyAssignment = _legacyAssignmentOrNull();
     final primaryAssignment =
         mappedUpcoming.isNotEmpty ? mappedUpcoming.first : legacyAssignment;
-    if (upcomingCount == 0 && primaryAssignment != null) {
-      throw const FormatException(
-        'Home Eclass response has a summary without assignments.',
-      );
-    }
 
     return HomeEclassAssignmentEntity(
       linked: linked,

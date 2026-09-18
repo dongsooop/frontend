@@ -1,5 +1,6 @@
 import 'package:dongsoop/domain/eclass/entity/eclass_assignment_entity.dart';
 import 'package:dongsoop/presentation/eclass/assignment/eclass_assignment_formatters.dart';
+import 'package:dongsoop/presentation/eclass/assignment/widget/eclass_submission_badge.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -50,15 +51,26 @@ class EclassAssignmentCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      assignment.courseName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyles.smallTextRegular.copyWith(
-                        color: ColorStyles.gray4,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            assignment.courseName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyles.smallTextRegular.copyWith(
+                              color: ColorStyles.gray4,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        EclassSubmissionBadge(
+                          submitted: assignment.submitted,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       assignment.title,
                       maxLines: 2,

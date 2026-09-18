@@ -96,7 +96,7 @@ class EclassAssignmentScreen extends HookConsumerWidget {
                           children: [
                             if (showAssignments) ...[
                               Text(
-                                '남은 과제 ${assignments.length}개',
+                                '과제가 ${assignments.length}개 남았어요',
                                 style: TextStyles.titleTextBold.copyWith(
                                   color: ColorStyles.black,
                                 ),

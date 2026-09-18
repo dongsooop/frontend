@@ -1,5 +1,6 @@
 import 'package:dongsoop/domain/home/entity/home_eclass_assignment_entity.dart';
 import 'package:dongsoop/presentation/eclass/assignment/eclass_assignment_formatters.dart';
+import 'package:dongsoop/presentation/eclass/assignment/widget/eclass_submission_badge.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -55,9 +56,9 @@ class HomeEclassAssignmentCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (assignment.upcomingCount > 0) ...[
+                      if (assignment.hasAssignments) ...[
                         Text(
-                          '${assignment.upcomingCount}건',
+                          '${assignment.assignmentCount}건',
                           key: const Key('home-eclass-assignment-count'),
                           style: TextStyles.smallTextRegular.copyWith(
                             color: ColorStyles.gray4,
@@ -65,12 +66,12 @@ class HomeEclassAssignmentCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
+                        const Icon(
+                          Icons.chevron_right,
+                          size: 20,
+                          color: ColorStyles.gray4,
+                        ),
                       ],
-                      const Icon(
-                        Icons.chevron_right,
-                        size: 20,
-                        color: ColorStyles.gray4,
-                      ),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -156,14 +157,24 @@ class _HomeEclassAssignmentSummary extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                assignment.courseName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: ColorStyles.gray4,
-                  fontSize: 13,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      assignment.courseName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyles.smallTextRegular.copyWith(
+                        color: ColorStyles.gray4,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  EclassSubmissionBadge(
+                    submitted: assignment.submitted,
+                  ),
+                ],
               ),
               const SizedBox(height: 2),
               Text(
