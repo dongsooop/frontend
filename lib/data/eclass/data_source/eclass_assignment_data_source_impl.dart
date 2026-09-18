@@ -135,7 +135,6 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
       final body = const JsonEncoder.withIndent('  ').convert(data);
       debugPrint('[EclassAssignments] response body:\n$body');
     } catch (error) {
-      debugPrint('[EclassAssignments] response body encode failed: $error');
     }
   }
 }

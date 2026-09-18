@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/eclass/entity/eclass_assignment_entity.dart';
 import 'package:dongsoop/presentation/eclass/assignment/widget/eclass_assignment_card.dart';
@@ -24,11 +26,54 @@ class EclassAssignmentScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.read(eclassAssignmentListViewModelProvider.notifier);
     final state = ref.watch(eclassAssignmentListViewModelProvider);
+    final isAssignmentLaunchPending = useRef(false);
+    final didAssignmentLaunchSucceed = useRef(false);
+    final didLeaveForeground = useRef(false);
+    final didReturnToForeground = useRef(false);
+
+    void clearAssignmentLaunchState() {
+      isAssignmentLaunchPending.value = false;
+      didAssignmentLaunchSucceed.value = false;
+      didLeaveForeground.value = false;
+      didReturnToForeground.value = false;
+    }
+
+    void refreshAfterAssignmentReturn() {
+      clearAssignmentLaunchState();
+      unawaited(viewModel.refresh());
+    }
 
     useEffect(() {
       Future.microtask(viewModel.load);
       return null;
     }, const []);
+
+    useEffect(() {
+      final listener = AppLifecycleListener(
+        onStateChange: (lifecycleState) {
+          if (!isAssignmentLaunchPending.value) return;
+
+          final leftForeground = lifecycleState == AppLifecycleState.hidden ||
+              lifecycleState == AppLifecycleState.paused ||
+              lifecycleState == AppLifecycleState.detached;
+          if (leftForeground) {
+            didLeaveForeground.value = true;
+            return;
+          }
+
+          if (lifecycleState != AppLifecycleState.resumed ||
+              !didLeaveForeground.value) {
+            return;
+          }
+
+          didReturnToForeground.value = true;
+          if (didAssignmentLaunchSucceed.value) {
+            refreshAfterAssignmentReturn();
+          }
+        },
+      );
+      return listener.dispose;
+    }, [viewModel]);
 
     useEffect(() {
       final message = state.actionError;
@@ -51,8 +96,22 @@ class EclassAssignmentScreen extends HookConsumerWidget {
     }
 
     Future<void> openAssignment(EclassAssignmentEntity assignment) async {
+      isAssignmentLaunchPending.value = true;
+      didAssignmentLaunchSucceed.value = false;
+      didLeaveForeground.value = false;
+      didReturnToForeground.value = false;
+
       final opened = await onOpenAssignment(assignment.link);
-      if (!context.mounted || opened) return;
+      if (opened) {
+        didAssignmentLaunchSucceed.value = true;
+        if (didReturnToForeground.value) {
+          refreshAfterAssignmentReturn();
+        }
+        return;
+      }
+
+      clearAssignmentLaunchState();
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
