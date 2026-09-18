@@ -10,9 +10,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
-  final Dio _plainDio;
+  final Dio _dio;
 
-  EclassAssignmentDataSourceImpl(this._plainDio);
+  EclassAssignmentDataSourceImpl(this._dio);
 
   @override
   Future<EclassAssignmentsResponse> getAssignments({
@@ -22,7 +22,7 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
     final endpoint = dotenv.get('ECLASS_ASSIGNMENTS_ENDPOINT');
 
     try {
-      final response = await _plainDio.get(
+      final response = await _dio.get(
         endpoint,
         options: buildEclassDeviceRequestOptions(
           fid: fid,
@@ -67,7 +67,7 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
     final endpoint = dotenv.get('ECLASS_SYNC_ENDPOINT');
 
     try {
-      final response = await _plainDio.post(
+      final response = await _dio.post(
         endpoint,
         options: buildEclassDeviceRequestOptions(
           fid: fid,
@@ -134,7 +134,6 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
     try {
       final body = const JsonEncoder.withIndent('  ').convert(data);
       debugPrint('[EclassAssignments] response body:\n$body');
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 }

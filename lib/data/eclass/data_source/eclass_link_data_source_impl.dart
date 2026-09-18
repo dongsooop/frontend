@@ -8,9 +8,9 @@ import 'package:dongsoop/data/eclass/model/eclass_link_response.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EclassLinkDataSourceImpl implements EclassLinkDataSource {
-  final Dio _plainDio;
+  final Dio _dio;
 
-  EclassLinkDataSourceImpl(this._plainDio);
+  EclassLinkDataSourceImpl(this._dio);
 
   @override
   Future<EclassLinkResponse> link({
@@ -21,7 +21,7 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
     final endpoint = dotenv.get('ECLASS_LINK_ENDPOINT');
 
     try {
-      final response = await _plainDio.post(
+      final response = await _dio.post(
         endpoint,
         data: request.toJson(),
         options: buildEclassDeviceRequestOptions(
@@ -54,7 +54,7 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
     final endpoint = dotenv.get('ECLASS_LINK_ENDPOINT');
 
     try {
-      final response = await _plainDio.get(
+      final response = await _dio.get(
         endpoint,
         options: buildEclassDeviceRequestOptions(
           fid: fid,
@@ -86,7 +86,7 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
     final endpoint = dotenv.get('ECLASS_LINK_ENDPOINT');
 
     try {
-      final response = await _plainDio.delete(
+      final response = await _dio.delete(
         endpoint,
         options: buildEclassDeviceRequestOptions(
           fid: fid,

@@ -6,5 +6,8 @@ abstract class DeviceTokenRepository {
   Future<String?> getFcmToken();
   Future<String?> getFid();
   Stream<String> tokenStreamWithInitial();
-  Future<FailureType?> registerDeviceToken(DeviceTokenRequest request);
+  Future<FailureType?> registerDeviceToken(
+    DeviceTokenRequest request, {
+    bool force = false,
+  });
 }

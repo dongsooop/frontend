@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'dart:io' show Platform;
+import 'package:dongsoop/core/utils/current_device_type.dart';
 import 'package:dongsoop/providers/splash_providers.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:dongsoop/domain/report/model/report_sanction_status.dart';
 import 'package:dongsoop/domain/report/use_case/get_sanction_status_use_case.dart';
@@ -25,7 +24,7 @@ class SplashViewModel extends StateNotifier<SplashState> {
     this._loadUserUseCase,
     this._getSanctionStatusUseCase,
     this._ref,
-    ) : super(SplashState(isLoading: true, isSuccessed: false)) {
+  ) : super(SplashState(isLoading: true, isSuccessed: false)) {
     _ref.onDispose(() async {
       await _fcmSub?.cancel();
       _fcmSub = null;
@@ -79,24 +78,33 @@ class SplashViewModel extends StateNotifier<SplashState> {
   /// 회원/비회원 구분 없이 앱 실행마다(첫 설치·업데이트 포함) fid/deviceToken을
   /// 서버에 등록한다. 로그인 상태면 인증된 채널로 나가 기존 회원 기기에 fid가
   /// 백필되고, 비로그인이면 기존과 동일하게 비회원 기기로 등록/갱신된다.
-  Future<String?> requestDeviceTokenPreAuthOnce({Duration? tokenTimeout}) async {
+  Future<String?> requestDeviceTokenPreAuthOnce(
+      {Duration? tokenTimeout}) async {
     try {
       await _ensureFcmInitialized();
-      final stream = _ref.read(observeFcmTokenUseCaseProvider).execute()
-          .where((t) => t.isNotEmpty).distinct();
+      final stream = _ref
+          .read(observeFcmTokenUseCaseProvider)
+          .execute()
+          .where((t) => t.isNotEmpty)
+          .distinct();
 
       final token = tokenTimeout == null
           ? await stream.first
           : await stream.first.timeout(tokenTimeout);
       final fid = await _ref.read(getFidUseCaseProvider).execute();
-      final failure = await _ref.read(registerDeviceTokenUseCaseProvider).execute(
-        DeviceTokenRequest(deviceToken: token, fid: fid, type: _deviceType()),
-      );
+      final failure =
+          await _ref.read(registerDeviceTokenUseCaseProvider).execute(
+                DeviceTokenRequest(
+                  deviceToken: token,
+                  fid: fid,
+                  type: currentDeviceType(),
+                ),
+              );
       if (failure == null) return null;
 
       return switch (failure) {
         FailureType.permissionDenied => '앱 알림 권한이 꺼져 있어 알림을 받을 수 없어요',
-        FailureType.registerFailed   => '알림 설정에 실패했어요. 잠시 후 다시 시도해주세요',
+        FailureType.registerFailed => '알림 설정에 실패했어요. 잠시 후 다시 시도해주세요',
       };
     } catch (_) {
       return '일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요';
@@ -137,7 +145,7 @@ class SplashViewModel extends StateNotifier<SplashState> {
       await _registerOnce(DeviceTokenRequest(
         deviceToken: token,
         fid: fid,
-        type: _deviceType(),
+        type: currentDeviceType(),
       ));
     }, onError: (_, __) {
       _emitTransientErrorMessage('일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요');
@@ -145,24 +153,18 @@ class SplashViewModel extends StateNotifier<SplashState> {
   }
 
   Future<void> _registerOnce(DeviceTokenRequest req) async {
-    final failure = await _ref.read(registerDeviceTokenUseCaseProvider).execute(req);
+    final failure =
+        await _ref.read(registerDeviceTokenUseCaseProvider).execute(req);
     if (failure == null) return;
 
     final message = switch (failure) {
       FailureType.permissionDenied => '앱 알림 권한이 꺼져 있어 알림을 받을 수 없어요',
-      FailureType.registerFailed   => '알림 설정에 실패했어요. 잠시 후 다시 시도해주세요',
+      FailureType.registerFailed => '알림 설정에 실패했어요. 잠시 후 다시 시도해주세요',
     };
     _emitTransientErrorMessage(message);
   }
 
   void _emitTransientErrorMessage(String message) {
     _ref.read(fcmSnackMessageProvider.notifier).state = message;
-  }
-
-  String _deviceType() {
-    if (kIsWeb) return 'WEB';
-    if (Platform.isIOS) return 'IOS';
-    if (Platform.isAndroid) return 'ANDROID';
-    return 'UNKNOWN';
   }
 }

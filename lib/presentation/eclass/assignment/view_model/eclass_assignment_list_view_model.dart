@@ -18,6 +18,7 @@ class EclassAssignmentListViewModel
   ) : super(EclassAssignmentListState.initial());
 
   Future<void> load() async {
+    if (!mounted) return;
     state = state.copyWith(
       isInitialLoading: true,
       loadError: null,
@@ -26,16 +27,21 @@ class EclassAssignmentListViewModel
 
     try {
       final identity = await _getDeviceIdentity();
+      if (!mounted) return;
+
       final result = await _syncAndGetEclassAssignmentsUseCase.execute(
         fid: identity.fid,
         deviceToken: identity.deviceToken,
       );
+      if (!mounted) return;
+
       state = state.copyWith(
         isInitialLoading: false,
         result: result,
         loadError: null,
       );
     } catch (error) {
+      if (!mounted) return;
       state = state.copyWith(
         isInitialLoading: false,
         result: null,
@@ -48,6 +54,7 @@ class EclassAssignmentListViewModel
   }
 
   Future<void> refresh() async {
+    if (!mounted) return;
     if (state.isInitialLoading || state.isRefreshing) return;
     if (state.result == null) {
       await load();
@@ -61,15 +68,20 @@ class EclassAssignmentListViewModel
 
     try {
       final identity = await _getDeviceIdentity();
+      if (!mounted) return;
+
       final result = await _syncAndGetEclassAssignmentsUseCase.execute(
         fid: identity.fid,
         deviceToken: identity.deviceToken,
       );
+      if (!mounted) return;
+
       state = state.copyWith(
         isRefreshing: false,
         result: result,
       );
     } catch (error) {
+      if (!mounted) return;
       state = state.copyWith(
         isRefreshing: false,
         actionError: _messageFor(
@@ -81,6 +93,7 @@ class EclassAssignmentListViewModel
   }
 
   void clearActionError() {
+    if (!mounted) return;
     if (state.actionError == null) return;
     state = state.copyWith(actionError: null);
   }

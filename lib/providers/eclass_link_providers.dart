@@ -8,7 +8,7 @@ import 'package:dongsoop/domain/eclass/repository/eclass_link_repository.dart';
 import 'package:dongsoop/domain/eclass/use_case/get_eclass_link_use_case.dart';
 import 'package:dongsoop/domain/eclass/use_case/link_eclass_use_case.dart';
 import 'package:dongsoop/domain/eclass/use_case/unlink_eclass_use_case.dart';
-import 'package:dongsoop/providers/plain_dio.dart';
+import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final eclassTokenDioProvider = Provider<Dio>((ref) => Dio());
@@ -18,7 +18,7 @@ final eclassTokenDataSourceProvider = Provider<EclassTokenDataSource>((ref) {
 });
 
 final eclassLinkDataSourceProvider = Provider<EclassLinkDataSource>((ref) {
-  return EclassLinkDataSourceImpl(ref.watch(plainDioProvider));
+  return EclassLinkDataSourceImpl(ref.watch(authDioProvider));
 });
 
 final eclassLinkRepositoryProvider = Provider<EclassLinkRepository>((ref) {
