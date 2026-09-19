@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_models.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_painter.dart';
@@ -114,6 +116,19 @@ class _MapStageState extends State<_MapStage> {
           builder: (context, constraints) {
             final stageSide = constraints.maxWidth;
             final boardWidth = stageSide * _MapStage.boardScale;
+            // 최대한 축소하면 지도 가로 전체가 무대 너비에 맞는다.
+            const minMapWidthRatio = 1.0;
+            const minMapScale = minMapWidthRatio / _MapStage.boardScale;
+            // 음수 여백으로 지도 양끝의 이동 범위가 잘리지 않도록 한다.
+            final horizontalMargin = math.max(
+              0.0,
+              (stageSide / minMapScale - boardWidth) / 2,
+            );
+            final verticalMargin = math.max(
+              0.0,
+              (stageSide / minMapScale - stageSide) / 2,
+            );
+
             // 처음에는 정문 쪽(1호관)이 보이도록 오른쪽 끝에 맞춘다.
             if (!_didAlign) {
               _didAlign = true;
@@ -125,18 +140,21 @@ class _MapStageState extends State<_MapStage> {
               child: InteractiveViewer(
                 transformationController: _controller,
                 constrained: false,
-                minScale: 1,
+                minScale: minMapScale,
                 maxScale: 4,
-                // 여백을 두지 않아야 지도가 무대 밖으로 밀려나지 않는다.
-                boundaryMargin: EdgeInsets.zero,
+                // 최소 배율에 필요한 만큼만 가로·세로 경계 여백을 허용한다.
+                boundaryMargin: EdgeInsets.symmetric(
+                  horizontal: horizontalMargin,
+                  vertical: verticalMargin,
+                ),
                 child: SizedBox(
                   width: boardWidth,
                   height: stageSide,
                   child: Center(
                     child: SizedBox(
                       width: boardWidth,
-                      height: boardWidth /
-                          CampusMapGeometry.sourceSize.aspectRatio,
+                      height:
+                          boardWidth / CampusMapGeometry.sourceSize.aspectRatio,
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTapDown: (details) => _handleTap(
