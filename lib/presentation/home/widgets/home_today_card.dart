@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -55,7 +56,7 @@ class _HomeTodayCardState extends State<HomeTodayCard> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 13, 12),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: Row(
                 children: [
                   Container(
@@ -71,7 +72,7 @@ class _HomeTodayCardState extends State<HomeTodayCard> {
                       color: _accent,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       '오늘의 캠퍼스',
@@ -80,33 +81,44 @@ class _HomeTodayCardState extends State<HomeTodayCard> {
                       ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => context.push(
-                      isClassSelected
-                          ? RoutePaths.timetable
-                          : RoutePaths.schedule,
-                    ),
-                    style: TextButton.styleFrom(
-                      foregroundColor: ColorStyles.gray5,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 5,
-                        vertical: 7,
+                  if (!isClassSelected || !widget.isLoggedOut)
+                    TextButton(
+                      onPressed: () {
+                        isClassSelected
+                            ? context.push(RoutePaths.timetable)
+                            : context.push(RoutePaths.schedule);
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: ColorStyles.gray5,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 8,
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      '전체보기 ›',
-                      style: TextStyles.smallTextBold.copyWith(
-                        color: ColorStyles.gray5,
+                      child: Row(
+                        children: [
+                          Text(
+                            '전체보기',
+                            style: TextStyles.smallTextRegular.copyWith(
+                              color: ColorStyles.gray4,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.chevron_right,
+                            size: 16,
+                            color: ColorStyles.gray5,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
                 height: 50,
                 padding: const EdgeInsets.all(4),
@@ -233,9 +245,18 @@ class _ClassContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return _EmptyState(
-        icon: isLoggedOut ? Icons.lock_outline_rounded : Icons.weekend_outlined,
-        message: isLoggedOut ? '로그인하면 오늘 수업을 볼 수 있어요' : '오늘은 수업이 없어요',
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () async {
+          if (isLoggedOut) {
+            await LoginRequiredDialog(context);
+            return;
+          }
+        },
+        child: _EmptyState(
+          icon: isLoggedOut ? Icons.lock_outline_rounded : Icons.weekend_outlined,
+          message: isLoggedOut ? '로그인하면 오늘 수업을 볼 수 있어요' : '오늘은 수업이 없어요',
+        ),
       );
     }
 

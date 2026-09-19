@@ -64,7 +64,7 @@ class HomeEclassAssignmentCard extends StatelessWidget {
                             color: ColorStyles.gray4,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 4),
                         const Icon(
                           Icons.chevron_right,
                           size: 16,
