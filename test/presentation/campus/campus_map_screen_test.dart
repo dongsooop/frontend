@@ -4,6 +4,8 @@ import 'package:dongsoop/presentation/campus/campus_map_screen.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_models.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_painter.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_preview.dart';
+import 'package:dongsoop/presentation/campus/widgets/campus_map_search.dart';
+import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -138,7 +140,8 @@ void main() {
     await tester.tapAt(center + const Offset(19, 0));
     await tester.pumpAndSettle();
     expect(find.text('운동장쪽 흡연구역'), findsNWidgets(2));
-    expect(find.text('운동장 왼편, 농구장 아래'), findsOneWidget);
+    expect(find.text(CampusMapGeometry.smokingAreas.last.location),
+        findsOneWidget);
     expect(find.text('층별 시설'), findsNothing);
     expect(
       (tester.widget<CustomPaint>(_mapPaint).painter! as CampusMapPainter)
@@ -176,7 +179,11 @@ void main() {
     );
     expect(_controller(tester).value.getMaxScaleOnAxis(), greaterThan(1));
     expect(find.byKey(const ValueKey('smoking-area-label')), findsNothing);
-    expect(find.text('1호관을 선택했어요'), findsOneWidget);
+    expect(
+      (tester.widget<CustomPaint>(_mapPaint).painter! as CampusMapPainter)
+          .selectedBuildingId,
+      '1',
+    );
 
     final before = _controller(tester).value.getTranslation().x;
     final center = tester.getCenter(_marker('haeutteul'));
@@ -230,6 +237,171 @@ void main() {
     ));
     await tester.tapAt(tester.getCenter(_marker('haeutteul')));
     expect(opened, isTrue);
+    expect(tester.takeException(), isNull);
+  }, variant: platforms);
+
+  test('검색은 띄어쓰기와 대소문자를 무시하고 중복 시설을 건물과 층으로 구분한다', () {
+    for (final query in ['DM Lab', 'dmlab', ' D M LAB ']) {
+      final result = CampusMapSearch.find(query).single;
+      expect(result.building!.id, '5');
+      expect(result.floor!.name, '3F');
+      expect(result.facilities, ['DM Lab']);
+    }
+    final duplicates = CampusMapSearch.find('실험실습실');
+    expect(duplicates.length, 17);
+    expect(duplicates.map((result) => result.building!.id).toSet(),
+        {'3', '4', '5', '6', '7'});
+    expect(duplicates.map((result) => result.location).toSet().length, 17);
+    final filtered = CampusMapSearch.find('5호관 실험실습실').single;
+    expect(filtered.location, '5호관 · 2F');
+    expect(CampusMapSearch.find('  '), isEmpty);
+    expect(CampusMapSearch.find('없는시설이름'), isEmpty);
+    expect(CampusMapSearch.find('DMMC').single.floor, isNull);
+    expect(CampusMapSearch.find('해우뜰').single.smokingArea!.id, 'haeutteul');
+  });
+
+  testWidgets('빈 검색창과 공백은 지도를 표시하고 검색어를 지워도 지도 배율을 유지한다', (tester) async {
+    await _pumpMap(tester);
+    await _zoomOut(tester);
+    final controller = _controller(tester);
+    final transform = controller.value.clone();
+    await tester.tap(find.byType(TextField));
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), '없는시설이름');
+    await tester.pumpAndSettle();
+    expect(find.text('일치하는 시설이 없어요'), findsOneWidget);
+    expect(find.byType(InteractiveViewer), findsNothing);
+    await tester.tap(find.byTooltip('검색어 지우기'));
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(_controller(tester), same(controller));
+    expect(_controller(tester).value, transform);
+
+    await tester.enterText(find.byType(TextField), 'DM Lab');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '');
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    await tester.enterText(find.byType(TextField), '   ');
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }, variant: platforms);
+
+  testWidgets('단일 검색을 확정하면 건물을 가운데 표시하고 해당 시설과 층을 강조한다', (tester) async {
+    await _pumpMap(tester);
+    await tester.enterText(find.byType(TextField), 'dmlab');
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsNothing);
+    expect(find.text('DM Lab'), findsOneWidget);
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+
+    expect(find.text('5호관 · 3F'), findsOneWidget);
+    final building =
+        CampusMapGeometry.buildings.firstWhere((item) => item.id == '5');
+    final center = tester.getCenter(find.byType(InteractiveViewer));
+    expect((_sourceToGlobal(tester, building.label) - center).distance,
+        lessThan(0.1));
+    expect(find.byKey(const ValueKey('campus-floor-3F')), findsOneWidget);
+    expect(find.byKey(const ValueKey('campus-floor-2F')), findsNothing);
+    final facility = tester.widget<Container>(
+        find.byKey(const ValueKey('campus-facility-3F-DM Lab')));
+    expect((facility.decoration! as BoxDecoration).border!.top.color,
+        ColorStyles.primary100);
+
+    await tester.ensureVisible(find.text('전체 4개 층 보기'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('전체 4개 층 보기'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('campus-floor-2F')), findsOneWidget);
+    await tester.ensureVisible(find.text('검색한 층만 보기'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('검색한 층만 보기'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('campus-floor-2F')), findsNothing);
+
+    await tester.tap(find.byTooltip('검색어 지우기'));
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(find.byKey(const ValueKey('campus-floor-2F')), findsOneWidget);
+    expect(find.text('검색 목록'), findsNothing);
+    expect(tester.takeException(), isNull);
+  }, variant: platforms);
+
+  testWidgets('중복 결과는 건물별 층을 선택하고 검색 목록에서 다시 고를 수 있다', (tester) async {
+    await _pumpMap(tester);
+    await tester.enterText(find.byType(TextField), '실험실습실');
+    await tester.pumpAndSettle();
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsNothing);
+    expect(find.text('5개 건물 · 17개 층'), findsOneWidget);
+    final secondFloor = find.byKey(const ValueKey('campus-search-5-2F'));
+    await tester.ensureVisible(secondFloor);
+    await tester.pumpAndSettle();
+    await tester.tap(secondFloor);
+    await tester.pumpAndSettle();
+    expect(find.text('5호관 · 2F'), findsOneWidget);
+    expect(find.byKey(const ValueKey('campus-floor-2F')), findsOneWidget);
+    expect(find.byKey(const ValueKey('campus-floor-3F')), findsNothing);
+    await tester.tap(find.text('검색 목록'));
+    await tester.pumpAndSettle();
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        '실험실습실');
+    final fifthFloor = find.byKey(const ValueKey('campus-search-3-5F'));
+    await tester.ensureVisible(fifthFloor);
+    await tester.pumpAndSettle();
+    await tester.tap(fifthFloor);
+    await tester.pumpAndSettle();
+    expect(find.text('3호관 · 5F'), findsOneWidget);
+    expect(
+        (tester.widget<CustomPaint>(_mapPaint).painter! as CampusMapPainter)
+            .selectedBuildingId,
+        '3');
+    expect(find.byKey(const ValueKey('campus-floor-5F')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }, variant: platforms);
+
+  testWidgets('흡연구역과 층 정보가 없는 건물도 검색해서 지도에서 선택한다', (tester) async {
+    await _pumpMap(tester);
+    await tester.enterText(find.byType(TextField), '해우뜰');
+    await tester.pumpAndSettle();
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('smoking-area-label')), findsOneWidget);
+    expect(find.text(CampusMapGeometry.smokingAreas.first.location),
+        findsOneWidget);
+    expect(tester.getSize(_marker('haeutteul')), const Size(40, 40));
+    expect(find.text('층별 시설'), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'dmmc');
+    await tester.pumpAndSettle();
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    expect(find.text('등록된 층별 시설 정보가 없어요.'), findsOneWidget);
+    expect(
+        (tester.widget<CustomPaint>(_mapPaint).painter! as CampusMapPainter)
+            .selectedBuildingId,
+        'dmmc');
+    expect(find.byKey(const ValueKey('smoking-area-label')), findsNothing);
+    expect(tester.takeException(), isNull);
+  }, variant: platforms);
+
+  testWidgets('좁은 화면과 큰 글씨에서도 검색 결과와 시설 정보를 표시한다', (tester) async {
+    await _pumpMap(tester, width: 320, textScale: 1.8);
+    await tester.enterText(find.byType(TextField), '실험실습실');
+    await tester.pumpAndSettle();
+    expect(find.text('5개 건물 · 17개 층'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.enterText(find.byType(TextField), '생활환경공학부사무실');
+    await tester.pumpAndSettle();
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    expect(find.text('7호관 · 3F'), findsOneWidget);
+    expect(find.text('생활환경공학부사무실(건축,실내,시각,AR·VR)'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: platforms);
 }

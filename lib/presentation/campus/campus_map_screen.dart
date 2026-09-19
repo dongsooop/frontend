@@ -3,10 +3,13 @@ import 'dart:math' as math;
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_models.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_painter.dart';
+import 'package:dongsoop/presentation/campus/widgets/campus_map_search.dart';
+import 'package:dongsoop/presentation/campus/widgets/campus_map_search_results.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_smoking_markers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class CampusMapScreen extends StatefulWidget {
   const CampusMapScreen({
@@ -21,10 +24,58 @@ class CampusMapScreen extends StatefulWidget {
 }
 
 class _CampusMapScreenState extends State<CampusMapScreen> {
-  // 빈 화면으로 시작하면 아래 목록 자리가 통째로 비어 무엇을 해야 하는지
-  // 알기 어렵다. 들어온 건물이 없으면 1호관을 펴 둔다.
+  final _searchController = TextEditingController();
+  final _searchFocus = FocusNode();
+  final _mapScrollController = ScrollController();
+  List<CampusMapSearchResult> _results = const [];
+  CampusMapSearchResult? _searchSelection;
+  bool _showResults = false;
   late String _selectedBuildingId = widget.initialBuildingId ?? '1';
   CampusSmokingArea? _selectedSmokingArea;
+  Offset? _focusPosition;
+  int _focusRevision = 0;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocus.dispose();
+    _mapScrollController.dispose();
+    super.dispose();
+  }
+
+  void _search(String query) {
+    setState(() {
+      _results = CampusMapSearch.find(query);
+      _showResults = query.trim().isNotEmpty;
+      if (!_showResults) _searchSelection = null;
+    });
+    if (!_showResults && _mapScrollController.hasClients) {
+      _mapScrollController.jumpTo(0);
+    }
+  }
+
+  void _submitSearch() {
+    _searchFocus.unfocus();
+    if (_results.length == 1) {
+      _selectResult(_results.single);
+    } else {
+      setState(() => _showResults = _searchController.text.trim().isNotEmpty);
+    }
+  }
+
+  void _selectResult(CampusMapSearchResult result) {
+    _searchFocus.unfocus();
+    setState(() {
+      _showResults = false;
+      _searchSelection = result;
+      _selectedSmokingArea = result.smokingArea;
+      if (result.building != null) _selectedBuildingId = result.building!.id;
+      _focusPosition = result.position;
+      // 같은 결과를 다시 선택해도 사용자가 이동한 지도를 다시 맞춘다.
+      _focusRevision++;
+    });
+    if (_mapScrollController.hasClients) _mapScrollController.jumpTo(0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,60 +83,145 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
       backgroundColor: ColorStyles.white,
       appBar: const DetailHeader(title: '캠퍼스 지도'),
       body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
                 children: [
-                  Text(
-                    _selectedTitle,
-                    style: TextStyles.largeTextBold.copyWith(
-                      color: ColorStyles.black,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '건물을 눌러 정보를 확인해 보세요.',
-                    style: TextStyles.normalTextRegular.copyWith(
-                      color: ColorStyles.gray5,
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocus,
+                      textInputAction: TextInputAction.search,
+                      style: TextStyles.normalTextRegular
+                          .copyWith(color: ColorStyles.black),
+                      onChanged: _search,
+                      onSubmitted: (_) => _submitSearch(),
+                      onTap: () {
+                        if (_searchController.text.trim().isNotEmpty) {
+                          setState(() => _showResults = true);
+                        }
+                      },
+                      decoration: InputDecoration(
+                        hintText: '건물·시설 검색',
+                        hintStyle: TextStyles.normalTextRegular
+                            .copyWith(color: ColorStyles.gray5),
+                        filled: true,
+                        fillColor: ColorStyles.gray7,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIconConstraints: const BoxConstraints(
+                          minWidth: 24,
+                          minHeight: 24,
+                        ),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.only(left: 12, right: 8),
+                          child: SvgPicture.asset(
+                            'assets/icons/search.svg',
+                            colorFilter: const ColorFilter.mode(
+                              ColorStyles.gray5,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                        suffixIcon: _searchController.text.isEmpty
+                            ? null
+                            : IconButton(
+                                tooltip: '검색어 지우기',
+                                icon: const Icon(Icons.close, color: ColorStyles.gray5, size: 16),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  _search('');
+                                  _searchFocus.unfocus();
+                                },
+                              ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            // 지도는 좌우 여백 밖으로 빼서 화면 너비를 그대로 쓴다.
-            _MapStage(
-              selectedBuildingId:
-                  _selectedSmokingArea == null ? _selectedBuildingId : null,
-              selectedSmokingAreaId: _selectedSmokingArea?.id,
-              onSelect: (id) => setState(() {
-                _selectedBuildingId = id;
-                _selectedSmokingArea = null;
-              }),
-              onSelectSmokingArea: (area) =>
-                  setState(() => _selectedSmokingArea = area),
+            Expanded(
+              // 검색 중에도 지도 배율과 이동 위치를 보존한다.
+              child: IndexedStack(
+                index: _showResults ? 1 : 0,
+                children: [
+                  ListView(
+                    controller: _mapScrollController,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.zero,
+                    children: [
+                      if (_searchController.text.trim().isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _searchSelection?.location ??
+                                      _selectedSmokingArea?.name ??
+                                      campusBuildingName(_selectedBuildingId),
+                                  style: TextStyles.smallTextBold.copyWith(color: ColorStyles.primary100),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => setState(() => _showResults = true),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: ColorStyles.gray4,
+                                ),
+                                child: Text(
+                                  '검색 목록',
+                                  style: TextStyles.smallTextRegular.copyWith(
+                                    color: ColorStyles.gray4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      _MapStage(
+                        key: const ValueKey('campus-map-stage'),
+                        selectedBuildingId: _selectedSmokingArea == null
+                            ? _selectedBuildingId
+                            : null,
+                        selectedSmokingAreaId: _selectedSmokingArea?.id,
+                        focusPosition: _focusPosition,
+                        focusRevision: _focusRevision,
+                        onSelect: (id) => setState(() {
+                          _selectedBuildingId = id;
+                          _selectedSmokingArea = null;
+                          _searchSelection = null;
+                        }),
+                        onSelectSmokingArea: (area) => setState(() {
+                          _selectedSmokingArea = area;
+                          _searchSelection = null;
+                        }),
+                      ),
+                      if (_selectedSmokingArea case final area?)
+                        _SmokingAreaDetail(area: area)
+                      else
+                        _BuildingDetail(
+                          key:
+                              ValueKey((_selectedBuildingId, _searchSelection)),
+                          buildingId: _selectedBuildingId,
+                          searchSelection: _searchSelection,
+                        ),
+                    ],
+                  ),
+                  CampusMapSearchResults(
+                      results: _results, onSelect: _selectResult),
+                ],
+              ),
             ),
-            if (_selectedSmokingArea case final area?)
-              _SmokingAreaDetail(area: area)
-            else
-              _BuildingDetail(buildingId: _selectedBuildingId),
           ],
         ),
       ),
     );
-  }
-
-  String get _selectedTitle {
-    final name =
-        _selectedSmokingArea?.name ?? campusBuildingName(_selectedBuildingId);
-    final last = name.codeUnitAt(name.length - 1);
-    final isHangul = last >= 0xAC00 && last <= 0xD7A3;
-    // 받침이 있으면 '을', 없으면 '를'.
-    final particle = isHangul && (last - 0xAC00) % 28 != 0 ? '을' : '를';
-    return '$name$particle 선택했어요';
   }
 }
 
@@ -95,14 +231,19 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
 /// 두고 좌우로 밀어 보게 하는 대신, 지도가 무대 밖으로 빠지지는 않는다.
 class _MapStage extends StatefulWidget {
   const _MapStage({
+    super.key,
     required this.selectedBuildingId,
     required this.selectedSmokingAreaId,
+    this.focusPosition,
+    this.focusRevision = 0,
     this.onSelect,
     this.onSelectSmokingArea,
   });
 
   final String? selectedBuildingId;
   final String? selectedSmokingAreaId;
+  final Offset? focusPosition;
+  final int focusRevision;
   final ValueChanged<String>? onSelect;
   final ValueChanged<CampusSmokingArea>? onSelectSmokingArea;
 
@@ -116,6 +257,7 @@ class _MapStage extends StatefulWidget {
 class _MapStageState extends State<_MapStage> {
   final TransformationController _controller = TransformationController();
   bool _didAlign = false;
+  int _focusedRevision = 0;
 
   @override
   void dispose() {
@@ -152,6 +294,22 @@ class _MapStageState extends State<_MapStage> {
               _didAlign = true;
               _controller.value = _controller.value.clone()
                 ..translateByDouble(stageSide - boardWidth, 0, 0, 1);
+            }
+
+            if (_focusedRevision != widget.focusRevision &&
+                widget.focusPosition != null) {
+              _focusedRevision = widget.focusRevision;
+              final ratio = boardWidth / CampusMapGeometry.sourceSize.width;
+              final mapTop =
+                  (stageSide - CampusMapGeometry.sourceSize.height * ratio) / 2;
+              final target = widget.focusPosition! * ratio + Offset(0, mapTop);
+              // 검색한 위치를 기본 배율로 맞추되 기존 지도 경계를 지킨다.
+              final dx = (stageSide / 2 - target.dx).clamp(
+                  stageSide - boardWidth - horizontalMargin, horizontalMargin);
+              final dy = (stageSide / 2 - target.dy)
+                  .clamp(-verticalMargin, verticalMargin);
+              _controller.value = Matrix4.identity()
+                ..translateByDouble(dx, dy, 0, 1);
             }
 
             return ClipRect(
@@ -307,14 +465,27 @@ class _SmokingAreaDetail extends StatelessWidget {
   }
 }
 
-class _BuildingDetail extends StatelessWidget {
-  const _BuildingDetail({required this.buildingId});
+class _BuildingDetail extends StatefulWidget {
+  const _BuildingDetail(
+      {super.key, required this.buildingId, this.searchSelection});
 
   final String buildingId;
+  final CampusMapSearchResult? searchSelection;
+
+  @override
+  State<_BuildingDetail> createState() => _BuildingDetailState();
+}
+
+class _BuildingDetailState extends State<_BuildingDetail> {
+  bool _showAllFloors = false;
 
   @override
   Widget build(BuildContext context) {
-    final floors = campusBuildingFloors(buildingId);
+    final floors = campusBuildingFloors(widget.buildingId);
+    final selectedFloor = widget.searchSelection?.floor?.name;
+    final visibleFloors = selectedFloor == null || _showAllFloors
+        ? floors
+        : floors.where((floor) => floor.name == selectedFloor).toList();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
@@ -335,7 +506,7 @@ class _BuildingDetail extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      campusBuildingName(buildingId),
+                      campusBuildingName(widget.buildingId),
                       style: TextStyles.titleTextBold.copyWith(
                         color: ColorStyles.black,
                       ),
@@ -375,8 +546,33 @@ class _BuildingDetail extends StatelessWidget {
               ),
             )
           else
-            for (final floor in floors)
-              _FloorRow(floor: floor, isLast: floor == floors.last),
+            for (final floor in visibleFloors)
+              _FloorRow(
+                floor: floor,
+                isLast: floor == visibleFloors.last,
+                highlightedFacilities: floor.name == selectedFloor
+                    ? widget.searchSelection!.facilities
+                    : const [],
+              ),
+          if (selectedFloor != null && floors.length > 1) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: ColorStyles.gray4,
+                  backgroundColor: ColorStyles.gray7,
+                  minimumSize: const Size(44, 44),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: () =>
+                    setState(() => _showAllFloors = !_showAllFloors),
+                child: Text(
+                    _showAllFloors ? '검색한 층만 보기' : '전체 ${floors.length}개 층 보기'),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -384,16 +580,22 @@ class _BuildingDetail extends StatelessWidget {
 }
 
 class _FloorRow extends StatelessWidget {
-  const _FloorRow({required this.floor, required this.isLast});
+  const _FloorRow(
+      {required this.floor,
+      required this.isLast,
+      this.highlightedFacilities = const []});
 
   final CampusFloor floor;
   final bool isLast;
+  final List<String> highlightedFacilities;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: ValueKey('campus-floor-${floor.name}'),
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
+        color: highlightedFacilities.isEmpty ? null : ColorStyles.primary5,
         border: isLast
             ? null
             : const Border(bottom: BorderSide(color: ColorStyles.gray2)),
@@ -404,7 +606,7 @@ class _FloorRow extends StatelessWidget {
           SizedBox(
             width: 48,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   floor.name,
@@ -412,13 +614,6 @@ class _FloorRow extends StatelessWidget {
                     color: ColorStyles.primary100,
                   ),
                 ),
-                // if (floor.isGround)
-                //   Text(
-                //     '지상',
-                //     style: TextStyles.smallTextRegular.copyWith(
-                //       color: ColorStyles.gray5,
-                //     ),
-                //   ),
               ],
             ),
           ),
@@ -429,20 +624,30 @@ class _FloorRow extends StatelessWidget {
               runSpacing: 8,
               children: [
                 for (final facility in floor.facilities)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: ColorStyles.white,
-                      border: Border.all(color: ColorStyles.gray2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      facility,
-                      style: TextStyles.normalTextRegular.copyWith(
-                        color: ColorStyles.gray4,
+                  Semantics(
+                    selected:
+                        highlightedFacilities.contains(facility) ? true : null,
+                    child: Container(
+                      key: ValueKey('campus-facility-${floor.name}-$facility'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: ColorStyles.white,
+                        border: Border.all(
+                            color: highlightedFacilities.contains(facility)
+                                ? ColorStyles.primary100
+                                : ColorStyles.gray2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        facility,
+                        style: TextStyles.normalTextRegular.copyWith(
+                          color: highlightedFacilities.contains(facility)
+                              ? ColorStyles.primary100
+                              : ColorStyles.gray4,
+                        ),
                       ),
                     ),
                   ),
