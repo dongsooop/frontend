@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_models.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_painter.dart';
+import 'package:dongsoop/presentation/campus/widgets/campus_smoking_markers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
   // 빈 화면으로 시작하면 아래 목록 자리가 통째로 비어 무엇을 해야 하는지
   // 알기 어렵다. 들어온 건물이 없으면 1호관을 펴 둔다.
   late String _selectedBuildingId = widget.initialBuildingId ?? '1';
+  CampusSmokingArea? _selectedSmokingArea;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +48,7 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '건물을 누르면 층별 시설을 확인할 수 있어요.',
+                    '건물을 눌러 정보를 확인해 보세요.',
                     style: TextStyles.normalTextRegular.copyWith(
                       color: ColorStyles.gray5,
                     ),
@@ -56,10 +58,20 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
             ),
             // 지도는 좌우 여백 밖으로 빼서 화면 너비를 그대로 쓴다.
             _MapStage(
-              selectedBuildingId: _selectedBuildingId,
-              onSelect: (id) => setState(() => _selectedBuildingId = id),
+              selectedBuildingId:
+                  _selectedSmokingArea == null ? _selectedBuildingId : null,
+              selectedSmokingAreaId: _selectedSmokingArea?.id,
+              onSelect: (id) => setState(() {
+                _selectedBuildingId = id;
+                _selectedSmokingArea = null;
+              }),
+              onSelectSmokingArea: (area) =>
+                  setState(() => _selectedSmokingArea = area),
             ),
-            _BuildingDetail(buildingId: _selectedBuildingId),
+            if (_selectedSmokingArea case final area?)
+              _SmokingAreaDetail(area: area)
+            else
+              _BuildingDetail(buildingId: _selectedBuildingId),
           ],
         ),
       ),
@@ -67,7 +79,8 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
   }
 
   String get _selectedTitle {
-    final name = campusBuildingName(_selectedBuildingId);
+    final name =
+        _selectedSmokingArea?.name ?? campusBuildingName(_selectedBuildingId);
     final last = name.codeUnitAt(name.length - 1);
     final isHangul = last >= 0xAC00 && last <= 0xD7A3;
     // 받침이 있으면 '을', 없으면 '를'.
@@ -83,11 +96,15 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
 class _MapStage extends StatefulWidget {
   const _MapStage({
     required this.selectedBuildingId,
+    required this.selectedSmokingAreaId,
     this.onSelect,
+    this.onSelectSmokingArea,
   });
 
   final String? selectedBuildingId;
+  final String? selectedSmokingAreaId;
   final ValueChanged<String>? onSelect;
+  final ValueChanged<CampusSmokingArea>? onSelectSmokingArea;
 
   /// 무대 너비에 대한 배치도 너비의 비율.
   static const double boardScale = 1.9;
@@ -116,6 +133,7 @@ class _MapStageState extends State<_MapStage> {
           builder: (context, constraints) {
             final stageSide = constraints.maxWidth;
             final boardWidth = stageSide * _MapStage.boardScale;
+            final boardSize = Size(boardWidth, stageSide);
             // 최대한 축소하면 지도 가로 전체가 무대 너비에 맞는다.
             const minMapWidthRatio = 1.0;
             const minMapScale = minMapWidthRatio / _MapStage.boardScale;
@@ -137,38 +155,56 @@ class _MapStageState extends State<_MapStage> {
             }
 
             return ClipRect(
-              child: InteractiveViewer(
-                transformationController: _controller,
-                constrained: false,
-                minScale: minMapScale,
-                maxScale: 4,
-                // 최소 배율에 필요한 만큼만 가로·세로 경계 여백을 허용한다.
-                boundaryMargin: EdgeInsets.symmetric(
-                  horizontal: horizontalMargin,
-                  vertical: verticalMargin,
+              // 탭이 확정된 뒤 선택해 두 손가락 조작 중에는 선택하지 않는다.
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapUp: (details) => _handleTap(
+                  details.localPosition,
+                  boardSize,
                 ),
-                child: SizedBox(
-                  width: boardWidth,
-                  height: stageSide,
-                  child: Center(
-                    child: SizedBox(
-                      width: boardWidth,
-                      height:
-                          boardWidth / CampusMapGeometry.sourceSize.aspectRatio,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTapDown: (details) => _handleTap(
-                          details.localPosition,
-                          boardWidth,
-                        ),
-                        child: CustomPaint(
-                          painter: CampusMapPainter(
-                            selectedBuildingId: widget.selectedBuildingId,
+                child: Stack(
+                  children: [
+                    InteractiveViewer(
+                      transformationController: _controller,
+                      constrained: false,
+                      minScale: minMapScale,
+                      maxScale: 4,
+                      // 최소 배율에 필요한 만큼만 경계 여백을 허용한다.
+                      boundaryMargin: EdgeInsets.symmetric(
+                        horizontal: horizontalMargin,
+                        vertical: verticalMargin,
+                      ),
+                      child: SizedBox(
+                        width: boardWidth,
+                        height: stageSide,
+                        child: Center(
+                          child: SizedBox(
+                            width: boardWidth,
+                            height: boardWidth /
+                                CampusMapGeometry.sourceSize.aspectRatio,
+                            child: CustomPaint(
+                              painter: CampusMapPainter(
+                                selectedBuildingId: widget.selectedBuildingId,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                    Positioned.fill(
+                      child: AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, _) => CampusSmokingMarkers(
+                          positions: campusSmokingAreaPositions(
+                            boardSize,
+                            transform: _controller.value,
+                          ),
+                          selectedAreaId: widget.selectedSmokingAreaId,
+                          onSelect: widget.onSelectSmokingArea,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -178,13 +214,96 @@ class _MapStageState extends State<_MapStage> {
     );
   }
 
-  void _handleTap(Offset position, double boardWidth) {
+  void _handleTap(Offset position, Size boardSize) {
+    final positions = campusSmokingAreaPositions(
+      boardSize,
+      transform: _controller.value,
+    );
+    final viewport = Offset.zero & Size.square(boardSize.height);
+    for (final entry in positions.entries) {
+      if (!viewport.contains(entry.value)) continue;
+      final target = Rect.fromCenter(
+        center: entry.value,
+        width: CampusSmokingMarkers.touchTargetSize,
+        height: CampusSmokingMarkers.touchTargetSize,
+      );
+      if (target.contains(position)) {
+        widget.onSelectSmokingArea?.call(entry.key);
+        return;
+      }
+    }
+
     final onSelect = widget.onSelect;
     if (onSelect == null) return;
 
-    final ratio = CampusMapGeometry.sourceSize.width / boardWidth;
-    final id = CampusMapGeometry.hitTest(position * ratio);
+    final ratio = CampusMapGeometry.sourceSize.width / boardSize.width;
+    final mapTop = (boardSize.height -
+            boardSize.width / CampusMapGeometry.sourceSize.aspectRatio) /
+        2;
+    final sourcePoint =
+        (_controller.toScene(position) - Offset(0, mapTop)) * ratio;
+    final id = CampusMapGeometry.hitTest(sourcePoint);
     if (id != null) onSelect(id);
+  }
+}
+
+class _SmokingAreaDetail extends StatelessWidget {
+  const _SmokingAreaDetail({required this.area});
+
+  final CampusSmokingArea area;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: ColorStyles.labelColorYellow10,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.smoking_rooms,
+              color: ColorStyles.labelColorYellow100,
+              size: 24,
+              semanticLabel: '흡연구역',
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '흡연구역',
+                  style: TextStyles.smallTextBold.copyWith(
+                    color: ColorStyles.gray4,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  area.name,
+                  style: TextStyles.largeTextBold.copyWith(
+                    color: ColorStyles.black,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  area.location,
+                  style: TextStyles.normalTextRegular.copyWith(
+                    color: ColorStyles.gray4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -198,12 +317,12 @@ class _BuildingDetail extends StatelessWidget {
     final floors = campusBuildingFloors(buildingId);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Column(
@@ -215,7 +334,6 @@ class _BuildingDetail extends StatelessWidget {
                         color: ColorStyles.primary100,
                       ),
                     ),
-                    const SizedBox(height: 5),
                     Text(
                       campusBuildingName(buildingId),
                       style: TextStyles.titleTextBold.copyWith(
@@ -227,9 +345,8 @@ class _BuildingDetail extends StatelessWidget {
               ),
               if (floors.isNotEmpty)
                 Container(
-                  margin: const EdgeInsets.only(top: 4),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
+                    horizontal: 12,
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
@@ -245,15 +362,15 @@ class _BuildingDetail extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           const Divider(height: 1, thickness: 1, color: ColorStyles.gray2),
           if (floors.isEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 30),
+              padding: const EdgeInsets.only(top: 24),
               child: Text(
                 '등록된 층별 시설 정보가 없어요.',
                 style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.gray5,
+                  color: ColorStyles.gray4,
                 ),
               ),
             )
@@ -275,14 +392,14 @@ class _FloorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         border: isLast
             ? null
             : const Border(bottom: BorderSide(color: ColorStyles.gray2)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: 48,
@@ -295,27 +412,27 @@ class _FloorRow extends StatelessWidget {
                     color: ColorStyles.primary100,
                   ),
                 ),
-                if (floor.isGround)
-                  Text(
-                    '지상',
-                    style: TextStyles.smallTextRegular.copyWith(
-                      color: ColorStyles.gray5,
-                    ),
-                  ),
+                // if (floor.isGround)
+                //   Text(
+                //     '지상',
+                //     style: TextStyles.smallTextRegular.copyWith(
+                //       color: ColorStyles.gray5,
+                //     ),
+                //   ),
               ],
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Wrap(
-              spacing: 7,
-              runSpacing: 7,
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 for (final facility in floor.facilities)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
-                      vertical: 7,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
                       color: ColorStyles.white,
@@ -325,7 +442,7 @@ class _FloorRow extends StatelessWidget {
                     child: Text(
                       facility,
                       style: TextStyles.normalTextRegular.copyWith(
-                        color: ColorStyles.gray6,
+                        color: ColorStyles.gray4,
                       ),
                     ),
                   ),
