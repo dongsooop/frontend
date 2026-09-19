@@ -1,12 +1,9 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/exception/eclass_exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/eclass/data_source/eclass_assignment_data_source.dart';
 import 'package:dongsoop/data/eclass/data_source/eclass_device_request_options.dart';
 import 'package:dongsoop/data/eclass/model/eclass_assignments_response.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
@@ -29,10 +26,6 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
           deviceToken: deviceToken,
         ),
       );
-      _debugLogAssignmentsResponse(
-        statusCode: response.statusCode,
-        data: response.data,
-      );
       if (response.statusCode != HttpStatusCode.ok.code) {
         throw EclassAssignmentException(
           'Eclass 과제를 불러오지 못했습니다. status: ${response.statusCode}',
@@ -42,10 +35,6 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
     } on EclassException {
       rethrow;
     } on DioException catch (error) {
-      _debugLogAssignmentsResponse(
-        statusCode: error.response?.statusCode,
-        data: error.response?.data,
-      );
       throw EclassAssignmentException(
         _problemDetail(
           error.response?.data,
@@ -67,12 +56,13 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
     final endpoint = dotenv.get('ECLASS_SYNC_ENDPOINT');
 
     try {
+      final options = buildEclassDeviceRequestOptions(
+        fid: fid,
+        deviceToken: deviceToken,
+      );
       final response = await _dio.post(
         endpoint,
-        options: buildEclassDeviceRequestOptions(
-          fid: fid,
-          deviceToken: deviceToken,
-        ),
+        options: options,
       );
       if (response.statusCode != HttpStatusCode.noContent.code) {
         throw EclassSyncException(
@@ -123,17 +113,5 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
       if (detail != null && detail.isNotEmpty) return detail;
     }
     return fallback;
-  }
-
-  void _debugLogAssignmentsResponse({
-    required int? statusCode,
-    required Object? data,
-  }) {
-    if (!kDebugMode) return;
-    debugPrint('[EclassAssignments] GET status=$statusCode');
-    try {
-      final body = const JsonEncoder.withIndent('  ').convert(data);
-      debugPrint('[EclassAssignments] response body:\n$body');
-    } catch (error) {}
   }
 }

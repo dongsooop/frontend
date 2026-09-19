@@ -152,14 +152,14 @@ class _HomeEclassAssignmentSummary extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Text(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
                       assignment.courseName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -167,28 +167,28 @@ class _HomeEclassAssignmentSummary extends StatelessWidget {
                         color: ColorStyles.gray4,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  EclassSubmissionBadge(
-                    submitted: assignment.submitted,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                assignment.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyles.normalTextBold.copyWith(
-                  color: ColorStyles.black,
+                    const SizedBox(height: 4),
+                    Text(
+                      assignment.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyles.normalTextBold.copyWith(
+                        color: ColorStyles.black,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      formatEclassDueAt(assignment.dueAt, assignment.dDay),
+                      style: TextStyles.smallTextRegular.copyWith(
+                        color: ColorStyles.gray4,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                formatEclassDueAt(assignment.dueAt, assignment.dDay),
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: ColorStyles.gray4,
-                ),
+              const SizedBox(width: 8),
+              EclassSubmissionBadge(
+                submitted: assignment.submitted,
               ),
             ],
           ),

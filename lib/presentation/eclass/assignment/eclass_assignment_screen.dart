@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/domain/eclass/entity/eclass_assignment_entity.dart';
 import 'package:dongsoop/presentation/eclass/assignment/widget/eclass_assignment_card.dart';
@@ -28,19 +27,19 @@ class EclassAssignmentScreen extends HookConsumerWidget {
     final state = ref.watch(eclassAssignmentListViewModelProvider);
     final isAssignmentLaunchPending = useRef(false);
     final didAssignmentLaunchSucceed = useRef(false);
-    final didLeaveForeground = useRef(false);
+    final didLeaveActiveState = useRef(false);
     final didReturnToForeground = useRef(false);
 
     void clearAssignmentLaunchState() {
       isAssignmentLaunchPending.value = false;
       didAssignmentLaunchSucceed.value = false;
-      didLeaveForeground.value = false;
+      didLeaveActiveState.value = false;
       didReturnToForeground.value = false;
     }
 
     void refreshAfterAssignmentReturn() {
+      if (!context.mounted) return;
       clearAssignmentLaunchState();
-      unawaited(viewModel.refresh());
     }
 
     useEffect(() {
@@ -53,18 +52,15 @@ class EclassAssignmentScreen extends HookConsumerWidget {
         onStateChange: (lifecycleState) {
           if (!isAssignmentLaunchPending.value) return;
 
-          final leftForeground = lifecycleState == AppLifecycleState.hidden ||
-              lifecycleState == AppLifecycleState.paused ||
-              lifecycleState == AppLifecycleState.detached;
-          if (leftForeground) {
-            didLeaveForeground.value = true;
+          // hidden/paused를 거치지 않는 inactive → resumed 복귀도 처리한다.
+          if (lifecycleState != AppLifecycleState.resumed) {
+            didLeaveActiveState.value = true;
+            // 링크 열기 결과가 늦게 와도 비활성 상태에서 갱신하지 않는다.
+            didReturnToForeground.value = false;
             return;
           }
 
-          if (lifecycleState != AppLifecycleState.resumed ||
-              !didLeaveForeground.value) {
-            return;
-          }
+          if (!didLeaveActiveState.value) return;
 
           didReturnToForeground.value = true;
           if (didAssignmentLaunchSucceed.value) {
@@ -98,10 +94,11 @@ class EclassAssignmentScreen extends HookConsumerWidget {
     Future<void> openAssignment(EclassAssignmentEntity assignment) async {
       isAssignmentLaunchPending.value = true;
       didAssignmentLaunchSucceed.value = false;
-      didLeaveForeground.value = false;
+      didLeaveActiveState.value = false;
       didReturnToForeground.value = false;
 
       final opened = await onOpenAssignment(assignment.link);
+      if (!context.mounted) return;
       if (opened) {
         didAssignmentLaunchSucceed.value = true;
         if (didReturnToForeground.value) {
@@ -111,7 +108,6 @@ class EclassAssignmentScreen extends HookConsumerWidget {
       }
 
       clearAssignmentLaunchState();
-      if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -137,70 +133,118 @@ class EclassAssignmentScreen extends HookConsumerWidget {
                     message: state.loadError!,
                     onRetry: viewModel.load,
                   )
-                : LayoutBuilder(
-                    builder: (context, constraints) {
-                      final result = state.result!;
-                      final assignments = result.assignments;
-                      final showAssignments = !result.isUnlinked &&
-                          !result.isExpired &&
-                          assignments.isNotEmpty;
+                : Column(
+                    children: [
+                      if (state.isRefreshing) const _AssignmentSyncIndicator(),
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final result = state.result!;
+                            final assignments = result.assignments;
+                            final showAssignments = !result.isUnlinked &&
+                                !result.isExpired &&
+                                assignments.isNotEmpty;
 
-                      return RefreshIndicator(
-                        onRefresh: viewModel.refresh,
-                        color: ColorStyles.primary100,
-                        child: ListView(
-                          key: const Key('eclass-assignment-list'),
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                          children: [
-                            if (showAssignments) ...[
-                              Text(
-                                '과제가 ${assignments.length}개 남았어요',
-                                style: TextStyles.titleTextBold.copyWith(
-                                  color: ColorStyles.black,
-                                ),
+                            return RefreshIndicator(
+                              onRefresh: viewModel.refresh,
+                              color: ColorStyles.primary100,
+                              child: ListView(
+                                key: const Key('eclass-assignment-list'),
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 24, 16, 24),
+                                children: [
+                                  if (showAssignments) ...[
+                                    Text(
+                                      '과제가 ${assignments.length}개 남았어요',
+                                      style: TextStyles.titleTextBold.copyWith(
+                                        color: ColorStyles.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '마감이 가까운 순서예요',
+                                      style:
+                                          TextStyles.normalTextRegular.copyWith(
+                                        color: ColorStyles.gray4,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    for (var index = 0;
+                                        index < assignments.length;
+                                        index++) ...[
+                                      EclassAssignmentCard(
+                                        assignment: assignments[index],
+                                        onTap: () =>
+                                            openAssignment(assignments[index]),
+                                      ),
+                                      if (index != assignments.length - 1)
+                                        const SizedBox(height: 12),
+                                    ],
+                                  ] else
+                                    SizedBox(
+                                      height: constraints.maxHeight > 48
+                                          ? constraints.maxHeight - 48
+                                          : 0,
+                                      child: result.isUnlinked
+                                          ? EclassAssignmentLinkState(
+                                              isExpired: false,
+                                              onTapLink: openLinkManagement,
+                                            )
+                                          : result.isExpired
+                                              ? EclassAssignmentLinkState(
+                                                  isExpired: true,
+                                                  onTapLink: openLinkManagement,
+                                                )
+                                              : const EclassAssignmentEmptyState(),
+                                    ),
+                                ],
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '마감이 가까운 순서예요.',
-                                style: TextStyles.normalTextRegular.copyWith(
-                                  color: ColorStyles.gray4,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              for (var index = 0;
-                                  index < assignments.length;
-                                  index++) ...[
-                                EclassAssignmentCard(
-                                  assignment: assignments[index],
-                                  onTap: () =>
-                                      openAssignment(assignments[index]),
-                                ),
-                                if (index != assignments.length - 1)
-                                  const SizedBox(height: 12),
-                              ],
-                            ] else
-                              SizedBox(
-                                height: constraints.maxHeight > 48
-                                    ? constraints.maxHeight - 48
-                                    : 0,
-                                child: result.isUnlinked
-                                    ? EclassAssignmentLinkState(
-                                        isExpired: false,
-                                        onTapLink: openLinkManagement,
-                                      )
-                                    : result.isExpired
-                                        ? EclassAssignmentLinkState(
-                                            isExpired: true,
-                                            onTapLink: openLinkManagement,
-                                          )
-                                        : const EclassAssignmentEmptyState(),
-                              ),
-                          ],
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
+      ),
+    );
+  }
+}
+
+class _AssignmentSyncIndicator extends StatelessWidget {
+  const _AssignmentSyncIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      key: const Key('eclass-assignment-sync-indicator'),
+      liveRegion: true,
+      label: '과제를 동기화하고 있어요',
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: ColorStyles.primary100,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                '과제를 동기화하고 있어요',
+                style: TextStyles.smallTextRegular.copyWith(
+                  color: ColorStyles.gray6,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

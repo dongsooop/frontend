@@ -54,8 +54,12 @@ class EclassAssignmentListViewModel
   }
 
   Future<void> refresh() async {
-    if (!mounted) return;
-    if (state.isInitialLoading || state.isRefreshing) return;
+    if (!mounted) {
+      return;
+    }
+    if (state.isInitialLoading || state.isRefreshing) {
+      return;
+    }
     if (state.result == null) {
       await load();
       return;
@@ -68,13 +72,17 @@ class EclassAssignmentListViewModel
 
     try {
       final identity = await _getDeviceIdentity();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       final result = await _syncAndGetEclassAssignmentsUseCase.execute(
         fid: identity.fid,
         deviceToken: identity.deviceToken,
       );
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       state = state.copyWith(
         isRefreshing: false,
