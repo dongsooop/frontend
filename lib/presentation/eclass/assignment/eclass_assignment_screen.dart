@@ -40,6 +40,7 @@ class EclassAssignmentScreen extends HookConsumerWidget {
     void refreshAfterAssignmentReturn() {
       if (!context.mounted) return;
       clearAssignmentLaunchState();
+      unawaited(viewModel.refresh());
     }
 
     useEffect(() {
@@ -227,8 +228,8 @@ class _AssignmentSyncIndicator extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(
-              width: 16,
-              height: 16,
+              width: 8,
+              height: 8,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 color: ColorStyles.primary100,
