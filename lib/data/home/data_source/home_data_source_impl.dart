@@ -19,18 +19,22 @@ class HomeDataSourceImpl implements HomeDataSource {
   }) async {
     final url = dotenv.get('HOME_ENDPOINT');
     final isMember = departmentCode != null && departmentCode.isNotEmpty;
+    final options = Options(
+      headers: <String, String>{
+        if (fid != null && fid.isNotEmpty) 'X-Device-Fid': fid,
+        if (deviceToken != null && deviceToken.isNotEmpty)
+          'X-Device-Token': deviceToken,
+      },
+    );
 
     final response = isMember
-        ? await _authDio.get('$url/$departmentCode')
+        ? await _authDio.get(
+            '$url/$departmentCode',
+            options: options,
+          )
         : await _plainDio.get(
             url,
-            options: Options(
-              headers: <String, String>{
-                if (fid != null && fid.isNotEmpty) 'X-Device-Fid': fid,
-                if (deviceToken != null && deviceToken.isNotEmpty)
-                  'X-Device-Token': deviceToken,
-              },
-            ),
+            options: options,
           );
 
     if (response.statusCode == HttpStatusCode.ok.code) {

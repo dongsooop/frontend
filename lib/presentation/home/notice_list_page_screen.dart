@@ -15,7 +15,6 @@ import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,11 +23,8 @@ class NoticeListPageScreen extends HookConsumerWidget {
   static const _reminderSwipeGuideSeenKey =
       'notice_reminder_swipe_guide_seen';
 
-  final VoidCallback onTapAlarmSetting;
-
   const NoticeListPageScreen({
     super.key,
-    required this.onTapAlarmSetting,
   });
 
   NoticeTab selectedTab(int index) {
@@ -129,18 +125,6 @@ class NoticeListPageScreen extends HookConsumerWidget {
         backgroundColor: ColorStyles.white,
         appBar: DetailHeader(
           title: '공지',
-          trailing: IconButton(
-            onPressed: onTapAlarmSetting,
-            icon: SvgPicture.asset(
-              'assets/icons/alarm_setting.svg',
-              width: 24,
-              height: 24,
-              colorFilter: const ColorFilter.mode(
-                ColorStyles.black,
-                BlendMode.srcIn,
-              ),
-            ),
-          ),
         ),
         body: Stack(
           children: [

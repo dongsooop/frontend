@@ -23,15 +23,16 @@ class DeviceTokenRepositoryImpl implements DeviceTokenRepository {
   Stream<String> tokenStreamWithInitial() => _fcm.tokenStreamWithInitial();
 
   @override
-  Future<FailureType?> registerDeviceToken(DeviceTokenRequest request) async {
-    bool allowed = false;
+  Future<FailureType?> registerDeviceToken(
+    DeviceTokenRequest request, {
+    bool force = false,
+  }) async {
     try {
-      allowed = await _fcm.requestPermissionIfNeeded();
-    } catch (_) {
-    }
+      await _fcm.requestPermissionIfNeeded();
+    } catch (_) {}
 
     try {
-      await _remote.registerDeviceToken(request);
+      await _remote.registerDeviceToken(request, force: force);
       return null;
     } catch (_) {
       return FailureType.registerFailed;

@@ -6,6 +6,7 @@ import 'package:dongsoop/core/presentation/components/login_required_dialog.dart
 import 'package:dongsoop/presentation/home/widgets/chatbot_button.dart';
 import 'package:dongsoop/presentation/home/widgets/home_header.dart';
 import 'package:dongsoop/presentation/home/widgets/home_greeting.dart';
+import 'package:dongsoop/presentation/home/widgets/home_eclass_assignment_card.dart';
 import 'package:dongsoop/presentation/home/widgets/home_meal_section.dart';
 import 'package:dongsoop/presentation/home/widgets/home_notice_list.dart';
 import 'package:dongsoop/presentation/home/widgets/home_quick_links.dart';
@@ -113,6 +114,19 @@ class HomePageScreen extends HookConsumerWidget {
                     schedule: homeEntity.schedule,
                     isLoggedOut: user == null,
                   ),
+                  if (homeEntity.eclassAssignment case final assignment?)
+                    HomeEclassAssignmentCard(
+                      assignment: assignment,
+                      onTap: () async {
+                        final route =
+                            assignment.isUnlinked || assignment.isExpired
+                                ? RoutePaths.eclassLink
+                                : RoutePaths.eclassAssignments;
+                        await context.push(route);
+                        if (!context.mounted) return;
+                        await homeViewModel.refresh();
+                      },
+                    ),
                   const HomeMealSection(),
                   HomeNoticeList(notices: homeEntity.notices),
                   // 네이티브가 아니라 배너다. 네이티브 템플릿은 아이콘·제목·

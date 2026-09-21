@@ -17,6 +17,6 @@ StateNotifierProvider.autoDispose<ChatbotViewModel, ChatbotState>((ref) {
   return ChatbotViewModel(ref, sendChatbotMessageUseCase);
 });
 
-final chatbotMessagesProvider = StateNotifierProvider<ChatbotMessagesNotifier, List<Chatbot>>((ref) {
+final chatbotMessagesProvider = StateNotifierProvider.autoDispose<ChatbotMessagesNotifier, List<Chatbot>>((ref) {
   return ChatbotMessagesNotifier();
 });

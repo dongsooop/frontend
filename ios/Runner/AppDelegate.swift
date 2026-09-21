@@ -46,7 +46,8 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
 
     GeneratedPluginRegistrant.register(with: self)
 
-    if let remoteNotif = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
+    if let remoteNotif = launchOptions?[.remoteNotification] as? [AnyHashable: Any],
+       !isEclassRelinkPush(remoteNotif) {
         print("[PUSH][iOS] Cold Start detected via launchOptions")
         pendingTapUserInfo = remoteNotif
     }
@@ -129,6 +130,17 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
     let userInfo = notification.request.content.userInfo
+    let type = (userInfo["type"] as? String)?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .uppercased()
+
+    if type == "ECLASS_RELINK" {
+      completionHandler([])
+      DispatchQueue.main.async { [weak self] in
+        self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
+      }
+      return
+    }
 
     if let n = notification.request.content.badge as? NSNumber {
       DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = n.intValue }
@@ -136,7 +148,6 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
       DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = b }
     }
 
-    let type = (userInfo["type"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
     let valueRaw = (userInfo["value"] as? String) ?? (userInfo["roomId"] as? String)
     let value = valueRaw?.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -183,6 +194,20 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
   ) {
+    if isEclassRelinkPush(userInfo) {
+      if application.applicationState == .active {
+        DispatchQueue.main.async { [weak self] in
+          self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
+        }
+      }
+      super.application(
+        application,
+        didReceiveRemoteNotification: userInfo,
+        fetchCompletionHandler: completionHandler
+      )
+      return
+    }
+
     if let aps = userInfo["aps"] as? [String: Any],
        let badge = aps["badge"] as? Int {
       UIApplication.shared.applicationIconBadgeNumber = badge
@@ -191,6 +216,13 @@ class MyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
       self?.pushChannel?.invokeMethod("onPush", arguments: userInfo)
     }
     super.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
+  }
+
+  private func isEclassRelinkPush(_ userInfo: [AnyHashable: Any]) -> Bool {
+    let type = (userInfo["type"] as? String)?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .uppercased()
+    return type == "ECLASS_RELINK"
   }
 
    private static func isRunningInTestFlight() -> Bool {

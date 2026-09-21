@@ -20,6 +20,10 @@ HomeResponse _$HomeResponseFromJson(Map<String, dynamic> json) => HomeResponse(
           .map((e) =>
               PopularRecruitItemResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
+      eclassAssignment: json['eclass_assignment'] == null
+          ? null
+          : HomeEclassAssignmentResponse.fromJson(
+              json['eclass_assignment'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$HomeResponseToJson(HomeResponse instance) =>
@@ -28,4 +32,5 @@ Map<String, dynamic> _$HomeResponseToJson(HomeResponse instance) =>
       'schedules': instance.scheduleItems,
       'notices': instance.newNoticeItems,
       'popular_recruitments': instance.popularRecruitItems,
+      'eclass_assignment': instance.eclassAssignment,
     };
