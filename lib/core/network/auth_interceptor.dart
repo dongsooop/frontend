@@ -6,7 +6,6 @@ import 'package:dongsoop/core/network/user_agent.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/providers/session_provider.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 
@@ -51,8 +50,8 @@ class AuthInterceptor extends Interceptor {
     if (err.response?.statusCode == HttpStatusCode.unauthorized.code) {
       try {
         final refreshToken = await _secureStorageService.read('refreshToken');
-        final baseUrl = dotenv.get('BASE_URL');
-        final endpoint = dotenv.get('REISSUE_ENDPOINT');
+        final baseUrl = 'https://dongsoop.site';
+        final endpoint = '/token/reissue';
         final url = '$baseUrl$endpoint';
 
         final refreshDio = Dio();

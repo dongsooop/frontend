@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/notification/data_source/notification_data_source.dart';
 import 'package:dongsoop/data/notification/model/notification_response_model.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class NotificationDataSourceImpl implements NotificationDataSource {
   final Dio _authDio;
@@ -13,7 +12,7 @@ class NotificationDataSourceImpl implements NotificationDataSource {
     required int page,
     required int size,
   }) async {
-    final url = dotenv.get('NOTIFICATION_ENDPOINT');
+    final url = '/notifications';
     final query = <String, dynamic>{
       'page': page,
       'size': size,
@@ -35,7 +34,7 @@ class NotificationDataSourceImpl implements NotificationDataSource {
 
   @override
   Future<void> readNotification({required int id}) async {
-    final url = dotenv.get('NOTIFICATION_READ_ENDPOINT');
+    final url = '/notifications/read';
     final response = await _authDio.post(url, data: {'id': id});
     if (response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception('status: ${response.statusCode}');
@@ -44,7 +43,7 @@ class NotificationDataSourceImpl implements NotificationDataSource {
 
   @override
   Future<void> readAllNotification() async {
-    final url = dotenv.get('NOTIFICATION_READ_ALL_ENDPOINT');
+    final url = '/notifications/read-all';
     final response = await _authDio.post(url);
     if (response.statusCode != HttpStatusCode.noContent.code) {
       throw Exception('status: ${response.statusCode}');
@@ -53,7 +52,7 @@ class NotificationDataSourceImpl implements NotificationDataSource {
 
   @override
   Future<void> deleteNotification({required int id}) async {
-    final baseUrl = dotenv.get('NOTIFICATION_ENDPOINT');
+    final baseUrl = '/notifications';
     final url = '$baseUrl/$id';
     final response = await _authDio.delete(url);
     if (response.statusCode != HttpStatusCode.noContent.code) {

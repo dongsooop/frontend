@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
@@ -11,7 +10,6 @@ import 'package:dongsoop/data/board/market/models/market_write_model.dart';
 import 'package:dongsoop/domain/board/market/entities/market_ai_filter_entity.dart';
 import 'package:dongsoop/domain/board/market/entities/market_write_entity.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MarketDataSourceImpl implements MarketDataSource {
   final Dio _authDio;
@@ -23,7 +21,7 @@ class MarketDataSourceImpl implements MarketDataSource {
     required MarketType type,
     required int page,
   }) async {
-    final baseUrl = dotenv.get("MARKET_ENDPOINT");
+    final baseUrl = '/marketplace-board';
     final url = '$baseUrl/type/${type.name}';
 
     final response = await _authDio.get(
@@ -47,7 +45,7 @@ class MarketDataSourceImpl implements MarketDataSource {
   Future<MarketDetailModel> fetchMarketDetail({
     required int id,
   }) async {
-    final baseUrl = dotenv.get("MARKET_ENDPOINT");
+    final baseUrl = '/marketplace-board';
     final url = '$baseUrl/$id';
 
     try {
@@ -74,7 +72,7 @@ class MarketDataSourceImpl implements MarketDataSource {
     required MarketAIFilterEntity entity,
   }) async {
     final model = MarketAIFilterModel.fromEntity(entity);
-    final url = dotenv.get("MARKET_FILTER_ENDPOINT");
+    final url = '/text_filter_market';
 
     try {
       final response = await _authDio.post(url, data: model.toJson());
@@ -101,7 +99,7 @@ class MarketDataSourceImpl implements MarketDataSource {
     required MarketWriteEntity entity,
   }) async {
     final model = MarketWriteModel.fromEntity(entity);
-    final url = dotenv.get("MARKET_ENDPOINT");
+    final url = '/marketplace-board';
 
     final requestJson = jsonEncode(model.toJson());
 
@@ -148,7 +146,7 @@ class MarketDataSourceImpl implements MarketDataSource {
     required MarketWriteEntity entity,
   }) async {
     final model = MarketWriteModel.fromEntity(entity);
-    final url = '${dotenv.get('MARKET_ENDPOINT')}/$marketId';
+    final url = '/marketplace-board/$marketId';
 
     final requestJson = jsonEncode(model.toJson());
     final formData = FormData();
@@ -188,7 +186,7 @@ class MarketDataSourceImpl implements MarketDataSource {
   Future<void> deleteMarket({
     required int marketId,
   }) async {
-    final url = '${dotenv.get('MARKET_ENDPOINT')}/$marketId';
+    final url = '/marketplace-board/$marketId';
     final response = await _authDio.delete(url);
 
     if (response.statusCode != HttpStatusCode.noContent.code) {
@@ -200,7 +198,7 @@ class MarketDataSourceImpl implements MarketDataSource {
   Future<void> completeMarket({
     required int marketId,
   }) async {
-    final url = '${dotenv.get('MARKET_ENDPOINT')}/$marketId';
+    final url = '/marketplace-board/$marketId';
     final response = await _authDio.post(url);
 
     if (response.statusCode != HttpStatusCode.noContent.code) {
@@ -210,7 +208,7 @@ class MarketDataSourceImpl implements MarketDataSource {
 
   @override
   Future<String> contactMarket({required int marketId}) async {
-    final url = dotenv.get('MARKET_CONTACT_ENDPOINT');
+    final url = '/marketplace-contact';
 
     try {
       final response = await _authDio.post(

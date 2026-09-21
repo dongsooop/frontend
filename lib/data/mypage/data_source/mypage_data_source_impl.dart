@@ -7,7 +7,6 @@ import 'package:dongsoop/domain/mypage/model/blocked_user.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
 import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
 import 'package:dongsoop/domain/mypage/model/social_state.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 
 class MypageDataSourceImpl implements MypageDataSource {
@@ -19,7 +18,7 @@ class MypageDataSourceImpl implements MypageDataSource {
 
   @override
   Future<List<MypageMarket>?> getMarketPosts({int page = 0, int size = 10,}) async {
-    final market = dotenv.get('MYPAGE_MARKET_ENDPOINT');
+    final market = '/mypage/opened-marketplace';
     final query = 'page=$page&size=$size&sort=createdAt,asc';
     final endpoint = '$market?$query';
 
@@ -41,7 +40,7 @@ class MypageDataSourceImpl implements MypageDataSource {
 
   @override
   Future<List<MypageRecruit>?> getRecruitPosts(bool isApply, {int page = 0, int size = 10,}) async {
-    final market = isApply ? dotenv.get('MYPAGE_APPLY_RECRUIT_ENDPOINT') : dotenv.get('MYPAGE_OPEND_RECRUIT_ENDPOINT');
+    final market = isApply ? '/mypage/apply-recruitments' : '/mypage/opened-recruitments';
     final query = 'page=$page&size=$size';
     final endpoint = '$market?$query';
 
@@ -63,7 +62,7 @@ class MypageDataSourceImpl implements MypageDataSource {
 
   @override
   Future<List<BlockedUser>?> getBlockedUserList() async {
-    final endpoint = dotenv.get('BLOCK_ENDPOINT');
+    final endpoint = '/member-block';
 
     try {
       final response = await _authDio.get(endpoint);
@@ -83,7 +82,7 @@ class MypageDataSourceImpl implements MypageDataSource {
 
   @override
   Future<void> userUnBlock(int blockerId, int blockedMemberId) async {
-    final endpoint = dotenv.get('BLOCK_ENDPOINT');
+    final endpoint = '/member-block';
     final requestBody = {"blockerId": blockerId, "blockedMemberId": blockedMemberId};
 
     try {
@@ -98,7 +97,7 @@ class MypageDataSourceImpl implements MypageDataSource {
 
   @override
   Future<bool> blindDateOpen(BlindDateOpenRequest request) async {
-    final endpoint = dotenv.get('BLIND_DATE_OPEN_ENDPOINT');
+    final endpoint = '/blinddate';
 
     try {
       final response = await _authDio.post(endpoint, data: request.toJson());
@@ -116,7 +115,7 @@ class MypageDataSourceImpl implements MypageDataSource {
 
   @override
   Future<List<SocialState>> getSocialStateList() async {
-    final endpoint = dotenv.get('SOCIAL_STATE_ENDPOINT');
+    final endpoint = '/oauth2/state';
 
     try {
       final response = await _authDio.get(endpoint);
@@ -137,7 +136,7 @@ class MypageDataSourceImpl implements MypageDataSource {
 
   @override
   Future<DateTime> linkSocialAccount(LoginPlatform platform, String socialToken) async {
-    final endpoint = dotenv.get('SOCIAL_LINK_ENDPOINT');
+    final endpoint = '/oauth2/link';
     final url = endpoint + '/${platform.name}';
     final requestBody = {
       "providerToken": socialToken,
@@ -160,7 +159,7 @@ class MypageDataSourceImpl implements MypageDataSource {
 
   @override
   Future<bool> unlinkSocialAccount(LoginPlatform platform, String socialToken) async {
-    final endpoint = dotenv.get('SOCIAL_LOGIN_ENDPOINT');
+    final endpoint = '/oauth2';
     final url = endpoint + '/${platform.name}';
     // 카카오는 토큰 X
     final requestBody = {

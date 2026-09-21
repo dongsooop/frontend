@@ -5,7 +5,6 @@ import 'package:dongsoop/data/board/market/data_sources/market_data_source.dart'
 import 'package:dongsoop/data/board/market/models/market_detail_model.dart';
 import 'package:dongsoop/data/board/market/models/market_list_model.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class GuestMarketDataSourceImpl implements MarketDataSource {
   final Dio _plainDio;
@@ -17,7 +16,7 @@ class GuestMarketDataSourceImpl implements MarketDataSource {
     required MarketType type,
     required int page,
   }) async {
-    final baseUrl = dotenv.get("MARKET_ENDPOINT");
+    final baseUrl = '/marketplace-board';
     final url = '$baseUrl/type/${type.name}';
 
     final response = await _plainDio.get(
@@ -41,7 +40,7 @@ class GuestMarketDataSourceImpl implements MarketDataSource {
   Future<MarketDetailModel> fetchMarketDetail({
     required int id,
   }) async {
-    final baseUrl = dotenv.get("MARKET_ENDPOINT");
+    final baseUrl = '/marketplace-board';
     final url = '$baseUrl/$id';
     final response = await _plainDio.get(url);
 

@@ -4,11 +4,10 @@ import 'package:dongsoop/core/network/user_agent.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/providers/app_check_dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Dio createAuthDio({required Ref ref, bool useAi = false}) {
-  final baseUrl = dotenv.get('BASE_URL');
+  final baseUrl = 'https://dongsoop.site';
 
   final dio = Dio(
     BaseOptions(

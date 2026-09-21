@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/cafeteria/data_sources/cafeteria_data_source.dart';
 import 'package:dongsoop/data/cafeteria/model/cafeteria_response.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CafeteriaDataSourceImpl implements CafeteriaDataSource {
   final Dio _plainDio;
@@ -11,7 +10,7 @@ class CafeteriaDataSourceImpl implements CafeteriaDataSource {
 
   @override
   Future<CafeteriaResponse> fetchCafeteriaMeals() async {
-    final endpoint = dotenv.get('CAFETERIA_ENDPOINT');
+    final endpoint = '/meal/current';
 
     final response = await _plainDio.get(endpoint);
 

@@ -3,8 +3,6 @@ import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/notification/model/notification_enable_model.dart';
 import 'package:dongsoop/data/notification/model/notification_recruit_model.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import 'notification_setting_data_source.dart';
 
 class NotificationSettingDataSourceImpl implements NotificationSettingDataSource {
@@ -21,7 +19,7 @@ class NotificationSettingDataSourceImpl implements NotificationSettingDataSource
     required NotificationTarget target,
     required String deviceToken,
   }) async {
-    final url = dotenv.get('NOTIFICATION_FIND');
+    final url = '/notification-settings/find';
 
     final response = await _dio(target).post(
       url,
@@ -49,7 +47,7 @@ class NotificationSettingDataSourceImpl implements NotificationSettingDataSource
     required NotificationTarget target,
     required NotificationEnableModel body,
   }) async {
-    final url = dotenv.get('NOTIFICATION_ENABLE');
+    final url = '/notification-settings/enable';
 
     final response = await _dio(target).post(
       url,
@@ -68,7 +66,7 @@ class NotificationSettingDataSourceImpl implements NotificationSettingDataSource
     required NotificationTarget target,
     required NotificationEnableModel body,
   }) async {
-    final url = dotenv.get('NOTIFICATION_DISABLE');
+    final url = '/notification-settings/disable';
 
     final response = await _dio(target).post(
       url,
@@ -87,7 +85,7 @@ class NotificationSettingDataSourceImpl implements NotificationSettingDataSource
     required NotificationTarget target,
     required NotificationRecruitModel body,
   }) async {
-    final url = dotenv.get('NOTIFICATION_APPLY');
+    final url = '/notification-settings/recruitment-apply';
 
     final response = await _dio(target).post(
       url,
@@ -106,7 +104,7 @@ class NotificationSettingDataSourceImpl implements NotificationSettingDataSource
     required NotificationTarget target,
     required NotificationRecruitModel body,
   }) async {
-    final url = dotenv.get('NOTIFICATION_RESULT');
+    final url = '/notification-settings/recruitment-result';
 
     final response = await _dio(target).post(
       url,

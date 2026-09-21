@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/home/model/home_response.dart';
 import 'home_data_source.dart';
@@ -17,7 +15,7 @@ class HomeDataSourceImpl implements HomeDataSource {
     String? fid,
     String? deviceToken,
   }) async {
-    final url = dotenv.get('HOME_ENDPOINT');
+    final url = '/home';
     final isMember = departmentCode != null && departmentCode.isNotEmpty;
     final options = Options(
       headers: <String, String>{

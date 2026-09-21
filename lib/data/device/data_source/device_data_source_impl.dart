@@ -3,7 +3,6 @@ import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/data/device/data_source/device_data_source.dart';
 import 'package:dongsoop/data/device/model/device_response.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DeviceDataSourceImpl implements DeviceDataSource {
   final Dio _authDio;
@@ -16,7 +15,7 @@ class DeviceDataSourceImpl implements DeviceDataSource {
 
   @override
   Future<List<DeviceResponse>> getDeviceList() async {
-    final url = dotenv.get('DEVICE_LIST_ENDPOINT');
+    final url = '/device/list';
     final deviceToken = await _secureStorageService.read('fcmToken');
 
     try {
@@ -49,7 +48,7 @@ class DeviceDataSourceImpl implements DeviceDataSource {
 
   @override
   Future<void> forceLogout(int deviceId) async {
-    final baseEndpoint = dotenv.get('DEVICE_REGISTRATION_ENDPOINT');
+    final baseEndpoint = '/device';
     final endpoint = '$baseEndpoint/$deviceId';
 
     try {
