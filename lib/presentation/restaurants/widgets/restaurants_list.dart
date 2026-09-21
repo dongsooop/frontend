@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/restaurants/enum/restaurants_tag.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurant.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -73,7 +74,13 @@ class RestaurantCard extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        context.push('/restaurantWebView?url=${restaurant.placeUrl}');
+        final url = restaurant.placeUrl?.trim() ?? '';
+
+        final location = Uri(
+          path: RoutePaths.restaurantWebView,
+          queryParameters: {'url': url},
+        ).toString();
+        context.push(location);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 24),
