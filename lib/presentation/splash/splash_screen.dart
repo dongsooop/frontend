@@ -81,6 +81,8 @@ class SplashScreen extends HookConsumerWidget {
         );
         if (cancelled || !context.mounted) return;
 
+        viewModel.restoreExpiredEclassLinkInBackground();
+
         if (message != null) {
           rootScaffoldMessengerKey.currentState?.showSnackBar(
             SnackBar(

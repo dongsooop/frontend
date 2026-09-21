@@ -61,6 +61,9 @@ gen-external-apklibs
 coverage/
 lib/generated_plugin_registrant.dart
 
+# Local tests
+/test/
+
 # Flutter Linux
 linux/flutter/ephemeral/
 

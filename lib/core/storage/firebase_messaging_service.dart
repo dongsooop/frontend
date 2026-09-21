@@ -3,14 +3,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/core/storage/local_notifications_service.dart';
+import 'package:dongsoop/domain/notification/entity/push_event.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 
 typedef ReadFn = Future<void> Function(int id);
 typedef RefreshBadgeFn = Future<void> Function();
 typedef SetBadgeFn = void Function(int badge);
+typedef EclassRelinkFn = Future<void> Function();
 
 class FirebaseMessagingService {
   FirebaseMessagingService._internal() {
@@ -27,7 +28,8 @@ class FirebaseMessagingService {
   }
 
   // 싱글톤 패턴 적용
-  static final FirebaseMessagingService _instance = FirebaseMessagingService._internal();
+  static final FirebaseMessagingService _instance =
+      FirebaseMessagingService._internal();
 
   factory FirebaseMessagingService.instance() => _instance;
 
@@ -40,6 +42,7 @@ class FirebaseMessagingService {
   RefreshBadgeFn? _refreshBadge;
   SetBadgeFn? _setBadge;
   Future<void> Function()? _forceLogout;
+  EclassRelinkFn? _eclassRelink;
 
   int? _pendingReadId;
 
@@ -57,12 +60,16 @@ class FirebaseMessagingService {
   void setActiveChat(String roomId) {
     if (roomId.isEmpty) return;
     _activeChatRoomId = roomId;
-    try { _pushChannel.invokeMethod('setActiveChat', {'roomId': _activeChatRoomId}); } catch (_) {}
+    try {
+      _pushChannel.invokeMethod('setActiveChat', {'roomId': _activeChatRoomId});
+    } catch (_) {}
   }
 
   void clearActiveChat() {
     _activeChatRoomId = null;
-    try { _pushChannel.invokeMethod('clearActiveChat'); } catch (_) {}
+    try {
+      _pushChannel.invokeMethod('clearActiveChat');
+    } catch (_) {}
   }
 
   void setReadCallback(ReadFn read) {
@@ -84,6 +91,7 @@ class FirebaseMessagingService {
   void setBadgeRefreshCallback(RefreshBadgeFn cb) => _refreshBadge = cb;
   void setBadgeCallback(SetBadgeFn cb) => _setBadge = cb;
   void setForceLogoutCallback(Future<void> Function() fn) => _forceLogout = fn;
+  void setEclassRelinkCallback(EclassRelinkFn cb) => _eclassRelink = cb;
 
   Future<void> _handleNativePush(dynamic args, {required bool isTap}) async {
     final map = _normalizeNativeArgs(args);
@@ -91,7 +99,15 @@ class FirebaseMessagingService {
 
     final type = map['type']?.toString().trim().toUpperCase();
     final value = (map['value'] ?? map['roomId'])?.toString().trim() ?? '';
-    final id = _extractValidId(map['id'] ?? map['notificationId'] ?? map['gcm.message_id'] ?? map['google.message_id']);
+    final id = _extractValidId(map['id'] ??
+        map['notificationId'] ??
+        map['gcm.message_id'] ??
+        map['google.message_id']);
+
+    if (isEclassRelinkPush(type)) {
+      await _handleEclassRelink();
+      return;
+    }
 
     _applyBadgeFromNative(map);
 
@@ -120,7 +136,8 @@ class FirebaseMessagingService {
     } catch (_) {}
   }
 
-  Future<void> init({required LocalNotificationsService localNotificationsService}) async {
+  Future<void> init(
+      {required LocalNotificationsService localNotificationsService}) async {
     _localNotificationsService = localNotificationsService;
     if (_initialized) return;
     _initialized = true;
@@ -132,11 +149,9 @@ class FirebaseMessagingService {
       } catch (_) {}
     };
 
-    // 백그라운드 상태에서 메시지 수신 핸들러
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
     if (Platform.isIOS) {
-      debugPrint('[FCM] iOS: Using MethodChannel only (no FlutterFire listeners)');
+      debugPrint(
+          '[FCM] iOS: Using MethodChannel only (no FlutterFire listeners)');
       return;
     }
 
@@ -152,12 +167,17 @@ class FirebaseMessagingService {
 
   // 포그라운드 상태에서 메시지 수신 시
   void _onForegroundMessage(RemoteMessage message) async {
+    final type = message.data['type']?.toString().trim().toUpperCase();
+    if (isEclassRelinkPush(type)) {
+      await _handleEclassRelink();
+      return;
+    }
+
     if (_isBadgeWithDataOnly(message)) {
       _applyBadgeOrRefresh(message);
       return;
     }
 
-    final type = message.data['type']?.toString().trim().toUpperCase();
     final value = (message.data['value'] ?? message.data['roomId'])?.toString();
 
     if (type == 'FORCE_LOGOUT') {
@@ -186,13 +206,20 @@ class FirebaseMessagingService {
     );
   }
 
-  Future<void> _onMessageOpenedApp(RemoteMessage message, {bool isColdStart = false}) async {
+  Future<void> _onMessageOpenedApp(RemoteMessage message,
+      {bool isColdStart = false}) async {
     await _handleNativePush(message.data, isTap: true);
   }
 
   Future<void> _handleForceLogout({required String source}) async {
     if (_forceLogout != null) await _forceLogout!.call();
     await updateNativeBadge(0);
+  }
+
+  Future<void> _handleEclassRelink() async {
+    try {
+      await _eclassRelink?.call();
+    } catch (_) {}
   }
 
   void _applyBadgeFromNative(Map<String, dynamic> userInfo) {
@@ -204,7 +231,11 @@ class FirebaseMessagingService {
     }
     badge ??= int.tryParse(userInfo['badge']?.toString() ?? '');
     if (badge != null) {
-      try { _setBadge?.call(badge); } catch (_) { _scheduleBadgeRefresh(); }
+      try {
+        _setBadge?.call(badge);
+      } catch (_) {
+        _scheduleBadgeRefresh();
+      }
     } else {
       _scheduleBadgeRefresh();
     }
@@ -214,7 +245,11 @@ class FirebaseMessagingService {
     final dataBadge = int.tryParse(message.data['badge']?.toString() ?? '');
     final int? badge = dataBadge;
     if (badge != null) {
-      try { _setBadge?.call(badge); } catch (_) { _scheduleBadgeRefresh(); }
+      try {
+        _setBadge?.call(badge);
+      } catch (_) {
+        _scheduleBadgeRefresh();
+      }
     } else {
       _scheduleBadgeRefresh();
     }
@@ -225,12 +260,16 @@ class FirebaseMessagingService {
     if (_refreshBadge == null) return;
     if (_badgeThrottle?.isActive == true) return;
     _badgeThrottle = Timer(const Duration(milliseconds: 400), () async {
-      try { await _refreshBadge!.call(); } catch (_) {}
+      try {
+        await _refreshBadge!.call();
+      } catch (_) {}
     });
   }
 
   Map<String, dynamic>? _normalizeNativeArgs(dynamic args) {
-    if (args is Map) return args.entries.fold<Map<String, dynamic>>({}, (p, e) => p..[e.key.toString()] = e.value);
+    if (args is Map)
+      return args.entries.fold<Map<String, dynamic>>(
+          {}, (p, e) => p..[e.key.toString()] = e.value);
     return null;
   }
 
@@ -241,14 +280,17 @@ class FirebaseMessagingService {
     return (v == null || v <= 0) ? null : v;
   }
 
-  bool _isBadgeWithDataOnly(RemoteMessage m) => m.notification == null && m.data.containsKey('badge');
-  bool _isAndroidBadgeReset(RemoteMessage m) => Platform.isAndroid && m.notification == null && (m.data['badge'] == '0' || m.data['badge'] == 0);
-  bool _isAndroidEmptyTitleBody(RemoteMessage m) => Platform.isAndroid && (m.notification?.title ?? '').trim().isEmpty && (m.notification?.body ?? '').trim().isEmpty;
+  bool _isBadgeWithDataOnly(RemoteMessage m) =>
+      m.notification == null && m.data.containsKey('badge');
+  bool _isAndroidBadgeReset(RemoteMessage m) =>
+      Platform.isAndroid &&
+      m.notification == null &&
+      (m.data['badge'] == '0' || m.data['badge'] == 0);
+  bool _isAndroidEmptyTitleBody(RemoteMessage m) =>
+      Platform.isAndroid &&
+      (m.notification?.title ?? '').trim().isEmpty &&
+      (m.notification?.body ?? '').trim().isEmpty;
 
-  Stream<String> onTokenRefresh() => FirebaseMessaging.instance.onTokenRefresh.distinct();
-}
-
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  if (kDebugMode) debugPrint('Background message received: ${message.data}');
+  Stream<String> onTokenRefresh() =>
+      FirebaseMessaging.instance.onTokenRefresh.distinct();
 }

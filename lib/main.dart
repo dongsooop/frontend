@@ -6,10 +6,12 @@ import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
 import 'package:dongsoop/firebase_options.dart';
 import 'package:dongsoop/presentation/app/device_controller.dart';
+import 'package:dongsoop/presentation/app/eclass_relink_push_handler.dart';
 import 'package:dongsoop/presentation/app/session_observer.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -25,7 +27,6 @@ import 'domain/chat/model/chat_message.dart';
 import 'domain/chat/model/chat_room_detail.dart';
 import 'domain/chat/model/chat_room_member.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await MobileAds.instance.initialize();
@@ -33,16 +34,21 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await FirebaseAppCheck.instance.activate(
-    androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-    appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttestWithDeviceCheckFallback,
+    providerAndroid: kDebugMode
+        ? const AndroidDebugProvider()
+        : const AndroidPlayIntegrityProvider(),
+    providerApple: kDebugMode
+        ? const AppleDebugProvider()
+        : const AppleAppAttestWithDeviceCheckFallbackProvider(),
   );
   await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   try {
-    final token = await FirebaseAppCheck.instance.getToken();
-    print('[AppCheck] token=$token');
+    await FirebaseAppCheck.instance.getToken();
+    if (kDebugMode) debugPrint('[AppCheck] token ready');
   } catch (e) {
-    print('[AppCheck] getToken error at boot: $e');
+    if (kDebugMode) debugPrint('[AppCheck] getToken error at boot: $e');
   }
 
   await Hive.initFlutter();
@@ -83,7 +89,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     Future.microtask(() => ref.read(deviceControllerProvider).init());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(deviceControllerProvider).refreshBadge(force: false);
+      unawaited(ref.read(deviceControllerProvider).handleAppResumed());
     });
   }
 
@@ -96,9 +102,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      ref.read(deviceControllerProvider).refreshBadge(force: false);
+      unawaited(ref.read(deviceControllerProvider).handleAppResumed());
     }
   }
+
   @override
   Widget build(BuildContext context) {
     ref.watch(sessionObserverProvider);
@@ -110,10 +117,11 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         scaffoldBackgroundColor: ColorStyles.white,
         useMaterial3: true,
         textSelectionTheme: TextSelectionThemeData(
-          selectionColor: ColorStyles.gray2.withValues(alpha: 0.4), // 선택된 영역 배경색
-          cursorColor: ColorStyles.gray4,               // 커서 색상
-          selectionHandleColor: ColorStyles.gray4 // 핸들 색상 (양 끝 점)
-        ),
+            selectionColor:
+                ColorStyles.gray2.withValues(alpha: 0.4), // 선택된 영역 배경색
+            cursorColor: ColorStyles.gray4, // 커서 색상
+            selectionHandleColor: ColorStyles.gray4 // 핸들 색상 (양 끝 점)
+            ),
         appBarTheme: AppBarTheme(
           shadowColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,

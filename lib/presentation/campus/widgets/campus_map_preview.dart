@@ -1,5 +1,6 @@
 import 'package:dongsoop/presentation/campus/widgets/campus_map_models.dart';
 import 'package:dongsoop/presentation/campus/widgets/campus_map_painter.dart';
+import 'package:dongsoop/presentation/campus/widgets/campus_smoking_markers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -22,7 +23,22 @@ class CampusMapPreview extends StatelessWidget {
           color: ColorStyles.gray7,
           child: AspectRatio(
             aspectRatio: CampusMapGeometry.sourceSize.aspectRatio,
-            child: const CustomPaint(painter: CampusMapPainter()),
+            child: LayoutBuilder(
+              builder: (context, constraints) => Stack(
+                fit: StackFit.expand,
+                children: [
+                  const CustomPaint(painter: CampusMapPainter()),
+                  ExcludeSemantics(
+                    child: CampusSmokingMarkers(
+                      positions: campusSmokingAreaPositions(
+                        constraints.biggest,
+                        transform: Matrix4.identity(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

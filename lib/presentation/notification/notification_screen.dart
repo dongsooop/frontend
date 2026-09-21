@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -259,6 +258,28 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 ),
                 const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),
 
+                NotificationSection(
+                  title: '이클래스',
+                  subtitle: '과제 마감과 일정 변경을 빠르게 알려드려요',
+                  children: [
+                    NotificationToggleRow(
+                      label: '과제 알림',
+                      value: state.isEnabled(
+                        NotificationTypes.eclassAssignment,
+                      ),
+                      loading: state.isLoading(
+                        NotificationTypes.eclassAssignment,
+                      ),
+                      onChanged: (v) => onToggle(
+                        label: '이클래스 과제',
+                        type: NotificationTypes.eclassAssignment,
+                        nextValue: v,
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),
+
                 if (user != null)
                   NotificationSection(
                     title: '모집 알림',
@@ -367,25 +388,6 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
               ],
             ),
             // 키워드는 기기 단위라 비회원에게도 보여준다
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 24,
-              child: Center(
-                child: CategoryTabBar(
-                  tabs: const ['전체', '키워드'],
-                  selectedIndex: 0,
-                  onSelected: (i) {
-                    if (i == 0) return;
-
-                    Future.microtask(() async {
-                      widget.onTapNoticeKeyword();
-                    });
-                  },
-                  isBoard: false,
-                ),
-              ),
-            ),
           ],
         ),
       ),

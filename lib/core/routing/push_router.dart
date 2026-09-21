@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/core/routing/utils/eclass_assignment_link_launcher.dart';
 // 게시판을 닫으면서 이 파일에서 쓰는 곳이 주석으로 내려갔다. 되살릴 때
 // 다시 필요하므로 import 만 남겨 둔다
 // ignore: unused_import
@@ -125,6 +126,12 @@ class PushRouter {
         return true;
       }
 
+      if (type == 'ECLASS_ASSIGNMENT' && value.isEmpty) {
+        return await _fallbackToEclassAssignments(
+          isColdStart: isColdStart || _isAtSplash,
+        );
+      }
+
       final needsValue = _requiresValue(type);
       if (type.isEmpty || (needsValue && value.isEmpty)) {
         return await _fallbackToNotificationList(isColdStart: isColdStart || _isAtSplash);
@@ -146,6 +153,9 @@ class PushRouter {
 
         case 'TIMETABLE':
           return await _routeHomeCold(RoutePaths.timetable);
+
+        case 'ECLASS_ASSIGNMENT':
+          return await _routeEclassAssignmentCold(value);
 
         case 'RECRUITMENT_STUDY_APPLY':
         case 'RECRUITMENT_PROJECT_APPLY':
@@ -209,6 +219,9 @@ class PushRouter {
         case 'TIMETABLE':
           router.push(RoutePaths.timetable);
           return true;
+
+        case 'ECLASS_ASSIGNMENT':
+          return await _routeEclassAssignmentWarm(value);
 
         case 'RECRUITMENT_STUDY_APPLY':
         case 'RECRUITMENT_PROJECT_APPLY':
@@ -328,6 +341,24 @@ class PushRouter {
       return true;
     }
 
+  static Future<bool> _routeEclassAssignmentWarm(String value) async {
+    final opened = await openEclassAssignmentLink(value);
+    if (opened) return true;
+
+    return _fallbackToEclassAssignments(isColdStart: false);
+  }
+
+  static Future<bool> _routeEclassAssignmentCold(String value) async {
+    final uri = parseEclassAssignmentLink(value);
+    if (uri == null) {
+      return _fallbackToEclassAssignments(isColdStart: true);
+    }
+
+    _setNextRoute(RoutePaths.eclassAssignments, extra: uri.toString());
+    if (!_isAtSplash) router.go(RoutePaths.splash);
+    return true;
+  }
+
   static Future<bool> _routeHomeCold(String route) async {
     _setNextRoute(route);
     if (!_isAtSplash) router.go(RoutePaths.splash);
@@ -436,5 +467,21 @@ class PushRouter {
       router.goNamed('notificationList');
     }
     return false;
+  }
+
+  static Future<bool> _fallbackToEclassAssignments({
+    required bool isColdStart,
+  }) async {
+    if (isColdStart) {
+      _setNextRoute(RoutePaths.eclassAssignments);
+      if (!_isAtSplash) router.go(RoutePaths.splash);
+      return true;
+    }
+
+    if (router.routeInformationProvider.value.uri.path !=
+        RoutePaths.eclassAssignments) {
+      router.push(RoutePaths.eclassAssignments);
+    }
+    return true;
   }
 }

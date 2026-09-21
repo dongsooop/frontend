@@ -12,7 +12,10 @@ class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
   static const fcmLastToken = 'fcmLastToken';
 
   @override
-  Future<void> registerDeviceToken(DeviceTokenRequest request) async {
+  Future<void> registerDeviceToken(
+    DeviceTokenRequest request, {
+    bool force = false,
+  }) async {
     final currentToken = request.deviceToken;
     if (currentToken.isEmpty) {
       return;
@@ -26,7 +29,7 @@ class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
     // 백필된다.
     final fidAlreadyReported =
         request.fid == null || (lastFid != null && lastFid == request.fid);
-    if (tokenUnchanged && fidAlreadyReported) {
+    if (!force && tokenUnchanged && fidAlreadyReported) {
       return;
     }
 

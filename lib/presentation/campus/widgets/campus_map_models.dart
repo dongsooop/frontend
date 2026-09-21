@@ -28,6 +28,20 @@ class CampusBuildingShape {
   final List<CampusFloor> floors;
 }
 
+class CampusSmokingArea {
+  const CampusSmokingArea({
+    required this.id,
+    required this.name,
+    required this.position,
+    required this.location,
+  });
+
+  final String id;
+  final String name;
+  final Offset position;
+  final String location;
+}
+
 String? campusBuildingIdFromLocation(String? location) {
   if (location == null || location.trim().isEmpty) return null;
 
@@ -60,6 +74,22 @@ List<CampusFloor> campusBuildingFloors(String id) {
 /// 원본 도면의 path 를 그대로 두고 그릴 때만 [parseSvgPath] 로 푼다.
 class CampusMapGeometry {
   static const Size sourceSize = Size(2048, 928);
+
+  /// 표시된 흡연구역의 중심을 원본 배치도 좌표로 옮긴 위치.
+  static const List<CampusSmokingArea> smokingAreas = [
+    CampusSmokingArea(
+      id: 'haeutteul',
+      name: '해우뜰 흡연구역',
+      position: Offset(1473, 291),
+      location: '3호관 뒷편',
+    ),
+    CampusSmokingArea(
+      id: 'sports-field',
+      name: '운동장쪽 흡연구역',
+      position: Offset(543, 646),
+      location: '6호관 앞, 야외 농구장 뒷편',
+    ),
+  ];
 
   /// 부지 경계·도로.
   static const List<String> sitePaths = [
