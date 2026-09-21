@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:dongsoop/data/notification/channel/push_channel.dart';
 import 'package:dongsoop/domain/notification/entity/push_event.dart';
+import 'package:dongsoop/providers/eclass_link_restore_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
@@ -50,18 +51,23 @@ class PushSyncController {
     _onPush = pushChannel.onPush.listen((payload) async {
       if (payload.type.isEmpty) return;
 
+      if (isEclassRelinkPush(payload.type)) {
+        await ref.read(eclassLinkRestoreControllerProvider).restoreIfExpired();
+        return;
+      }
+
       if (payload.type == 'CHAT') {
         final inChatList = ref.read(activeChatListContextProvider);
         if (inChatList == true) {
           final now = DateTime.now();
           if (_lastChatListRefreshedAt == null ||
-              now.difference(_lastChatListRefreshedAt!) > _chatListDebounceDuration) {
+              now.difference(_lastChatListRefreshedAt!) >
+                  _chatListDebounceDuration) {
             _lastChatListRefreshedAt = now;
           }
         }
         return;
       }
-
 
       bool anyTargetMatched = false;
       anyTargetMatched |= _maybeRefreshRecruitList(payload);
@@ -72,7 +78,9 @@ class PushSyncController {
       }
 
       if (payload.badge != null) {
-        ref.read(notificationBadgeViewModelProvider.notifier).setBadge(payload.badge!);
+        ref
+            .read(notificationBadgeViewModelProvider.notifier)
+            .setBadge(payload.badge!);
       } else {
         _refreshBadgeThrottled(force: false);
       }
@@ -81,21 +89,28 @@ class PushSyncController {
     _onPushTap = pushChannel.onPushTap.listen((payload) async {
       if (payload.type.isEmpty) return;
 
-    try {
-      if (payload.type == 'CHAT') {
-        if (payload.value != null) {
-          await PushRouter.routeFromTypeValue(type: payload.type, value: payload.value!);
-        }
+      if (isEclassRelinkPush(payload.type)) {
+        await ref.read(eclassLinkRestoreControllerProvider).restoreIfExpired();
         return;
       }
 
-        if (payload.type == 'NEW_DEVICE_LOGIN') {
-          await PushRouter.routeFromTypeValue(type: payload.type, value: payload.value ?? '');
-        }
-        else if (!_isSameRecruitListScreen(payload) && !_isSameRecruitDetailScreen(payload)) {
-
+      try {
+        if (payload.type == 'CHAT') {
           if (payload.value != null) {
-            await PushRouter.routeFromTypeValue(type: payload.type, value: payload.value!);
+            await PushRouter.routeFromTypeValue(
+                type: payload.type, value: payload.value!);
+          }
+          return;
+        }
+
+        if (payload.type == 'NEW_DEVICE_LOGIN') {
+          await PushRouter.routeFromTypeValue(
+              type: payload.type, value: payload.value ?? '');
+        } else if (!_isSameRecruitListScreen(payload) &&
+            !_isSameRecruitDetailScreen(payload)) {
+          if (payload.value != null) {
+            await PushRouter.routeFromTypeValue(
+                type: payload.type, value: payload.value!);
           }
         }
       } catch (_) {}
@@ -104,7 +119,9 @@ class PushSyncController {
         await _readOnce(payload.id!);
       }
       if (payload.badge != null) {
-        ref.read(notificationBadgeViewModelProvider.notifier).setBadge(payload.badge!);
+        ref
+            .read(notificationBadgeViewModelProvider.notifier)
+            .setBadge(payload.badge!);
       } else {
         _refreshBadgeThrottled(force: false);
       }
@@ -123,7 +140,8 @@ class PushSyncController {
     final DateTime now = DateTime.now();
     final DateTime? lastReadAt = _readOnceCacheTimestamps[notificationId];
 
-    if (lastReadAt != null && now.difference(lastReadAt) < _readOnceTimeToLive) {
+    if (lastReadAt != null &&
+        now.difference(lastReadAt) < _readOnceTimeToLive) {
       return;
     }
 
@@ -131,25 +149,30 @@ class PushSyncController {
     _purgeOldReadOnceEntries(now);
 
     try {
-      await ref.read(notificationViewModelProvider.notifier).read(notificationId);
-    } catch (_) {
-    }
+      await ref
+          .read(notificationViewModelProvider.notifier)
+          .read(notificationId);
+    } catch (_) {}
   }
 
   void _purgeOldReadOnceEntries(DateTime now) {
     if (_readOnceCacheTimestamps.length < 128) return;
-    _readOnceCacheTimestamps.removeWhere((_, timestamp) => now.difference(timestamp) > _readOnceTimeToLive);
+    _readOnceCacheTimestamps.removeWhere(
+        (_, timestamp) => now.difference(timestamp) > _readOnceTimeToLive);
   }
 
   void _refreshBadgeThrottled({required bool force}) {
     final DateTime now = DateTime.now();
     if (!force &&
         _lastBadgeUpdatedAt != null &&
-        now.difference(_lastBadgeUpdatedAt!) < const Duration(milliseconds: 350)) {
+        now.difference(_lastBadgeUpdatedAt!) <
+            const Duration(milliseconds: 350)) {
       return;
     }
     _lastBadgeUpdatedAt = now;
-    ref.read(notificationBadgeViewModelProvider.notifier).refreshBadge(force: force);
+    ref
+        .read(notificationBadgeViewModelProvider.notifier)
+        .refreshBadge(force: force);
   }
 
   RecruitType? _mapRecruitType(String upperCaseType) {
@@ -174,17 +197,20 @@ class PushSyncController {
     final int? pushBoardId = int.tryParse(payload.value ?? '');
     if (pushRecruitType == null || pushBoardId == null) return false;
 
-    if (pushRecruitType == activeContext.type && pushBoardId == activeContext.boardId) {
+    if (pushRecruitType == activeContext.type &&
+        pushBoardId == activeContext.boardId) {
       final String key = '${activeContext.type}|${activeContext.boardId}';
       final DateTime now = DateTime.now();
       final DateTime? lastRefreshedAt = _lastListRefreshedAtByKey[key];
-      if (lastRefreshedAt != null && now.difference(lastRefreshedAt) < _listDebounceDuration) {
+      if (lastRefreshedAt != null &&
+          now.difference(lastRefreshedAt) < _listDebounceDuration) {
         return false;
       }
       _lastListRefreshedAtByKey[key] = now;
 
       if (_lastListRefreshedAtByKey.length > 64) {
-        _lastListRefreshedAtByKey.removeWhere((_, timestamp) => now.difference(timestamp) > const Duration(seconds: 5));
+        _lastListRefreshedAtByKey.removeWhere((_, timestamp) =>
+            now.difference(timestamp) > const Duration(seconds: 5));
       }
 
       ref.invalidate(
@@ -213,10 +239,12 @@ class PushSyncController {
     final int? pushBoardId = int.tryParse(payload.value ?? '');
     if (pushRecruitType == null || pushBoardId == null) return false;
 
-    if (pushRecruitType == activeContext.type && pushBoardId == activeContext.boardId) {
+    if (pushRecruitType == activeContext.type &&
+        pushBoardId == activeContext.boardId) {
       final DateTime now = DateTime.now();
       if (_lastDetailRefreshedAt != null &&
-          now.difference(_lastDetailRefreshedAt!) < const Duration(milliseconds: 300)) {
+          now.difference(_lastDetailRefreshedAt!) <
+              const Duration(milliseconds: 300)) {
         return false;
       }
       _lastDetailRefreshedAt = now;
@@ -251,7 +279,8 @@ class PushSyncController {
     final int? pushBoardId = int.tryParse(payload.value ?? '');
     if (pushType == null || pushBoardId == null) return false;
 
-    return pushType == activeContext.type && pushBoardId == activeContext.boardId;
+    return pushType == activeContext.type &&
+        pushBoardId == activeContext.boardId;
   }
 
   bool _isSameRecruitDetailScreen(PushPayload payload) {
@@ -267,6 +296,7 @@ class PushSyncController {
     final int? pushBoardId = int.tryParse(payload.value ?? '');
     if (pushType == null || pushBoardId == null) return false;
 
-    return pushType == activeContext.type && pushBoardId == activeContext.boardId;
+    return pushType == activeContext.type &&
+        pushBoardId == activeContext.boardId;
   }
 }

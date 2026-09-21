@@ -31,10 +31,11 @@ class NotificationSettingRepositoryImpl with ErrorHandlerMixin implements Notifi
   Map<NotificationType, bool> _mapSettings(Map<String, dynamic> json) {
     final result = <NotificationType, bool>{};
 
-    json.forEach((key, value) {
-      final type = NotificationType.fromCode(key);
-      result[type] = value as bool;
-    });
+    for (final entry in json.entries) {
+      final type = NotificationType.tryFromCode(entry.key);
+      if (type == null) continue;
+      result[type] = entry.value as bool;
+    }
 
     return result;
   }

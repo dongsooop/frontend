@@ -10,8 +10,8 @@ class SecureStorageService {
   static const fcmLastToken = 'fcmLastToken';
   static const fcmLastFid = 'fcmLastFid';
 
-  Future<void> write(String key, String token) async {
-    await _storage.write(key: key, value: token);
+  Future<void> write(String key, String value) async {
+    await _storage.write(key: key, value: value);
   }
 
   Future<String?> read(String key) async {
@@ -26,6 +26,10 @@ class SecureStorageService {
 
   Future<void> deleteFcmToken() async {
     await _storage.delete(key: _fcmToken);
+  }
+
+  Future<void> deleteByKey(String key) async {
+    await _storage.delete(key: key);
   }
 }
 

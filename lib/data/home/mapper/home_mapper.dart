@@ -3,8 +3,13 @@ import 'package:dongsoop/data/home/model/time_table_item_response.dart';
 import 'package:dongsoop/data/home/model/schedule_item_response.dart';
 import 'package:dongsoop/data/home/model/new_notice_item_response.dart';
 import 'package:dongsoop/data/home/model/popular_recruit_item_response.dart';
+import 'package:dongsoop/data/home/model/home_eclass_assignment_response.dart';
+import 'package:dongsoop/data/home/model/home_eclass_upcoming_assignment_response.dart';
+import 'package:dongsoop/data/eclass/mapper/eclass_link_mapper.dart';
 import 'package:dongsoop/domain/home/entity/home_entity.dart';
+import 'package:dongsoop/domain/home/entity/home_eclass_assignment_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
+import 'package:dongsoop/domain/eclass/enum/eclass_link_status.dart';
 
 String _string(String? v) => (v ?? '').trim();
 
@@ -60,6 +65,88 @@ extension HomeResponseMapper on HomeResponse {
       schedule: schedule,
       notices: noticeList,
       popularRecruits: popularRecruitList,
+      eclassAssignment: eclassAssignment?.toEntity(),
+    );
+  }
+}
+
+extension HomeEclassAssignmentResponseMapper on HomeEclassAssignmentResponse {
+  HomeEclassAssignmentEntity toEntity() {
+    final mappedStatus = mapEclassLinkStatus(status);
+    final List<HomeEclassUpcomingAssignmentEntity> mappedUpcoming =
+        List.unmodifiable(
+      (upcoming ?? const <HomeEclassUpcomingAssignmentResponse>[])
+          .map((assignment) => assignment.toEntity()),
+    );
+
+    if (!linked && mappedStatus != null) {
+      throw const FormatException(
+        'Unlinked home Eclass response contains a status.',
+      );
+    }
+    if (linked && mappedStatus == null) {
+      throw const FormatException(
+        'Linked home Eclass response has no status.',
+      );
+    }
+    if (upcomingCount < 0 || mappedUpcoming.length > 3) {
+      throw const FormatException('Invalid home Eclass assignment count.');
+    }
+    if ((!linked || mappedStatus == EclassLinkStatus.expired) &&
+        (upcomingCount != 0 || mappedUpcoming.isNotEmpty)) {
+      throw const FormatException(
+        'Inactive home Eclass response contains assignments.',
+      );
+    }
+
+    final legacyAssignment = _legacyAssignmentOrNull();
+    final primaryAssignment =
+        mappedUpcoming.isNotEmpty ? mappedUpcoming.first : legacyAssignment;
+
+    return HomeEclassAssignmentEntity(
+      linked: linked,
+      status: mappedStatus,
+      upcomingCount: upcomingCount,
+      upcoming: mappedUpcoming,
+      primaryAssignment: primaryAssignment,
+    );
+  }
+
+  HomeEclassUpcomingAssignmentEntity? _legacyAssignmentOrNull() {
+    final values = <Object?>[
+      nearestCourseName,
+      nearestTitle,
+      nearestDueAt,
+      nearestDDay,
+    ];
+    final providedCount = values.where((value) => value != null).length;
+
+    if (providedCount == 0) return null;
+    if (providedCount != values.length) {
+      throw const FormatException(
+        'Home Eclass nearest assignment is incomplete.',
+      );
+    }
+
+    return HomeEclassUpcomingAssignmentEntity(
+      courseName: nearestCourseName!,
+      title: nearestTitle!,
+      dueAt: nearestDueAt!,
+      dDay: nearestDDay!,
+      submitted: false,
+    );
+  }
+}
+
+extension HomeEclassUpcomingAssignmentResponseMapper
+    on HomeEclassUpcomingAssignmentResponse {
+  HomeEclassUpcomingAssignmentEntity toEntity() {
+    return HomeEclassUpcomingAssignmentEntity(
+      courseName: courseName,
+      title: title,
+      dueAt: dueAt,
+      dDay: dDay,
+      submitted: submitted,
     );
   }
 }

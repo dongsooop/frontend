@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/routing/route_paths.dart';
+import 'package:dongsoop/core/routing/utils/eclass_assignment_link_launcher.dart';
 import 'package:dongsoop/domain/auth/enum/login_entry.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
@@ -45,6 +46,8 @@ import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
 import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_more_screen.dart';
 import 'package:dongsoop/presentation/setting/device_management/device_management_screen.dart';
+import 'package:dongsoop/presentation/eclass/assignment/eclass_assignment_screen.dart';
+import 'package:dongsoop/presentation/eclass/link/eclass_link_screen.dart';
 import 'package:dongsoop/presentation/notification/notification_screen.dart';
 import 'package:dongsoop/presentation/setting/setting_screen.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_screen.dart';
@@ -280,10 +283,28 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.setting,
       builder: (context, state) => SettingScreen(
+        onTapEclass: () => context.push(RoutePaths.eclassLink),
         onTapDevice: () {
           context.push(RoutePaths.deviceManagement);
         },
         onTapPasswordReset: () => context.push(RoutePaths.passwordReset),
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.eclassLink,
+      builder: (context, state) => EclassLinkScreen(
+        onTapAssignments: () {
+          context.push(RoutePaths.eclassAssignments);
+        },
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.eclassAssignments,
+      builder: (context, state) => EclassAssignmentScreen(
+        onTapLinkManagement: () async {
+          await context.push(RoutePaths.eclassLink);
+        },
+        onOpenAssignment: openEclassAssignmentLink,
       ),
     ),
     GoRoute(
@@ -601,11 +622,7 @@ final router = GoRouter(
                   pageBuilder: (context, state) {
                     return MaterialPage(
                       key: state.pageKey,
-                      child: NoticeListPageScreen(
-                        onTapAlarmSetting: () {
-                          context.push(RoutePaths.notification);
-                        },
-                      ),
+                      child: const NoticeListPageScreen(),
                     );
                   },
                 ),

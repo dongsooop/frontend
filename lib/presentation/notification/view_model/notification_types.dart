@@ -2,6 +2,7 @@ class NotificationTypes {
   static const notice = 'NOTICE';
   static const timetable = 'TIMETABLE';
   static const calendar = 'CALENDAR';
+  static const eclassAssignment = 'ECLASS_ASSIGNMENT';
   static const chat = 'CHAT';
 
   // 모집 지원

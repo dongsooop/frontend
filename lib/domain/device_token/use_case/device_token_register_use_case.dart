@@ -6,7 +6,10 @@ class DeviceRegisterTokenUseCase {
   final DeviceTokenRepository _deviceRepo;
   DeviceRegisterTokenUseCase(this._deviceRepo);
 
-  Future<FailureType?> execute(DeviceTokenRequest request) {
-    return _deviceRepo.registerDeviceToken(request);
+  Future<FailureType?> execute(
+    DeviceTokenRequest request, {
+    bool force = false,
+  }) {
+    return _deviceRepo.registerDeviceToken(request, force: force);
   }
 }

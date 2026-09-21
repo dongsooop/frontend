@@ -1,0 +1,4 @@
+enum EclassLinkStatus {
+  active,
+  expired,
+}
