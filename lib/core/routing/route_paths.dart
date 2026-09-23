@@ -34,6 +34,7 @@ abstract class RoutePaths {
   static const String timetableWrite = '/timetableWrite';
   static const String timetableList = '/timetableList';
   static const String timetableLectureWrite = '/timetableLectureWrite';
+  static const String meal = '/meal';
   static const String schedule = '/schedule';
   static const String scheduleDetail = '/scheduleDetail';
   static const String recruitWrite = '/recruitWrite';

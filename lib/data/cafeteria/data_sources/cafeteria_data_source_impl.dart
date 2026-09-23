@@ -2,9 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/cafeteria/data_sources/cafeteria_data_source.dart';
 import 'package:dongsoop/data/cafeteria/model/cafeteria_response.dart';
+import 'package:dongsoop/data/cafeteria/model/meal_price_response.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CafeteriaDataSourceImpl implements CafeteriaDataSource {
+  /// 가격표 경로. `.env` 에 키가 아직 없는 기기에서도 뜨도록 기본값을 둔다.
+  static const _defaultPricesEndpoint = '/meal/prices';
+
   final Dio _plainDio;
 
   CafeteriaDataSourceImpl(this._plainDio);
@@ -19,6 +23,20 @@ class CafeteriaDataSourceImpl implements CafeteriaDataSource {
       return CafeteriaResponse.fromJson(response.data);
     } else {
       throw Exception('식단 조회 실패: ${response.statusCode}');
+    }
+  }
+
+  @override
+  Future<MealPriceResponse> fetchMealPrices() async {
+    final endpoint =
+        dotenv.maybeGet('MEAL_PRICES_ENDPOINT') ?? _defaultPricesEndpoint;
+
+    final response = await _plainDio.get(endpoint);
+
+    if (response.statusCode == HttpStatusCode.ok.code) {
+      return MealPriceResponse.fromJson(response.data);
+    } else {
+      throw Exception('가격표 조회 실패: ${response.statusCode}');
     }
   }
 }
