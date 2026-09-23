@@ -29,6 +29,7 @@ import 'package:dongsoop/presentation/restaurants/write/restaurants_write_screen
 import 'package:dongsoop/presentation/restaurants/write/search_kakao_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_result_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/user_feedback_screen.dart';
+import 'package:dongsoop/presentation/meal/meal_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_detail_page_screen.dart';
 import 'package:dongsoop/presentation/schedule/schedule_page_screen.dart';
 import 'package:dongsoop/presentation/chat/chat_detail_screen.dart';
@@ -155,6 +156,10 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.timetableWrite,
       builder: (context, state) => TimetableWriteScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.meal,
+      builder: (context, state) => const MealPageScreen(),
     ),
     GoRoute(
       path: RoutePaths.schedule,

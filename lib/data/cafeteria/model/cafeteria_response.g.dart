@@ -13,6 +13,7 @@ CafeteriaResponse _$CafeteriaResponseFromJson(Map<String, dynamic> json) =>
       dailyMeals: (json['dailyMeals'] as List<dynamic>)
           .map((e) => DailyMealModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      notice: json['notice'] as String?,
     );
 
 Map<String, dynamic> _$CafeteriaResponseToJson(CafeteriaResponse instance) =>
@@ -20,6 +21,7 @@ Map<String, dynamic> _$CafeteriaResponseToJson(CafeteriaResponse instance) =>
       'startDate': instance.startDate,
       'endDate': instance.endDate,
       'dailyMeals': instance.dailyMeals,
+      'notice': instance.notice,
     };
 
 DailyMealModel _$DailyMealModelFromJson(Map<String, dynamic> json) =>
@@ -27,6 +29,7 @@ DailyMealModel _$DailyMealModelFromJson(Map<String, dynamic> json) =>
       date: json['date'] as String,
       dayOfWeek: json['dayOfWeek'] as String,
       koreanMenu: json['koreanMenu'] as String,
+      specialMenu: json['specialMenu'] as String?,
     );
 
 Map<String, dynamic> _$DailyMealModelToJson(DailyMealModel instance) =>
@@ -34,4 +37,5 @@ Map<String, dynamic> _$DailyMealModelToJson(DailyMealModel instance) =>
       'date': instance.date,
       'dayOfWeek': instance.dayOfWeek,
       'koreanMenu': instance.koreanMenu,
+      'specialMenu': instance.specialMenu,
     };

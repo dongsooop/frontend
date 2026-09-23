@@ -20,11 +20,18 @@ class CafeteriaState {
   /// 보여줄 화면이라면 그냥 무시하면 된다.
   final List<String> staples;
 
+  /// 식당이 그 주에 붙인 공지. 없는 주가 더 많아 null 이 기본이다.
+  ///
+  /// 홈과 캠퍼스 카드는 이 값을 쓰지 않는다. 좁은 자리에 공지까지 넣으면
+  /// 메뉴가 밀린다 — 공지는 학식 화면에서만 보여준다.
+  final String? notice;
+
   const CafeteriaState({
     this.todayMeal,
     this.emptyReason = CafeteriaEmptyReason.none,
     this.weekMeals = const [],
     this.staples = const [],
+    this.notice,
   });
 
   bool get hasWeekMeals => weekMeals.isNotEmpty;

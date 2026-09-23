@@ -42,6 +42,7 @@ class CafeteriaViewModel extends _$CafeteriaViewModel {
         emptyReason: CafeteriaEmptyReason.noData,
         weekMeals: weekMeals,
         staples: staples,
+        notice: entity.notice,
       );
     }
 
@@ -55,6 +56,7 @@ class CafeteriaViewModel extends _$CafeteriaViewModel {
         todayMeal: todayMeal,
         weekMeals: weekMeals,
         staples: staples,
+        notice: entity.notice,
       );
     }
 
@@ -67,6 +69,7 @@ class CafeteriaViewModel extends _$CafeteriaViewModel {
           : CafeteriaEmptyReason.holiday,
       weekMeals: weekMeals,
       staples: staples,
+      notice: entity.notice,
     );
   }
 
@@ -94,6 +97,9 @@ class CafeteriaViewModel extends _$CafeteriaViewModel {
         final menu = found == null || isMealEmpty(found.koreanMenu)
             ? ''
             : found.koreanMenu;
+        final special = found == null || isMealEmpty(found.specialMenu)
+            ? ''
+            : found.specialMenu;
         final dayOfWeek = found != null && found.dayOfWeek.isNotEmpty
             ? found.dayOfWeek
             : _weekdayNames[index];
@@ -102,6 +108,7 @@ class CafeteriaViewModel extends _$CafeteriaViewModel {
           date: key,
           dayOfWeek: dayOfWeek,
           koreanMenu: menu,
+          specialMenu: special,
         );
       },
       growable: false,

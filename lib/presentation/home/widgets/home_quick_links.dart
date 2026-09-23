@@ -4,7 +4,7 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// 자주 쓰는 화면 네 개.
+/// 자주 쓰는 화면 다섯 개.
 class HomeQuickLinks extends StatelessWidget {
   const HomeQuickLinks({super.key});
 
@@ -28,6 +28,12 @@ class HomeQuickLinks extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               clipBehavior: Clip.none,
               children: [
+                _QuickTile(
+                  icon: Icons.rice_bowl_rounded,
+                  label: '학식',
+                  onTap: () => context.push(RoutePaths.meal),
+                ),
+                const SizedBox(width: 8),
                 _QuickTile(
                   icon: Icons.restaurant_rounded,
                   label: '맛집',

@@ -7,7 +7,7 @@ part of 'cafeteria_view_model.dart';
 // **************************************************************************
 
 String _$cafeteriaViewModelHash() =>
-    r'c0ea337c2b2c22884656e0dbb477cc28199bf48f';
+    r'4641f7669b137786be22026511df8fac0ddde7da';
 
 /// See also [CafeteriaViewModel].
 @ProviderFor(CafeteriaViewModel)
