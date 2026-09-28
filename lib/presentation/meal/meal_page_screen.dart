@@ -20,7 +20,9 @@ import 'package:intl/intl.dart';
 /// 홈·캠퍼스 카드는 오늘 한식만 좁게 보여준다. 여기서는 그 주 닷새를 골라
 /// 가며 한식과 단품을 다 펼치고, 식당 공지와 가격표까지 붙인다.
 class MealPageScreen extends ConsumerStatefulWidget {
-  const MealPageScreen({super.key});
+  final String? initialDate;
+
+  const MealPageScreen({super.key, this.initialDate});
 
   @override
   ConsumerState<MealPageScreen> createState() => _MealPageScreenState();
@@ -118,6 +120,13 @@ class _MealPageScreenState extends ConsumerState<MealPageScreen> {
   int _resolveIndex(List<DailyMealEntity> weekMeals) {
     final selected = _selectedIndex;
     if (selected != null && selected < weekMeals.length) return selected;
+
+    final initialDate = widget.initialDate;
+    if (initialDate != null) {
+      for (var i = 0; i < weekMeals.length; i++) {
+        if (weekMeals[i].date == initialDate) return i;
+      }
+    }
 
     final todayKey = DateFormat('yyyy-MM-dd').format(DateTime.now());
     for (var i = 0; i < weekMeals.length; i++) {

@@ -159,7 +159,9 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.meal,
-      builder: (context, state) => const MealPageScreen(),
+      builder: (context, state) => MealPageScreen(
+        initialDate: state.extra is String ? state.extra as String : null,
+      ),
     ),
     GoRoute(
       path: RoutePaths.schedule,
