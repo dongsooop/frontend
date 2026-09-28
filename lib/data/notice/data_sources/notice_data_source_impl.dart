@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/notice/data_sources/notice_data_source.dart';
 import 'package:dongsoop/data/notice/model/notice_model.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class NoticeDataSourceImpl implements NoticeDataSource {
   final Dio _plainDio;
@@ -12,7 +11,7 @@ class NoticeDataSourceImpl implements NoticeDataSource {
 
   @override
   Future<List<NoticeModel>> fetchSchoolNotices({required int page}) async {
-    final endpoint = dotenv.get('SCHOOL_NOTICE_ENDPOINT');
+    final endpoint = '/notice/DEPT_1001';
     return _fetchNoticesFromUrl(
       dio: _plainDio,
       url: endpoint,
@@ -25,7 +24,7 @@ class NoticeDataSourceImpl implements NoticeDataSource {
     required int page,
     required String departmentType,
   }) async {
-    final prefix = dotenv.get('DEPARTMENT_NOTICE_ENDPOINT');
+    final prefix = '/notice/';
     final url = '$prefix$departmentType';
     return _fetchNoticesFromUrl(
       dio: _authDio,
@@ -40,7 +39,7 @@ class NoticeDataSourceImpl implements NoticeDataSource {
     String? fid,
     String? deviceToken,
   }) async {
-    final url = dotenv.get('SUBSCRIBED_NOTICE_ENDPOINT');
+    final url = '/notice/guest';
     final headers = <String, String>{
       if (fid != null && fid.isNotEmpty) 'X-Device-Fid': fid,
       if (deviceToken != null && deviceToken.isNotEmpty)

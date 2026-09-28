@@ -13,7 +13,6 @@ import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_member.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
 import 'chat_data_source.dart';
@@ -33,7 +32,7 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Future<String> createQNAChatRoom(ChatRoomRequest request) async {
-    final endpoint = dotenv.get('CHAT_QNA_ENDPOINT');
+    final endpoint = '/chat/room/contact';
     try {
       final response = await _authDio.post(endpoint, data: request.toJson());
       if (response.statusCode == HttpStatusCode.ok.code) {
@@ -57,7 +56,7 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Future<List<ChatRoom>?> getChatRooms() async {
-    final endpoint = dotenv.get('CHATROOMS_ENDPOINT');
+    final endpoint = '/chat/rooms';
 
     try {
       final response = await _authDio.get(endpoint);
@@ -77,8 +76,8 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Future<Map<String, String>> getUserNicknamesByRoomId(String roomId) async {
-    final chat = dotenv.get('CHAT');
-    final nicknames = dotenv.get('CHATROOM_NICKNAMES_ENDPOINT');
+    final chat = '/chat/room';
+    final nicknames = '/participants';
     final endpoint = '$chat/$roomId$nicknames';
 
     try {
@@ -202,8 +201,8 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Future<(List<ChatMessage>?, ChatRoomDetail)> getChatInitialize(String roomId) async {
-    final chat = dotenv.get('CHAT');
-    final initialize = dotenv.get('CHAT_INITIALEZE_ENDPOINT');
+    final chat = '/chat/room';
+    final initialize = '/initialize';
     final endpoint = '$chat/$roomId$initialize';
 
     try {
@@ -230,8 +229,8 @@ class ChatDataSourceImpl implements ChatDataSource {
   @override
   Future<List<ChatMessage>?> getChatMessagesAfter(
       String roomId, String messageId) async {
-    final chat = dotenv.get('CHAT');
-    final afterMessage = dotenv.get('CHAT_AFTER_MESSAGES_ENDPOINT');
+    final chat = '/chat/room';
+    final afterMessage = '/messages/after';
     final endpoint = '$chat/$roomId$afterMessage/$messageId';
 
     try {
@@ -255,8 +254,8 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Future<void> leaveChatRoom(String roomId) async {
-    final chat = dotenv.get('CHAT');
-    final leave = dotenv.get('LEAVE_ENDPOINT');
+    final chat = '/chat/room';
+    final leave = '/leave';
     final endpoint = '$chat/$roomId$leave';
 
     try {
@@ -276,8 +275,8 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Future<void> kickUser(String roomId, int userId) async {
-    final chat = dotenv.get('CHAT');
-    final kick = dotenv.get('KICK_ENDPOINT');
+    final chat = '/chat/room';
+    final kick = '/kick';
     final endpoint = '$chat/$roomId$kick';
     final requestBody = {'userId': userId};
 
@@ -292,7 +291,7 @@ class ChatDataSourceImpl implements ChatDataSource {
 
   @override
   Future<Map<String, String?>> sendChatbot(String text) async {
-    final endpoint = dotenv.get('CHATBOT_ENDPOINT');
+    final endpoint = '/chatbot';
     final requestBody = {'text': text, };
 
     try {
@@ -311,7 +310,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   Future<bool> getBlindDateOpen() async {
-    final endpoint = dotenv.get('BLIND_DATE_OPEN_ENDPOINT');
+    final endpoint = '/blinddate';
     try {
       final response = await _authDio.get(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
@@ -354,7 +353,7 @@ class ChatDataSourceImpl implements ChatDataSource {
   // blind
   @override
   Future<void> blindConnect(int userId) async {
-    final String url = dotenv.get('BLIND_URL');
+    final String url = 'ws://dongsoop.site/blinddate';
 
     await _socketIoService.connect(url: url, memberId: userId);
   }

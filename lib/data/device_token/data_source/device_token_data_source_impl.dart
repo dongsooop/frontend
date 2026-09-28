@@ -3,7 +3,6 @@ import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/device_token/data_source/device_token_data_source.dart';
 import 'package:dongsoop/data/device_token/model/device_token_request.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
   DeviceTokenDataSourceImpl(this._dio, this._storage);
@@ -33,7 +32,7 @@ class DeviceTokenDataSourceImpl implements DeviceTokenDataSource {
       return;
     }
 
-    final endpoint = dotenv.get('DEVICE_REGISTRATION_ENDPOINT');
+    final endpoint = '/device';
     final requestBody = request.toJson();
     try {
       final response = await _dio.post(endpoint, data: requestBody);

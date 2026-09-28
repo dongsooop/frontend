@@ -5,7 +5,6 @@ import 'package:dongsoop/data/feedback/model/feedback_list_response.dart';
 import 'package:dongsoop/data/feedback/model/feedback_write_request.dart';
 import 'package:dongsoop/domain/feedback/entity/feedback_list_entity.dart';
 import 'package:dongsoop/domain/feedback/entity/feedback_write_entity.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class FeedbackDataSourceImpl implements FeedbackDataSource {
   final Dio _plainDio;
@@ -18,7 +17,7 @@ class FeedbackDataSourceImpl implements FeedbackDataSource {
     required FeedbackWriteEntity entity,
   }) async {
     final model = FeedbackWriteRequest.fromEntity(entity);
-    final url = dotenv.get('FEEDBACK_BASE_ENDPOINT');
+    final url = '/feedback';
 
     try {
       final response = await _plainDio.post(url, data: model.toJson());
@@ -33,7 +32,7 @@ class FeedbackDataSourceImpl implements FeedbackDataSource {
 
   @override
   Future<FeedbackListEntity> feedbackList() async {
-    final url = dotenv.get('FEEDBACK_BASE_ENDPOINT');
+    final url = '/feedback';
     try {
       final response = await _plainDio.get(url);
       if (response.statusCode != HttpStatusCode.ok.code) {
@@ -48,7 +47,7 @@ class FeedbackDataSourceImpl implements FeedbackDataSource {
 
   @override
   Future<List<String>> improvementSuggestions() async {
-    final url = dotenv.get('FEEDBACK_IMPROVEMENT_ENDPOINT');
+    final url = '/feedback/improvement-suggestions';
     try {
       final response = await _authDio.get(url);
       if (response.statusCode != HttpStatusCode.ok.code) {
@@ -64,7 +63,7 @@ class FeedbackDataSourceImpl implements FeedbackDataSource {
 
   @override
   Future<List<String>> featureRequests() async {
-    final url = dotenv.get('FEEDBACK_FEATURE_REQUEST_ENDPOINT');
+    final url = '/feedback/feature-requests';
     try {
       final response = await _authDio.get(url);
       if (response.statusCode != HttpStatusCode.ok.code) {

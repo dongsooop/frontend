@@ -7,7 +7,6 @@ import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/domain/timetable/model/lecture_request.dart';
 import 'package:dongsoop/domain/timetable/model/local_timetable_info.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TimetableDataSourceImpl implements TimetableDataSource {
@@ -21,7 +20,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
 
   @override
   Future<List<Lecture>?> getLecture(int year, Semester semester) async {
-    final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+    final endpoint = '/timetable';
     final pathParam = '$endpoint/$year/${semester.name}';
 
     try {
@@ -48,7 +47,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
 
   @override
   Future<bool> createLecture(LectureRequest request) async {
-    final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+    final endpoint = '/timetable';
 
     try {
       final response = await _authDio.post(endpoint, data: request.toJson());
@@ -66,7 +65,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
 
   @override
   Future<bool> updateLecture(Lecture timetable) async {
-    final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+    final endpoint = '/timetable';
 
     try {
       final response = await _authDio.patch(endpoint, data: timetable.toJson());
@@ -85,7 +84,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
 
   @override
   Future<bool> deleteLecture(int id) async {
-    final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+    final endpoint = '/timetable';
     final pathParam = '$endpoint/$id';
 
     try {
@@ -105,7 +104,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
 
   @override
   Future<bool> timetableAnalysis(XFile file) async {
-    final endpoint = dotenv.get('TIMETABLE_ANALYSIS_ENDPOINT');
+    final endpoint = '/timetable_analysis';
 
     try {
       final formData = FormData.fromMap({
@@ -160,7 +159,7 @@ class TimetableDataSourceImpl implements TimetableDataSource {
 
   @override
   Future<void> deleteTimetable(int year, Semester semester) async {
-    final endpoint = dotenv.get('TIMETABLE_ENDPOINT');
+    final endpoint = '/timetable';
     final pathParam = '$endpoint/$year/${semester.name}';
 
     try {

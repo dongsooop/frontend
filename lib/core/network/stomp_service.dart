@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
@@ -23,8 +22,8 @@ class StompService {
   // chat room list
   Future<void> connectRoomList(int userId) async {
     try {
-      final baseUrl = dotenv.get('BASE_URL');
-      final endpoint = dotenv.get('WEBSOCKET_ENDPOINT');
+      final baseUrl = 'https://dongsoop.site';
+      final endpoint = '/ws/chat';
       final url = '$baseUrl$endpoint';
       final accessToken = await _secureStorageService.read('accessToken');
 
@@ -58,7 +57,7 @@ class StompService {
 
   void _onConnectRoomList(StompFrame frame, int userId) {
     if (!_chatRoomClient.connected) return;
-    final chatRoomDestination = dotenv.get('CHAT_ROOM_DESTINATION');
+    final chatRoomDestination = '/topic/user';
 
     _chatRoomClient.subscribe(
       destination: '$chatRoomDestination/$userId',
@@ -81,8 +80,8 @@ class StompService {
   // chat detail
   Future<void> connect(String roomId) async {
     try {
-      final baseUrl = dotenv.get('BASE_URL');
-      final endpoint = dotenv.get('WEBSOCKET_ENDPOINT');
+      final baseUrl = 'https://dongsoop.site';
+      final endpoint = '/ws/chat';
       final url = '$baseUrl$endpoint';
       final accessToken = await _secureStorageService.read('accessToken');
 
@@ -115,9 +114,9 @@ class StompService {
   }
 
   void _onConnect(StompFrame frame, String roomId) {
-    final enterDestination = dotenv.get('ENTER_DESTINATION');
-    final chatDestination = dotenv.get('CHAT_DESTINATION');
-    final blockDestination = dotenv.get('BLOCK_DESTINATION');
+    final enterDestination = '/app/enter';
+    final chatDestination = '/topic/chat/room';
+    final blockDestination = '/user/topic/chat/room';
 
     _chatDetailClient.subscribe(
       destination: '$blockDestination/$roomId',
@@ -147,7 +146,7 @@ class StompService {
   }
 
   void sendMessage(ChatMessageRequest message) {
-    final endpoint = dotenv.get('SEND_MESSAGE_ENDPOINT');
+    final endpoint = '/app/message';
     final destination = '$endpoint/${message.roomId}';
 
     final bodyData = json.encode({

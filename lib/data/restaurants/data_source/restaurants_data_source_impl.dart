@@ -21,7 +21,7 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource {
   // 카카오 키워드 검색
   @override
   Future<List<RestaurantsKakaoInfo>?> searchByKakao(String search) async {
-    final baseUrl = dotenv.get('KAKAO_URL');
+    final baseUrl = 'https://dapi.kakao.com/v2/local/search/keyword.json';
     final restApiKey = dotenv.get('KAKAO_API_KEY');
 
     try {
@@ -57,7 +57,7 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource {
 
   @override
   Future<bool> checkRestaurantsDuplication(String externalMapId) async {
-    final endpoint = dotenv.get('CHECK_RESTAURANTS_DUPLICATION');
+    final endpoint = '/restaurants/validate/external-id?';
     final query = 'externalMapId=${externalMapId}';
 
     try {
@@ -78,7 +78,7 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource {
 
   @override
   Future<bool> restaurantsRegister(RestaurantsRequest request) async {
-    final endpoint = dotenv.get('CREATE_RESTAURANTS');
+    final endpoint = '/restaurants/register';
 
     try {
       final response = await _authDio.post(endpoint, data: request.toJson());
@@ -106,7 +106,7 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource {
     required int page,
     int size = 20,
   }) async {
-    final endpoint = dotenv.get('RESTAURANTS');
+    final endpoint = '/restaurants/nearby';
     final queryParams = {
       'page': page,
       'size': size,
@@ -144,8 +144,8 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource {
     required int id,
     required bool likedByMe,
   }) async {
-    final restaurant = dotenv.get('RESTAURANT');
-    final like = dotenv.get('RESTAURANT_LIKE');
+    final restaurant = '/restaurants';
+    final like = '/like/toggle';
     final endpoint = restaurant + '/$id' + like;
 
     try {
@@ -174,7 +174,7 @@ class RestaurantsDataSourceImpl implements RestaurantsDataSource {
     required int page,
     int size = 20,
   }) async {
-    final endpoint = dotenv.get('RESTAURANTS_SEARCH');
+    final endpoint = '/search/restaurant';
     final queryParams = {
       'page': page,
       'size': size,

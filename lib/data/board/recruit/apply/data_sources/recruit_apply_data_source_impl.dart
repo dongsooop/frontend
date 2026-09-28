@@ -10,7 +10,6 @@ import 'package:dongsoop/data/board/recruit/config/recruit_type_config.dart';
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_entity.dart';
 import 'package:dongsoop/domain/board/recruit/apply/entity/recruit_apply_text_filter_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
   final Dio _authDio;
@@ -22,7 +21,7 @@ class RecruitApplyDataSourceImpl implements RecruitApplyDataSource {
     required RecruitApplyTextFilterEntity entity,
   }) async {
     final model = RecruitApplyTextFilterModel.fromEntity(entity);
-    final url = dotenv.get("RECRUIT_APPLY_FILTER_ENDPOINT");
+    final url = '/text_filter_board';
 
     try {
       final response = await _authDio.post(url, data: model.toJson());
