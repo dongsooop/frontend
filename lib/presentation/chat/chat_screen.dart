@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:dongsoop/core/presentation/components/category_tab_bar.dart';
-import 'package:dongsoop/core/presentation/components/sub_tab_bar.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/presentation/chat/widgets/chat_card.dart';
 import 'package:dongsoop/providers/activity_context_providers.dart';
@@ -32,8 +31,6 @@ class ChatScreen extends HookConsumerWidget {
     final viewModel = ref.read(chatViewModelProvider.notifier);
     final chatState = ref.watch(chatViewModelProvider);
 
-    final selectedCategory = useState('전체');
-
     useEffect(() {
       bool disposed = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -58,7 +55,7 @@ class ChatScreen extends HookConsumerWidget {
             context: context,
             barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
-              title: '채팅 오류',
+              title: '채팅',
               content: chatState.errorMessage!,
               onConfirm: () {},
             ),
@@ -98,7 +95,7 @@ class ChatScreen extends HookConsumerWidget {
         });
       }
       return null;
-    }, [selectedCategory.value, user]);
+    }, [user]);
 
     useEffect(() {
       if (user != null) {
@@ -159,55 +156,15 @@ class ChatScreen extends HookConsumerWidget {
   }
 
   Widget _buildChatBody(BuildContext context, List<ChatRoom> rooms, ChatViewModel viewModel,) {
-    final subTabs = const ['전체', '1:1 채팅', '그룹 채팅'];
-    final selectedSubIndex = useState(0);
-    final pageController = usePageController(initialPage: 0);
-
     return Stack(
       children: [
         Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SubTabBar(
-              tabs: subTabs,
-              selectedIndex: selectedSubIndex.value,
-              onSelected: (i) {
-                if (selectedSubIndex.value == i) return;
-                selectedSubIndex.value = i;
-                pageController.animateToPage(
-                  i,
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOut,
-                );
-              },
-              showHelpIcon: false,
-            ),
             Expanded(
-              child: PageView(
-                controller: pageController,
-                onPageChanged: (index) {
-                  selectedSubIndex.value = index;
-                },
-                children: [
-                  _ChatRoomList(
-                    rooms: rooms,
-                    viewModel: viewModel,
-                    onTapChatDetail: onTapChatDetail,
-                    filter: (room) => true,
-                  ),
-                  _ChatRoomList(
-                    rooms: rooms,
-                    viewModel: viewModel,
-                    onTapChatDetail: onTapChatDetail,
-                    filter: (room) => room.groupChat == false,
-                  ),
-                  _ChatRoomList(
-                    rooms: rooms,
-                    viewModel: viewModel,
-                    onTapChatDetail: onTapChatDetail,
-                    filter: (room) => room.groupChat == true,
-                  ),
-                ],
+              child: _ChatRoomList(
+                rooms: rooms,
+                viewModel: viewModel,
+                onTapChatDetail: onTapChatDetail,
               ),
             ),
           ],
@@ -243,23 +200,19 @@ class _ChatRoomList extends StatelessWidget {
   final List<ChatRoom> rooms;
   final ChatViewModel viewModel;
   final Future<bool> Function(String roomId) onTapChatDetail;
-  final bool Function(ChatRoom) filter;
 
   const _ChatRoomList({
     required this.rooms,
     required this.viewModel,
     required this.onTapChatDetail,
-    required this.filter,
   });
 
   @override
   Widget build(BuildContext context) {
-    final filtered = rooms.where(filter).toList();
-
     return RefreshIndicator(
       color: ColorStyles.primaryColor,
       onRefresh: () async => viewModel.loadChatRooms(),
-      child: filtered.isEmpty
+      child: rooms.isEmpty
         ? Center(
           child: Text(
             '참여 중인 채팅방이 없어요',
@@ -268,9 +221,9 @@ class _ChatRoomList extends StatelessWidget {
         )
         : ListView.builder(
           padding: EdgeInsets.only(top: 24),
-          itemCount: filtered.length,
+          itemCount: rooms.length,
           itemBuilder: (context, index) {
-            final room = filtered[index];
+            final room = rooms[index];
             return InkWell(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,

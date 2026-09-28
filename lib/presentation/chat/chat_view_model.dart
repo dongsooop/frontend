@@ -133,7 +133,7 @@ class ChatViewModel extends StateNotifier<ChatState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '과팅 오픈 확인 중 오류가 발생했습니다.',
+        errorMessage: '과팅 기능은 준비 중이에요!',
       );
       return false;
     }
