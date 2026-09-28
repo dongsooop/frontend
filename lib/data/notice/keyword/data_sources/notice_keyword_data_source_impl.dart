@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/domain/device_token/use_case/get_fcm_token_use_case.dart';
 import 'package:dongsoop/domain/notice/keyword/entity/notice_keyword_entity.dart';
 import 'package:dongsoop/domain/notice/keyword/enum/notice_keyword_type.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/notice/keyword/data_sources/notice_keyword_data_source.dart';
 
@@ -20,7 +19,7 @@ class NoticeKeywordDataSourceImpl implements NoticeKeywordDataSource {
   /// 구버전 경로(`NOTICE_KEYWORD_ENDPOINT`)에서 v2 경로를 만든다.
   /// 새 환경변수를 두면 배포마다 .env 를 함께 갱신해야 해서 기존 값에서 파생시킨다.
   String get _endpoint {
-    final base = dotenv.get('NOTICE_KEYWORD_ENDPOINT');
+    final base = '/notice/keywords';
     return base.startsWith('/') ? '/v2$base' : '/v2/$base';
   }
 

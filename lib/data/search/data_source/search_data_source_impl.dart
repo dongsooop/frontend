@@ -8,7 +8,6 @@ import 'package:dongsoop/data/search/model/search_recruit_model.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/search/enum/board_type.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SearchDataSourceImpl implements SearchDataSource {
   final Dio _plainDio;
@@ -23,7 +22,7 @@ class SearchDataSourceImpl implements SearchDataSource {
     required int size,
     required String sort,
   }) async {
-    final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
+    final base = '/search/by-type';
 
     final params = {
       'page': page,
@@ -51,7 +50,7 @@ class SearchDataSourceImpl implements SearchDataSource {
     required int size,
     required String sort,
   }) async {
-    final base = dotenv.get('NOTICE_SEARCH_ENDPOINT');
+    final base = '/search/department-notice';
 
     final params = {
       'page': page,
@@ -79,7 +78,7 @@ class SearchDataSourceImpl implements SearchDataSource {
     required int size,
     required String sort,
   }) async {
-    final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
+    final base = '/search/by-type';
 
     final params = {
       'page': page,
@@ -112,7 +111,7 @@ class SearchDataSourceImpl implements SearchDataSource {
     required int size,
     required String sort,
   }) async {
-    final base = dotenv.get('SEARCH_TYPE_ENDPOINT');
+    final base = '/search/by-type';
 
     final params = {
       'page': page,
@@ -141,7 +140,7 @@ class SearchDataSourceImpl implements SearchDataSource {
     required String keyword,
     required SearchBoardType boardType,
   }) async {
-    final base = dotenv.get('AUTO_SEARCH_ENDPOINT');
+    final base = '/search/autocomplete';
 
     final params = {
       if (keyword.trim().isNotEmpty) 'keyword': keyword.trim(),
@@ -159,7 +158,7 @@ class SearchDataSourceImpl implements SearchDataSource {
 
   @override
   Future<List<String>> searchPopular() async {
-    final base = dotenv.get('POPULAR_SEARCH_ENDPOINT');
+    final base = '/search/popular';
     final response = await _plainDio.get(base);
 
     if (response.statusCode == HttpStatusCode.ok.code) {

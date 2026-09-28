@@ -4,7 +4,6 @@ import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart'
 import 'package:dongsoop/domain/report/model/report_admin_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_write_request.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 
@@ -17,7 +16,7 @@ class ReportDataSourceImpl implements ReportDataSource {
 
   @override
   Future<void> writeReport(ReportWriteRequest request) async {
-    final endpoint = dotenv.get('REPORT_WRITE_ENDPOINT');
+    final endpoint = '/reports';
 
     try {
       await _authDio.post(endpoint, data: request.toJson());
@@ -39,7 +38,7 @@ class ReportDataSourceImpl implements ReportDataSource {
 
   @override
   Future<ReportSanctionResponse> getSanctionStatus() async {
-    final endpoint = dotenv.get('SANCTION_CHECK_ENDPOINT');
+    final endpoint = '/reports/sanction-status';
 
     try {
       final response = await _authDio.get(endpoint);
@@ -57,7 +56,7 @@ class ReportDataSourceImpl implements ReportDataSource {
 
   @override
   Future<void> sanctionWriteReport(ReportAdminSanctionRequest request) async {
-    final endpoint = dotenv.get('SANCTION_WRITE_ENDPOINT');
+    final endpoint = '/reports/sanctions';
 
     try {
       await _authDio.post(endpoint, data: request.toJson());
@@ -82,7 +81,7 @@ class ReportDataSourceImpl implements ReportDataSource {
       int page = 0,
       int size = 10,
   }) async {
-    final reports = dotenv.get('REPORTS_ENDPOINT');
+    final reports = '/reports/admin';
     final query = 'filter=$type&sort=$sort&page=$page&size=$size';
     final endpoint = '$reports?$query';
 

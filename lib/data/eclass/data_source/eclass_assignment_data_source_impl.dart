@@ -4,7 +4,6 @@ import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/eclass/data_source/eclass_assignment_data_source.dart';
 import 'package:dongsoop/data/eclass/data_source/eclass_device_request_options.dart';
 import 'package:dongsoop/data/eclass/model/eclass_assignments_response.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
   final Dio _dio;
@@ -16,7 +15,7 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
     String? fid,
     String? deviceToken,
   }) async {
-    final endpoint = dotenv.get('ECLASS_ASSIGNMENTS_ENDPOINT');
+    final endpoint = '/eclass/assignments';
 
     try {
       final response = await _dio.get(
@@ -53,7 +52,7 @@ class EclassAssignmentDataSourceImpl implements EclassAssignmentDataSource {
     String? fid,
     String? deviceToken,
   }) async {
-    final endpoint = dotenv.get('ECLASS_SYNC_ENDPOINT');
+    final endpoint = '/eclass/sync';
 
     try {
       final options = buildEclassDeviceRequestOptions(

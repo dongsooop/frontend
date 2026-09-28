@@ -1,8 +1,10 @@
 import 'package:dongsoop/core/presentation/components/meal_menu_view.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 홈의 학식 구획.
@@ -35,6 +37,10 @@ class HomeMealSection extends ConsumerWidget {
             data: (data) => MealDeck(
               weekMeals: data.weekMeals,
               staples: data.staples,
+              onMealTap: (meal) => context.push(
+                RoutePaths.meal,
+                extra: meal.date,
+              ),
             ),
             loading: () => const MealFrame(
               muted: true,

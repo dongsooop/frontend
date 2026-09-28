@@ -17,6 +17,7 @@ mixin _$CafeteriaResponse {
   String get startDate;
   String get endDate;
   List<DailyMealModel> get dailyMeals;
+  String? get notice;
 
   /// Create a copy of CafeteriaResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -35,17 +36,18 @@ mixin _$CafeteriaResponse {
                 other.startDate == startDate) &&
             (identical(other.endDate, endDate) || other.endDate == endDate) &&
             const DeepCollectionEquality()
-                .equals(other.dailyMeals, dailyMeals));
+                .equals(other.dailyMeals, dailyMeals) &&
+            (identical(other.notice, notice) || other.notice == notice));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, startDate, endDate,
-      const DeepCollectionEquality().hash(dailyMeals));
+      const DeepCollectionEquality().hash(dailyMeals), notice);
 
   @override
   String toString() {
-    return 'CafeteriaResponse(startDate: $startDate, endDate: $endDate, dailyMeals: $dailyMeals)';
+    return 'CafeteriaResponse(startDate: $startDate, endDate: $endDate, dailyMeals: $dailyMeals, notice: $notice)';
   }
 }
 
@@ -56,7 +58,10 @@ abstract mixin class $CafeteriaResponseCopyWith<$Res> {
       _$CafeteriaResponseCopyWithImpl;
   @useResult
   $Res call(
-      {String startDate, String endDate, List<DailyMealModel> dailyMeals});
+      {String startDate,
+      String endDate,
+      List<DailyMealModel> dailyMeals,
+      String? notice});
 }
 
 /// @nodoc
@@ -75,6 +80,7 @@ class _$CafeteriaResponseCopyWithImpl<$Res>
     Object? startDate = null,
     Object? endDate = null,
     Object? dailyMeals = null,
+    Object? notice = freezed,
   }) {
     return _then(CafeteriaResponse(
       startDate: null == startDate
@@ -89,6 +95,10 @@ class _$CafeteriaResponseCopyWithImpl<$Res>
           ? _self.dailyMeals
           : dailyMeals // ignore: cast_nullable_to_non_nullable
               as List<DailyMealModel>,
+      notice: freezed == notice
+          ? _self.notice
+          : notice // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }

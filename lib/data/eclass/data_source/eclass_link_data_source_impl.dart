@@ -5,7 +5,6 @@ import 'package:dongsoop/data/eclass/data_source/eclass_device_request_options.d
 import 'package:dongsoop/data/eclass/data_source/eclass_link_data_source.dart';
 import 'package:dongsoop/data/eclass/model/eclass_link_request.dart';
 import 'package:dongsoop/data/eclass/model/eclass_link_response.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EclassLinkDataSourceImpl implements EclassLinkDataSource {
   final Dio _dio;
@@ -18,7 +17,7 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
     String? fid,
     String? deviceToken,
   }) async {
-    final endpoint = dotenv.get('ECLASS_LINK_ENDPOINT');
+    final endpoint = '/eclass/link';
 
     try {
       final response = await _dio.post(
@@ -51,7 +50,7 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
     String? fid,
     String? deviceToken,
   }) async {
-    final endpoint = dotenv.get('ECLASS_LINK_ENDPOINT');
+    final endpoint = '/eclass/link';
 
     try {
       final response = await _dio.get(
@@ -83,7 +82,7 @@ class EclassLinkDataSourceImpl implements EclassLinkDataSource {
     String? fid,
     String? deviceToken,
   }) async {
-    final endpoint = dotenv.get('ECLASS_LINK_ENDPOINT');
+    final endpoint = '/eclass/link';
 
     try {
       final response = await _dio.delete(

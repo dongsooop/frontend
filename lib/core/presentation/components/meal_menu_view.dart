@@ -23,10 +23,14 @@ class MealDeck extends StatefulWidget {
   /// 그 주 내내 되풀이돼 뒤로 물릴 항목. `findMealStaples` 참고.
   final List<String> staples;
 
+  /// 날짜별 카드를 눌렀을 때 호출한다.
+  final ValueChanged<DailyMealEntity>? onMealTap;
+
   const MealDeck({
     super.key,
     required this.weekMeals,
     required this.staples,
+    this.onMealTap,
   });
 
   @override
@@ -77,6 +81,9 @@ class _MealDeckState extends State<MealDeck> {
         dimInactive: true,
         showIndicator: false,
         onPageChanged: (page) => setState(() => _index = page),
+        onTapItem: widget.onMealTap == null
+            ? null
+            : (index) => widget.onMealTap!(widget.weekMeals[index]),
         itemBuilder: (context, index) => _page(widget.weekMeals[index]),
       ),
     );
