@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/subscribe_department/data_source/subscribe_department_data_source.dart';
 import 'package:dongsoop/data/subscribe_department/model/subscribe_department_model.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SubscribeDepartmentDataSourceImpl implements SubscribeDepartmentDataSource {
   final Dio _plainDio;
@@ -14,7 +13,7 @@ class SubscribeDepartmentDataSourceImpl implements SubscribeDepartmentDataSource
     String? fid,
     required String deviceToken,
   }) async {
-    final url = dotenv.get('SUBSCRIBE_DEPARTMENT_FIND');
+    final url = '/subscribe-department';
 
     final response = await _plainDio.get(
       url,
@@ -45,7 +44,7 @@ class SubscribeDepartmentDataSourceImpl implements SubscribeDepartmentDataSource
     required String deviceToken,
     required SubscribeDepartmentModel body,
   }) async {
-    final url = dotenv.get('SUBSCRIBE_DEPARTMENT_UPDATE');
+    final url = '/subscribe-department';
 
     final response = await _plainDio.put(
       url,

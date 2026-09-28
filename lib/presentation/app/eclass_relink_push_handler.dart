@@ -6,7 +6,6 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _backgroundRelinkTimeout = Duration(seconds: 25);
@@ -46,10 +45,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           : const AppleAppAttestWithDeviceCheckFallbackProvider(),
     );
     await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
-
-    if (!dotenv.isInitialized) {
-      await dotenv.load();
-    }
 
     container = ProviderContainer();
     final refreshStore = container.read(eclassRelinkRefreshStoreProvider);

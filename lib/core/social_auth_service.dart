@@ -83,8 +83,8 @@ class SocialAuthService {
 
   Future<String?> appleLogin() async {
     final clientId = dotenv.get('APPLE_CLIENT_ID');
-    final baseUrl = dotenv.get('BASE_URL');
-    final redirect = dotenv.get('APPLE_REDIRECT_ENDPOINT');
+    final baseUrl = 'https://dongsoop.site';
+    final redirect = '/oauth2/apple/callback';
 
     try {
       final credential = await SignInWithApple.getAppleIDCredential(

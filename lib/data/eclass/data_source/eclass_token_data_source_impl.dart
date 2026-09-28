@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/exception/eclass_exception.dart';
 import 'package:dongsoop/data/eclass/data_source/eclass_token_data_source.dart';
 import 'package:dongsoop/data/eclass/model/eclass_token_response.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EclassTokenDataSourceImpl implements EclassTokenDataSource {
   static const _service = 'moodle_mobile_app';
@@ -16,7 +15,7 @@ class EclassTokenDataSourceImpl implements EclassTokenDataSource {
     required String eclassId,
     required String password,
   }) async {
-    final endpoint = dotenv.get('ECLASS_TOKEN_ENDPOINT');
+    final endpoint = 'https://eclass.dongyang.ac.kr/login/token.php';
 
     try {
       final response = await _dio.post(

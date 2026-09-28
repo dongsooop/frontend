@@ -4,7 +4,6 @@ import 'package:dongsoop/data/schedule/data_sources/schedule_data_source.dart';
 import 'package:dongsoop/data/schedule/models/schedule_list_model.dart';
 import 'package:dongsoop/data/schedule/models/schedule_model.dart';
 import 'package:dongsoop/domain/schedule/entities/schedule_entity.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ScheduleDataSourceImpl implements ScheduleDataSource {
   final Dio _authDio;
@@ -16,7 +15,7 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
   Future<List<ScheduleListModel>> fetchScheduleList({
     required DateTime currentMonth,
   }) async {
-    final base = dotenv.get('CALENDAR_ENDPOINT');
+    final base = '/schedule';
     final yearMonth = '${currentMonth.year}-${currentMonth.month.toString().padLeft(2, '0')}';
     final url = '$base/$yearMonth';
 
@@ -37,7 +36,7 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
   Future<List<ScheduleListModel>> fetchGuestSchedule({
     required DateTime currentMonth,
   }) async {
-    final base = dotenv.get('CALENDAR_ENDPOINT');
+    final base = '/schedule';
     final yearMonth = '${currentMonth.year}-${currentMonth.month.toString().padLeft(2, '0')}';
     final url = '$base/$yearMonth';
 
@@ -58,7 +57,7 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
   Future<void> submitSchedule({
     required ScheduleEntity entity,
   }) async {
-    final url = dotenv.get('CALENDAR_WRITE_ENDPOINT');
+    final url = '/schedule/member';
     final model = ScheduleModel.fromEntity(entity);
 
     final response = await _authDio.post(url, data: model.toJson());
@@ -77,7 +76,7 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
       throw Exception('calendarId is null');
     }
 
-    final url = '${dotenv.get('CALENDAR_WRITE_ENDPOINT')}/$calendarId';
+    final url = '/schedule/member/$calendarId';
     final model = ScheduleModel.fromEntity(entity);
 
     final response = await _authDio.patch(url, data: model.toJson());
@@ -91,7 +90,7 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
   Future<void> deleteSchedule({
     required int calendarId,
   }) async {
-    final url = '${dotenv.get('CALENDAR_WRITE_ENDPOINT')}/$calendarId';
+    final url = '/schedule/member/$calendarId';
 
     final response = await _authDio.delete(url);
 

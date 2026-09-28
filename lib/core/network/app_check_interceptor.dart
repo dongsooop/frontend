@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppCheckInterceptor extends Interceptor {
   String? _cached;
@@ -45,8 +44,8 @@ class AppCheckInterceptor extends Interceptor {
   }
 
   bool _isOurBackend(Uri uri) {
-    final base = dotenv.maybeGet('BASE_URL');
-    if (base == null || base.isEmpty) return false;
+    final base = 'https://dongsoop.site';
+    if (base.isEmpty) return false;
     final baseHost = Uri.parse(base).host;
     return uri.host == baseHost || uri.host.endsWith('.$baseHost');
   }

@@ -8,7 +8,6 @@ import 'package:dongsoop/domain/auth/model/sign_in_response.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'auth_data_source.dart';
 
 class AuthDataSourceImpl implements AuthDataSource {
@@ -30,7 +29,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     String password,
     String fcmToken,
   ) async {
-    final endpoint = dotenv.get('LOGIN_ENDPOINT');
+    final endpoint = '/member/login';
     final requestBody = {
       "email": email,
       "password": password,
@@ -64,7 +63,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     String socialToken,
     String fcmToken,
   ) async {
-    final endpoint = dotenv.get('SOCIAL_LOGIN_ENDPOINT');
+    final endpoint = '/oauth2';
     final url = endpoint + '/${platform.name}';
     final requestBody = {
       "token": socialToken,
@@ -90,7 +89,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<void> signUp(SignUpRequest request) async {
-    final endpoint = dotenv.get('SIGNUP_ENDPOINT');
+    final endpoint = '/member/signup';
     try {
       await _plainDio.post(endpoint, data: request.toJson());
     } on DioException catch (e) {
@@ -107,8 +106,8 @@ class AuthDataSourceImpl implements AuthDataSource {
   @override
   Future<bool> validate(String data, String type) async {
     final endpoint;
-    if (type == 'email') endpoint = dotenv.get('EMAIL_VALIDATE_ENDPOINT');
-    else endpoint = dotenv.get('NICKNAME_VALIDATE_ENDPOINT');
+    if (type == 'email') endpoint = '/member/validate/email';
+    else endpoint = '/member/validate/nickname';
 
     final requestBody = {
       type: data
@@ -132,7 +131,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<bool> passwordReset(String email, String password) async {
-    final endpoint = dotenv.get('PW_RESET_ENDPOINT');
+    final endpoint = '/member/password';
     final requestBody = {"email": email, "password": password};
 
     try {
@@ -148,7 +147,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<bool> passwordSendEmailCode(String userEmail) async {
-    final endpoint = dotenv.get('PW_SEND_EMAIL_ENDPOINT');
+    final endpoint = '/mail-verify/send/password-update';
     final requestBody = {"userEmail": userEmail};
 
     try {
@@ -169,7 +168,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<bool> passwordCheckEmailCode(String userEmail, String code) async {
-    final endpoint = dotenv.get('PW_CHECK_CODE_ENDPOINT');
+    final endpoint = '/mail-verify/password-update';
     final requestBody = {"userEmail": userEmail, "code": code};
 
     try {
@@ -190,7 +189,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<void> logout() async {
-    final endpoint = dotenv.get('LOGOUT_ENDPOINT');
+    final endpoint = '/logout';
     final fcmToken = await _secureStorageService.read('fcmToken');
 
     final headers = <String, String>{
@@ -216,7 +215,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<bool> deleteUser() async {
-    final endpoint = dotenv.get('DELETE_USER_ENDPOINT');
+    final endpoint = '/member';
     try {
       await _authDio.delete(endpoint);
       return true;
@@ -250,7 +249,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<bool> checkEmailCode(String userEmail, String code) async {
-    final endpoint = dotenv.get('CHECK_CODE_ENDPOINT');
+    final endpoint = '/mail-verify/register';
     final requestBody = {"userEmail": userEmail, "code": code};
     try {
       final response = await _plainDio.post(endpoint, data: requestBody);
@@ -270,7 +269,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<bool> sendEmailCode(String userEmail) async {
-    final endpoint = dotenv.get('SEND_EMAIL_ENDPOINT');
+    final endpoint = '/mail-verify/send';
     final requestBody = {"userEmail": userEmail};
     try {
       final response = await _plainDio.post(endpoint, data: requestBody);
@@ -290,7 +289,7 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<void> userBlock(int blockerId, int blockedMemberId) async {
-    final endpoint = dotenv.get('BLOCK_ENDPOINT');
+    final endpoint = '/member-block';
     final requestBody = {"blockerId": blockerId, "blockedMemberId": blockedMemberId};
     
     try {
