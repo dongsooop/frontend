@@ -75,7 +75,7 @@ class _MealPageScreenState extends ConsumerState<MealPageScreen> {
         await ref.read(cafeteriaViewModelProvider.future);
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
           if (state.notice != null && state.notice!.trim().isNotEmpty) ...[
             MealNoticeCard(state.notice!.trim()),
@@ -86,7 +86,7 @@ class _MealPageScreenState extends ConsumerState<MealPageScreen> {
             selectedIndex: index,
             onSelected: (next) => setState(() => _selectedIndex = next),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Text(
             _dateLabel(meal),
             style: TextStyles.smallTextBold.copyWith(color: ColorStyles.gray5),
@@ -100,14 +100,14 @@ class _MealPageScreenState extends ConsumerState<MealPageScreen> {
             emptyMessage: '식단 정보가 없어요',
             headerPrice: prices?.ticketPrice,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           MealMenuSection(
             title: '단품',
             menu: meal.specialMenu,
             emptyMessage: '이 날은 단품 메뉴가 없어요',
             priceOf: (name) => priceByName[name],
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
           _PriceArea(selectedDay: _dayOfWeek(meal)),
         ],
       ),

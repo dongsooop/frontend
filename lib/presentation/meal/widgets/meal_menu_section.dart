@@ -69,7 +69,7 @@ class MealMenuSection extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           if (items.isEmpty)
             Text(
               emptyMessage,
@@ -79,7 +79,7 @@ class MealMenuSection extends StatelessWidget {
             )
           else if (priceOf == null)
             Wrap(
-              spacing: 6,
+              spacing: 4,
               runSpacing: 6,
               children: [for (final item in items) _MenuChip(item)],
             )
@@ -87,7 +87,7 @@ class MealMenuSection extends StatelessWidget {
             for (var i = 0; i < items.length; i++) ...[
               if (i > 0)
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: EdgeInsets.symmetric(vertical: 8),
                   child: Divider(
                     height: 1,
                     thickness: 1,
@@ -110,7 +110,7 @@ class _MenuChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: ColorStyles.gray7,
         borderRadius: BorderRadius.circular(8),
@@ -145,7 +145,7 @@ class _PricedLine extends StatelessWidget {
           ),
         ),
         if (price != null) ...[
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [

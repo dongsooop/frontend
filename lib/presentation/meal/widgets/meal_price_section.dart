@@ -30,9 +30,9 @@ class MealPriceSection extends StatelessWidget {
           '전체 가격표',
           style: TextStyles.sectionTitleBold.copyWith(color: ColorStyles.black),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         for (var i = 0; i < prices.categories.length; i++) ...[
-          if (i > 0) const SizedBox(height: 10),
+          if (i > 0) const SizedBox(height: 8),
           _CategoryCard(
             category: prices.categories[i],
             selectedDay: selectedDay,
@@ -75,11 +75,10 @@ class _CategoryCard extends StatelessWidget {
                 category.name,
                 style: TextStyles.largeTextRegular.copyWith(
                   color: ColorStyles.black,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
               if (category.note != null) ...[
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     category.note!,
@@ -191,7 +190,7 @@ class _DayBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: active ? ColorStyles.primary5 : ColorStyles.gray1,
         borderRadius: BorderRadius.circular(8),

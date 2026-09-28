@@ -75,14 +75,14 @@ class _DayTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
             children: [
               Text(
                 meal.dayOfWeek,
                 style: TextStyles.smallTextRegular.copyWith(color: labelColor),
               ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 4),
               Text(
                 parsed == null ? '-' : '${parsed.day}',
                 style: TextStyles.normalTextBold.copyWith(color: labelColor),
