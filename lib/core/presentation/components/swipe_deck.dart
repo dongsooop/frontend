@@ -9,7 +9,7 @@ class SwipeDeck extends StatefulWidget {
   final int itemCount;
   final IndexedWidgetBuilder itemBuilder;
   final ValueChanged<int>? onPageChanged;
-  final VoidCallback? onTapItem;
+  final ValueChanged<int>? onTapItem;
   final int initialPage;
   final double height;
 
@@ -124,7 +124,7 @@ class _SwipeDeckState extends State<SwipeDeck> {
 
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: widget.onTapItem,
+                onTap: () => widget.onTapItem!(index),
                 child: child,
               );
             },

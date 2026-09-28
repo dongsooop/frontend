@@ -1,6 +1,8 @@
 import 'package:dongsoop/core/presentation/components/meal_menu_view.dart';
+import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/presentation/home/view_models/cafeteria_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 이번 주 학식.
@@ -21,6 +23,10 @@ class CampusMealCard extends ConsumerWidget {
       data: (data) => MealDeck(
         weekMeals: data.weekMeals,
         staples: data.staples,
+        onMealTap: (meal) => context.push(
+          RoutePaths.meal,
+          extra: meal.date,
+        ),
       ),
       loading: () => const MealFrame(muted: true, child: MealSkeletonView()),
       error: (_, __) => const MealFrame(
