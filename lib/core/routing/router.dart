@@ -742,17 +742,20 @@ final router = GoRouter(
                 GoRoute(
                   path: RoutePaths.blindDate,
                   name: 'blindDate',
-                  builder: (context, state) => BlindDateScreen(
-                    onTapChat: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      } else {
-                        context.go(RoutePaths.chat);
-                      }
-                    },
-                    onTapBlindDateDetail: () {
-                      context.push(RoutePaths.blindDateDetail);
-                    },
+                  pageBuilder: (context, state) => NoTransitionPage(
+                    key: state.pageKey,
+                    child: BlindDateScreen(
+                      onTapChat: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(RoutePaths.chat);
+                        }
+                      },
+                      onTapBlindDateDetail: () {
+                        context.push(RoutePaths.blindDateDetail);
+                      },
+                    ),
                   ),
                 ),
               ],

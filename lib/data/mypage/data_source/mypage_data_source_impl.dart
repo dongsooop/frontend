@@ -105,6 +105,12 @@ class MypageDataSourceImpl implements MypageDataSource {
         return true;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.conflict.code) {
+        print('blindDateOpen: ${e}');
+        throw BlindDateOpenConflictException();
+      }
+      rethrow;
     } catch (e) {
       if (e is DioException && e.error is SessionExpiredException) {
         throw e.error!;

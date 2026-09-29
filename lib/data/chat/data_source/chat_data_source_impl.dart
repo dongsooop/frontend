@@ -314,13 +314,17 @@ class ChatDataSourceImpl implements ChatDataSource {
     try {
       final response = await _authDio.get(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
-        if (response.data == 'true') {
+        if (response.data == true) {
           return true;
         }
         else throw BlindDateOpenException();
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      print('blind date open DioException: ${e}');
+      rethrow;
     } catch (e) {
+      print('blind date open error: ${e}');
       rethrow;
     }
   }
