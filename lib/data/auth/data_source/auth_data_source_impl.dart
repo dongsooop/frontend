@@ -130,6 +130,25 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
+  Future<bool> checkNicknameProfanity(String nickname) async {
+    const endpoint = '/text_filter_nickname';
+    final requestBody = {'text': nickname};
+
+    try {
+      final response = await _plainDio.post(endpoint, data: requestBody);
+      if (response.statusCode == HttpStatusCode.ok.code) {
+        return true;
+      }
+      throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
+        return false;
+      }
+      rethrow;
+    }
+  }
+
+  @override
   Future<bool> passwordReset(String email, String password) async {
     final endpoint = '/member/password';
     final requestBody = {"email": email, "password": password};

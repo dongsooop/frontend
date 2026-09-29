@@ -539,7 +539,10 @@ class SignUpScreen extends HookConsumerWidget {
                   if (nicknameController.text.isEmpty) return;
                   ref.read(signUpViewModelProvider.notifier).checkNicknameDuplication(nicknameController.text.trim());
                 },
-                isEnabled: (nicknameState.isNumberFormatValid == true && nicknameState.isSpecialCharacterValid == true && nicknameState.isDuplicate != true),
+                isEnabled: nicknameState.isNumberFormatValid == true &&
+                    nicknameState.isSpecialCharacterValid == true &&
+                    nicknameState.isDuplicate == null &&
+                    !nicknameState.isLoading,
                 enabledText: '중복 검사',
                 disabledText: (nicknameState.isDuplicate == false) ? '확인 완료' : '중복 검사',
                 isLoading: nicknameState.isLoading,
