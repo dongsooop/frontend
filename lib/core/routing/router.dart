@@ -216,7 +216,7 @@ final router = GoRouter(
       path: RoutePaths.blindDateDetail,
       builder: (context, state) => BlindDateDetailScreen(
         onTapChatDetail: (roomId) {
-          context.push (
+          context.pushReplacement(
             RoutePaths.chatDetail,
             extra: roomId,
           );

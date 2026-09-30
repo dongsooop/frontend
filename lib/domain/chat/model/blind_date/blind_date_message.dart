@@ -5,12 +5,13 @@ part 'blind_date_message.g.dart';
 
 @freezed
 @JsonSerializable()
-class BlindDateMessage with _$BlindDateMessage{
+class BlindDateMessage with _$BlindDateMessage {
   final String message;
   final int memberId;
   final String name;
   final DateTime sendAt;
-  @Default('SYSTEM') String type;
+  @Default('SYSTEM')
+  String type;
 
   BlindDateMessage({
     required this.message,
@@ -20,17 +21,17 @@ class BlindDateMessage with _$BlindDateMessage{
     required this.type,
   });
 
-  factory BlindDateMessage.fromJson(Map<String, dynamic> json) => _$BlindDateMessageFromJson(json);
+  factory BlindDateMessage.fromJson(Map<String, dynamic> json) =>
+      _$BlindDateMessageFromJson(json);
 
   Map<String, dynamic> toJson() => _$BlindDateMessageToJson(this);
-
 
   factory BlindDateMessage.fromSystemJson(Map<String, dynamic> json) {
     return BlindDateMessage(
       message: json['message'] as String? ?? '',
-      memberId: (json['memberId'] as num?)?.toInt() ?? 0,
-      name: json['name'] as String? ?? 'SYSTEM',
-      sendAt: DateTime.parse(json['sendAt'] as String),
+      memberId: (json['senderId'] as num?)?.toInt() ?? 0,
+      name: json['senderName'] as String? ?? 'SYSTEM',
+      sendAt: DateTime.parse(json['timestamp'] as String),
       type: 'SYSTEM',
     );
   }
@@ -39,9 +40,9 @@ class BlindDateMessage with _$BlindDateMessage{
   factory BlindDateMessage.fromUserJson(Map<String, dynamic> json) {
     return BlindDateMessage(
       message: json['message'] as String? ?? '',
-      memberId: (json['memberId'] as num?)?.toInt() ?? 0,
-      name: json['name'] as String? ?? '익명',
-      sendAt: DateTime.parse(json['sendAt'] as String),
+      memberId: (json['senderId'] as num?)?.toInt() ?? 0,
+      name: json['senderName'] as String? ?? '익명',
+      sendAt: DateTime.parse(json['timestamp'] as String),
       type: 'USER',
     );
   }

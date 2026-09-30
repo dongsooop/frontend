@@ -41,22 +41,22 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   final BlindDisconnectStreamUseCase _disconnect$;
 
   BlindDateDetailViewModel(
-      this._ref,
-      this._connectUseCase,
-      this._disconnectUseCase,
-      this._blindSendMessageUseCase,
-      this._blindChoiceUseCase,
-      this._joined$,
-      this._start$,
-      this._system$,
-      this._freeze$,
-      this._broadcast$,
-      this._join$,
-      this._participants$,
-      this._match$,
-      this._ended$,
-      this._disconnect$,
-      ) : super(BlindDateDetailState());
+    this._ref,
+    this._connectUseCase,
+    this._disconnectUseCase,
+    this._blindSendMessageUseCase,
+    this._blindChoiceUseCase,
+    this._joined$,
+    this._start$,
+    this._system$,
+    this._freeze$,
+    this._broadcast$,
+    this._join$,
+    this._participants$,
+    this._match$,
+    this._ended$,
+    this._disconnect$,
+  ) : super(BlindDateDetailState());
 
   final _subs = <StreamSubscription>[];
 
@@ -95,10 +95,14 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_join$().listen((info) {
-      state = state.copyWith(
-        nickname: info.name,
-        isLoading: info.state == 'waiting' ? true : false,
-      );
+      switch (info.state.toUpperCase()) {
+        case 'WAITING':
+          state = state.copyWith(nickname: info.name, isLoading: true);
+        case 'FAILED':
+          state = state.copyWith(isLoading: false, ended: 'failed');
+        case 'TERMINATED':
+          state = state.copyWith(isLoading: false, ended: 'ended');
+      }
     }));
 
     _subs.add(_participants$().listen((map) {

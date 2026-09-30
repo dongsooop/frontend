@@ -79,7 +79,8 @@ class BlindDateDetailScreen extends HookConsumerWidget {
             participants: state.participants,
             currentUserId: userId!,
             onSubmit: (selected) {
-              viewModel.choice(BlindChoice(choicerId: userId, targetId: selected));
+              viewModel
+                  .choice(BlindChoice(choicerId: userId, targetId: selected));
             },
             seconds: 10,
             onSheetContext: (ctx) => sheetCtxRef.value = ctx,
@@ -112,30 +113,32 @@ class BlindDateDetailScreen extends HookConsumerWidget {
           useRootNavigator: true,
           barrierDismissible: false,
           builder: (_) => state.match != 'failed'
-          ? CustomConfirmDialog(
-            title: '사랑의 작대기 성공',
-            content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
-            onConfirm: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              onTapChatDetail(state.match!);
-            },
-            onCancel: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              context.pop();
-            },
-            confirmText: '확인',
-            isSingleAction: false,
-          )
-          : CustomConfirmDialog(
-            title: '사랑의 작대기 실패',
-            content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봐요!',
-            onConfirm: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              context.pop();
-            },
-            confirmText: '확인',
-            isSingleAction: true,
-          ),
+              ? CustomConfirmDialog(
+                  title: '사랑의 작대기 성공',
+                  content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
+                  onConfirm: () async {
+                    final chatRoomId = state.match!;
+                    await viewModel.disconnect();
+                    if (!context.mounted) return;
+                    onTapChatDetail(chatRoomId);
+                  },
+                  onCancel: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    context.pop();
+                  },
+                  confirmText: '확인',
+                  isSingleAction: false,
+                )
+              : CustomConfirmDialog(
+                  title: '사랑의 작대기 실패',
+                  content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봐요!',
+                  onConfirm: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    context.pop();
+                  },
+                  confirmText: '확인',
+                  isSingleAction: true,
+                ),
         );
       });
 
@@ -143,14 +146,18 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     }, [state.match]);
 
     useEffect(() {
-      if (state.ended == 'ended') {
+      if (state.ended != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          final isTerminated = state.ended == 'ended';
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
               title: '과팅 참여',
-              content: '과팅은 하루에 한 번만 참여 가능해요.\n다음 기회를 노려봐요!',
+              content: isTerminated
+                  ? '과팅은 하루에 한 번만 참여 가능해요.\n다음 기회를 노려봐요!'
+                  : '과팅 참여에 실패했어요.\n잠시 후 다시 시도해 주세요.',
               onConfirm: () {
                 context.pop();
                 context.pop();
@@ -171,28 +178,31 @@ class BlindDateDetailScreen extends HookConsumerWidget {
           title: '',
         ),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 8,
-            children: [
-              CircularProgressIndicator(color: ColorStyles.primaryColor,),
-              SizedBox(height: 16,),
-              Text(
-                '참여자를 모집하고 있어요...',
-                style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.black,
-                ),
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          spacing: 8,
+          children: [
+            CircularProgressIndicator(
+              color: ColorStyles.primaryColor,
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            Text(
+              '참여자를 모집하고 있어요...',
+              style: TextStyles.normalTextRegular.copyWith(
+                color: ColorStyles.black,
               ),
-              Text(
-                '${state.volunteer}/7',
-                style: TextStyles.normalTextBold.copyWith(
-                  color: ColorStyles.black,
-                ),
+            ),
+            Text(
+              '${state.volunteer}/7',
+              style: TextStyles.normalTextBold.copyWith(
+                color: ColorStyles.black,
               ),
-            ],
-          )
-        ),
+            ),
+          ],
+        )),
       );
     }
 
@@ -210,11 +220,13 @@ class BlindDateDetailScreen extends HookConsumerWidget {
             children: [
               Text(
                 '모여봐요 동숲',
-                style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                style:
+                    TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
               ),
               Text(
                 '7',
-                style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
+                style: TextStyles.largeTextRegular
+                    .copyWith(color: ColorStyles.gray3),
               ),
             ],
           ),
@@ -232,22 +244,22 @@ class BlindDateDetailScreen extends HookConsumerWidget {
         ),
       ),
       bottomNavigationBar: state.isFrozen
-        ? SafeArea(
-          child: Container(
-            height: 64,
-            width: double.infinity,
-            color: ColorStyles.gray2,
-            child: Center(
-              child: Text(
-                '동냥이가 얘기하는 중에는 채팅을 할 수 없어요',
-                style: TextStyles.normalTextBold.copyWith(
-                  color: ColorStyles.gray4,
+          ? SafeArea(
+              child: Container(
+                height: 64,
+                width: double.infinity,
+                color: ColorStyles.gray2,
+                child: Center(
+                  child: Text(
+                    '동냥이가 얘기하는 중에는 채팅을 할 수 없어요',
+                    style: TextStyles.normalTextBold.copyWith(
+                      color: ColorStyles.gray4,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        )
-        : null,
+            )
+          : null,
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -319,7 +331,8 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                     padding: EdgeInsets.only(left: 16, right: 8),
                     decoration: ShapeDecoration(
                       color: ColorStyles.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -331,8 +344,11 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                             cursorColor: ColorStyles.gray4,
                             keyboardType: TextInputType.multiline,
                             controller: textController,
-                            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                            decoration: InputDecoration(border: InputBorder.none,),
+                            style: TextStyles.normalTextRegular
+                                .copyWith(color: ColorStyles.black),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
                         SizedBox(

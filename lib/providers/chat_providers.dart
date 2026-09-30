@@ -1,4 +1,4 @@
-import 'package:dongsoop/core/network/socket_io_service.dart';
+import 'package:dongsoop/core/network/blind_date_stomp_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
@@ -59,14 +59,24 @@ final stompServiceProvider = Provider<StompService>((ref) {
   return StompService(secureStorageService);
 });
 
+final blindDateStompServiceProvider = Provider<BlindDateStompService>((ref) {
+  final secureStorageService = ref.watch(secureStorageProvider);
+  return BlindDateStompService(secureStorageService);
+});
+
 // Data Source
 final chatDataSourceProvider = Provider<ChatDataSource>((ref) {
   final authDio = ref.watch(authDioProvider);
   final stompService = ref.watch(stompServiceProvider);
-  final socketIoService = ref.watch(socketIoServiceProvider);
+  final blindDateStompService = ref.watch(blindDateStompServiceProvider);
   final hiveService = ref.watch(hiveServiceProvider);
 
-  return ChatDataSourceImpl(authDio, stompService, socketIoService, hiveService);
+  return ChatDataSourceImpl(
+    authDio,
+    stompService,
+    blindDateStompService,
+    hiveService,
+  );
 });
 
 // Repository
@@ -77,7 +87,8 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 });
 
 // Use Case
-final createQNAChatRoomUseCaseProvider = Provider<CreateQnaChatRoomUseCase>((ref) {
+final createQNAChatRoomUseCaseProvider =
+    Provider<CreateQnaChatRoomUseCase>((ref) {
   final repository = ref.read(chatRepositoryProvider);
   return CreateQnaChatRoomUseCase(repository);
 });
@@ -93,7 +104,8 @@ final connectChatRoomUseCaseProvider = Provider<ConnectChatRoomUseCase>((ref) {
   return ConnectChatRoomUseCase(repository);
 });
 
-final disconnectChatRoomUseCaseProvider = Provider<DisconnectChatRoomUseCase>((ref) {
+final disconnectChatRoomUseCaseProvider =
+    Provider<DisconnectChatRoomUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return DisconnectChatRoomUseCase(repository);
 });
@@ -103,7 +115,8 @@ final sendMessageUseCaseProvider = Provider<SendMessageUseCase>((ref) {
   return SendMessageUseCase(repository);
 });
 
-final subscribeMessagesUseCaseProvider = Provider<SubscribeMessagesUseCase>((ref) {
+final subscribeMessagesUseCaseProvider =
+    Provider<SubscribeMessagesUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return SubscribeMessagesUseCase(repository);
 });
@@ -113,7 +126,8 @@ final subscribeBlockUseCaseProvider = Provider<SubscribeBlockUseCase>((ref) {
   return SubscribeBlockUseCase(repository);
 });
 
-final getUserNicknamesUseCaseProvider = Provider<GetUserNicknamesUseCase>((ref) {
+final getUserNicknamesUseCaseProvider =
+    Provider<GetUserNicknamesUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return GetUserNicknamesUseCase(repository);
 });
@@ -128,7 +142,8 @@ final saveChatMessageUseCaseProvider = Provider<SaveChatMessageUseCase>((ref) {
   return SaveChatMessageUseCase(repository);
 });
 
-final getPagedMessagesUseCaseProvider = Provider<GetPagedMessagesUseCase>((ref) {
+final getPagedMessagesUseCaseProvider =
+    Provider<GetPagedMessagesUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return GetPagedMessagesUseCase(repository);
 });
@@ -138,7 +153,8 @@ final deleteChatDataUseCaseProvider = Provider<DeleteChatDataUseCase>((ref) {
   return DeleteChatDataUseCase(repository);
 });
 
-final getOfflineMessagesUseCaseProvider = Provider<GetOfflineMessagesUseCase>((ref) {
+final getOfflineMessagesUseCaseProvider =
+    Provider<GetOfflineMessagesUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return GetOfflineMessagesUseCase(repository);
 });
@@ -163,27 +179,32 @@ final blindDisconnectUseCaseProvider = Provider<BlindDisconnectUseCase>((ref) {
   return BlindDisconnectUseCase(repository);
 });
 
-final blindJoinedStreamUseCaseProvider = Provider<BlindJoinedStreamUseCase>((ref) {
+final blindJoinedStreamUseCaseProvider =
+    Provider<BlindJoinedStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindJoinedStreamUseCase(repository);
 });
 
-final blindStartStreamUseCaseProvider = Provider<BlindStartStreamUseCase>((ref) {
+final blindStartStreamUseCaseProvider =
+    Provider<BlindStartStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindStartStreamUseCase(repository);
 });
 
-final blindSystemStreamUseCaseProvider = Provider<BlindSystemStreamUseCase>((ref) {
+final blindSystemStreamUseCaseProvider =
+    Provider<BlindSystemStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindSystemStreamUseCase(repository);
 });
 
-final blindFreezeStreamUseCaseProvider = Provider<BlindFreezeStreamUseCase>((ref) {
+final blindFreezeStreamUseCaseProvider =
+    Provider<BlindFreezeStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindFreezeStreamUseCase(repository);
 });
 
-final blindBroadcastStreamUseCaseProvider = Provider<BlindBroadcastStreamUseCase>((ref) {
+final blindBroadcastStreamUseCaseProvider =
+    Provider<BlindBroadcastStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindBroadcastStreamUseCase(repository);
 });
@@ -193,27 +214,32 @@ final blindJoinStreamUseCaseProvider = Provider<BlindJoinStreamUseCase>((ref) {
   return BlindJoinStreamUseCase(repository);
 });
 
-final blindParticipantsStreamUseCaseProvider = Provider<BlindParticipantsStreamUseCase>((ref) {
+final blindParticipantsStreamUseCaseProvider =
+    Provider<BlindParticipantsStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindParticipantsStreamUseCase(repository);
 });
 
-final blindMatchStreamUseCaseProvider = Provider<BlindMatchStreamUseCase>((ref) {
+final blindMatchStreamUseCaseProvider =
+    Provider<BlindMatchStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindMatchStreamUseCase(repository);
 });
 
-final blindEndedStreamUseCaseProvider = Provider<BlindEndedStreamUseCase>((ref) {
+final blindEndedStreamUseCaseProvider =
+    Provider<BlindEndedStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindEndedStreamUseCase(repository);
 });
 
-final blindDisconnectStreamUseCaseProvider = Provider<BlindDisconnectStreamUseCase>((ref) {
+final blindDisconnectStreamUseCaseProvider =
+    Provider<BlindDisconnectStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindDisconnectStreamUseCase(repository);
 });
 
-final blindSendMessageUseCaseProvider = Provider<BlindSendMessageUseCase>((ref) {
+final blindSendMessageUseCaseProvider =
+    Provider<BlindSendMessageUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return BlindSendMessageUseCase(repository);
 });
@@ -223,7 +249,8 @@ final blindChoiceUseCaseProvider = Provider<BlindChoiceUseCase>((ref) {
   return BlindChoiceUseCase(repository);
 });
 
-final getBlindDateOpenUseCaseProvider = Provider<GetBlindDateOpenUseCase>((ref) {
+final getBlindDateOpenUseCaseProvider =
+    Provider<GetBlindDateOpenUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return GetBlindDateOpenUseCase(repository);
 });
@@ -233,29 +260,38 @@ final connectChatListUseCaseProvider = Provider<ConnectChatListUseCase>((ref) {
   return ConnectChatListUseCase(repository);
 });
 
-final disconnectChatListUseCaseProvider = Provider<DisconnectChatListUseCase>((ref) {
+final disconnectChatListUseCaseProvider =
+    Provider<DisconnectChatListUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return DisconnectChatListUseCase(repository);
 });
 
-final subscribeChatListUseCaseProvider = Provider<SubscribeChatListUseCase>((ref) {
+final subscribeChatListUseCaseProvider =
+    Provider<SubscribeChatListUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return SubscribeChatListUseCase(repository);
 });
 
-
 // View Model
-final chatViewModelProvider = StateNotifierProvider<ChatViewModel, ChatState>((ref) {
+final chatViewModelProvider =
+    StateNotifierProvider<ChatViewModel, ChatState>((ref) {
   final loadChatRoomsUseCase = ref.watch(loadChatRoomsUseCaseProvider);
   final getBlindDateOpenUseCase = ref.watch(getBlindDateOpenUseCaseProvider);
   final connectChatListUseCase = ref.watch(connectChatListUseCaseProvider);
-  final disconnectChatListUseCase = ref.watch(disconnectChatListUseCaseProvider);
+  final disconnectChatListUseCase =
+      ref.watch(disconnectChatListUseCaseProvider);
   final subscribeChatListUseCase = ref.watch(subscribeChatListUseCaseProvider);
 
-  return ChatViewModel(loadChatRoomsUseCase, getBlindDateOpenUseCase, connectChatListUseCase, disconnectChatListUseCase, subscribeChatListUseCase);
+  return ChatViewModel(
+      loadChatRoomsUseCase,
+      getBlindDateOpenUseCase,
+      connectChatListUseCase,
+      disconnectChatListUseCase,
+      subscribeChatListUseCase);
 });
 
-final chatDetailViewModelProvider = StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
+final chatDetailViewModelProvider =
+    StateNotifierProvider<ChatDetailViewModel, ChatDetailState>((ref) {
   final connectUseCase = ref.watch(connectChatRoomUseCaseProvider);
   final disconnectUseCase = ref.watch(disconnectChatRoomUseCaseProvider);
   final sendMessageUseCase = ref.watch(sendMessageUseCaseProvider);
@@ -265,7 +301,8 @@ final chatDetailViewModelProvider = StateNotifierProvider<ChatDetailViewModel, C
   final getRoomDetailUseCase = ref.watch(getRoomDetailUseCaseProvider);
   final saveChatMessageUseCase = ref.watch(saveChatMessageUseCaseProvider);
   final getPagedMessagesUseCase = ref.watch(getPagedMessagesUseCaseProvider);
-  final getOfflineMessagesUseCase = ref.watch(getOfflineMessagesUseCaseProvider);
+  final getOfflineMessagesUseCase =
+      ref.watch(getOfflineMessagesUseCaseProvider);
   final leaveChatRoomUseCase = ref.watch(leaveChatRoomUseCaseProvider);
   final kickUserUseCase = ref.watch(kickUserUseCaseProvider);
   final userBlockUseCase = ref.watch(userBlockUseCaseProvider);
@@ -288,31 +325,30 @@ final chatDetailViewModelProvider = StateNotifierProvider<ChatDetailViewModel, C
   );
 });
 
-final chatMessagesProvider = StateNotifierProvider<ChatMessagesNotifier, List<ChatMessage>>(
-      (ref) {
+final chatMessagesProvider =
+    StateNotifierProvider<ChatMessagesNotifier, List<ChatMessage>>(
+  (ref) {
     final viewModel = ref.watch(chatDetailViewModelProvider.notifier);
     return ChatMessagesNotifier(viewModel.getPagedMessages);
   },
 );
 
-final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>((ref) {
+final chatBlockProvider = StateNotifierProvider<ChatBlockNotifier, String>(
+  (ref) {
     return ChatBlockNotifier();
   },
 );
 
-// blind date
-final socketIoServiceProvider = Provider<SocketIoService>((ref) {
-  return SocketIoService();
-});
-
 final blindDateViewModelProvider =
-StateNotifierProvider.autoDispose<BlindDateViewModel, BlindDateState>((ref) {
+    StateNotifierProvider.autoDispose<BlindDateViewModel, BlindDateState>(
+        (ref) {
   final getBlindDateOpenUseCase = ref.watch(getBlindDateOpenUseCaseProvider);
 
   return BlindDateViewModel(getBlindDateOpenUseCase);
 });
 
-final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<BlindDateDetailViewModel, BlindDateDetailState>((ref) {
+final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<
+    BlindDateDetailViewModel, BlindDateDetailState>((ref) {
   final blindConnectUseCase = ref.watch(blindConnectUseCaseProvider);
   final blindDisconnectUseCase = ref.watch(blindDisconnectUseCaseProvider);
   final blindSendMessageUseCase = ref.watch(blindSendMessageUseCaseProvider);
@@ -322,12 +358,15 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
   final blindStartStreamUseCase = ref.watch(blindStartStreamUseCaseProvider);
   final blindSystemStreamUseCase = ref.watch(blindSystemStreamUseCaseProvider);
   final blindFreezeStreamUseCase = ref.watch(blindFreezeStreamUseCaseProvider);
-  final blindBroadcastStreamUseCase = ref.watch(blindBroadcastStreamUseCaseProvider);
+  final blindBroadcastStreamUseCase =
+      ref.watch(blindBroadcastStreamUseCaseProvider);
   final blindJoinStreamUseCase = ref.watch(blindJoinStreamUseCaseProvider);
-  final blindParticipantsStreamUseCase = ref.watch(blindParticipantsStreamUseCaseProvider);
+  final blindParticipantsStreamUseCase =
+      ref.watch(blindParticipantsStreamUseCaseProvider);
   final blindMatchStreamUseCase = ref.watch(blindMatchStreamUseCaseProvider);
   final blindEndedStreamUseCase = ref.watch(blindEndedStreamUseCaseProvider);
-  final blindDisconnectStreamUseCase = ref.watch(blindDisconnectStreamUseCaseProvider);
+  final blindDisconnectStreamUseCase =
+      ref.watch(blindDisconnectStreamUseCaseProvider);
 
   return BlindDateDetailViewModel(
     ref,
@@ -348,8 +387,9 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<Blind
   );
 });
 
-final blindDateMessagesProvider = StateNotifierProvider<BlindDateMessagesNotifier, List<BlindDateMessage>>((ref) {
+final blindDateMessagesProvider =
+    StateNotifierProvider<BlindDateMessagesNotifier, List<BlindDateMessage>>(
+  (ref) {
     return BlindDateMessagesNotifier();
   },
 );
-
