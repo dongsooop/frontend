@@ -11,6 +11,7 @@ abstract class MypageDataSource {
   Future<void> userUnBlock(int blockerId, int blockedMemberId);
   Future<List<BlockedUser>?> getBlockedUserList();
   Future<bool> blindDateOpen(BlindDateOpenRequest request);
+  Future<void> resetBlindDateParticipants();
   Future<List<SocialState>> getSocialStateList();
   Future<DateTime> linkSocialAccount(LoginPlatform platform, String socialToken);
   Future<bool> unlinkSocialAccount(LoginPlatform platform, String socialToken);

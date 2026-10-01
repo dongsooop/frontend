@@ -139,7 +139,7 @@ class BlindDateStompService {
       'maxCount=${data['maxCount'] ?? '-'}',
     );
 
-    if (state == 'WAITING') {
+    if (state == 'WAITING' || state == 'PROCESSING') {
       final sessionId = data['sessionId']?.toString();
       final memberId = _memberId;
       if (sessionId == null || sessionId.isEmpty || memberId == null) {

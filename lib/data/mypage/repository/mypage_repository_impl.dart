@@ -48,6 +48,11 @@ class MypageRepositoryImpl implements MypageRepository {
   }
 
   @override
+  Future<void> resetBlindDateParticipants() async {
+    await _mypageDataSource.resetBlindDateParticipants();
+  }
+
+  @override
   Future<List<SocialState>> getSocialStateList() async {
     final list = await _mypageDataSource.getSocialStateList();
     if (list == null || list.isEmpty) return [];

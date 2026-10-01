@@ -16,6 +16,7 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapTimetable;
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapAdminBlindDate;
+  final VoidCallback onTapAdminBlindDateReset;
   final VoidCallback onTapAdminFeedback;
   final VoidCallback onTapUserFeedback;
   final VoidCallback onTapMarket;
@@ -33,6 +34,7 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapTimetable,
     required this.onTapAdminReport,
     required this.onTapAdminBlindDate,
+    required this.onTapAdminBlindDateReset,
     required this.onTapAdminFeedback,
     required this.onTapUserFeedback,
     required this.onTapMarket,
@@ -100,6 +102,7 @@ class MyPageScreen extends HookConsumerWidget {
                     onTapTimetable: onTapTimetable,
                     onTapBlockedUser: onTapBlockedUser,
                     onTapAdminBlindDate: onTapAdminBlindDate,
+                    onTapAdminBlindDateReset: onTapAdminBlindDateReset,
                     onTapAdminFeedback: onTapAdminFeedback,
                     onTapUserFeedback: onTapUserFeedback,
                     onTapNotification: onTapNotification,

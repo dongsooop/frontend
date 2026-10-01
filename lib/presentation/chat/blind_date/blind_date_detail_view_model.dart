@@ -102,6 +102,12 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
             maxCount: info.maxCount,
             isLoading: true,
           );
+        case 'PROCESSING':
+          state = state.copyWith(
+            nickname: info.name,
+            maxCount: info.maxCount,
+            isLoading: false,
+          );
         case 'FAILED':
           state = state.copyWith(isLoading: false, ended: 'failed');
         case 'TERMINATED':
