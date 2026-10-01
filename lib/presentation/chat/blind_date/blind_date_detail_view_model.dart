@@ -97,7 +97,11 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     _subs.add(_join$().listen((info) {
       switch (info.state.toUpperCase()) {
         case 'WAITING':
-          state = state.copyWith(nickname: info.name, isLoading: true);
+          state = state.copyWith(
+            nickname: info.name,
+            maxCount: info.maxCount,
+            isLoading: true,
+          );
         case 'FAILED':
           state = state.copyWith(isLoading: false, ended: 'failed');
         case 'TERMINATED':
@@ -106,11 +110,12 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_participants$().listen((map) {
+      if (state.match != null) return;
       state = state.copyWith(participants: map, isVoteTime: true);
     }));
 
     _subs.add(_match$().listen((data) {
-      state = state.copyWith(match: data);
+      state = state.copyWith(match: data, isVoteTime: false);
     }));
 
     _subs.add(_ended$().listen((data) {
@@ -160,6 +165,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   }
 
   void choice(BlindChoice data) {
+    if (state.match != null || !state.isVoteTime) return;
     state = state.copyWith(isVoteTime: false);
     try {
       _blindChoiceUseCase.execute(data);

@@ -56,7 +56,7 @@ class BlindDateStompService {
       config: StompConfig.sockJS(
         url: url,
         reconnectDelay: const Duration(milliseconds: 600),
-        onDebugMessage: (message) => _log('FRAME $message'),
+        onDebugMessage: _logFrame,
         onConnect: _onConnect,
         stompConnectHeaders: {
           'Authorization': 'Bearer $accessToken',
@@ -135,7 +135,8 @@ class BlindDateStompService {
     _log(
       'JOIN state=$state name=${data['name'] ?? '-'} '
       'sessionId=${data['sessionId'] ?? '-'} '
-      'volunteer=${data['volunteer'] ?? '-'}',
+      'volunteer=${data['volunteer'] ?? '-'} '
+      'maxCount=${data['maxCount'] ?? '-'}',
     );
 
     if (state == 'WAITING') {
@@ -150,6 +151,7 @@ class BlindDateStompService {
         BlindJoinInfo(
           name: data['name']?.toString() ?? '',
           state: state,
+          maxCount: (data['maxCount'] as num?)?.toInt(),
         ),
       );
       _joinedController.add((data['volunteer'] as num?)?.toInt() ?? 0);
@@ -339,5 +341,13 @@ class BlindDateStompService {
     if (kDebugMode) {
       debugPrint('[BlindDate STOMP] $message');
     }
+  }
+
+  void _logFrame(String message) {
+    final sanitized = message.replaceAll(
+      RegExp(r'Authorization:Bearer [^\\\s"]+', caseSensitive: false),
+      'Authorization:Bearer <redacted>',
+    );
+    _log('FRAME $sanitized');
   }
 }

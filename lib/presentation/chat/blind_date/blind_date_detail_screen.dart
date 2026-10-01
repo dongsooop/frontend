@@ -40,6 +40,8 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     final scrollController = useScrollController();
     final isVoteSheetOpen = useRef(false);
     final sheetCtxRef = useRef<BuildContext?>(null);
+    final voteSheetFutureRef = useRef<Future<void>?>(null);
+    final isMatchDialogOpen = useRef(false);
 
     useEffect(() {
       if (userId != null)
@@ -73,8 +75,12 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     useEffect(() {
       if (state.isVoteTime && !isVoteSheetOpen.value) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!context.mounted ||
+              !ref.read(blindDateDetailViewModelProvider).isVoteTime) {
+            return;
+          }
           isVoteSheetOpen.value = true;
-          await MatchVoteBottomSheet.show(
+          final sheetFuture = MatchVoteBottomSheet.show(
             context,
             participants: state.participants,
             currentUserId: userId!,
@@ -85,61 +91,80 @@ class BlindDateDetailScreen extends HookConsumerWidget {
             seconds: 10,
             onSheetContext: (ctx) => sheetCtxRef.value = ctx,
           );
-          sheetCtxRef.value = null;
-          isVoteSheetOpen.value = false;
+          voteSheetFutureRef.value = sheetFuture;
+          await sheetFuture;
+          if (voteSheetFutureRef.value == sheetFuture) {
+            voteSheetFutureRef.value = null;
+            sheetCtxRef.value = null;
+            isVoteSheetOpen.value = false;
+          }
         });
       }
       return null;
     }, [state.isVoteTime]);
 
     useEffect(() {
-      if (state.match == null) return null;
+      if (state.match == null || isMatchDialogOpen.value) return null;
+      final matchResult = state.match!;
+      isMatchDialogOpen.value = true;
 
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!context.mounted) return;
+        try {
+          if (!context.mounted) return;
 
-        final sheetCtx = sheetCtxRef.value;
-        if (sheetCtx != null) {
-          if (Navigator.of(sheetCtx).canPop()) {
+          final sheetFuture = voteSheetFutureRef.value;
+          final sheetCtx = sheetCtxRef.value;
+          if (sheetCtx != null && Navigator.of(sheetCtx).canPop()) {
             Navigator.of(sheetCtx).pop();
+          } else if (sheetFuture != null &&
+              Navigator.of(context, rootNavigator: true).canPop()) {
+            Navigator.of(context, rootNavigator: true).pop();
           }
+          if (sheetFuture != null) {
+            await sheetFuture;
+          }
+
+          voteSheetFutureRef.value = null;
           sheetCtxRef.value = null;
           isVoteSheetOpen.value = false;
-        }
-        if (!context.mounted) return;
+          if (!context.mounted) return;
 
-        showDialog(
-          context: context,
-          useRootNavigator: true,
-          barrierDismissible: false,
-          builder: (_) => state.match != 'failed'
-              ? CustomConfirmDialog(
-                  title: '사랑의 작대기 성공',
-                  content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
-                  onConfirm: () async {
-                    final chatRoomId = state.match!;
-                    await viewModel.disconnect();
-                    if (!context.mounted) return;
-                    onTapChatDetail(chatRoomId);
-                  },
-                  onCancel: () {
-                    Navigator.of(context, rootNavigator: true).pop();
-                    context.pop();
-                  },
-                  confirmText: '확인',
-                  isSingleAction: false,
-                )
-              : CustomConfirmDialog(
-                  title: '사랑의 작대기 실패',
-                  content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봐요!',
-                  onConfirm: () {
-                    Navigator.of(context, rootNavigator: true).pop();
-                    context.pop();
-                  },
-                  confirmText: '확인',
-                  isSingleAction: true,
-                ),
-        );
+          await showDialog<void>(
+            context: context,
+            useRootNavigator: true,
+            barrierDismissible: false,
+            builder: (_) => matchResult != 'failed'
+                ? CustomConfirmDialog(
+                    title: '사랑의 작대기 성공',
+                    content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
+                    onConfirm: () async {
+                      await viewModel.disconnect();
+                      if (!context.mounted) return;
+                      onTapChatDetail(matchResult);
+                    },
+                    onCancel: () async {
+                      await viewModel.disconnect();
+                      if (!context.mounted) return;
+                      context.pop();
+                    },
+                    confirmText: '확인',
+                    isSingleAction: false,
+                  )
+                : CustomConfirmDialog(
+                    title: '사랑의 작대기 실패',
+                    content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봐요!',
+                    onConfirm: () async {
+                      await viewModel.disconnect();
+                      if (!context.mounted) return;
+                      context.pop();
+                    },
+                    confirmText: '확인',
+                    isSingleAction: true,
+                  ),
+          );
+        } finally {
+          isMatchDialogOpen.value = false;
+        }
       });
 
       return null;
@@ -196,7 +221,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
               ),
             ),
             Text(
-              '${state.volunteer}/7',
+              '${state.volunteer}/${state.maxCount}',
               style: TextStyles.normalTextBold.copyWith(
                 color: ColorStyles.black,
               ),
@@ -224,7 +249,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                     TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
               ),
               Text(
-                '7',
+                '${state.maxCount}',
                 style: TextStyles.largeTextRegular
                     .copyWith(color: ColorStyles.gray3),
               ),

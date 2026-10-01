@@ -2,6 +2,7 @@ class BlindDateDetailState {
   final bool isConnecting;
   final bool isFrozen;
   final int volunteer;
+  final int maxCount;
   final String nickname;
   final Map<int, String> participants;
   final String? match;
@@ -14,6 +15,7 @@ class BlindDateDetailState {
     this.isConnecting = false,
     this.isFrozen = false,
     this.volunteer = 0,
+    this.maxCount = 7,
     this.nickname = '',
     this.participants = const {},
     this.match,
@@ -27,6 +29,7 @@ class BlindDateDetailState {
     bool? isConnecting,
     bool? isFrozen,
     int? volunteer,
+    int? maxCount,
     String? nickname,
     Map<int, String>? participants,
     String? match,
@@ -39,6 +42,7 @@ class BlindDateDetailState {
       isConnecting: isConnecting ?? this.isConnecting,
       isFrozen: isFrozen ?? this.isFrozen,
       volunteer: volunteer ?? this.volunteer,
+      maxCount: maxCount ?? this.maxCount,
       nickname: nickname ?? this.nickname,
       participants: participants ?? this.participants,
       match: match ?? this.match,

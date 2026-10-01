@@ -28,10 +28,10 @@ class BlindDateMessage with _$BlindDateMessage {
 
   factory BlindDateMessage.fromSystemJson(Map<String, dynamic> json) {
     return BlindDateMessage(
-      message: json['message'] as String? ?? '',
+      message: _parseMessage(json['message']),
       memberId: (json['senderId'] as num?)?.toInt() ?? 0,
       name: json['senderName'] as String? ?? 'SYSTEM',
-      sendAt: DateTime.parse(json['timestamp'] as String),
+      sendAt: _parseTimestamp(json['timestamp']),
       type: 'SYSTEM',
     );
   }
@@ -39,11 +39,35 @@ class BlindDateMessage with _$BlindDateMessage {
   // user payload -> USER
   factory BlindDateMessage.fromUserJson(Map<String, dynamic> json) {
     return BlindDateMessage(
-      message: json['message'] as String? ?? '',
+      message: _parseMessage(json['message']),
       memberId: (json['senderId'] as num?)?.toInt() ?? 0,
       name: json['senderName'] as String? ?? '익명',
-      sendAt: DateTime.parse(json['timestamp'] as String),
+      sendAt: _parseTimestamp(json['timestamp']),
       type: 'USER',
     );
+  }
+
+  static String _parseMessage(Object? value) {
+    return (value?.toString() ?? '')
+        .replaceAll(r'\r\n', '\n')
+        .replaceAll(r'\n', '\n');
+  }
+
+  static DateTime _parseTimestamp(Object? value) {
+    if (value is num) {
+      return DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    }
+
+    if (value is String) {
+      final milliseconds = int.tryParse(value);
+      if (milliseconds != null) {
+        return DateTime.fromMillisecondsSinceEpoch(milliseconds);
+      }
+
+      final dateTime = DateTime.tryParse(value);
+      if (dateTime != null) return dateTime;
+    }
+
+    throw FormatException('Invalid blind-date timestamp: $value');
   }
 }
