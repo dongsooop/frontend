@@ -13,7 +13,6 @@ import 'package:dongsoop/domain/chat/use_case/stream/blind_ended_stream_use_case
 import 'package:dongsoop/domain/chat/use_case/stream/blind_freeze_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_join_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_joined_stream_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/stream/blind_match_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_participants_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_start_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_system_stream_use_case.dart';
@@ -36,7 +35,6 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
   final BlindBroadcastStreamUseCase _broadcast$;
   final BlindJoinStreamUseCase _join$;
   final BlindParticipantsStreamUseCase _participants$;
-  final BlindMatchStreamUseCase _match$;
   final BlindEndedStreamUseCase _ended$;
   final BlindDisconnectStreamUseCase _disconnect$;
 
@@ -53,21 +51,30 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     this._broadcast$,
     this._join$,
     this._participants$,
-    this._match$,
     this._ended$,
     this._disconnect$,
   ) : super(BlindDateDetailState());
 
   final _subs = <StreamSubscription>[];
+  Timer? _voteIntroTimer;
+  Future<void>? _disconnectFuture;
+  bool _hasVoteParticipants = false;
+  bool _isLeaving = false;
+  String _systemSenderName = '동냥이';
 
   Future<void> connect(int userId) async {
     if (state.isConnecting) return;
 
+    _voteIntroTimer?.cancel();
+    _voteIntroTimer = null;
+    _hasVoteParticipants = false;
+    _isLeaving = false;
+    _disconnectFuture = null;
     state = state.copyWith(
       isConnecting: true,
       isLoading: true,
-      match: null,
       ended: null,
+      voteIntroStage: BlindDateVoteIntroStage.none,
       isVoteTime: false,
       participants: const {},
       nickname: '',
@@ -83,6 +90,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_system$().listen((msg) {
+      if (msg.name.isNotEmpty) _systemSenderName = msg.name;
       _ref.read(blindDateMessagesProvider.notifier).addMessage(msg);
     }));
 
@@ -109,26 +117,32 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
             isLoading: false,
           );
         case 'FAILED':
+          _cancelVotePreparation();
           state = state.copyWith(isLoading: false, ended: 'failed');
         case 'TERMINATED':
+          _cancelVotePreparation();
           state = state.copyWith(isLoading: false, ended: 'ended');
       }
     }));
 
     _subs.add(_participants$().listen((map) {
-      if (state.match != null) return;
-      state = state.copyWith(participants: map, isVoteTime: true);
-    }));
-
-    _subs.add(_match$().listen((data) {
-      state = state.copyWith(match: data, isVoteTime: false);
+      if (_isLeaving || state.ended != null) return;
+      state = state.copyWith(participants: map);
+      // A repeated participants event must not restart the announcement or vote.
+      if (_hasVoteParticipants) return;
+      _hasVoteParticipants = true;
+      _addLocalSystemMessage('이제 과팅의 마지막 순서인 사랑의 작대기 시간이에요!');
+      state =
+          state.copyWith(voteIntroStage: BlindDateVoteIntroStage.firstMessage);
     }));
 
     _subs.add(_ended$().listen((data) {
+      _cancelVotePreparation();
       state = state.copyWith(ended: data);
     }));
 
     _subs.add(_disconnect$().listen((reason) async {
+      _cancelVotePreparation();
       state = state.copyWith(disconnectReason: reason);
     }));
 
@@ -144,7 +158,65 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }
   }
 
-  Future<void> disconnect() async {
+  void _addLocalSystemMessage(String message) {
+    _ref.read(blindDateMessagesProvider.notifier).addMessage(
+          BlindDateMessage(
+            message: message,
+            memberId: 0,
+            name: _systemSenderName,
+            sendAt: DateTime.now(),
+            type: 'SYSTEM',
+          ),
+        );
+  }
+
+  // Each delay starts after the screen has rendered the corresponding message.
+  void onVoteIntroDisplayed(BlindDateVoteIntroStage stage) {
+    if (!mounted ||
+        _isLeaving ||
+        !state.isVotePreparing ||
+        state.voteIntroStage != stage ||
+        _voteIntroTimer != null) return;
+
+    final isFirstMessage = stage == BlindDateVoteIntroStage.firstMessage;
+    _voteIntroTimer = Timer(Duration(seconds: isFirstMessage ? 2 : 3), () {
+      _voteIntroTimer = null;
+      if (!mounted ||
+          _isLeaving ||
+          state.voteIntroStage != stage ||
+          state.ended != null) return;
+      if (isFirstMessage) {
+        _addLocalSystemMessage(
+          '투표가 끝나면 과팅은 종료되고, 사랑의 작대기가 이어진 경우 알림으로 전달해 드려요!\n'
+          '여러분 다음에 다시 만나요~',
+        );
+        state = state.copyWith(
+          voteIntroStage: BlindDateVoteIntroStage.secondMessage,
+        );
+      } else {
+        state = state.copyWith(
+          voteIntroStage: BlindDateVoteIntroStage.none,
+          isVoteTime: true,
+        );
+      }
+    });
+  }
+
+  void _cancelVotePreparation() {
+    _voteIntroTimer?.cancel();
+    _voteIntroTimer = null;
+    if (mounted && state.isVotePreparing) {
+      state = state.copyWith(voteIntroStage: BlindDateVoteIntroStage.none);
+    }
+  }
+
+  Future<void> disconnect() {
+    _isLeaving = true;
+    _cancelVotePreparation();
+    return _disconnectFuture ??= _disconnect();
+  }
+
+  Future<void> _disconnect() async {
     try {
       await _disconnectUseCase.execute();
     } on SessionExpiredException {
@@ -155,6 +227,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
 
   @override
   void dispose() {
+    _voteIntroTimer?.cancel();
     for (final s in _subs) {
       unawaited(s.cancel());
     }
@@ -170,15 +243,16 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }
   }
 
-  void choice(BlindChoice data) {
-    if (state.match != null || !state.isVoteTime) return;
-    state = state.copyWith(isVoteTime: false);
-    try {
-      _blindChoiceUseCase.execute(data);
-    } on SessionExpiredException {
-    } catch (e) {
-      rethrow;
+  Future<bool> choice(BlindChoice data) async {
+    if (!mounted || _isLeaving || !state.isVoteTime || state.ended != null) {
+      return false;
     }
+    state = state.copyWith(isVoteTime: false);
+    if (data.targetId != null) {
+      _blindChoiceUseCase.execute(data);
+    }
+    await disconnect();
+    return true;
   }
 }
 

@@ -16,12 +16,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class BlindDateDetailScreen extends HookConsumerWidget {
-  final void Function(String roomId) onTapChatDetail;
-
-  const BlindDateDetailScreen({
-    required this.onTapChatDetail,
-    super.key,
-  });
+  const BlindDateDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,10 +33,22 @@ class BlindDateDetailScreen extends HookConsumerWidget {
 
     final textController = useTextEditingController();
     final scrollController = useScrollController();
+    final route = ModalRoute.of(context);
     final isVoteSheetOpen = useRef(false);
-    final sheetCtxRef = useRef<BuildContext?>(null);
-    final voteSheetFutureRef = useRef<Future<void>?>(null);
-    final isMatchDialogOpen = useRef(false);
+    final isVoteExitPending = useRef(false);
+
+    void exitBlindDateIfReady() {
+      if (!isVoteExitPending.value ||
+          !context.mounted ||
+          route?.isCurrent != true) return;
+
+      final lifecycleState = WidgetsBinding.instance.lifecycleState;
+      if (lifecycleState != null && lifecycleState != AppLifecycleState.resumed)
+        return;
+
+      isVoteExitPending.value = false;
+      context.pop(true);
+    }
 
     useEffect(() {
       if (userId != null)
@@ -53,6 +60,17 @@ class BlindDateDetailScreen extends HookConsumerWidget {
         Future.microtask(() => viewModel.disconnect());
       };
     }, const []);
+
+    useEffect(() {
+      final listener = AppLifecycleListener(
+        onResume: () {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            exitBlindDateIfReady();
+          });
+        },
+      );
+      return listener.dispose;
+    }, [route]);
 
     useEffect(() {
       if (state.nickname != '') {
@@ -73,102 +91,73 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     }, [state.nickname]);
 
     useEffect(() {
+      if (!state.isVotePreparing || state.isLoading) return null;
+      var cancelled = false;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (cancelled ||
+            !context.mounted ||
+            route?.isActive == false ||
+            !scrollController.hasClients) {
+          return;
+        }
+        FocusScope.of(context).unfocus();
+        scrollController.jumpTo(0);
+        // Let each scrolled message paint before starting its delay.
+        WidgetsBinding.instance.scheduleFrame();
+        await WidgetsBinding.instance.endOfFrame;
+        if (cancelled || !context.mounted || route?.isActive == false) return;
+        // A reversed, shrink-wrapped list can correct its offset when it first
+        // lays out the newly visible messages. Keep the full announcement visible.
+        if (scrollController.offset != 0) {
+          scrollController.jumpTo(0);
+          WidgetsBinding.instance.scheduleFrame();
+          await WidgetsBinding.instance.endOfFrame;
+          if (cancelled || !context.mounted || route?.isActive == false) return;
+        }
+        viewModel.onVoteIntroDisplayed(state.voteIntroStage);
+      });
+      return () => cancelled = true;
+    }, [state.voteIntroStage, state.isLoading]);
+
+    useEffect(() {
       if (state.isVoteTime && !isVoteSheetOpen.value) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!context.mounted ||
+              route?.isActive == false ||
               !ref.read(blindDateDetailViewModelProvider).isVoteTime) {
             return;
           }
           isVoteSheetOpen.value = true;
-          final sheetFuture = MatchVoteBottomSheet.show(
+          await MatchVoteBottomSheet.show(
             context,
             participants: state.participants,
             currentUserId: userId!,
-            onSubmit: (selected) {
-              viewModel
-                  .choice(BlindChoice(choicerId: userId, targetId: selected));
+            onSubmit: (selected) async {
+              try {
+                final completed = await viewModel.choice(
+                  BlindChoice(choicerId: userId, targetId: selected),
+                );
+                if (!completed) return;
+                isVoteExitPending.value = true;
+                exitBlindDateIfReady();
+              } catch (error) {
+                debugPrint('[BlindDate] CHOICE_END_ERROR error=$error');
+                if (!context.mounted || route?.isCurrent != true) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('과팅을 마무리하지 못했어요. 연결 상태를 확인해 주세요.'),
+                  ),
+                );
+              }
             },
             seconds: 10,
-            onSheetContext: (ctx) => sheetCtxRef.value = ctx,
           );
-          voteSheetFutureRef.value = sheetFuture;
-          await sheetFuture;
-          if (voteSheetFutureRef.value == sheetFuture) {
-            voteSheetFutureRef.value = null;
-            sheetCtxRef.value = null;
-            isVoteSheetOpen.value = false;
-          }
+          isVoteSheetOpen.value = false;
         });
       }
       return null;
     }, [state.isVoteTime]);
-
-    useEffect(() {
-      if (state.match == null || isMatchDialogOpen.value) return null;
-      final matchResult = state.match!;
-      isMatchDialogOpen.value = true;
-
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        try {
-          if (!context.mounted) return;
-
-          final sheetFuture = voteSheetFutureRef.value;
-          final sheetCtx = sheetCtxRef.value;
-          if (sheetCtx != null && Navigator.of(sheetCtx).canPop()) {
-            Navigator.of(sheetCtx).pop();
-          } else if (sheetFuture != null &&
-              Navigator.of(context, rootNavigator: true).canPop()) {
-            Navigator.of(context, rootNavigator: true).pop();
-          }
-          if (sheetFuture != null) {
-            await sheetFuture;
-          }
-
-          voteSheetFutureRef.value = null;
-          sheetCtxRef.value = null;
-          isVoteSheetOpen.value = false;
-          if (!context.mounted) return;
-
-          await showDialog<void>(
-            context: context,
-            useRootNavigator: true,
-            barrierDismissible: false,
-            builder: (_) => matchResult != 'failed'
-                ? CustomConfirmDialog(
-                    title: '사랑의 작대기 성공',
-                    content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
-                    onConfirm: () async {
-                      await viewModel.disconnect();
-                      if (!context.mounted) return;
-                      onTapChatDetail(matchResult);
-                    },
-                    onCancel: () async {
-                      await viewModel.disconnect();
-                      if (!context.mounted) return;
-                      context.pop();
-                    },
-                    confirmText: '확인',
-                    isSingleAction: false,
-                  )
-                : CustomConfirmDialog(
-                    title: '사랑의 작대기 실패',
-                    content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봐요!',
-                    onConfirm: () async {
-                      await viewModel.disconnect();
-                      if (!context.mounted) return;
-                      context.pop();
-                    },
-                    confirmText: '확인',
-                    isSingleAction: true,
-                  ),
-          );
-        } finally {
-          isMatchDialogOpen.value = false;
-        }
-      });
-
-      return null;
-    }, [state.match]);
 
     useEffect(() {
       if (state.ended != null) {

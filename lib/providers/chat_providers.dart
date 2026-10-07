@@ -29,7 +29,6 @@ import 'package:dongsoop/domain/chat/use_case/stream/blind_ended_stream_use_case
 import 'package:dongsoop/domain/chat/use_case/stream/blind_freeze_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_join_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_joined_stream_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/stream/blind_match_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_participants_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_start_stream_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/blind_system_stream_use_case.dart';
@@ -220,12 +219,6 @@ final blindParticipantsStreamUseCaseProvider =
   return BlindParticipantsStreamUseCase(repository);
 });
 
-final blindMatchStreamUseCaseProvider =
-    Provider<BlindMatchStreamUseCase>((ref) {
-  final repository = ref.watch(chatRepositoryProvider);
-  return BlindMatchStreamUseCase(repository);
-});
-
 final blindEndedStreamUseCaseProvider =
     Provider<BlindEndedStreamUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
@@ -363,7 +356,6 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<
   final blindJoinStreamUseCase = ref.watch(blindJoinStreamUseCaseProvider);
   final blindParticipantsStreamUseCase =
       ref.watch(blindParticipantsStreamUseCaseProvider);
-  final blindMatchStreamUseCase = ref.watch(blindMatchStreamUseCaseProvider);
   final blindEndedStreamUseCase = ref.watch(blindEndedStreamUseCaseProvider);
   final blindDisconnectStreamUseCase =
       ref.watch(blindDisconnectStreamUseCaseProvider);
@@ -381,7 +373,6 @@ final blindDateDetailViewModelProvider = StateNotifierProvider.autoDispose<
     blindBroadcastStreamUseCase,
     blindJoinStreamUseCase,
     blindParticipantsStreamUseCase,
-    blindMatchStreamUseCase,
     blindEndedStreamUseCase,
     blindDisconnectStreamUseCase,
   );

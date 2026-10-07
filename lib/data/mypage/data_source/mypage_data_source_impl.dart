@@ -122,7 +122,7 @@ class MypageDataSourceImpl implements MypageDataSource {
 
   @override
   Future<void> resetBlindDateParticipants() async {
-    const endpoint = '/participants';
+    const endpoint = '/blinddate/participants';
     _logBlindDateReset('REQUEST method=DELETE endpoint=$endpoint');
 
     try {

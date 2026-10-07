@@ -215,14 +215,7 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.blindDateDetail,
-      builder: (context, state) => BlindDateDetailScreen(
-        onTapChatDetail: (roomId) {
-          context.pushReplacement(
-            RoutePaths.chatDetail,
-            extra: roomId,
-          );
-        },
-      ),
+      builder: (context, state) => const BlindDateDetailScreen(),
     ),
     GoRoute(
       path: RoutePaths.mypageWebView,

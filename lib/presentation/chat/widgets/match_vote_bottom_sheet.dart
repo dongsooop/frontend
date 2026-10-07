@@ -29,7 +29,6 @@ class MatchVoteBottomSheet extends StatefulWidget {
     int seconds = 10,
     String title = '사랑의 작대기',
     String subtitle = '마음에 드는 상대방을 골라주세요',
-    ValueChanged<BuildContext>? onSheetContext,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -43,7 +42,6 @@ class MatchVoteBottomSheet extends StatefulWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (sheetCtx) {
-        onSheetContext?.call(sheetCtx);
         return MatchVoteBottomSheet(
           participants: participants,
           currentUserId: currentUserId,

@@ -1,3 +1,5 @@
+enum BlindDateVoteIntroStage { none, firstMessage, secondMessage }
+
 class BlindDateDetailState {
   final bool isConnecting;
   final bool isFrozen;
@@ -5,11 +7,13 @@ class BlindDateDetailState {
   final int maxCount;
   final String nickname;
   final Map<int, String> participants;
-  final String? match;
   final String? ended;
   final String? disconnectReason;
   final bool isLoading;
+  final BlindDateVoteIntroStage voteIntroStage;
   final bool isVoteTime;
+
+  bool get isVotePreparing => voteIntroStage != BlindDateVoteIntroStage.none;
 
   BlindDateDetailState({
     this.isConnecting = false,
@@ -18,10 +22,10 @@ class BlindDateDetailState {
     this.maxCount = 7,
     this.nickname = '',
     this.participants = const {},
-    this.match,
     this.ended,
     this.disconnectReason,
     this.isLoading = false,
+    this.voteIntroStage = BlindDateVoteIntroStage.none,
     this.isVoteTime = false,
   });
 
@@ -32,10 +36,10 @@ class BlindDateDetailState {
     int? maxCount,
     String? nickname,
     Map<int, String>? participants,
-    String? match,
     String? ended,
     String? disconnectReason,
     bool? isLoading,
+    BlindDateVoteIntroStage? voteIntroStage,
     bool? isVoteTime,
   }) {
     return BlindDateDetailState(
@@ -45,10 +49,10 @@ class BlindDateDetailState {
       maxCount: maxCount ?? this.maxCount,
       nickname: nickname ?? this.nickname,
       participants: participants ?? this.participants,
-      match: match ?? this.match,
       ended: ended ?? this.ended,
       disconnectReason: disconnectReason ?? this.disconnectReason,
       isLoading: isLoading ?? this.isLoading,
+      voteIntroStage: voteIntroStage ?? this.voteIntroStage,
       isVoteTime: isVoteTime ?? this.isVoteTime,
     );
   }

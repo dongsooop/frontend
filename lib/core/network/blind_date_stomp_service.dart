@@ -28,7 +28,6 @@ class BlindDateStompService {
   final _joinController = StreamController<BlindJoinInfo>.broadcast();
   final _participantsController =
       StreamController<Map<int, String>>.broadcast();
-  final _matchController = StreamController<String>.broadcast();
   final _endedController = StreamController<String>.broadcast();
   final _disconnectController = StreamController<String>.broadcast();
 
@@ -218,16 +217,6 @@ class BlindDateStompService {
       }
       _participantsController.add(participants);
     });
-    _subscribe('$base/member/$memberId/chatroom', (data) {
-      final chatRoomId = data['chatRoomId']?.toString();
-      if (chatRoomId != null && chatRoomId.isNotEmpty) {
-        _matchController.add(chatRoomId);
-      }
-    });
-    _subscribe(
-      '$base/member/$memberId/failed',
-      (_) => _matchController.add('failed'),
-    );
   }
 
   void _subscribe(
@@ -331,7 +320,6 @@ class BlindDateStompService {
   Stream<BlindJoinInfo> get joinStream => _joinController.stream;
   Stream<Map<int, String>> get participantsStream =>
       _participantsController.stream;
-  Stream<String> get matchStream => _matchController.stream;
   Stream<String> get endedStream => _endedController.stream;
   Stream<String> get disconnectStream => _disconnectController.stream;
 

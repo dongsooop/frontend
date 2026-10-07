@@ -403,9 +403,6 @@ class ChatDataSourceImpl implements ChatDataSource {
       _blindDateStompService.participantsStream;
 
   @override
-  Stream<String> get matchStream => _blindDateStompService.matchStream;
-
-  @override
   Stream<String> get endedStream => _blindDateStompService.endedStream;
 
   @override
