@@ -39,10 +39,6 @@ String _enumToServerString(ServiceFeature f) {
       return 'ACADEMIC_SCHEDULE';
     case ServiceFeature.timetableAutoManage:
       return 'TIMETABLE_AUTO_MANAGE';
-    case ServiceFeature.teamRecruitment:
-      return 'TEAM_RECRUITMENT';
-    case ServiceFeature.marketplace:
-      return 'MARKETPLACE';
     case ServiceFeature.chatbotCampusInfo:
       return 'CHATBOT_CAMPUS_INFO';
   }

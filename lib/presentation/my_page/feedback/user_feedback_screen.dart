@@ -13,8 +13,6 @@ const Map<ServiceFeature, String> _serviceFeatureOptions = {
   ServiceFeature.mealInformation: '학식 정보 확인 서비스',
   ServiceFeature.academicSchedule: '학사 일정 확인 및 개인 일정 관리',
   ServiceFeature.timetableAutoManage: '시간표 자동 입력 및 관리',
-  ServiceFeature.teamRecruitment: '팀원 모집(스터디/튜터링/프로젝트)',
-  ServiceFeature.marketplace: '장터(교재 등 중고 거래)',
   ServiceFeature.chatbotCampusInfo: '챗봇을 통한 교내 정보 확인',
 };
 
