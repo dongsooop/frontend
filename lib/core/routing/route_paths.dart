@@ -55,6 +55,7 @@ abstract class RoutePaths {
   static const String blindDate = 'blind-date';
   static const String blindDateDetail = '/blindDateDetail';
   static const String adminBlindDate = '/adminBlindDate';
+  static const String adminBlindDateReset = '/adminBlindDateReset';
   static const String socialLoginConnect = '/socialLoginConnect';
   static const String search = '/search';
   static const String noticeKeyword = '/noticeKeyword';

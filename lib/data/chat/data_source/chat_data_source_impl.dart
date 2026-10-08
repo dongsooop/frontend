@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
-import 'package:dongsoop/core/network/socket_io_service.dart';
+import 'package:dongsoop/core/network/blind_date_stomp_service.dart';
 import 'package:dongsoop/core/network/stomp_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
@@ -20,13 +20,13 @@ import 'chat_data_source.dart';
 class ChatDataSourceImpl implements ChatDataSource {
   final Dio _authDio;
   final StompService _stompService;
-  final SocketIoService _socketIoService;
+  final BlindDateStompService _blindDateStompService;
   final HiveService _hiveService;
 
   ChatDataSourceImpl(
     this._authDio,
     this._stompService,
-    this._socketIoService,
+    this._blindDateStompService,
     this._hiveService,
   );
 
@@ -200,7 +200,8 @@ class ChatDataSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<(List<ChatMessage>?, ChatRoomDetail)> getChatInitialize(String roomId) async {
+  Future<(List<ChatMessage>?, ChatRoomDetail)> getChatInitialize(
+      String roomId) async {
     final chat = '/chat/room';
     final initialize = '/initialize';
     final endpoint = '$chat/$roomId$initialize';
@@ -262,7 +263,8 @@ class ChatDataSourceImpl implements ChatDataSource {
       final response = await _authDio.post(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
         await _hiveService.deleteChatMessagesByRoomId(roomId);
-      } else ChatLeaveException();
+      } else
+        ChatLeaveException();
     } on DioException catch (e) {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw ChatLeaveManagerException();
@@ -283,7 +285,8 @@ class ChatDataSourceImpl implements ChatDataSource {
     try {
       final response = await _authDio.post(endpoint, data: requestBody);
       if (response.statusCode == HttpStatusCode.ok.code) {
-      } else ChatLeaveException();
+      } else
+        ChatLeaveException();
     } catch (e) {
       rethrow;
     }
@@ -292,7 +295,9 @@ class ChatDataSourceImpl implements ChatDataSource {
   @override
   Future<Map<String, String?>> sendChatbot(String text) async {
     final endpoint = '/chatbot';
-    final requestBody = {'text': text, };
+    final requestBody = {
+      'text': text,
+    };
 
     try {
       final response = await _authDio.post(endpoint, data: requestBody);
@@ -314,13 +319,17 @@ class ChatDataSourceImpl implements ChatDataSource {
     try {
       final response = await _authDio.get(endpoint);
       if (response.statusCode == HttpStatusCode.ok.code) {
-        if (response.data == 'true') {
+        if (response.data == true) {
           return true;
-        }
-        else throw BlindDateOpenException();
+        } else
+          throw BlindDateOpenException();
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      print('blind date open DioException: ${e}');
+      rethrow;
     } catch (e) {
+      print('blind date open error: ${e}');
       rethrow;
     }
   }
@@ -342,7 +351,8 @@ class ChatDataSourceImpl implements ChatDataSource {
   Stream<String> subscribeBlock() => _stompService.blockStream;
 
   @override
-  Future<void> connectChatList(int userId) => _stompService.connectRoomList(userId);
+  Future<void> connectChatList(int userId) =>
+      _stompService.connectRoomList(userId);
 
   @override
   void disconnectChatList() => _stompService.disconnectChatRoom();
@@ -353,50 +363,52 @@ class ChatDataSourceImpl implements ChatDataSource {
   // blind
   @override
   Future<void> blindConnect(int userId) async {
-    final String url = 'ws://dongsoop.site/blinddate';
+    final String url = 'https://dongsoop.site/ws/blinddate';
 
-    await _socketIoService.connect(url: url, memberId: userId);
+    await _blindDateStompService.connect(url: url, memberId: userId);
   }
 
   @override
-  Future<void> blindDisconnect() => _socketIoService.disconnect();
+  Future<void> blindDisconnect() => _blindDateStompService.disconnect();
 
   @override
-  void blindSendMessage(BlindDateRequest message) => _socketIoService.sendUserMessage(message);
+  void blindSendMessage(BlindDateRequest message) =>
+      _blindDateStompService.sendUserMessage(message);
 
   @override
-  void userChoice(BlindChoice data) => _socketIoService.userChoice(data);
+  void userChoice(BlindChoice data) => _blindDateStompService.userChoice(data);
 
   @override
-  Stream<int> get joinedStream => _socketIoService.joinedStream;
+  Stream<int> get joinedStream => _blindDateStompService.joinedStream;
 
   @override
-  Stream<String> get startStream => _socketIoService.startStream;
+  Stream<String> get startStream => _blindDateStompService.startStream;
 
   @override
-  Stream<BlindDateMessage> get systemStream => _socketIoService.systemStream;
+  Stream<BlindDateMessage> get systemStream =>
+      _blindDateStompService.systemStream;
 
   @override
-  Stream<bool> get freezeStream => _socketIoService.freezeStream;
+  Stream<bool> get freezeStream => _blindDateStompService.freezeStream;
 
   @override
-  Stream<BlindDateMessage> get broadcastStream => _socketIoService.broadcastStream;
+  Stream<BlindDateMessage> get broadcastStream =>
+      _blindDateStompService.broadcastStream;
 
   @override
-  Stream<BlindJoinInfo> get joinStream => _socketIoService.joinStream;
+  Stream<BlindJoinInfo> get joinStream => _blindDateStompService.joinStream;
 
   @override
-  Stream<Map<int, String>> get participantsStream => _socketIoService.participantsStream;
+  Stream<Map<int, String>> get participantsStream =>
+      _blindDateStompService.participantsStream;
 
   @override
-  Stream<String> get matchStream => _socketIoService.matchStream;
+  Stream<String> get endedStream => _blindDateStompService.endedStream;
 
   @override
-  Stream<String> get endedStream => _socketIoService.endedStream;
+  Stream<String> get disconnectStream =>
+      _blindDateStompService.disconnectStream;
 
   @override
-  Stream<String> get disconnectStream => _socketIoService.disconnectStream;
-
-  @override
-  bool get isConnected => _socketIoService.isConnected;
+  bool get isConnected => _blindDateStompService.isConnected;
 }

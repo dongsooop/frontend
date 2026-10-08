@@ -8,11 +8,14 @@ part 'blind_join_info.g.dart';
 class BlindJoinInfo with _$BlindJoinInfo {
   final String name;
   final String state;
+  final int? maxCount;
 
   BlindJoinInfo({
     required this.name,
-    required this.state
+    required this.state,
+    this.maxCount,
   });
 
-  factory BlindJoinInfo.fromJson(Map<String, dynamic> json) => _$BlindJoinInfoFromJson(json);
+  factory BlindJoinInfo.fromJson(Map<String, dynamic> json) =>
+      _$BlindJoinInfoFromJson(json);
 }

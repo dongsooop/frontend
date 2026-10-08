@@ -116,46 +116,53 @@ class ChatScreen extends HookConsumerWidget {
     // 로딩 상태 표시
     if (chatState.isLoading) {
       return Center(
-        child: CircularProgressIndicator(color: ColorStyles.primaryColor,)
-      );
+          child: CircularProgressIndicator(
+        color: ColorStyles.primaryColor,
+      ));
     }
 
     final allRooms = chatState.chatRooms ?? [];
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: ColorStyles.white,
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 16, right: 16, left: 16,),
-              child: _buildChatBody(context, allRooms, viewModel),
+    return Stack(children: [
+      Scaffold(
+        backgroundColor: ColorStyles.white,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(
+              top: 16,
+              right: 16,
+              left: 16,
             ),
+            child: _buildChatBody(context, allRooms, viewModel),
           ),
         ),
-        if (user == null) ...[
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
-              child: Container(
-                color: Colors.black.withAlpha((255 * 0.3).round()),
-              ),
-            ),
-            Center(
-              child: CustomConfirmDialog(
-                title: '로그인이 필요해요',
-                content: '해당 서비스는 로그인이 필요해요.\n로그인 페이지로 이동할까요?',
-                isSingleAction: true,
-                confirmText: '확인',
-                dismissOnConfirm: false,
-                onConfirm: onTapSignIn,
-              ),
-            ),
-          ],
-      ]
-    );
+      ),
+      if (user == null) ...[
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 1.6, sigmaY: 1.4),
+          child: Container(
+            color: Colors.black.withAlpha((255 * 0.3).round()),
+          ),
+        ),
+        Center(
+          child: CustomConfirmDialog(
+            title: '로그인이 필요해요',
+            content: '해당 서비스는 로그인이 필요해요.\n로그인 페이지로 이동할까요?',
+            isSingleAction: true,
+            confirmText: '확인',
+            dismissOnConfirm: false,
+            onConfirm: onTapSignIn,
+          ),
+        ),
+      ],
+    ]);
   }
 
-  Widget _buildChatBody(BuildContext context, List<ChatRoom> rooms, ChatViewModel viewModel,) {
+  Widget _buildChatBody(
+    BuildContext context,
+    List<ChatRoom> rooms,
+    ChatViewModel viewModel,
+  ) {
     return Stack(
       children: [
         Column(
@@ -213,28 +220,39 @@ class _ChatRoomList extends StatelessWidget {
       color: ColorStyles.primaryColor,
       onRefresh: () async => viewModel.loadChatRooms(),
       child: rooms.isEmpty
-        ? Center(
-          child: Text(
-            '참여 중인 채팅방이 없어요',
-            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-          ),
-        )
-        : ListView.builder(
-          padding: EdgeInsets.only(top: 24),
-          itemCount: rooms.length,
-          itemBuilder: (context, index) {
-            final room = rooms[index];
-            return InkWell(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: () async {
-                final isLeaved = await onTapChatDetail(room.roomId);
-                if (isLeaved) await viewModel.loadChatRooms();
+          ? CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Text(
+                      '참여 중인 채팅방이 없어요',
+                      style: TextStyles.normalTextRegular.copyWith(
+                        color: ColorStyles.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.only(top: 24),
+              itemCount: rooms.length,
+              itemBuilder: (context, index) {
+                final room = rooms[index];
+                return InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () async {
+                    final isLeaved = await onTapChatDetail(room.roomId);
+                    if (isLeaved) await viewModel.loadChatRooms();
+                  },
+                  child: ChatCard(chatRoom: room),
+                );
               },
-              child: ChatCard(chatRoom: room),
-            );
-          },
-        ),
+            ),
     );
   }
 }

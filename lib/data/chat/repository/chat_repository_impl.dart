@@ -160,8 +160,6 @@ class ChatRepositoryImpl implements ChatRepository {
   Stream<Map<int, String>> get participantsStream => _chatDataSource.participantsStream;
 
   @override
-  Stream<String> get matchStream => _chatDataSource.matchStream;
-  @override
   Stream<String> get endedStream => _chatDataSource.endedStream;
 
   @override

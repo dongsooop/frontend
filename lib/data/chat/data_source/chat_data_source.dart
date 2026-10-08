@@ -51,7 +51,6 @@ abstract class ChatDataSource {
   Stream<BlindDateMessage> get broadcastStream;
   Stream<BlindJoinInfo> get joinStream;
   Stream<Map<int, String>> get participantsStream;
-  Stream<String> get matchStream;
   Stream<String> get endedStream;
   Stream<String> get disconnectStream;
   bool get isConnected;

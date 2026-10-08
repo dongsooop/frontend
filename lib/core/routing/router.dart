@@ -22,6 +22,7 @@ import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_screen.d
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
 import 'package:dongsoop/presentation/home/chatbot/chatbot_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_screen.dart';
+import 'package:dongsoop/presentation/my_page/admin/blind_reset/blind_reset_screen.dart';
 import 'package:dongsoop/presentation/my_page/social_login_connect/social_login_connect_screen.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_screen.dart';
 import 'package:dongsoop/presentation/restaurants/search/restaurants_search_screen.dart';
@@ -214,14 +215,7 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.blindDateDetail,
-      builder: (context, state) => BlindDateDetailScreen(
-        onTapChatDetail: (roomId) {
-          context.push (
-            RoutePaths.chatDetail,
-            extra: roomId,
-          );
-        },
-      ),
+      builder: (context, state) => const BlindDateDetailScreen(),
     ),
     GoRoute(
       path: RoutePaths.mypageWebView,
@@ -241,6 +235,10 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.adminBlindDate,
       builder: (context, state) => BlindAdminScreen()
+    ),
+    GoRoute(
+      path: RoutePaths.adminBlindDateReset,
+      builder: (context, state) => const BlindResetScreen(),
     ),
     GoRoute(
       path: RoutePaths.adminReport,
@@ -742,17 +740,20 @@ final router = GoRouter(
                 GoRoute(
                   path: RoutePaths.blindDate,
                   name: 'blindDate',
-                  builder: (context, state) => BlindDateScreen(
-                    onTapChat: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      } else {
-                        context.go(RoutePaths.chat);
-                      }
-                    },
-                    onTapBlindDateDetail: () {
-                      context.push(RoutePaths.blindDateDetail);
-                    },
+                  pageBuilder: (context, state) => NoTransitionPage(
+                    key: state.pageKey,
+                    child: BlindDateScreen(
+                      onTapChat: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(RoutePaths.chat);
+                        }
+                      },
+                      onTapBlindDateDetail: () {
+                        context.push(RoutePaths.blindDateDetail);
+                      },
+                    ),
                   ),
                 ),
               ],
@@ -841,6 +842,9 @@ final router = GoRouter(
               },
               onTapAdminBlindDate: () {
                 context.push(RoutePaths.adminBlindDate);
+              },
+              onTapAdminBlindDateReset: () {
+                context.push(RoutePaths.adminBlindDateReset);
               },
               onTapAdminFeedback: () {
                 context.push(RoutePaths.feedbackResult);
