@@ -39,8 +39,6 @@ import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/home/notification_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
-import 'package:dongsoop/presentation/my_page/activity/activity_market_screen.dart';
-import 'package:dongsoop/presentation/my_page/activity/activity_recruit_screen.dart';
 import 'package:dongsoop/presentation/my_page/activity/blocked_user_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
@@ -768,44 +766,6 @@ final router = GoRouter(
                 path: RoutePaths.mypageBlock,
                 builder: (context, state) => BlockedUserScreen(),
               ),
-              GoRoute(
-                path: RoutePaths.mypageMarket,
-                builder: (context, state) => ActivityMarketScreen(
-                  onTapMarketDetail: (targetId, type, status) async {
-                    final isDeleted = await context.push<bool>(
-                      RoutePaths.marketDetail,
-                      extra: {
-                        'id': targetId,
-                        'type': type,
-                        'status': status,
-                      },
-                    );
-                    return isDeleted ?? false;
-                  },
-                ),
-              ),
-              GoRoute(
-                path: RoutePaths.mypageRecruit,
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>?;
-                  final isApply = extra?['isApply'] as bool? ?? false;
-
-                  return ActivityRecruitScreen(
-                    isApply: isApply,
-                    onTapRecruitDetail: (targetId, type, status) async {
-                      final isDeleted = await context.push<bool>(
-                        RoutePaths.recruitDetail,
-                        extra: {
-                          'id': targetId,
-                          'type': type,
-                          'status': status,
-                        },
-                      );
-                      return isDeleted ?? false;
-                    },
-                  );
-                }
-              ),
             ],
             builder: (context, state) => MyPageScreen(
               onTapSignIn: () {
@@ -813,14 +773,6 @@ final router = GoRouter(
               },
               onTapSetting: () {
                 context.push(RoutePaths.setting);
-              },
-              onTapMarket: () {
-                context.push(RoutePaths.mypage + RoutePaths.mypageMarket);
-              },
-              onTapRecruit: (isApply) {
-                context.push(RoutePaths.mypage + RoutePaths.mypageRecruit, extra: {
-                  'isApply': isApply,
-                });
               },
               onTapUserFeedback: () {
                 context.push(RoutePaths.userFeedback);

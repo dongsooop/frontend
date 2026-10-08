@@ -12,10 +12,8 @@ class LoggedInUserCard extends HookConsumerWidget {
   final VoidCallback onTapAdminBlindDateReset;
   final VoidCallback onTapAdminFeedback;
   final VoidCallback onTapUserFeedback;
-  final VoidCallback onTapMarket;
   final VoidCallback onTapCalendar;
   final VoidCallback onTapTimetable;
-  final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
   final VoidCallback onTapNotification;
   final VoidCallback onTapSubscribeDepartment;
@@ -29,10 +27,8 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.onTapAdminBlindDateReset,
     required this.onTapAdminFeedback,
     required this.onTapUserFeedback,
-    required this.onTapMarket,
     required this.onTapCalendar,
     required this.onTapTimetable,
-    required this.onTapRecruit,
     required this.onTapBlockedUser,
     required this.onTapNotification,
     required this.onTapSubscribeDepartment,
@@ -138,9 +134,6 @@ class LoggedInUserCard extends HookConsumerWidget {
             children: [
               Column(
                 children: [
-                  // 게시판을 닫으면서 모집·장터 진입점도 함께 내렸다.
-                  // onTapRecruit/onTapMarket 배선과 화면·라우트는 그대로 두었다.
-                  // 되살릴 때 항목 세 개만 다시 얹으면 된다
                   MyActivityItem(
                     label: '차단 관리',
                     onTap: onTapBlockedUser,

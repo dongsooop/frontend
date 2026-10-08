@@ -49,8 +49,6 @@ abstract class RoutePaths {
   static const String report = '/report';
   static const String adminReport = '/admin/report';
   static const String adminReportSanction = '/admin/sanction';
-  static const String mypageMarket = '/mypageMarket';
-  static const String mypageRecruit = '/mypageRecruit';
   static const String mypageBlock = '/mypageBlock';
   static const String blindDate = 'blind-date';
   static const String blindDateDetail = '/blindDateDetail';
