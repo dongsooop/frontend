@@ -1,5 +1,4 @@
 import 'package:dongsoop/data/notification/model/notification_enable_model.dart';
-import 'package:dongsoop/data/notification/model/notification_recruit_model.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
 
 abstract class NotificationSettingDataSource {
@@ -18,13 +17,4 @@ abstract class NotificationSettingDataSource {
     required NotificationEnableModel body,
   });
 
-  Future<void> setApply({
-    required NotificationTarget target,
-    required NotificationRecruitModel body,
-  });
-
-  Future<void> setResult({
-    required NotificationTarget target,
-    required NotificationRecruitModel body,
-  });
 }

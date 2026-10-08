@@ -1,5 +1,3 @@
-import 'package:dongsoop/presentation/notification/view_model/notification_types.dart';
-
 class NotificationSettingState {
   final Map<String, bool> enabled;
   final Map<String, bool> loading;
@@ -13,18 +11,6 @@ class NotificationSettingState {
 
   bool isEnabled(String type) => enabled[type] ?? false;
   bool isLoading(String type) => loading[type] ?? false;
-
-  bool get recruitApplyEnabled =>
-      NotificationTypes.recruitApplyGroup.any(isEnabled);
-
-  bool get recruitResultEnabled =>
-      NotificationTypes.recruitResultGroup.any(isEnabled);
-
-  bool get recruitApplyLoading =>
-      NotificationTypes.recruitApplyGroup.any(isLoading);
-
-  bool get recruitResultLoading =>
-      NotificationTypes.recruitResultGroup.any(isLoading);
 
   NotificationSettingState copyWith({
     Map<String, bool>? enabled,
