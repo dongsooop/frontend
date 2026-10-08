@@ -9,7 +9,7 @@ import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/providers/activity_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/presentation/board/market/price_formatter.dart';
-import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/core/utils/date_time_formatter.dart';
 
 class ActivityMarketScreen extends HookConsumerWidget {
   final Future<bool> Function(int id, MarketType type, String status) onTapMarketDetail;

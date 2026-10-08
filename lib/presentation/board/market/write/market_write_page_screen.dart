@@ -6,7 +6,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
-import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
+import 'package:dongsoop/core/presentation/components/common_text_form_field.dart';
 import 'package:dongsoop/presentation/board/market/detail/view_model/market_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/market/price_formatter.dart';
 import 'package:dongsoop/presentation/board/market/write/view_model/market_write_view_model.dart';
@@ -241,7 +241,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   // 제목
                   RequiredLabel('제목'),
                   const SizedBox(height: 16),
-                  BoardTextFormField(
+                  CommonTextFormField(
                     controller: titleController,
                     hintText: '글 제목을 입력해 주세요',
                     maxLength: 20,
@@ -251,7 +251,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   // 내용
                   RequiredLabel('내용'),
                   const SizedBox(height: 16),
-                  BoardTextFormField(
+                  CommonTextFormField(
                     controller: contentController,
                     hintText: '세부 내용을 입력해 주세요',
                     maxLength: 500,
@@ -282,7 +282,7 @@ class MarketWritePageScreen extends HookConsumerWidget {
                   // 가격
                   RequiredLabel('가격'),
                   const SizedBox(height: 16),
-                  BoardTextFormField(
+                  CommonTextFormField(
                     controller: priceController,
                     hintText: '희망 가격을 입력해 주세요',
                     keyboardType: TextInputType.number,

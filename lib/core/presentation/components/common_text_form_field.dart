@@ -3,7 +3,7 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class BoardTextFormField extends StatelessWidget {
+class CommonTextFormField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final int? maxLength;
@@ -15,7 +15,7 @@ class BoardTextFormField extends StatelessWidget {
   // 모집 작성화면 때문에 임시 추가 -> 모집 리팩토링시 삭제 예정
   final ValueChanged<String>? onChanged;
 
-  const BoardTextFormField({
+  const CommonTextFormField({
     super.key,
     required this.controller,
     required this.hintText,

@@ -7,7 +7,7 @@ import 'package:dongsoop/presentation/board/recruit/apply/detail/widget/applican
 import 'package:dongsoop/presentation/board/recruit/apply/detail/widget/owner_decision_button.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_applicant_detail_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_decision_view_model.dart';
-import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/core/utils/date_time_formatter.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';

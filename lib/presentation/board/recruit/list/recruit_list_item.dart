@@ -3,7 +3,7 @@ import 'package:dongsoop/core/presentation/components/common_recruit_list_item.d
 import 'package:dongsoop/domain/board/recruit/entities/recruit_list_entity.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/presentation/board/recruit/list/view_models/recruit_list_view_model.dart';
-import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/core/utils/date_time_formatter.dart';
 import 'package:dongsoop/presentation/board/utils/scroll_listener.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';

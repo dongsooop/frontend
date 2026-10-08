@@ -1,6 +1,6 @@
 import 'package:dongsoop/core/presentation/components/common_recruit_list_item.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
-import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/core/utils/date_time_formatter.dart';
 import 'package:dongsoop/presentation/search/view_models/search_recruit_view_model.dart';
 import 'package:dongsoop/presentation/board/utils/scroll_listener.dart';
 import 'package:dongsoop/ui/color_styles.dart';

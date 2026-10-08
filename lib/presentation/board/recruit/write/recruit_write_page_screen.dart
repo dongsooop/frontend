@@ -8,7 +8,7 @@ import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/recruit/use_cases/validate/validate_use_case_provider.dart';
 import 'package:dongsoop/presentation/board/common/components/board_filtering_overlay.dart';
 import 'package:dongsoop/presentation/board/common/components/board_require_label.dart';
-import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
+import 'package:dongsoop/core/presentation/components/common_text_form_field.dart';
 import 'package:dongsoop/presentation/board/recruit/write/state/recruit_write_state.dart';
 import 'package:dongsoop/presentation/board/recruit/write/view_models/date_time_view_model.dart';
 import 'package:dongsoop/presentation/board/recruit/write/view_models/recruit_write_view_model.dart';
@@ -411,7 +411,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                   const SizedBox(height: 40),
                   RequiredLabel('제목'),
                   const SizedBox(height: 16),
-                  BoardTextFormField(
+                  CommonTextFormField(
                     controller: titleController,
                     maxLength: 20,
                     hintText: '모집 글 제목을 입력해 주세요',
@@ -421,7 +421,7 @@ class RecruitWritePageScreen extends HookConsumerWidget {
                   const SizedBox(height: 40),
                   RequiredLabel('내용'),
                   const SizedBox(height: 16),
-                  BoardTextFormField(
+                  CommonTextFormField(
                     controller: contentController,
                     maxLength: 500,
                     maxLines: 5,

@@ -8,7 +8,7 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/providers/activity_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
-import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/core/utils/date_time_formatter.dart';
 
 class ActivityRecruitScreen extends HookConsumerWidget {
   final bool isApply;
