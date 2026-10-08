@@ -10,7 +10,6 @@ import 'package:dongsoop/domain/chat/use_case/blind_date/blind_connect_use_case.
 import 'package:dongsoop/domain/chat/use_case/blind_date/blind_disconnect_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/blind_send_message_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/connect_chat_list_use_case.dart';
-import 'package:dongsoop/domain/chat/use_case/chat/create_QNA_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/delete_chat_data_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/blind_date/get_blind_date_open_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/get_offline_messages_use_case.dart';
@@ -86,12 +85,6 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 });
 
 // Use Case
-final createQNAChatRoomUseCaseProvider =
-    Provider<CreateQnaChatRoomUseCase>((ref) {
-  final repository = ref.read(chatRepositoryProvider);
-  return CreateQnaChatRoomUseCase(repository);
-});
-
 final loadChatRoomsUseCaseProvider = Provider<GetChatRoomsUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
 

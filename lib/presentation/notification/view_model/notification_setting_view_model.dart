@@ -2,11 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:dongsoop/presentation/notification/providers/notification_setting_provider.dart';
 import 'package:dongsoop/domain/notification/entity/notification_enable_entity.dart';
-import 'package:dongsoop/domain/notification/entity/notification_recruit_entity.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
 import 'package:dongsoop/domain/notification/repository/notification_setting_repository.dart';
 import 'notification_setting_state.dart';
-import 'notification_types.dart';
 part 'notification_setting_view_model.g.dart';
 
 @riverpod
@@ -85,112 +83,6 @@ class NotificationSettingViewModel extends _$NotificationSettingViewModel {
       state = state.copyWith(
         loading: {...state.loading, notificationType: false},
       );
-    }
-  }
-
-  Future<void> setRecruitApplyToggle({
-    required NotificationTarget target,
-    required String deviceToken,
-    required bool nextValue,
-  }) async {
-    final types = NotificationTypes.recruitApplyGroup;
-    if (types.any(state.isLoading)) return;
-
-    final prev = {
-      for (final t in types) t: state.isEnabled(t),
-    };
-
-    final nextEnabled = {...state.enabled};
-    final nextLoading = {...state.loading};
-    for (final t in types) {
-      nextEnabled[t] = nextValue;
-      nextLoading[t] = true;
-    }
-
-    state = state.copyWith(
-      enabled: nextEnabled,
-      loading: nextLoading,
-    );
-
-    try {
-      await _repo.setApply(
-        target: target,
-        entity: NotificationRecruitEntity(
-          deviceToken: deviceToken,
-          targetState: nextValue,
-        ),
-      );
-    } catch (e, st) {
-      if (kDebugMode) {
-        print('[NotificationSettingViewModel.setRecruitApplyToggle] $e\n$st');
-      }
-
-      final rollback = {...state.enabled};
-      for (final t in types) {
-        rollback[t] = prev[t] ?? false;
-      }
-
-      state = state.copyWith(enabled: rollback);
-      rethrow;
-    } finally {
-      final doneLoading = {...state.loading};
-      for (final t in types) {
-        doneLoading[t] = false;
-      }
-      state = state.copyWith(loading: doneLoading);
-    }
-  }
-
-  Future<void> setRecruitResultToggle({
-    required NotificationTarget target,
-    required String deviceToken,
-    required bool nextValue,
-  }) async {
-    final types = NotificationTypes.recruitResultGroup;
-    if (types.any(state.isLoading)) return;
-
-    final prev = {
-      for (final t in types) t: state.isEnabled(t),
-    };
-
-    final nextEnabled = {...state.enabled};
-    final nextLoading = {...state.loading};
-    for (final t in types) {
-      nextEnabled[t] = nextValue;
-      nextLoading[t] = true;
-    }
-
-    state = state.copyWith(
-      enabled: nextEnabled,
-      loading: nextLoading,
-    );
-
-    try {
-      await _repo.setResult(
-        target: target,
-        entity: NotificationRecruitEntity(
-          deviceToken: deviceToken,
-          targetState: nextValue,
-        ),
-      );
-    } catch (e, st) {
-      if (kDebugMode) {
-        print('[NotificationSettingViewModel.setRecruitResultToggle] $e\n$st');
-      }
-
-      final rollback = {...state.enabled};
-      for (final t in types) {
-        rollback[t] = prev[t] ?? false;
-      }
-
-      state = state.copyWith(enabled: rollback);
-      rethrow;
-    } finally {
-      final doneLoading = {...state.loading};
-      for (final t in types) {
-        doneLoading[t] = false;
-      }
-      state = state.copyWith(loading: doneLoading);
     }
   }
 

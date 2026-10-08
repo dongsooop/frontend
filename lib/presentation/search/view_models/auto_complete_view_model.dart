@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/search/providers/auto_complete_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -21,10 +20,7 @@ class AutocompleteViewModel extends _$AutocompleteViewModel {
     return const <String>[];
   }
 
-  void onQueryChanged(
-      String query, {
-        required SearchBoardType boardType,
-      }) {
+  void onQueryChanged(String query) {
     final q = query.trim();
 
     if (q.isEmpty) {
@@ -40,10 +36,7 @@ class AutocompleteViewModel extends _$AutocompleteViewModel {
 
       try {
         final useCase = ref.read(autoCompleteUseCaseProvider);
-        final result = await useCase.execute(
-          keyword: q,
-          boardType: boardType,
-        );
+        final result = await useCase.execute(keyword: q);
 
         if (mySeq != _seq) return;
 

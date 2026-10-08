@@ -4,8 +4,6 @@ import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
 import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:dongsoop/domain/mypage/model/blind_date_open_request.dart';
 import 'package:dongsoop/domain/mypage/model/blocked_user.dart';
-import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
-import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
 import 'package:dongsoop/domain/mypage/model/social_state.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:flutter/foundation.dart';
@@ -16,50 +14,6 @@ class MypageDataSourceImpl implements MypageDataSource {
   MypageDataSourceImpl(
     this._authDio,
   );
-
-  @override
-  Future<List<MypageMarket>?> getMarketPosts({int page = 0, int size = 10,}) async {
-    final market = '/mypage/opened-marketplace';
-    final query = 'page=$page&size=$size&sort=createdAt,asc';
-    final endpoint = '$market?$query';
-
-    try {
-      final response = await _authDio.get(endpoint);
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        final List<dynamic> data = response.data;
-        final List<MypageMarket> posts = data.map((e) => MypageMarket.fromJson(e as Map<String, dynamic>)).toList();
-        return posts;
-      }
-      throw Exception('Unexpected status code: ${response.statusCode}');
-    } catch (e) {
-      if (e is DioException && e.error is SessionExpiredException) {
-        throw e.error!;
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<List<MypageRecruit>?> getRecruitPosts(bool isApply, {int page = 0, int size = 10,}) async {
-    final market = isApply ? '/mypage/apply-recruitments' : '/mypage/opened-recruitments';
-    final query = 'page=$page&size=$size';
-    final endpoint = '$market?$query';
-
-    try {
-      final response = await _authDio.get(endpoint);
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        final List<dynamic> data = response.data;
-        final List<MypageRecruit> posts = data.map((e) => MypageRecruit.fromJson(e)).toList();
-        return posts;
-      }
-      throw Exception('Unexpected status code: ${response.statusCode}');
-    } catch (e) {
-      if (e is DioException && e.error is SessionExpiredException) {
-        throw e.error!;
-      }
-      rethrow;
-    }
-  }
 
   @override
   Future<List<BlockedUser>?> getBlockedUserList() async {

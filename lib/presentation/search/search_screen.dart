@@ -1,19 +1,12 @@
 import 'package:dongsoop/core/presentation/components/common_search_bar.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
-import 'package:dongsoop/domain/board/market/enum/market_type.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
-import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/auto_complete_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/popular_search_view_model.dart'; // ✅ 추가
-import 'package:dongsoop/presentation/search/view_models/search_market_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/search_notice_view_model.dart';
-import 'package:dongsoop/presentation/search/view_models/search_recruit_view_model.dart';
 import 'package:dongsoop/presentation/search/widget/auto_complete_list.dart';
-import 'package:dongsoop/presentation/search/widget/search_market_list.dart';
 import 'package:dongsoop/presentation/search/widget/search_notice_list.dart';
-import 'package:dongsoop/presentation/search/widget/search_recruit_list.dart';
 import 'package:dongsoop/presentation/search/widget/popular_search_list.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
@@ -26,27 +19,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 enum _RecentMenu { clearAll, cancel }
 
 class SearchScreen extends HookConsumerWidget {
-  final SearchBoardType boardType;
-  final Future<void> Function(int id, RecruitType type)? onTapRecruitDetail;
-  final Future<void> Function(int id, MarketType type)? onTapMarketDetail;
-
-  const SearchScreen({
-    super.key,
-    required this.boardType,
-    this.onTapRecruitDetail,
-    this.onTapMarketDetail,
-  });
-
-  static const _recruitTypes = <RecruitType>[
-    RecruitType.TUTORING,
-    RecruitType.STUDY,
-    RecruitType.PROJECT,
-  ];
-
-  static const _marketTypes = <MarketType>[
-    MarketType.SELL,
-    MarketType.BUY,
-  ];
+  const SearchScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -95,27 +68,6 @@ class SearchScreen extends HookConsumerWidget {
       FocusManager.instance.primaryFocus?.unfocus();
       if (scrollController.hasClients) scrollController.jumpTo(0);
 
-      if (boardType == SearchBoardType.recruit) {
-        await ref
-            .read(
-          searchRecruitViewModelProvider(
-            types: _recruitTypes,
-            departmentName: departmentName,
-          ).notifier,
-        )
-            .search(q);
-        return;
-      }
-
-      if (boardType == SearchBoardType.market) {
-        await ref
-            .read(
-          searchMarketViewModelProvider(types: _marketTypes).notifier,
-        )
-            .search(q);
-        return;
-      }
-
       await ref
           .read(
         searchNoticeViewModelProvider(
@@ -127,25 +79,12 @@ class SearchScreen extends HookConsumerWidget {
     }
 
     if (isSearching) {
-      if (boardType == SearchBoardType.recruit) {
-        ref.watch(
-          searchRecruitViewModelProvider(
-            types: _recruitTypes,
-            departmentName: departmentName,
-          ),
-        );
-      } else if (boardType == SearchBoardType.market) {
-        ref.watch(
-          searchMarketViewModelProvider(types: _marketTypes),
-        );
-      } else {
-        ref.watch(
-          searchNoticeViewModelProvider(
-            tab: NoticeTab.all,
-            departmentName: departmentName,
-          ),
-        );
-      }
+      ref.watch(
+        searchNoticeViewModelProvider(
+          tab: NoticeTab.all,
+          departmentName: departmentName,
+        ),
+      );
     }
 
     final searchFocusNode = useFocusNode();
@@ -155,16 +94,14 @@ class SearchScreen extends HookConsumerWidget {
       appBar: CommonSearchAppBar(
         controller: keywordCtrl,
         focusNode: searchFocusNode,
-        hintText: _hintByBoardType(boardType),
+        hintText: '공지 게시글을 검색해 주세요',
         onBack: () => context.pop(),
         onTap: () => onSubmit(keywordCtrl.text),
         onClear: handleClear,
 
         onChanged: (text) {
           if (keyword.value.trim().isEmpty) {
-            ref
-                .read(autocompleteViewModelProvider.notifier)
-                .onQueryChanged(text, boardType: boardType);
+            ref.read(autocompleteViewModelProvider.notifier).onQueryChanged(text);
           }
         },
       ),
@@ -180,15 +117,10 @@ class SearchScreen extends HookConsumerWidget {
                   duration: const Duration(milliseconds: 150),
                   child: isSearching
                       ? _SearchResultBody(
-                    key: ValueKey(
-                      'result-${boardType.name}-${keyword.value}',
-                    ),
-                    boardType: boardType,
+                    key: ValueKey('result-${keyword.value}'),
                     keyword: keyword.value,
                     departmentName: departmentName,
                     scrollController: scrollController,
-                    onTapRecruitDetail: onTapRecruitDetail,
-                    onTapMarketDetail: onTapMarketDetail,
                   )
                       : isTyping
                       ? AutocompleteList(
@@ -228,16 +160,6 @@ class SearchScreen extends HookConsumerWidget {
     );
   }
 
-  String _hintByBoardType(SearchBoardType boardType) {
-    switch (boardType) {
-      case SearchBoardType.recruit:
-        return '모집 게시글을 검색해 주세요';
-      case SearchBoardType.market:
-        return '장터 게시글을 검색해 주세요';
-      case SearchBoardType.notice:
-        return '공지 게시글을 검색해 주세요';
-    }
-  }
 }
 
 class _PopularAndRecentBody extends HookConsumerWidget {
@@ -423,64 +345,20 @@ class _RecentKeywordRow extends StatelessWidget {
 }
 
 class _SearchResultBody extends HookConsumerWidget {
-  final SearchBoardType boardType;
   final String keyword;
 
   final String departmentName;
   final ScrollController scrollController;
 
-  final Future<void> Function(int id, RecruitType type)? onTapRecruitDetail;
-  final Future<void> Function(int id, MarketType type)? onTapMarketDetail;
-
   const _SearchResultBody({
     super.key,
-    required this.boardType,
     required this.keyword,
     required this.departmentName,
     required this.scrollController,
-    required this.onTapRecruitDetail,
-    required this.onTapMarketDetail,
   });
-
-  static const _recruitTypes = <RecruitType>[
-    RecruitType.TUTORING,
-    RecruitType.STUDY,
-    RecruitType.PROJECT,
-  ];
-
-  static const _marketTypes = <MarketType>[
-    MarketType.SELL,
-    MarketType.BUY,
-  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (boardType == SearchBoardType.recruit) {
-      return SearchRecruitItemListSection(
-        types: _recruitTypes,
-        departmentName: departmentName,
-        scrollController: scrollController,
-        onTapRecruitDetail: (id, type) async {
-          if (onTapRecruitDetail == null) return;
-          await onTapRecruitDetail!(id, type);
-        },
-        query: keyword,
-      );
-    }
-
-    if (boardType == SearchBoardType.market) {
-      return SearchMarketItemListSection(
-        types: _marketTypes,
-        scrollController: scrollController,
-        onTapMarketDetail: (id, type) async {
-          if (onTapMarketDetail == null) return;
-          await onTapMarketDetail!(id, type);
-        },
-        query: keyword,
-      );
-    }
-
-    // notice
     final provider = searchNoticeViewModelProvider(
       tab: NoticeTab.all,
       departmentName: departmentName,
