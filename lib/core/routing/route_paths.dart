@@ -1,8 +1,6 @@
 abstract class RoutePaths {
   static const String splash = '/splash';
   static const String home = '/home';
-  // 게시판은 이 경로로 이동하는 코드를 모두 닫았다. 라우트와 화면은 그대로 살아 있다
-  static const String board = '/board';
   static const String campus = '/campus';
   static const String campusMap = '/campusMap';
   static const String chat = '/chat';
@@ -37,16 +35,9 @@ abstract class RoutePaths {
   static const String meal = '/meal';
   static const String schedule = '/schedule';
   static const String scheduleDetail = '/scheduleDetail';
-  static const String recruitWrite = '/recruitWrite';
-  static const String recruitDetail = '/recruitDetail';
-  static const String recruitApply = '/recruitApply';
-  static const String recruitApplicantList = '/recruitApplicantList';
-  static const String recruitApplicantDetail = '/recruitApplicantDetail';
   static const String chatDetail = '/chat/detail';
   static const String chatbot = '/chatbot';
   static const String marketWrite = '/marketWrite';
-  static const String marketDetail = '/marketDetail';
-  static const String report = '/report';
   static const String adminReport = '/admin/report';
   static const String adminReportSanction = '/admin/sanction';
   static const String mypageBlock = '/mypageBlock';

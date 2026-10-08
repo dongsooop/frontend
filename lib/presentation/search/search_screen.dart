@@ -1,7 +1,6 @@
 import 'package:dongsoop/core/presentation/components/common_search_bar.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
-import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/auto_complete_view_model.dart';
 import 'package:dongsoop/presentation/search/view_models/popular_search_view_model.dart'; // ✅ 추가
@@ -20,12 +19,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 enum _RecentMenu { clearAll, cancel }
 
 class SearchScreen extends HookConsumerWidget {
-  final SearchBoardType boardType;
-
-  const SearchScreen({
-    super.key,
-    required this.boardType,
-  });
+  const SearchScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -123,9 +117,7 @@ class SearchScreen extends HookConsumerWidget {
                   duration: const Duration(milliseconds: 150),
                   child: isSearching
                       ? _SearchResultBody(
-                    key: ValueKey(
-                      'result-${boardType.name}-${keyword.value}',
-                    ),
+                    key: ValueKey('result-${keyword.value}'),
                     keyword: keyword.value,
                     departmentName: departmentName,
                     scrollController: scrollController,

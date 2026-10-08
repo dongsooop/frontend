@@ -7,7 +7,6 @@ import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/board/market/enum/market_type.dart';
 import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/board/timezone/providers/check_time_zone_use_case_provider.dart';
-import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/board/market/list/market_list_item.dart';
 import 'package:dongsoop/presentation/board/market/list/view_model/market_list_view_model.dart';
 import 'package:dongsoop/presentation/board/providers/board_taps_provider.dart';
@@ -212,12 +211,7 @@ class BoardPageScreen extends HookConsumerWidget {
                               IconButton(
                                 icon: const Icon(Icons.search, color: ColorStyles.gray3),
                                 onPressed: () {
-                                  context.push(
-                                    RoutePaths.search,
-                                    extra: isRecruit
-                                        ? SearchBoardType.recruit
-                                        : SearchBoardType.market,
-                                  );
+                                  context.push(RoutePaths.search);
                                 },
                               ),
                             ],

@@ -10,21 +10,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
-import 'package:dongsoop/domain/board/market/enum/market_type.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:dongsoop/domain/report/enum/sanction_type.dart';
 
 class ReportAdminScreen extends HookConsumerWidget {
   final void Function(int reportId, int targetMemberId) onTapReportSanction;
 
-  final void Function(int reportId, RecruitType type) onTapRecruit;
-  final void Function(int reportId, MarketType type) onTapMarket;
-
   const ReportAdminScreen({
     super.key,
     required this.onTapReportSanction,
-    required this.onTapRecruit,
-    required this.onTapMarket,
   });
 
   @override
@@ -140,30 +133,6 @@ class ReportAdminScreen extends HookConsumerWidget {
                       onTap: selectedIndex.value == 0
                         ? () => customActionSheet(
                             context,
-                            editText: '게시글 확인',
-                            onEdit: () {
-                              final ReportType type = ReportType.fromString(report.reportType);
-            
-                              switch (type) {
-                                case ReportType.PROJECT_BOARD:
-                                case ReportType.STUDY_BOARD:
-                                case ReportType.TUTORING_BOARD:
-                                  final recruitType = toRecruitType(type);
-                                  onTapRecruit(
-                                    report.targetId,
-                                    recruitType!,
-                                  );
-                                  break;
-                                case ReportType.MARKETPLACE_BOARD:
-                                  onTapMarket(
-                                    report.targetId,
-                                    MarketType.REPORT,
-                                  );
-                                  break;
-                                case ReportType.MEMBER:
-                                  break;
-                              }
-                            },
                             deleteText: '제재',
                             onDelete: () => onTapReportSanction(
                               report.id,
@@ -362,16 +331,4 @@ class ReportAdminScreen extends HookConsumerWidget {
     );
   }
 
-  RecruitType? toRecruitType(ReportType type) {
-    switch (type) {
-      case ReportType.PROJECT_BOARD:
-        return RecruitType.PROJECT;
-      case ReportType.STUDY_BOARD:
-        return RecruitType.STUDY;
-      case ReportType.TUTORING_BOARD:
-        return RecruitType.TUTORING;
-      default:
-        return null;
-    }
-  }
 }
