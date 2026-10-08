@@ -37,7 +37,6 @@ abstract class RoutePaths {
   static const String scheduleDetail = '/scheduleDetail';
   static const String chatDetail = '/chat/detail';
   static const String chatbot = '/chatbot';
-  static const String marketWrite = '/marketWrite';
   static const String adminReport = '/admin/report';
   static const String adminReportSanction = '/admin/sanction';
   static const String mypageBlock = '/mypageBlock';
