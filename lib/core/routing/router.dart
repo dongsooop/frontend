@@ -525,18 +525,6 @@ final router = GoRouter(
 
         return SearchScreen(
           boardType: boardType,
-          onTapRecruitDetail: (id, type) async {
-            await context.push<bool>(
-              RoutePaths.recruitDetail,
-              extra: {'id': id, 'type': type},
-            );
-          },
-          onTapMarketDetail: (id, type) async {
-            await context.push<bool>(
-              RoutePaths.marketDetail,
-              extra: {'id': id, 'type': type},
-            );
-          },
         );
       },
     ),
