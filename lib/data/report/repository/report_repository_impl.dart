@@ -3,7 +3,6 @@ import 'package:dongsoop/data/report/data_source/report_data_source.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
-import 'package:dongsoop/domain/report/model/report_write_request.dart';
 import 'package:dongsoop/domain/report/repository/report_repository.dart';
 import 'package:dongsoop/domain/report/enum/sanction_type.dart';
 
@@ -15,11 +14,6 @@ class ReportRepositoryImpl implements ReportRepository {
     this._reportDataSource,
     this._authDataSource,
   );
-
-  @override
-  Future<void> writeReport(ReportWriteRequest request) async {
-    await _reportDataSource.writeReport(request);
-  }
 
   @override
   Future<ReportSanctionResponse?> getSanctionStatus() async {

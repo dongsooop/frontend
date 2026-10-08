@@ -1,6 +1,3 @@
-import '../../board/market/enum/market_type.dart';
-import '../../board/recruit/enum/recruit_type.dart';
-
 enum ReportType {
   PROJECT_BOARD,
   STUDY_BOARD,
@@ -28,24 +25,5 @@ enum ReportType {
 
       default: return ReportType.MEMBER;
     }
-  }
-}
-
-extension RecruitTypeToReportType on RecruitType {
-  ReportType get reportType {
-    switch (this) {
-      case RecruitType.TUTORING:
-        return ReportType.TUTORING_BOARD;
-      case RecruitType.STUDY:
-        return ReportType.STUDY_BOARD;
-      case RecruitType.PROJECT:
-        return ReportType.PROJECT_BOARD;
-    }
-  }
-}
-
-extension MarketTypeToReportType on MarketType {
-  ReportType get reportType {
-    return ReportType.MARKETPLACE_BOARD;
   }
 }

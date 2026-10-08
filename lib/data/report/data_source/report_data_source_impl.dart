@@ -3,7 +3,6 @@ import 'package:dongsoop/data/report/data_source/report_data_source.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
-import 'package:dongsoop/domain/report/model/report_write_request.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 
@@ -13,28 +12,6 @@ class ReportDataSourceImpl implements ReportDataSource {
   ReportDataSourceImpl(
       this._authDio,
   );
-
-  @override
-  Future<void> writeReport(ReportWriteRequest request) async {
-    final endpoint = '/reports';
-
-    try {
-      await _authDio.post(endpoint, data: request.toJson());
-    } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
-        throw SelfReportException();
-      } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
-        throw AlreadySanctionedException();
-      } else if (e.response?.statusCode == HttpStatusCode.notFound.code) {
-        throw NotFoundException();
-      } else if (e.response?.statusCode == HttpStatusCode.conflict.code) {
-        throw DuplicateReportException();
-      }
-      rethrow;
-    } catch (e) {
-      rethrow;
-    }
-  }
 
   @override
   Future<ReportSanctionResponse> getSanctionStatus() async {

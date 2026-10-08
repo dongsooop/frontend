@@ -6,7 +6,6 @@ import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
-import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 
 abstract class ChatRepository {
@@ -20,7 +19,6 @@ abstract class ChatRepository {
   Future<ChatMessage?> getLatestMessage(String roomId);
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
-  Future<String> createQNAChatRoom(ChatRoomRequest request);
   Future<Map<String, String?>> sendChatbot(String text);
   Future<bool> getBlindDateOpen();
 
