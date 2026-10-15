@@ -87,3 +87,15 @@ class ReportAdminSanction with _$ReportAdminSanction {
     );
   }
 }
+
+extension ReportAdminSanctionDisplay on ReportAdminSanction {
+  String get targetMemberLabel {
+    final nickname = targetMemberNickname?.trim();
+    if (nickname != null && nickname.isNotEmpty) return nickname;
+
+    final memberId = targetMemberId;
+    if (memberId != null) return '사용자 ID $memberId';
+
+    return '알 수 없는 사용자';
+  }
+}

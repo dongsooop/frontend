@@ -98,8 +98,7 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
 
     Future<bool> confirmSanction() async {
       final sanctionType = state.sanctionType!;
-      final target = report.targetMemberNickname ??
-          '회원 #${report.targetMemberId.toString()}';
+      final target = report.targetMemberLabel;
       final endAt = state.sanctionEndAt;
       final endAtText = sanctionType.requiresEndAt && endAt != null
           ? '\n종료: ${_formatDateTime(endAt)}'
@@ -358,8 +357,7 @@ class _ReportSummary extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            report.targetMemberNickname ??
-                '회원 #${report.targetMemberId.toString()}',
+            report.targetMemberLabel,
             style: TextStyles.normalTextBold.copyWith(
               color: ColorStyles.black,
             ),

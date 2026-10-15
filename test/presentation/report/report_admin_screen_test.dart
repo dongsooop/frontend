@@ -166,12 +166,51 @@ void main() {
     expect(find.text('신고 상세'), findsNothing);
     expect(repository.unprocessedCallCount, 2);
   });
+
+  testWidgets('대상 닉네임이 없으면 목록과 상세에 사용자 ID를 표시한다', (tester) async {
+    final repository = _FakeReportRepository(
+      unprocessedReport: _unprocessedReportWithoutNickname,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          getReportsUseCaseProvider.overrideWithValue(
+            GetReportsUseCase(repository),
+          ),
+          reportAdminDismissUseCaseProvider.overrideWithValue(
+            ReportAdminDismissUseCase(repository),
+          ),
+        ],
+        child: MaterialApp(
+          home: ReportAdminScreen(
+            onTapReportSanction: (_) async => false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('사용자 ID 52'), findsOneWidget);
+    expect(find.text('알 수 없는 사용자'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('report-admin-card-3')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('사용자 ID 52'), findsNWidgets(2));
+    expect(find.text('알 수 없는 사용자'), findsNothing);
+  });
 }
 
 class _FakeReportRepository implements ReportRepository {
   int unprocessedCallCount = 0;
   final List<int> dismissedReportIds = [];
+  final ReportAdminSanction unprocessedReport;
   Object? dismissError;
+
+  _FakeReportRepository({
+    this.unprocessedReport = _unprocessedReport,
+  });
 
   @override
   Future<void> dismissReport(int reportId) async {
@@ -190,7 +229,7 @@ class _FakeReportRepository implements ReportRepository {
       return [_processedReport];
     }
     unprocessedCallCount += 1;
-    return [_unprocessedReport];
+    return [unprocessedReport];
   }
 
   @override
@@ -255,4 +294,15 @@ const _processedReport = ReportAdminSanction(
   sanctionReason: '운영 정책 위반',
   messageContent: '처리된 메시지',
   createdAt: '2026.10.15 11:00',
+);
+
+const _unprocessedReportWithoutNickname = ReportAdminSanction(
+  id: 3,
+  reporterNickname: '신고자',
+  reportType: 'CHAT_MESSAGE',
+  targetMemberId: 52,
+  reportReason: 'HATE_SPEECH',
+  isProcessed: false,
+  messageContent: '신고된 메시지',
+  createdAt: '2026.10.15 12:00',
 );

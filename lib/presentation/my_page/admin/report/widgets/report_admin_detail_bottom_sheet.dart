@@ -179,7 +179,7 @@ class ReportAdminDetailBottomSheet extends ConsumerWidget {
                     _SectionTitle(label: '신고 대상'),
                     const SizedBox(height: 8),
                     Text(
-                      report.targetMemberNickname ?? '알 수 없는 사용자',
+                      report.targetMemberLabel,
                       style: TextStyles.normalTextRegular.copyWith(
                         color: ColorStyles.black,
                       ),

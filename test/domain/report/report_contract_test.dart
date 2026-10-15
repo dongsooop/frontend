@@ -112,6 +112,35 @@ void main() {
         '두 번째',
       ]);
     });
+
+    test('대상 닉네임이 없으면 사용자 ID를 표시한다', () {
+      const report = ReportAdminSanction(
+        id: 101,
+        reporterNickname: '신고자',
+        reportType: 'CHAT_MESSAGE',
+        targetMemberId: 42,
+        reportReason: 'HATE_SPEECH',
+        isProcessed: false,
+        createdAt: '2026.10.15 10:00',
+      );
+
+      expect(report.targetMemberLabel, '사용자 ID 42');
+    });
+
+    test('공백 닉네임도 누락으로 보고 사용자 ID를 표시한다', () {
+      const report = ReportAdminSanction(
+        id: 101,
+        reporterNickname: '신고자',
+        reportType: 'CHAT_MESSAGE',
+        targetMemberId: 42,
+        targetMemberNickname: '   ',
+        reportReason: 'HATE_SPEECH',
+        isProcessed: false,
+        createdAt: '2026.10.15 10:00',
+      );
+
+      expect(report.targetMemberLabel, '사용자 ID 42');
+    });
   });
 
   group('enum 계약', () {

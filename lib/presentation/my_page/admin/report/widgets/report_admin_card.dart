@@ -47,7 +47,7 @@ class ReportAdminCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      report.targetMemberNickname ?? '알 수 없는 사용자',
+                      report.targetMemberLabel,
                       style: TextStyles.normalTextBold.copyWith(
                         color: ColorStyles.black,
                       ),
