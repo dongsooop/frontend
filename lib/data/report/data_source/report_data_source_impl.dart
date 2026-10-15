@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/report/model/chat_report_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
+import 'package:flutter/foundation.dart';
 
 class ReportDataSourceImpl implements ReportDataSource {
   final Dio _authDio;
@@ -41,7 +42,12 @@ class ReportDataSourceImpl implements ReportDataSource {
     const endpoint = '/reports/sanction-status';
 
     try {
+      _logSanctionStatus('request GET $endpoint');
       final response = await _authDio.get(endpoint);
+      _logSanctionStatus(
+        'response status=${response.statusCode} '
+        'type=${response.data.runtimeType} body=${response.data}',
+      );
 
       if (response.statusCode != HttpStatusCode.ok.code) {
         throw const SanctionStatusException();
@@ -58,6 +64,10 @@ class ReportDataSourceImpl implements ReportDataSource {
     } on SanctionStatusException {
       rethrow;
     } on DioException catch (error) {
+      _logSanctionStatus(
+        'dio-error status=${error.response?.statusCode} '
+        'type=${error.type.name} body=${error.response?.data}',
+      );
       if (error.error is SessionExpiredException) {
         throw error.error!;
       }
@@ -68,7 +78,10 @@ class ReportDataSourceImpl implements ReportDataSource {
           fallback: '제재 상태를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.',
         ),
       );
-    } catch (_) {
+    } catch (error, stackTrace) {
+      _logSanctionStatus(
+        'parse-error error=$error\n$stackTrace',
+      );
       throw const SanctionStatusException(
         '제재 상태 응답을 처리하지 못했습니다. 다시 시도해 주세요.',
       );
@@ -268,6 +281,12 @@ class ReportDataSourceImpl implements ReportDataSource {
         return '종료된 과팅의 메시지는 신고할 수 없습니다.';
       case MessageReportFailure.unknown:
         return '신고 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    }
+  }
+
+  void _logSanctionStatus(String message) {
+    if (kDebugMode) {
+      debugPrint('[SanctionStatus][API] $message');
     }
   }
 }

@@ -159,6 +159,9 @@ class SplashScreen extends HookConsumerWidget {
             ReportSanctionStatus? reportSanction;
             try {
               reportSanction = await viewModel.checkSanction();
+            } on SessionExpiredException {
+              // 전역 세션 만료 안내가 로그아웃과 화면 전환을 담당한다.
+              return;
             } catch (error) {
               await showSanctionStatusRetryDialog(error);
               continue;
