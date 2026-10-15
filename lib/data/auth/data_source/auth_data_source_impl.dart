@@ -8,6 +8,7 @@ import 'package:dongsoop/domain/auth/model/sign_in_response.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
+import 'package:flutter/foundation.dart';
 import 'auth_data_source.dart';
 
 class AuthDataSourceImpl implements AuthDataSource {
@@ -29,14 +30,19 @@ class AuthDataSourceImpl implements AuthDataSource {
     String password,
     String fcmToken,
   ) async {
-    final endpoint = '/member/login';
+    const endpoint = '/member/login';
     final requestBody = {
       "email": email,
       "password": password,
       "fcmToken": fcmToken,
     };
     try {
+      _logSignIn('request POST $endpoint');
       final response = await _plainDio.post(endpoint, data: requestBody);
+      _logSignIn(
+        'response POST $endpoint status=${response.statusCode} '
+        'type=${response.data.runtimeType}',
+      );
       if (response.statusCode == HttpStatusCode.ok.code) {
         final data = response.data;
 
@@ -44,6 +50,10 @@ class AuthDataSourceImpl implements AuthDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
+      _logSignIn(
+        'dio-error POST $endpoint status=${e.response?.statusCode} '
+        'type=${e.type.name} body=${_redactSensitiveLogData(e.response?.data)}',
+      );
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw InvalidCredentialsException();
       } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
@@ -52,7 +62,8 @@ class AuthDataSourceImpl implements AuthDataSource {
         throw UserNotFoundException();
       }
       rethrow;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      _logSignIn('unexpected-error POST $endpoint error=$e\n$stackTrace');
       rethrow;
     }
   }
@@ -322,5 +333,31 @@ class AuthDataSourceImpl implements AuthDataSource {
   Future<void> clearLocalData() async {
     await _preferencesService.clearUser();
     await _secureStorageService.delete();
+  }
+
+  void _logSignIn(String message) {
+    if (kDebugMode) {
+      debugPrint('[SignIn][API] $message');
+    }
+  }
+
+  Object? _redactSensitiveLogData(Object? data) {
+    if (data is Map) {
+      return data.map((key, value) {
+        final normalizedKey = key.toString().toLowerCase();
+        final isSensitive = normalizedKey.contains('password') ||
+            normalizedKey.contains('token') ||
+            normalizedKey.contains('authorization') ||
+            normalizedKey.contains('secret');
+        return MapEntry(
+          key,
+          isSensitive ? '[REDACTED]' : _redactSensitiveLogData(value),
+        );
+      });
+    }
+    if (data is List) {
+      return data.map(_redactSensitiveLogData).toList();
+    }
+    return data;
   }
 }
