@@ -8,6 +8,44 @@ import 'package:dongsoop/domain/report/model/chat_report_request.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('관리자 메시지 신고 목록', () {
+    test('필터, 정렬, 페이지 정보를 쿼리 파라미터로 전송한다', () async {
+      final requests = <RequestOptions>[];
+      final dio = Dio(BaseOptions(baseUrl: 'https://dongsoop.test'));
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            requests.add(options);
+            handler.resolve(
+              Response<List<Object?>>(
+                requestOptions: options,
+                statusCode: 200,
+                data: const [],
+              ),
+            );
+          },
+        ),
+      );
+      final dataSource = ReportDataSourceImpl(dio);
+
+      await dataSource.getReports(
+        'ACTIVE_SANCTIONS',
+        'createdAt,desc',
+        page: 2,
+        size: 20,
+      );
+
+      expect(requests, hasLength(1));
+      expect(requests.single.path, '/reports/admin');
+      expect(requests.single.queryParameters, {
+        'filter': 'ACTIVE_SANCTIONS',
+        'sort': 'createdAt,desc',
+        'page': 2,
+        'size': 20,
+      });
+    });
+  });
+
   group('메시지 신고 제출', () {
     test('채팅 신고를 올바른 경로와 본문으로 전송하고 201을 성공 처리한다', () async {
       final requests = <RequestOptions>[];

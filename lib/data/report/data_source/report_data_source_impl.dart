@@ -81,12 +81,18 @@ class ReportDataSourceImpl implements ReportDataSource {
     int page = 0,
     int size = 10,
   }) async {
-    final reports = '/reports/admin';
-    final query = 'filter=$type&sort=$sort&page=$page&size=$size';
-    final endpoint = '$reports?$query';
+    const endpoint = '/reports/admin';
 
     try {
-      final response = await _authDio.get(endpoint);
+      final response = await _authDio.get(
+        endpoint,
+        queryParameters: {
+          'filter': type,
+          'sort': sort,
+          'page': page,
+          'size': size,
+        },
+      );
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
 

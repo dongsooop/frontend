@@ -70,12 +70,6 @@ class ReportRepositoryImpl implements ReportRepository {
         await _reportDataSource.getReports(type, sort, page: page, size: size);
     if (response == null || response.isEmpty) return [];
 
-    final List<ReportAdminSanction> reports = [];
-
-    await Future.wait(response.map((report) async {
-      reports.add(ReportAdminSanction.fromEntity(report));
-    }));
-
-    return reports;
+    return response.map(ReportAdminSanction.fromEntity).toList(growable: false);
   }
 }
