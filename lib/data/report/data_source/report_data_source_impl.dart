@@ -38,19 +38,40 @@ class ReportDataSourceImpl implements ReportDataSource {
 
   @override
   Future<ReportSanctionResponse> getSanctionStatus() async {
-    final endpoint = '/reports/sanction-status';
+    const endpoint = '/reports/sanction-status';
 
     try {
       final response = await _authDio.get(endpoint);
 
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        final data = response.data;
-
-        return ReportSanctionResponse.fromJson(data);
+      if (response.statusCode != HttpStatusCode.ok.code) {
+        throw const SanctionStatusException();
       }
-      throw Exception('Unexpected status code: ${response.statusCode}');
-    } catch (e) {
+
+      final data = response.data;
+      if (data is! Map<String, dynamic>) {
+        throw const SanctionStatusException(
+          '제재 상태 응답 형식이 올바르지 않습니다. 다시 시도해 주세요.',
+        );
+      }
+
+      return ReportSanctionResponse.fromJson(data);
+    } on SanctionStatusException {
       rethrow;
+    } on DioException catch (error) {
+      if (error.error is SessionExpiredException) {
+        throw error.error!;
+      }
+
+      throw SanctionStatusException(
+        _problemDetail(
+          error.response?.data,
+          fallback: '제재 상태를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+        ),
+      );
+    } catch (_) {
+      throw const SanctionStatusException(
+        '제재 상태 응답을 처리하지 못했습니다. 다시 시도해 주세요.',
+      );
     }
   }
 

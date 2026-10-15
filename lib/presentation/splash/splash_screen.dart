@@ -16,6 +16,8 @@ import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/core/app_scaffold_messenger.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:dongsoop/core/routing/push_router.dart';
+import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/domain/report/model/report_sanction_status.dart';
 
 class SplashScreen extends HookConsumerWidget {
   @override
@@ -66,6 +68,45 @@ class SplashScreen extends HookConsumerWidget {
         _goNext();
       }
 
+      Future<void> showSanctionStatusRetryDialog(Object error) async {
+        if (cancelled || !context.mounted) return;
+
+        final message = error is SanctionStatusException
+            ? error.message
+            : '제재 상태를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => CustomConfirmDialog(
+            title: '제재 상태 확인 오류',
+            content: message,
+            isSingleAction: true,
+            confirmText: '다시 시도',
+            onConfirm: () {},
+          ),
+        );
+      }
+
+      Future<void> showSanctionDialog(
+        ReportSanctionStatus reportSanction,
+      ) async {
+        if (cancelled || !context.mounted) return;
+
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => CustomConfirmDialog(
+            title: '동숲 이용 제재',
+            content: '제재 유형: ${reportSanction.sanctionType.message}\n'
+                '${reportSanction.reason}\n${reportSanction.description}\n'
+                '${reportSanction.periodLabel}',
+            isSingleAction: true,
+            confirmText: '확인',
+            onConfirm: () {},
+          ),
+        );
+      }
+
       Future(() async {
         await Future.delayed(const Duration(seconds: 2));
         // 자동 로그인
@@ -88,9 +129,8 @@ class SplashScreen extends HookConsumerWidget {
             SnackBar(
               content: Text(
                 message,
-                style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.white
-                ),
+                style: TextStyles.normalTextRegular
+                    .copyWith(color: ColorStyles.white),
               ),
               backgroundColor: ColorStyles.gray3,
               behavior: SnackBarBehavior.floating,
@@ -115,31 +155,22 @@ class SplashScreen extends HookConsumerWidget {
         if (cancelled || !context.mounted) return;
 
         if (user != null) {
-          final reportSanction = await viewModel.checkSanction();
-          if (cancelled || !context.mounted) return;
+          while (!cancelled && context.mounted) {
+            ReportSanctionStatus? reportSanction;
+            try {
+              reportSanction = await viewModel.checkSanction();
+            } catch (error) {
+              await showSanctionStatusRetryDialog(error);
+              continue;
+            }
 
-          if (reportSanction != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (cancelled || !context.mounted) return;
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) => CustomConfirmDialog(
-                  title: '동숲 이용 제재',
-                  content: '${reportSanction.reason}\n${reportSanction.description}\n'
-                    '${reportSanction.startDate} ~ ${reportSanction.endDate}',
-                  isSingleAction: true,
-                  confirmText: '확인',
-                  onConfirm: () async {
-                    if (cancelled || !context.mounted) return;
-                    await goNextWithConsent();
-                  },
-                ),
-              );
-            });
-          } else {
+            if (cancelled || !context.mounted) return;
+            if (reportSanction != null) {
+              await showSanctionDialog(reportSanction);
+            }
             if (cancelled || !context.mounted) return;
             await goNextWithConsent();
+            return;
           }
           return;
         }
@@ -191,7 +222,8 @@ class SplashScreen extends HookConsumerWidget {
                 height: 24,
                 width: 24,
                 child: splashState.isLoading
-                    ? const CircularProgressIndicator(color: ColorStyles.primaryColor)
+                    ? const CircularProgressIndicator(
+                        color: ColorStyles.primaryColor)
                     : const SizedBox(height: 0),
               ),
             ],

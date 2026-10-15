@@ -1,4 +1,5 @@
 import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
 import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
 import 'package:dongsoop/domain/report/model/chat_report_request.dart';
@@ -37,20 +38,26 @@ class ReportRepositoryImpl implements ReportRepository {
       return null;
     }
 
-    final sanctionType = SanctionType.tryFromString(response.sanctionType!);
-    switch (sanctionType) {
-      case SanctionType.WARNING:
-        break;
-      case SanctionType.TEMPORARY_BAN:
-        await _authDataSource.logout();
-        break;
-      case SanctionType.PERMANENT_BAN:
-        await _authDataSource.deleteUser();
-        break;
-      case SanctionType.CHAT_KICK:
-      case null:
-        break;
+    final sanctionType = SanctionType.tryFromString(
+      response.sanctionType ?? '',
+    );
+    final hasRequiredFields = response.reason?.trim().isNotEmpty == true &&
+        response.description?.trim().isNotEmpty == true &&
+        response.startDate != null;
+    final isSupportedType = sanctionType == SanctionType.TEMPORARY_BAN ||
+        sanctionType == SanctionType.PERMANENT_BAN;
+    final hasValidEndDate =
+        sanctionType != SanctionType.TEMPORARY_BAN || response.endDate != null;
+
+    if (!hasRequiredFields || !isSupportedType || !hasValidEndDate) {
+      throw const SanctionStatusException(
+        '제재 상태 응답이 올바르지 않습니다. 다시 시도해 주세요.',
+      );
     }
+
+    // 제재가 확인된 사용자는 서버의 회원 정보에 영향을 주지 않고
+    // 이 기기에 저장된 로그인 정보만 제거한다.
+    await _authDataSource.clearLocalData();
     return response;
   }
 

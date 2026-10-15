@@ -68,10 +68,11 @@ class SplashViewModel extends StateNotifier<SplashState> {
       return sanction;
     } catch (e) {
       state = state.copyWith(
-        errorMessage: '동숲 실행 중 오류가 발생했습니다.',
+        errorMessage: null,
         isLoading: false,
+        isSuccessed: false,
       );
-      return null;
+      rethrow;
     }
   }
 

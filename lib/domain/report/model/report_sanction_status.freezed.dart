@@ -14,10 +14,11 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$ReportSanctionStatus {
+  SanctionType get sanctionType;
   String get reason;
   String get description;
   String get startDate;
-  String get endDate;
+  String? get endDate;
 
   /// Create a copy of ReportSanctionStatus
   /// with the given fields replaced by the non-null parameter values.
@@ -32,6 +33,8 @@ mixin _$ReportSanctionStatus {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is ReportSanctionStatus &&
+            (identical(other.sanctionType, sanctionType) ||
+                other.sanctionType == sanctionType) &&
             (identical(other.reason, reason) || other.reason == reason) &&
             (identical(other.description, description) ||
                 other.description == description) &&
@@ -41,12 +44,12 @@ mixin _$ReportSanctionStatus {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, reason, description, startDate, endDate);
+  int get hashCode => Object.hash(
+      runtimeType, sanctionType, reason, description, startDate, endDate);
 
   @override
   String toString() {
-    return 'ReportSanctionStatus(reason: $reason, description: $description, startDate: $startDate, endDate: $endDate)';
+    return 'ReportSanctionStatus(sanctionType: $sanctionType, reason: $reason, description: $description, startDate: $startDate, endDate: $endDate)';
   }
 }
 
@@ -57,7 +60,11 @@ abstract mixin class $ReportSanctionStatusCopyWith<$Res> {
       _$ReportSanctionStatusCopyWithImpl;
   @useResult
   $Res call(
-      {String reason, String startDate, String endDate, String description});
+      {SanctionType sanctionType,
+      String reason,
+      String startDate,
+      String? endDate,
+      String description});
 }
 
 /// @nodoc
@@ -73,12 +80,17 @@ class _$ReportSanctionStatusCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? sanctionType = null,
     Object? reason = null,
     Object? startDate = null,
-    Object? endDate = null,
+    Object? endDate = freezed,
     Object? description = null,
   }) {
     return _then(ReportSanctionStatus(
+      sanctionType: null == sanctionType
+          ? _self.sanctionType
+          : sanctionType // ignore: cast_nullable_to_non_nullable
+              as SanctionType,
       reason: null == reason
           ? _self.reason
           : reason // ignore: cast_nullable_to_non_nullable
@@ -87,10 +99,10 @@ class _$ReportSanctionStatusCopyWithImpl<$Res>
           ? _self.startDate
           : startDate // ignore: cast_nullable_to_non_nullable
               as String,
-      endDate: null == endDate
+      endDate: freezed == endDate
           ? _self.endDate
           : endDate // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       description: null == description
           ? _self.description
           : description // ignore: cast_nullable_to_non_nullable
