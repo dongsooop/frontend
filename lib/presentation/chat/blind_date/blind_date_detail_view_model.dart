@@ -70,7 +70,9 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     _hasVoteParticipants = false;
     _isLeaving = false;
     _disconnectFuture = null;
+    _ref.read(blindDateMessagesProvider.notifier).clear();
     state = state.copyWith(
+      clearSessionId: true,
       isConnecting: true,
       isLoading: true,
       ended: null,
@@ -86,7 +88,7 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_start$().listen((sid) async {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(sessionId: sid, isLoading: false);
     }));
 
     _subs.add(_system$().listen((msg) {
@@ -106,12 +108,14 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
       switch (info.state.toUpperCase()) {
         case 'WAITING':
           state = state.copyWith(
+            sessionId: info.sessionId,
             nickname: info.name,
             maxCount: info.maxCount,
             isLoading: true,
           );
         case 'PROCESSING':
           state = state.copyWith(
+            sessionId: info.sessionId,
             nickname: info.name,
             maxCount: info.maxCount,
             isLoading: false,

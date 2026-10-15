@@ -14,6 +14,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$BlindJoinInfo {
+  String? get sessionId;
   String get name;
   String get state;
   int? get maxCount;
@@ -31,6 +32,8 @@ mixin _$BlindJoinInfo {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is BlindJoinInfo &&
+            (identical(other.sessionId, sessionId) ||
+                other.sessionId == sessionId) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.state, state) || other.state == state) &&
             (identical(other.maxCount, maxCount) ||
@@ -39,11 +42,12 @@ mixin _$BlindJoinInfo {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, state, maxCount);
+  int get hashCode =>
+      Object.hash(runtimeType, sessionId, name, state, maxCount);
 
   @override
   String toString() {
-    return 'BlindJoinInfo(name: $name, state: $state, maxCount: $maxCount)';
+    return 'BlindJoinInfo(sessionId: $sessionId, name: $name, state: $state, maxCount: $maxCount)';
   }
 }
 
@@ -53,7 +57,7 @@ abstract mixin class $BlindJoinInfoCopyWith<$Res> {
           BlindJoinInfo value, $Res Function(BlindJoinInfo) _then) =
       _$BlindJoinInfoCopyWithImpl;
   @useResult
-  $Res call({String name, String state, int? maxCount});
+  $Res call({String? sessionId, String name, String state, int? maxCount});
 }
 
 /// @nodoc
@@ -69,11 +73,16 @@ class _$BlindJoinInfoCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? sessionId = freezed,
     Object? name = null,
     Object? state = null,
     Object? maxCount = freezed,
   }) {
     return _then(BlindJoinInfo(
+      sessionId: freezed == sessionId
+          ? _self.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String?,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable

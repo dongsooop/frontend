@@ -1,6 +1,7 @@
 enum BlindDateVoteIntroStage { none, firstMessage, secondMessage }
 
 class BlindDateDetailState {
+  final String? sessionId;
   final bool isConnecting;
   final bool isFrozen;
   final int volunteer;
@@ -16,6 +17,7 @@ class BlindDateDetailState {
   bool get isVotePreparing => voteIntroStage != BlindDateVoteIntroStage.none;
 
   BlindDateDetailState({
+    this.sessionId,
     this.isConnecting = false,
     this.isFrozen = false,
     this.volunteer = 0,
@@ -30,6 +32,8 @@ class BlindDateDetailState {
   });
 
   BlindDateDetailState copyWith({
+    String? sessionId,
+    bool clearSessionId = false,
     bool? isConnecting,
     bool? isFrozen,
     int? volunteer,
@@ -43,6 +47,7 @@ class BlindDateDetailState {
     bool? isVoteTime,
   }) {
     return BlindDateDetailState(
+      sessionId: clearSessionId ? null : sessionId ?? this.sessionId,
       isConnecting: isConnecting ?? this.isConnecting,
       isFrozen: isFrozen ?? this.isFrozen,
       volunteer: volunteer ?? this.volunteer,

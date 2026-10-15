@@ -3,6 +3,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/presentation/chat/widgets/blind_date_message_action_sheet.dart';
 import 'package:dongsoop/presentation/chat/widgets/blind_bubble.dart';
 import 'package:dongsoop/presentation/chat/widgets/match_vote_bottom_sheet.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -327,6 +328,14 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                           formatTimestamp(msg.sendAt),
                           msg.memberId == userId,
                           msg.type,
+                          onLongPress: msg.type.toUpperCase() == 'USER'
+                              ? () => showBlindDateMessageActions(
+                                    context,
+                                    message: msg,
+                                    currentUserId: userId,
+                                    sessionId: state.sessionId,
+                                  )
+                              : null,
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(

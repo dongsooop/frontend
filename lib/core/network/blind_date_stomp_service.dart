@@ -148,6 +148,7 @@ class BlindDateStompService {
 
       _joinController.add(
         BlindJoinInfo(
+          sessionId: sessionId,
           name: data['name']?.toString() ?? '',
           state: state,
           maxCount: (data['maxCount'] as num?)?.toInt(),
