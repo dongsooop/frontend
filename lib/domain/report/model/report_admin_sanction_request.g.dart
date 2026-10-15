@@ -12,7 +12,7 @@ ReportAdminSanctionRequest _$ReportAdminSanctionRequestFromJson(
       reportId: (json['reportId'] as num).toInt(),
       targetMemberId: (json['targetMemberId'] as num).toInt(),
       sanctionType: $enumDecode(_$SanctionTypeEnumMap, json['sanctionType']),
-      sanctionReason: json['sanctionReason'] as String,
+      sanctionReason: json['sanctionReason'] as String?,
       sanctionEndAt: json['sanctionEndAt'] == null
           ? null
           : DateTime.parse(json['sanctionEndAt'] as String),
@@ -24,13 +24,14 @@ Map<String, dynamic> _$ReportAdminSanctionRequestToJson(
       'reportId': instance.reportId,
       'targetMemberId': instance.targetMemberId,
       'sanctionType': _$SanctionTypeEnumMap[instance.sanctionType]!,
-      'sanctionReason': instance.sanctionReason,
-      'sanctionEndAt': instance.sanctionEndAt?.toIso8601String(),
+      if (instance.sanctionReason case final value?) 'sanctionReason': value,
+      if (instance.sanctionEndAt?.toIso8601String() case final value?)
+        'sanctionEndAt': value,
     };
 
 const _$SanctionTypeEnumMap = {
   SanctionType.WARNING: 'WARNING',
   SanctionType.TEMPORARY_BAN: 'TEMPORARY_BAN',
   SanctionType.PERMANENT_BAN: 'PERMANENT_BAN',
-  SanctionType.CONTENT_DELETION: 'CONTENT_DELETION',
+  SanctionType.CHAT_KICK: 'CHAT_KICK',
 };

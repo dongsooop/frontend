@@ -23,7 +23,7 @@ class ReportRepositoryImpl implements ReportRepository {
       return null;
     }
 
-    final sanctionType = SanctionType.fromString(response.sanctionType!);
+    final sanctionType = SanctionType.tryFromString(response.sanctionType!);
     switch (sanctionType) {
       case SanctionType.WARNING:
         break;
@@ -33,7 +33,8 @@ class ReportRepositoryImpl implements ReportRepository {
       case SanctionType.PERMANENT_BAN:
         await _authDataSource.deleteUser();
         break;
-      case SanctionType.CONTENT_DELETION:
+      case SanctionType.CHAT_KICK:
+      case null:
         break;
     }
     return response;
@@ -48,10 +49,11 @@ class ReportRepositoryImpl implements ReportRepository {
   Future<List<ReportAdminSanction>?> getReports(
     String type,
     String sort, {
-      int page = 0,
-      int size = 10,
-    }) async {
-    final response = await _reportDataSource.getReports(type, sort, page: page, size: size);
+    int page = 0,
+    int size = 10,
+  }) async {
+    final response =
+        await _reportDataSource.getReports(type, sort, page: page, size: size);
     if (response == null || response.isEmpty) return [];
 
     final List<ReportAdminSanction> reports = [];

@@ -1,29 +1,31 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 enum ReportType {
-  PROJECT_BOARD,
-  STUDY_BOARD,
-  MARKETPLACE_BOARD,
-  TUTORING_BOARD,
-  MEMBER;
+  @JsonValue('CHAT_MESSAGE')
+  CHAT_MESSAGE,
+  @JsonValue('BLINDDATE_MESSAGE')
+  BLINDDATE_MESSAGE,
+  UNKNOWN;
 
   String get message {
     switch (this) {
-      case ReportType.PROJECT_BOARD: return '프로젝트';
-      case ReportType.STUDY_BOARD: return '스터디';
-      case ReportType.MARKETPLACE_BOARD: return '장터';
-      case ReportType.TUTORING_BOARD: return '튜터링';
-      case ReportType.MEMBER: return '유저';
+      case ReportType.CHAT_MESSAGE:
+        return '채팅 메시지';
+      case ReportType.BLINDDATE_MESSAGE:
+        return '과팅 메시지';
+      case ReportType.UNKNOWN:
+        return '알 수 없는 신고';
     }
   }
 
   static ReportType fromString(String value) {
     switch (value) {
-      case 'PROJECT_BOARD': return ReportType.PROJECT_BOARD;
-      case 'STUDY_BOARD': return ReportType.STUDY_BOARD;
-      case 'MARKETPLACE_BOARD': return ReportType.MARKETPLACE_BOARD;
-      case 'TUTORING_BOARD': return ReportType.TUTORING_BOARD;
-      case 'MEMBER': return ReportType.MEMBER;
-
-      default: return ReportType.MEMBER;
+      case 'CHAT_MESSAGE':
+        return ReportType.CHAT_MESSAGE;
+      case 'BLINDDATE_MESSAGE':
+        return ReportType.BLINDDATE_MESSAGE;
+      default:
+        return ReportType.UNKNOWN;
     }
   }
 }

@@ -24,7 +24,11 @@ class ReportAdminScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
     final List<String> tabs = ['미처리', '활성 제재', '처리 완료'];
-    final List<String> filterTypes = ['UNPROCESSED', 'ACTIVE_SANCTIONS', 'PROCESSED'];
+    final List<String> filterTypes = [
+      'UNPROCESSED',
+      'ACTIVE_SANCTIONS',
+      'PROCESSED'
+    ];
     final scrollController = useScrollController();
 
     final viewModel = ref.read(reportAdminViewModelProvider.notifier);
@@ -42,17 +46,18 @@ class ReportAdminScreen extends HookConsumerWidget {
     useEffect(() {
       void scrollListener() {
         if (!scrollController.hasClients) return;
-        if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+        if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 200) {
           viewModel.fetchNextPage(filterTypes[selectedIndex.value]);
         }
       }
+
       scrollController.addListener(scrollListener);
 
       return () {
         scrollController.removeListener(scrollListener);
       };
     }, [selectedIndex.value, scrollController]);
-
 
     // 오류
     useEffect(() {
@@ -80,8 +85,9 @@ class ReportAdminScreen extends HookConsumerWidget {
         backgroundColor: ColorStyles.white,
         body: SafeArea(
           child: Center(
-            child: CircularProgressIndicator(color: ColorStyles.primaryColor,)
-          ),
+              child: CircularProgressIndicator(
+            color: ColorStyles.primaryColor,
+          )),
         ),
       );
     }
@@ -121,29 +127,28 @@ class ReportAdminScreen extends HookConsumerWidget {
               // 신고 내용
               Expanded(
                 child: ListView.builder(
-                  controller: scrollController,
-                  itemCount: reports.length,
-                  itemBuilder: (context, index) {
-                    final report = reports[index];
-                    return InkWell(
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      onTap: selectedIndex.value == 0
-                        ? () => customActionSheet(
-                            context,
-                            deleteText: '제재',
-                            onDelete: () => onTapReportSanction(
-                              report.id,
-                              report.targetMemberId!,
-                            ),
-                          )
-                        : null,
-                      child: _reportCard(report: report),
-                    );
-                  }
-                ),
+                    controller: scrollController,
+                    itemCount: reports.length,
+                    itemBuilder: (context, index) {
+                      final report = reports[index];
+                      return InkWell(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        onTap: selectedIndex.value == 0
+                            ? () => customActionSheet(
+                                  context,
+                                  deleteText: '제재',
+                                  onDelete: () => onTapReportSanction(
+                                    report.id,
+                                    report.targetMemberId!,
+                                  ),
+                                )
+                            : null,
+                        child: _reportCard(report: report),
+                      );
+                    }),
               ),
             ],
           ),
@@ -166,38 +171,37 @@ class ReportAdminScreen extends HookConsumerWidget {
           minHeight: 44,
         ),
         child: Center(
-          child: isSelected ? IntrinsicWidth(
-            child: Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: ColorStyles.primaryColor,
-                    width: 1,
+          child: isSelected
+              ? IntrinsicWidth(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: ColorStyles.primaryColor,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      label,
+                      style: TextStyles.largeTextBold.copyWith(
+                        color: ColorStyles.primaryColor,
+                      ),
+                    ),
+                  ),
+                )
+              : Text(
+                  label,
+                  style: TextStyles.largeTextRegular.copyWith(
+                    color: ColorStyles.gray4,
                   ),
                 ),
-              ),
-              child: Text(
-                label,
-                style: TextStyles.largeTextBold.copyWith(
-                  color: ColorStyles.primaryColor,
-                ),
-              ),
-            ),
-          )
-          : Text(
-            label,
-            style: TextStyles.largeTextRegular.copyWith(
-              color: ColorStyles.gray4,
-            ),
-          ),
         ),
       ),
     );
   }
 
-  Widget _reportCard({
-    required ReportAdminSanction report
-  }) {
+  Widget _reportCard({required ReportAdminSanction report}) {
     return Container(
       padding: EdgeInsets.only(top: 16),
       child: Column(
@@ -225,7 +229,8 @@ class ReportAdminScreen extends HookConsumerWidget {
             ],
           ),
           SizedBox(height: 8),
-          if (report.sanctionReason != null && report.sanctionReason!.isNotEmpty)
+          if (report.sanctionReason != null &&
+              report.sanctionReason!.isNotEmpty)
             Text(
               report.sanctionReason!, // 제재 사유
               style: TextStyles.normalTextBold.copyWith(
@@ -238,31 +243,36 @@ class ReportAdminScreen extends HookConsumerWidget {
               style: TextStyles.normalTextRegular.copyWith(
                 color: ColorStyles.black,
               ),
-          ),
-          if (report.sanctionStartDate != null && report.sanctionStartDate!.isNotEmpty && report.sanctionEndDate != null && report.sanctionEndDate!.isNotEmpty)
-            ...[
-              SizedBox(height: 8,),
-              Text(
-                '${report.sanctionStartDate} ~ ${report.sanctionEndDate}',
-                style: TextStyles.smallTextRegular.copyWith(
-                  color: ColorStyles.gray4,
-                ),
+            ),
+          if (report.sanctionStartDate != null &&
+              report.sanctionStartDate!.isNotEmpty &&
+              report.sanctionEndDate != null &&
+              report.sanctionEndDate!.isNotEmpty) ...[
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              '${report.sanctionStartDate} ~ ${report.sanctionEndDate}',
+              style: TextStyles.smallTextRegular.copyWith(
+                color: ColorStyles.gray4,
               ),
-            ],
-          SizedBox(height: 8,),
+            ),
+          ],
+          SizedBox(
+            height: 8,
+          ),
           _reportTagRow(
             reportType: ReportType.fromString(report.reportType).message,
             reportReason: ReportReason.fromString(report.reportReason).message,
             adminNickname: report.adminNickname,
             sanctionType: report.sanctionType != null
-                ? SanctionType.fromString(report.sanctionType!).message
+                ? SanctionType.tryFromString(report.sanctionType!)?.message
                 : null,
           ),
-          SizedBox(height: 8,),
-          Divider(
-            height: 1,
-            color: ColorStyles.gray2
+          SizedBox(
+            height: 8,
           ),
+          Divider(height: 1, color: ColorStyles.gray2),
         ],
       ),
     );
@@ -309,6 +319,7 @@ class ReportAdminScreen extends HookConsumerWidget {
       children: tags,
     );
   }
+
   Widget _tagBadge({
     required String label,
     required Color backgroundColor,
@@ -330,5 +341,4 @@ class ReportAdminScreen extends HookConsumerWidget {
       ),
     );
   }
-
 }
