@@ -187,6 +187,11 @@ class _FakeReportRepository implements ReportRepository {
   ChatReportRequest? chatRequest;
 
   @override
+  Future<void> dismissReport(int reportId) {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> reportChatMessage(ChatReportRequest request) async {
     chatRequest = request;
   }

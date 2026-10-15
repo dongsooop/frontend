@@ -10,6 +10,59 @@ import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart'
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('관리자 신고 기각', () {
+    test('신고 ID를 경로에 담아 POST하고 204를 성공 처리한다', () async {
+      final requests = <RequestOptions>[];
+      final dataSource = ReportDataSourceImpl(
+        _successDio(requests, statusCode: 204),
+      );
+
+      await dataSource.dismissReport(101);
+
+      expect(requests, hasLength(1));
+      expect(requests.single.method, 'POST');
+      expect(requests.single.path, '/reports/101/dismiss');
+      expect(requests.single.data, isNull);
+    });
+
+    test('403, 404, 409 응답과 서버 오류 문구를 보존한다', () {
+      expect(
+        ReportDataSourceImpl(_errorDio(statusCode: 403)).dismissReport(101),
+        throwsA(isA<NoAdminAuthorityException>()),
+      );
+      expect(
+        ReportDataSourceImpl(_errorDio(statusCode: 404)).dismissReport(101),
+        throwsA(isA<NotFoundSanctionException>()),
+      );
+      expect(
+        ReportDataSourceImpl(
+          _errorDio(
+            statusCode: 409,
+            data: const {'detail': '이미 처리된 신고입니다. ID : 101'},
+          ),
+        ).dismissReport(101),
+        throwsA(
+          isA<AlreadyProcessedException>().having(
+            (error) => error.message,
+            'message',
+            '이미 처리된 신고입니다. ID : 101',
+          ),
+        ),
+      );
+    });
+
+    test('204가 아닌 성공 응답은 기각 성공으로 처리하지 않는다', () {
+      final dataSource = ReportDataSourceImpl(
+        _successDio(<RequestOptions>[], statusCode: 200),
+      );
+
+      expect(
+        dataSource.dismissReport(101),
+        throwsA(isA<SanctionException>()),
+      );
+    });
+  });
+
   group('관리자 제재 처리', () {
     test('제재 요청을 올바른 경로와 본문으로 전송하고 201을 성공 처리한다', () async {
       final requests = <RequestOptions>[];

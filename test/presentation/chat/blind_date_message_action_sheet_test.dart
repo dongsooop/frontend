@@ -221,6 +221,11 @@ class _FakeReportRepository implements ReportRepository {
   BlindDateReportRequest? blindDateRequest;
 
   @override
+  Future<void> dismissReport(int reportId) {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> reportBlindDateMessage(BlindDateReportRequest request) async {
     blindDateRequest = request;
   }

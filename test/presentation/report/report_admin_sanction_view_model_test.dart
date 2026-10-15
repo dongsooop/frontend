@@ -144,6 +144,11 @@ class _FakeReportRepository implements ReportRepository {
   int callCount = 0;
 
   @override
+  Future<void> dismissReport(int reportId) {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> sanctionWriteReport(ReportAdminSanctionRequest request) async {
     callCount += 1;
     this.request = request;

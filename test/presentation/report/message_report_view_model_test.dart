@@ -200,6 +200,11 @@ class _FakeReportRepository implements ReportRepository {
   int blindDateCallCount = 0;
 
   @override
+  Future<void> dismissReport(int reportId) {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> reportChatMessage(ChatReportRequest request) async {
     chatCallCount += 1;
     chatRequest = request;

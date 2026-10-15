@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
 import 'package:dongsoop/domain/report/model/chat_report_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
@@ -6,6 +7,7 @@ import 'package:dongsoop/domain/report/model/report_message_context.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:dongsoop/domain/report/repository/report_repository.dart';
 import 'package:dongsoop/domain/report/use_case/get_reports_use_case.dart';
+import 'package:dongsoop/domain/report/use_case/report_admin_dismiss_use_case.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:dongsoop/providers/report_providers.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,9 @@ void main() {
         overrides: [
           getReportsUseCaseProvider.overrideWithValue(
             GetReportsUseCase(repository),
+          ),
+          reportAdminDismissUseCaseProvider.overrideWithValue(
+            ReportAdminDismissUseCase(repository),
           ),
         ],
         child: MaterialApp(
@@ -53,6 +58,7 @@ void main() {
     );
     expect(find.text('신고 대상'), findsWidgets);
     expect(find.text('제재 검토'), findsOneWidget);
+    expect(find.text('제재 없이 처리'), findsOneWidget);
 
     await tester.tap(find.text('제재 검토'));
     await tester.pumpAndSettle();
@@ -69,11 +75,109 @@ void main() {
     expect(find.text('처리 관리자'), findsOneWidget);
     expect(find.text('관리자'), findsOneWidget);
     expect(find.text('제재 검토'), findsNothing);
+    expect(find.text('제재 없이 처리'), findsNothing);
+  });
+
+  testWidgets('미처리 메시지 신고를 확인 후 제재 없이 처리하고 목록을 갱신한다', (tester) async {
+    final repository = _FakeReportRepository();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          getReportsUseCaseProvider.overrideWithValue(
+            GetReportsUseCase(repository),
+          ),
+          reportAdminDismissUseCaseProvider.overrideWithValue(
+            ReportAdminDismissUseCase(repository),
+          ),
+        ],
+        child: MaterialApp(
+          home: ReportAdminScreen(
+            onTapReportSanction: (_) async => false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('report-admin-card-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('report-dismiss-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('제재 없이 처리할까요?'), findsOneWidget);
+    expect(repository.dismissedReportIds, isEmpty);
+
+    await tester.tap(find.text('취소'));
+    await tester.pumpAndSettle();
+    expect(repository.dismissedReportIds, isEmpty);
+
+    await tester.tap(find.byKey(const Key('report-dismiss-button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('처리'));
+    await tester.pumpAndSettle();
+
+    expect(repository.dismissedReportIds, [1]);
+    expect(find.text('신고 처리 완료'), findsOneWidget);
+
+    await tester.tap(find.text('확인'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('신고 상세'), findsNothing);
+    expect(repository.unprocessedCallCount, 2);
+  });
+
+  testWidgets('다른 관리자가 먼저 처리한 신고는 안내 후 목록을 갱신한다', (tester) async {
+    final repository = _FakeReportRepository()
+      ..dismissError = const AlreadyProcessedException('이미 처리된 신고입니다. ID : 1');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          getReportsUseCaseProvider.overrideWithValue(
+            GetReportsUseCase(repository),
+          ),
+          reportAdminDismissUseCaseProvider.overrideWithValue(
+            ReportAdminDismissUseCase(repository),
+          ),
+        ],
+        child: MaterialApp(
+          home: ReportAdminScreen(
+            onTapReportSanction: (_) async => false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('report-admin-card-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('report-dismiss-button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('처리'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('신고 상태가 변경됐어요'), findsOneWidget);
+    expect(find.text('이미 처리된 신고입니다. ID : 1'), findsWidgets);
+
+    await tester.tap(find.text('확인'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('신고 상세'), findsNothing);
+    expect(repository.unprocessedCallCount, 2);
   });
 }
 
 class _FakeReportRepository implements ReportRepository {
   int unprocessedCallCount = 0;
+  final List<int> dismissedReportIds = [];
+  Object? dismissError;
+
+  @override
+  Future<void> dismissReport(int reportId) async {
+    dismissedReportIds.add(reportId);
+    if (dismissError case final Object error) throw error;
+  }
 
   @override
   Future<List<ReportAdminSanction>?> getReports(

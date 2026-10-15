@@ -88,6 +88,37 @@ class ReportDataSourceImpl implements ReportDataSource {
   }
 
   @override
+  Future<void> dismissReport(int reportId) async {
+    final endpoint = '/reports/$reportId/dismiss';
+
+    try {
+      final response = await _authDio.post(endpoint);
+      if (response.statusCode != HttpStatusCode.noContent.code) {
+        throw const SanctionException(
+          '신고 처리 중 예상하지 못한 응답을 받았습니다.',
+        );
+      }
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final detail = e.response?.data;
+      if (statusCode == HttpStatusCode.forbidden.code) {
+        throw NoAdminAuthorityException(
+          _problemDetail(detail, fallback: '관리자 권한이 없습니다.'),
+        );
+      } else if (statusCode == HttpStatusCode.notFound.code) {
+        throw NotFoundSanctionException(
+          _problemDetail(detail, fallback: '신고를 찾을 수 없습니다.'),
+        );
+      } else if (statusCode == HttpStatusCode.conflict.code) {
+        throw AlreadyProcessedException(
+          _problemDetail(detail, fallback: '이미 처리된 신고입니다.'),
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
   Future<List<ReportAdminSanctionResponse>?> getReports(
     String type,
     String sort, {

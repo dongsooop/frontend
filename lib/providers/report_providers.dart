@@ -1,7 +1,10 @@
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
 import 'package:dongsoop/domain/report/use_case/get_sanction_status_use_case.dart';
+import 'package:dongsoop/domain/report/use_case/report_admin_dismiss_use_case.dart';
 import 'package:dongsoop/domain/report/use_case/report_blind_date_message_use_case.dart';
 import 'package:dongsoop/domain/report/use_case/report_chat_message_use_case.dart';
+import 'package:dongsoop/presentation/my_page/admin/report/report_admin_dismiss_state.dart';
+import 'package:dongsoop/presentation/my_page/admin/report/report_admin_dismiss_view_model.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_state.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_view_model.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_state.dart';
@@ -47,6 +50,12 @@ final reportAdminSanctionWriteUseCaseProvider =
   return ReportAdminSanctionWriteUseCase(repository);
 });
 
+final reportAdminDismissUseCaseProvider =
+    Provider<ReportAdminDismissUseCase>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+  return ReportAdminDismissUseCase(repository);
+});
+
 final getReportsUseCaseProvider = Provider<GetReportsUseCase>((ref) {
   final repository = ref.watch(reportRepositoryProvider);
   return GetReportsUseCase(repository);
@@ -88,4 +97,10 @@ final reportAdminSanctionViewModelProvider = StateNotifierProvider.autoDispose<
       ref.watch(reportAdminSanctionWriteUseCaseProvider);
 
   return ReportAdminSanctionViewModel(reportAdminSanctionWriteUseCase);
+});
+
+final reportAdminDismissViewModelProvider = StateNotifierProvider.autoDispose<
+    ReportAdminDismissViewModel, ReportAdminDismissState>((ref) {
+  final dismissUseCase = ref.watch(reportAdminDismissUseCaseProvider);
+  return ReportAdminDismissViewModel(dismissUseCase);
 });

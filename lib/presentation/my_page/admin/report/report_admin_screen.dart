@@ -93,28 +93,35 @@ class ReportAdminScreen extends HookConsumerWidget {
     );
   }
 
-  void _openReport(
+  Future<void> _openReport(
     BuildContext context,
     ReportAdminFilter filter,
     ReportAdminSanction report,
     ReportAdminViewModel viewModel,
-  ) {
+  ) async {
     final reportType = ReportType.fromString(report.reportType);
-    final canReview = filter == ReportAdminFilter.unprocessed &&
+    final isMessageReport = reportType == ReportType.CHAT_MESSAGE ||
+        reportType == ReportType.BLINDDATE_MESSAGE;
+    final canHandle = filter == ReportAdminFilter.unprocessed &&
         !report.isProcessed &&
-        report.targetMemberId != null &&
-        reportType != ReportType.UNKNOWN;
+        isMessageReport;
+    final canReviewSanction = canHandle && report.targetMemberId != null;
+    final canDismiss = canHandle;
 
-    ReportAdminDetailBottomSheet.show(
+    final result = await ReportAdminDetailBottomSheet.show(
       context,
       report: report,
-      onReview: canReview
-          ? () async {
-              final processed = await onTapReportSanction(report);
-              if (processed == true) await viewModel.refresh();
-            }
-          : null,
+      canReviewSanction: canReviewSanction,
+      canDismiss: canDismiss,
     );
+    if (!context.mounted) return;
+
+    if (result == ReportAdminDetailResult.refresh) {
+      await viewModel.refresh();
+    } else if (result == ReportAdminDetailResult.reviewSanction) {
+      final processed = await onTapReportSanction(report);
+      if (processed == true) await viewModel.refresh();
+    }
   }
 }
 
@@ -174,7 +181,7 @@ class _ReportListBody extends StatelessWidget {
   final ReportAdminState state;
   final ReportAdminViewModel viewModel;
   final ScrollController scrollController;
-  final ValueChanged<ReportAdminSanction> onOpenReport;
+  final Future<void> Function(ReportAdminSanction) onOpenReport;
 
   const _ReportListBody({
     required this.state,
@@ -247,7 +254,9 @@ class _ReportListBody extends StatelessWidget {
               final report = state.reports[index];
               return ReportAdminCard(
                 report: report,
-                onTap: () => onOpenReport(report),
+                onTap: () async {
+                  await onOpenReport(report);
+                },
               );
             },
           );

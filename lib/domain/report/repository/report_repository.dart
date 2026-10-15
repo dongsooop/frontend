@@ -9,6 +9,7 @@ abstract class ReportRepository {
   Future<void> reportBlindDateMessage(BlindDateReportRequest request);
   Future<ReportSanctionResponse?> getSanctionStatus();
   Future<void> sanctionWriteReport(ReportAdminSanctionRequest request);
+  Future<void> dismissReport(int reportId);
   Future<List<ReportAdminSanction>?> getReports(
     String type,
     String sort, {

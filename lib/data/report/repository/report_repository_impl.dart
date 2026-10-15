@@ -60,6 +60,11 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
+  Future<void> dismissReport(int reportId) async {
+    await _reportDataSource.dismissReport(reportId);
+  }
+
+  @override
   Future<List<ReportAdminSanction>?> getReports(
     String type,
     String sort, {

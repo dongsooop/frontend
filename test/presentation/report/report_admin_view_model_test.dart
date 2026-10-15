@@ -163,6 +163,11 @@ class _FakeReportRepository implements ReportRepository {
   final List<_ReportResponse> responses = [];
 
   @override
+  Future<void> dismissReport(int reportId) {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<List<ReportAdminSanction>?> getReports(
     String type,
     String sort, {
