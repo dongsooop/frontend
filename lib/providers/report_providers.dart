@@ -5,6 +5,9 @@ import 'package:dongsoop/domain/report/use_case/report_chat_message_use_case.dar
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_state.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_view_model.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_state.dart';
+import 'package:dongsoop/presentation/report/message_report_state.dart';
+import 'package:dongsoop/presentation/report/message_report_view_model.dart';
+import 'package:dongsoop/presentation/report/model/message_report_target.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -60,6 +63,16 @@ final reportBlindDateMessageUseCaseProvider =
   final repository = ref.watch(reportRepositoryProvider);
   return ReportBlindDateMessageUseCase(repository);
 });
+
+final messageReportViewModelProvider = StateNotifierProvider.autoDispose
+    .family<MessageReportViewModel, MessageReportState, MessageReportTarget>(
+  (ref, target) => MessageReportViewModel(
+    target: target,
+    reportChatMessageUseCase: ref.watch(reportChatMessageUseCaseProvider),
+    reportBlindDateMessageUseCase:
+        ref.watch(reportBlindDateMessageUseCaseProvider),
+  ),
+);
 
 // View Model
 final reportAdminViewModelProvider =
