@@ -30,6 +30,18 @@ void main() {
       expect(viewModel.state.isInitialLoading, isFalse);
     });
 
+    test('처리 완료 신고를 최신 신고 순으로 조회한다', () async {
+      final repository = _FakeReportRepository()
+        ..responses.add(() async => [_report(1, isProcessed: true)]);
+      final viewModel = _viewModel(repository);
+
+      await viewModel.loadReports(filter: ReportAdminFilter.processed);
+
+      expect(repository.calls, hasLength(1));
+      expect(repository.calls.single.type, 'PROCESSED');
+      expect(repository.calls.single.sort, 'createdAt,desc');
+    });
+
     test('다음 페이지 로딩 중 기존 목록을 유지하고 중복 신고를 제거한다', () async {
       final nextPage = Completer<List<ReportAdminSanction>?>();
       final repository = _FakeReportRepository()

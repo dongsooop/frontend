@@ -93,11 +93,23 @@ class ReportDataSourceImpl implements ReportDataSource {
     const endpoint = '/reports/sanctions';
 
     try {
+      _logAdminReport(
+        'request POST $endpoint reportId=${request.reportId} '
+        'targetMemberId=${request.targetMemberId} '
+        'sanctionType=${request.sanctionType.name} '
+        'hasReason=${request.sanctionReason?.trim().isNotEmpty == true} '
+        'hasEndAt=${request.sanctionEndAt != null}',
+      );
       final response = await _authDio.post(endpoint, data: request.toJson());
+      _logAdminReport('response POST $endpoint status=${response.statusCode}');
       if (response.statusCode != HttpStatusCode.created.code) {
         throw const SanctionException('제재 처리 중 예상하지 못한 응답을 받았습니다.');
       }
     } on DioException catch (e) {
+      _logAdminReport(
+        'dio-error POST $endpoint status=${e.response?.statusCode} '
+        'type=${e.type.name} body=${e.response?.data}',
+      );
       final statusCode = e.response?.statusCode;
       final detail = e.response?.data;
       if (statusCode == HttpStatusCode.badRequest.code) {
@@ -126,13 +138,19 @@ class ReportDataSourceImpl implements ReportDataSource {
     final endpoint = '/reports/$reportId/dismiss';
 
     try {
+      _logAdminReport('request POST $endpoint reportId=$reportId');
       final response = await _authDio.post(endpoint);
+      _logAdminReport('response POST $endpoint status=${response.statusCode}');
       if (response.statusCode != HttpStatusCode.noContent.code) {
         throw const SanctionException(
           '신고 처리 중 예상하지 못한 응답을 받았습니다.',
         );
       }
     } on DioException catch (e) {
+      _logAdminReport(
+        'dio-error POST $endpoint status=${e.response?.statusCode} '
+        'type=${e.type.name} body=${e.response?.data}',
+      );
       final statusCode = e.response?.statusCode;
       final detail = e.response?.data;
       if (statusCode == HttpStatusCode.forbidden.code) {
@@ -162,6 +180,9 @@ class ReportDataSourceImpl implements ReportDataSource {
     const endpoint = '/reports/admin';
 
     try {
+      _logAdminReport(
+        'request GET $endpoint filter=$type sort=$sort page=$page size=$size',
+      );
       final response = await _authDio.get(
         endpoint,
         queryParameters: {
@@ -170,6 +191,13 @@ class ReportDataSourceImpl implements ReportDataSource {
           'page': page,
           'size': size,
         },
+      );
+      final itemCount =
+          response.data is List ? (response.data as List).length : null;
+      _logAdminReport(
+        'response GET $endpoint status=${response.statusCode} '
+        'type=${response.data.runtimeType} itemCount=$itemCount '
+        'items=${_adminReportItemsSummary(response.data)}',
       );
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
@@ -183,13 +211,18 @@ class ReportDataSourceImpl implements ReportDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
+      _logAdminReport(
+        'dio-error GET $endpoint status=${e.response?.statusCode} '
+        'type=${e.type.name} body=${e.response?.data}',
+      );
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw BadRequestParameterException();
       } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
         throw NoAdminAuthorityException();
       }
       rethrow;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      _logAdminReport('parse-error GET $endpoint error=$e\n$stackTrace');
       rethrow;
     }
   }
@@ -288,5 +321,32 @@ class ReportDataSourceImpl implements ReportDataSource {
     if (kDebugMode) {
       debugPrint('[SanctionStatus][API] $message');
     }
+  }
+
+  void _logAdminReport(String message) {
+    if (kDebugMode) {
+      debugPrint('[AdminReport][API] $message');
+    }
+  }
+
+  String _adminReportItemsSummary(Object? data) {
+    if (data is! List) return 'unavailable';
+
+    return data
+        .map((item) {
+          if (item is! Map) return {'type': item.runtimeType.toString()};
+
+          return {
+            'reportId': item['id'],
+            'reportType': item['reportType'],
+            'targetMemberId': item['targetMemberId'],
+            'targetMemberNickname': item['targetMemberNickname'],
+            'isProcessed': item['isProcessed'],
+            'sanctionType': item['sanctionType'],
+            'createdAt': item['createdAt'],
+          };
+        })
+        .toList(growable: false)
+        .toString();
   }
 }

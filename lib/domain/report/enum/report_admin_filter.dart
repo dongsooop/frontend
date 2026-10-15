@@ -12,7 +12,7 @@ enum ReportAdminFilter {
   processed(
     label: '처리 완료',
     apiValue: 'PROCESSED',
-    sort: 'createdAt,asc',
+    sort: 'createdAt,desc',
   );
 
   final String label;
