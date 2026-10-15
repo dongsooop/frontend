@@ -1,5 +1,7 @@
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
 import 'package:dongsoop/domain/report/use_case/get_sanction_status_use_case.dart';
+import 'package:dongsoop/domain/report/use_case/report_blind_date_message_use_case.dart';
+import 'package:dongsoop/domain/report/use_case/report_chat_message_use_case.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_state.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_view_model.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_state.dart';
@@ -30,12 +32,14 @@ final reportRepositoryProvider = Provider<ReportRepository>((ref) {
 });
 
 // Use Case
-final getSanctionStatusUseCaseProvider = Provider<GetSanctionStatusUseCase>((ref) {
+final getSanctionStatusUseCaseProvider =
+    Provider<GetSanctionStatusUseCase>((ref) {
   final repository = ref.watch(reportRepositoryProvider);
   return GetSanctionStatusUseCase(repository);
 });
 
-final reportAdminSanctionWriteUseCaseProvider = Provider<ReportAdminSanctionWriteUseCase>((ref) {
+final reportAdminSanctionWriteUseCaseProvider =
+    Provider<ReportAdminSanctionWriteUseCase>((ref) {
   final repository = ref.watch(reportRepositoryProvider);
   return ReportAdminSanctionWriteUseCase(repository);
 });
@@ -45,18 +49,30 @@ final getReportsUseCaseProvider = Provider<GetReportsUseCase>((ref) {
   return GetReportsUseCase(repository);
 });
 
+final reportChatMessageUseCaseProvider =
+    Provider<ReportChatMessageUseCase>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+  return ReportChatMessageUseCase(repository);
+});
+
+final reportBlindDateMessageUseCaseProvider =
+    Provider<ReportBlindDateMessageUseCase>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+  return ReportBlindDateMessageUseCase(repository);
+});
 
 // View Model
 final reportAdminViewModelProvider =
-StateNotifierProvider<ReportAdminViewModel, ReportAdminState>((ref) {
+    StateNotifierProvider<ReportAdminViewModel, ReportAdminState>((ref) {
   final getReportsUseCase = ref.watch(getReportsUseCaseProvider);
 
   return ReportAdminViewModel(getReportsUseCase);
 });
 
-final reportAdminSanctionViewModelProvider =
-StateNotifierProvider.autoDispose<ReportAdminSanctionViewModel, ReportAdminSanctionState>((ref) {
-  final reportAdminSanctionWriteUseCase = ref.watch(reportAdminSanctionWriteUseCaseProvider);
+final reportAdminSanctionViewModelProvider = StateNotifierProvider.autoDispose<
+    ReportAdminSanctionViewModel, ReportAdminSanctionState>((ref) {
+  final reportAdminSanctionWriteUseCase =
+      ref.watch(reportAdminSanctionWriteUseCaseProvider);
 
   return ReportAdminSanctionViewModel(reportAdminSanctionWriteUseCase);
 });

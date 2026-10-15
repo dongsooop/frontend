@@ -1,5 +1,7 @@
 import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
+import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
+import 'package:dongsoop/domain/report/model/chat_report_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
@@ -14,6 +16,18 @@ class ReportRepositoryImpl implements ReportRepository {
     this._reportDataSource,
     this._authDataSource,
   );
+
+  @override
+  Future<void> reportChatMessage(ChatReportRequest request) async {
+    await _reportDataSource.reportChatMessage(request);
+  }
+
+  @override
+  Future<void> reportBlindDateMessage(
+    BlindDateReportRequest request,
+  ) async {
+    await _reportDataSource.reportBlindDateMessage(request);
+  }
 
   @override
   Future<ReportSanctionResponse?> getSanctionStatus() async {

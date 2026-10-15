@@ -1,17 +1,40 @@
 import 'package:dio/dio.dart';
+import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
+import 'package:dongsoop/domain/report/exception/message_report_exception.dart';
+import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
+import 'package:dongsoop/domain/report/model/chat_report_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
-import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/core/http_status_code.dart';
 
 class ReportDataSourceImpl implements ReportDataSource {
   final Dio _authDio;
 
   ReportDataSourceImpl(
-      this._authDio,
+    this._authDio,
   );
+
+  @override
+  Future<void> reportChatMessage(ChatReportRequest request) async {
+    await _submitMessageReport(
+      endpoint: '/reports/chat',
+      data: request.toJson(),
+      supportsExpiredSession: false,
+    );
+  }
+
+  @override
+  Future<void> reportBlindDateMessage(
+    BlindDateReportRequest request,
+  ) async {
+    await _submitMessageReport(
+      endpoint: '/reports/blinddate',
+      data: request.toJson(),
+      supportsExpiredSession: true,
+    );
+  }
 
   @override
   Future<ReportSanctionResponse> getSanctionStatus() async {
@@ -55,8 +78,8 @@ class ReportDataSourceImpl implements ReportDataSource {
   Future<List<ReportAdminSanctionResponse>?> getReports(
     String type,
     String sort, {
-      int page = 0,
-      int size = 10,
+    int page = 0,
+    int size = 10,
   }) async {
     final reports = '/reports/admin';
     final query = 'filter=$type&sort=$sort&page=$page&size=$size';
@@ -67,7 +90,10 @@ class ReportDataSourceImpl implements ReportDataSource {
       if (response.statusCode == HttpStatusCode.ok.code) {
         final List<dynamic> data = response.data;
 
-        final List<ReportAdminSanctionResponse> reports = data.map((e) => ReportAdminSanctionResponse.fromJson(e as Map<String, dynamic>)).toList();
+        final List<ReportAdminSanctionResponse> reports = data
+            .map((e) =>
+                ReportAdminSanctionResponse.fromJson(e as Map<String, dynamic>))
+            .toList();
 
         return reports;
       }
@@ -81,6 +107,96 @@ class ReportDataSourceImpl implements ReportDataSource {
       rethrow;
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<void> _submitMessageReport({
+    required String endpoint,
+    required Map<String, dynamic> data,
+    required bool supportsExpiredSession,
+  }) async {
+    try {
+      final response = await _authDio.post(endpoint, data: data);
+
+      if (response.statusCode != HttpStatusCode.created.code) {
+        throw MessageReportException(
+          failure: MessageReportFailure.unknown,
+          message: _fallbackMessage(MessageReportFailure.unknown),
+          statusCode: response.statusCode,
+        );
+      }
+    } on MessageReportException {
+      rethrow;
+    } on DioException catch (error) {
+      if (error.error is SessionExpiredException) {
+        throw error.error!;
+      }
+
+      final statusCode = error.response?.statusCode;
+      final failure = _failureFor(
+        statusCode,
+        supportsExpiredSession: supportsExpiredSession,
+      );
+      throw MessageReportException(
+        failure: failure,
+        message: _problemDetail(
+          error.response?.data,
+          fallback: _fallbackMessage(failure),
+        ),
+        statusCode: statusCode,
+      );
+    } catch (_) {
+      throw MessageReportException(
+        failure: MessageReportFailure.unknown,
+        message: _fallbackMessage(MessageReportFailure.unknown),
+      );
+    }
+  }
+
+  MessageReportFailure _failureFor(
+    int? statusCode, {
+    required bool supportsExpiredSession,
+  }) {
+    if (statusCode == HttpStatusCode.badRequest.code) {
+      return MessageReportFailure.invalidRequest;
+    }
+    if (statusCode == HttpStatusCode.forbidden.code) {
+      return MessageReportFailure.forbidden;
+    }
+    if (statusCode == HttpStatusCode.notFound.code) {
+      return MessageReportFailure.notFound;
+    }
+    if (statusCode == HttpStatusCode.conflict.code) {
+      return MessageReportFailure.duplicate;
+    }
+    if (supportsExpiredSession && statusCode == HttpStatusCode.gone.code) {
+      return MessageReportFailure.expired;
+    }
+    return MessageReportFailure.unknown;
+  }
+
+  String _problemDetail(Object? data, {required String fallback}) {
+    if (data is Map) {
+      final detail = data['detail']?.toString().trim();
+      if (detail != null && detail.isNotEmpty) return detail;
+    }
+    return fallback;
+  }
+
+  String _fallbackMessage(MessageReportFailure failure) {
+    switch (failure) {
+      case MessageReportFailure.invalidRequest:
+        return '요청 데이터의 형식이 올바르지 않습니다.';
+      case MessageReportFailure.forbidden:
+        return '신고할 권한이 없습니다.';
+      case MessageReportFailure.notFound:
+        return '신고 대상을 찾을 수 없습니다.';
+      case MessageReportFailure.duplicate:
+        return '이미 신고한 대상입니다.';
+      case MessageReportFailure.expired:
+        return '종료된 과팅의 메시지는 신고할 수 없습니다.';
+      case MessageReportFailure.unknown:
+        return '신고 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
     }
   }
 }
