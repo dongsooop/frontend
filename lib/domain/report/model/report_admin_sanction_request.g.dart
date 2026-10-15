@@ -25,7 +25,7 @@ Map<String, dynamic> _$ReportAdminSanctionRequestToJson(
       'targetMemberId': instance.targetMemberId,
       'sanctionType': _$SanctionTypeEnumMap[instance.sanctionType]!,
       if (instance.sanctionReason case final value?) 'sanctionReason': value,
-      if (instance.sanctionEndAt?.toIso8601String() case final value?)
+      if (_sanctionEndAtToJson(instance.sanctionEndAt) case final value?)
         'sanctionEndAt': value,
     };
 

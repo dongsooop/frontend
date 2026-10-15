@@ -27,9 +27,10 @@ void main() {
         ],
         child: MaterialApp(
           home: ReportAdminScreen(
-            onTapReportSanction: (reportId, targetMemberId) {
-              selectedReportId = reportId;
-              selectedMemberId = targetMemberId;
+            onTapReportSanction: (report) async {
+              selectedReportId = report.id;
+              selectedMemberId = report.targetMemberId;
+              return true;
             },
           ),
         ),
@@ -58,6 +59,7 @@ void main() {
 
     expect(selectedReportId, 1);
     expect(selectedMemberId, 7);
+    expect(repository.unprocessedCallCount, 2);
 
     await tester.tap(find.byKey(const Key('report-filter-처리 완료')));
     await tester.pumpAndSettle();
@@ -71,6 +73,8 @@ void main() {
 }
 
 class _FakeReportRepository implements ReportRepository {
+  int unprocessedCallCount = 0;
+
   @override
   Future<List<ReportAdminSanction>?> getReports(
     String type,
@@ -81,6 +85,7 @@ class _FakeReportRepository implements ReportRepository {
     if (type == 'PROCESSED') {
       return [_processedReport];
     }
+    unprocessedCallCount += 1;
     return [_unprocessedReport];
   }
 

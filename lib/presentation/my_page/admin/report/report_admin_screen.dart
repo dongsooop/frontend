@@ -14,7 +14,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ReportAdminScreen extends HookConsumerWidget {
-  final void Function(int reportId, int targetMemberId) onTapReportSanction;
+  final Future<bool?> Function(ReportAdminSanction report) onTapReportSanction;
 
   const ReportAdminScreen({
     super.key,
@@ -84,7 +84,7 @@ class ReportAdminScreen extends HookConsumerWidget {
                 viewModel: viewModel,
                 scrollController: scrollController,
                 onOpenReport: (report) =>
-                    _openReport(context, state.filter, report),
+                    _openReport(context, state.filter, report, viewModel),
               ),
             ),
           ],
@@ -97,6 +97,7 @@ class ReportAdminScreen extends HookConsumerWidget {
     BuildContext context,
     ReportAdminFilter filter,
     ReportAdminSanction report,
+    ReportAdminViewModel viewModel,
   ) {
     final reportType = ReportType.fromString(report.reportType);
     final canReview = filter == ReportAdminFilter.unprocessed &&
@@ -108,7 +109,10 @@ class ReportAdminScreen extends HookConsumerWidget {
       context,
       report: report,
       onReview: canReview
-          ? () => onTapReportSanction(report.id, report.targetMemberId!)
+          ? () async {
+              final processed = await onTapReportSanction(report);
+              if (processed == true) await viewModel.refresh();
+            }
           : null,
     );
   }

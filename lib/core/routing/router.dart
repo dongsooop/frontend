@@ -3,6 +3,7 @@ import 'package:dongsoop/core/routing/utils/eclass_assignment_link_launcher.dart
 import 'package:dongsoop/domain/auth/enum/login_entry.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
+import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
 import 'package:dongsoop/presentation/campus/campus_map_screen.dart';
@@ -230,27 +231,26 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.adminReport,
       builder: (context, state) => ReportAdminScreen(
-        onTapReportSanction: (reportId, targetMemberId) {
-          context.push(
+        onTapReportSanction: (report) {
+          return context.push<bool>(
             RoutePaths.adminReportSanction,
-            extra: {
-              'reportId': reportId,
-              'targetMemberId': targetMemberId,
-            },
+            extra: report,
           );
         },
       ),
     ),
     GoRoute(
       path: RoutePaths.adminReportSanction,
+      redirect: (context, state) {
+        final report = state.extra;
+        if (report is! ReportAdminSanction || report.targetMemberId == null) {
+          return RoutePaths.adminReport;
+        }
+        return null;
+      },
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final reportId = extra?['reportId'] as int? ?? 0;
-        final targetMemberId = extra?['targetMemberId'] as int? ?? 0;
-
         return ReportAdminSanctionScreen(
-          reportId: reportId,
-          targetMemberId: targetMemberId,
+          report: state.extra! as ReportAdminSanction,
         );
       }
     ),

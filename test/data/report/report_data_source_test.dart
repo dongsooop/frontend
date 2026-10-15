@@ -2,12 +2,90 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/data/report/data_source/report_data_source_impl.dart';
 import 'package:dongsoop/domain/report/enum/report_reason.dart';
+import 'package:dongsoop/domain/report/enum/sanction_type.dart';
 import 'package:dongsoop/domain/report/exception/message_report_exception.dart';
 import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
 import 'package:dongsoop/domain/report/model/chat_report_request.dart';
+import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('관리자 제재 처리', () {
+    test('제재 요청을 올바른 경로와 본문으로 전송하고 201을 성공 처리한다', () async {
+      final requests = <RequestOptions>[];
+      final dataSource = ReportDataSourceImpl(_successDio(requests));
+      final request = ReportAdminSanctionRequest(
+        reportId: 101,
+        targetMemberId: 42,
+        sanctionType: SanctionType.TEMPORARY_BAN,
+        sanctionReason: '채팅 욕설',
+        sanctionEndAt: DateTime(2026, 10, 15, 23, 59, 59),
+      );
+
+      await dataSource.sanctionWriteReport(request);
+
+      expect(requests, hasLength(1));
+      expect(requests.single.method, 'POST');
+      expect(requests.single.path, '/reports/sanctions');
+      expect(requests.single.data, {
+        'reportId': 101,
+        'targetMemberId': 42,
+        'sanctionType': 'TEMPORARY_BAN',
+        'sanctionReason': '채팅 욕설',
+        'sanctionEndAt': '2026-10-15T23:59:59',
+      });
+    });
+
+    test('서버의 제재 검증 오류 문구를 보존한다', () {
+      final dataSource = ReportDataSourceImpl(
+        _errorDio(
+          statusCode: 400,
+          data: const {'detail': '일시정지는 종료일을 입력해야 합니다.'},
+        ),
+      );
+
+      expect(
+        dataSource.sanctionWriteReport(_warningRequest),
+        throwsA(
+          isA<SanctionRequestValidationException>().having(
+            (error) => error.message,
+            'message',
+            '일시정지는 종료일을 입력해야 합니다.',
+          ),
+        ),
+      );
+    });
+
+    test('403, 404, 409 응답을 제재 도메인 오류로 변환한다', () {
+      expect(
+        ReportDataSourceImpl(_errorDio(statusCode: 403))
+            .sanctionWriteReport(_warningRequest),
+        throwsA(isA<NoAdminAuthorityException>()),
+      );
+      expect(
+        ReportDataSourceImpl(_errorDio(statusCode: 404))
+            .sanctionWriteReport(_warningRequest),
+        throwsA(isA<NotFoundSanctionException>()),
+      );
+      expect(
+        ReportDataSourceImpl(_errorDio(statusCode: 409))
+            .sanctionWriteReport(_warningRequest),
+        throwsA(isA<AlreadyProcessedException>()),
+      );
+    });
+
+    test('201이 아닌 성공 응답은 제재 성공으로 처리하지 않는다', () {
+      final dataSource = ReportDataSourceImpl(
+        _successDio(<RequestOptions>[], statusCode: 200),
+      );
+
+      expect(
+        dataSource.sanctionWriteReport(_warningRequest),
+        throwsA(isA<SanctionException>()),
+      );
+    });
+  });
+
   group('관리자 메시지 신고 목록', () {
     test('필터, 정렬, 페이지 정보를 쿼리 파라미터로 전송한다', () async {
       final requests = <RequestOptions>[];
@@ -269,6 +347,12 @@ final _chatRequest = ChatReportRequest(
   roomId: 'room-1',
   messageId: 'message-1',
   reason: ReportReason.OTHER,
+);
+
+const _warningRequest = ReportAdminSanctionRequest(
+  reportId: 101,
+  targetMemberId: 42,
+  sanctionType: SanctionType.WARNING,
 );
 
 final _blindDateRequest = BlindDateReportRequest(

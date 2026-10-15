@@ -11,6 +11,7 @@ class ReportAdminSanctionRequest with _$ReportAdminSanctionRequest {
   final int targetMemberId;
   final SanctionType sanctionType;
   final String? sanctionReason;
+  @JsonKey(toJson: _sanctionEndAtToJson)
   final DateTime? sanctionEndAt;
 
   const ReportAdminSanctionRequest({
@@ -22,4 +23,13 @@ class ReportAdminSanctionRequest with _$ReportAdminSanctionRequest {
   });
 
   Map<String, dynamic> toJson() => _$ReportAdminSanctionRequestToJson(this);
+}
+
+String? _sanctionEndAtToJson(DateTime? value) {
+  if (value == null) return null;
+
+  String twoDigits(int number) => number.toString().padLeft(2, '0');
+  return '${value.year}-${twoDigits(value.month)}-${twoDigits(value.day)}'
+      'T${twoDigits(value.hour)}:${twoDigits(value.minute)}:'
+      '${twoDigits(value.second)}';
 }

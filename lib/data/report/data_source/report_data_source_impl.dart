@@ -56,20 +56,33 @@ class ReportDataSourceImpl implements ReportDataSource {
 
   @override
   Future<void> sanctionWriteReport(ReportAdminSanctionRequest request) async {
-    final endpoint = '/reports/sanctions';
+    const endpoint = '/reports/sanctions';
 
     try {
-      await _authDio.post(endpoint, data: request.toJson());
-    } on DioException catch (e) {
-      if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
-        throw SanctionRequestValidationException();
-      } else if (e.response?.statusCode == HttpStatusCode.notFound.code) {
-        throw NotFoundSanctionException();
-      } else if (e.response?.statusCode == HttpStatusCode.conflict.code) {
-        throw AlreadyProcessedException();
+      final response = await _authDio.post(endpoint, data: request.toJson());
+      if (response.statusCode != HttpStatusCode.created.code) {
+        throw const SanctionException('제재 처리 중 예상하지 못한 응답을 받았습니다.');
       }
-      rethrow;
-    } catch (e) {
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final detail = e.response?.data;
+      if (statusCode == HttpStatusCode.badRequest.code) {
+        throw SanctionRequestValidationException(
+          _problemDetail(detail, fallback: '제재 정보를 다시 확인해 주세요.'),
+        );
+      } else if (statusCode == HttpStatusCode.forbidden.code) {
+        throw NoAdminAuthorityException(
+          _problemDetail(detail, fallback: '관리자 권한이 없습니다.'),
+        );
+      } else if (statusCode == HttpStatusCode.notFound.code) {
+        throw NotFoundSanctionException(
+          _problemDetail(detail, fallback: '신고 또는 회원을 찾을 수 없습니다.'),
+        );
+      } else if (statusCode == HttpStatusCode.conflict.code) {
+        throw AlreadyProcessedException(
+          _problemDetail(detail, fallback: '이미 처리된 신고입니다.'),
+        );
+      }
       rethrow;
     }
   }

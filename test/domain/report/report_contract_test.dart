@@ -160,4 +160,18 @@ void main() {
       'sanctionType': 'WARNING',
     });
   });
+
+  test('일시정지 종료 시각은 KST 벽시계의 초 단위 문자열로 직렬화한다', () {
+    final request = ReportAdminSanctionRequest(
+      reportId: 101,
+      targetMemberId: 42,
+      sanctionType: SanctionType.TEMPORARY_BAN,
+      sanctionEndAt: DateTime(2026, 10, 15, 23, 59, 59, 123),
+    );
+
+    expect(
+      request.toJson()['sanctionEndAt'],
+      '2026-10-15T23:59:59',
+    );
+  });
 }
