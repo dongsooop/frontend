@@ -216,7 +216,7 @@ class _ReasonTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: Container(
           constraints: const BoxConstraints(minHeight: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: selected ? ColorStyles.primary5 : ColorStyles.white,
             borderRadius: BorderRadius.circular(8),
@@ -239,8 +239,8 @@ class _ReasonTile extends StatelessWidget {
                 selected
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
-                color: selected ? ColorStyles.primaryColor : ColorStyles.gray3,
-                size: 22,
+                color: selected ? ColorStyles.primaryColor : ColorStyles.gray5,
+                size: 20,
               ),
             ],
           ),

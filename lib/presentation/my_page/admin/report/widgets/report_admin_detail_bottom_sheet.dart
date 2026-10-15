@@ -190,10 +190,10 @@ class ReportAdminDetailBottomSheet extends ConsumerWidget {
                     Container(
                       key: const Key('reported-message'),
                       width: double.infinity,
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: ColorStyles.labelColorRed10,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: ColorStyles.warning10),
                       ),
                       child: Column(

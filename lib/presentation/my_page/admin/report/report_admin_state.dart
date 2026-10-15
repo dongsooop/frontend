@@ -4,6 +4,7 @@ import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
 class ReportAdminState {
   final ReportAdminFilter filter;
   final bool isInitialLoading;
+  final bool hasLoaded;
   final bool isRefreshing;
   final bool isLoadingMore;
   final String? errorMessage;
@@ -15,6 +16,7 @@ class ReportAdminState {
   const ReportAdminState({
     this.filter = ReportAdminFilter.unprocessed,
     this.isInitialLoading = false,
+    this.hasLoaded = false,
     this.isRefreshing = false,
     this.isLoadingMore = false,
     this.errorMessage,
@@ -27,6 +29,7 @@ class ReportAdminState {
   ReportAdminState copyWith({
     ReportAdminFilter? filter,
     bool? isInitialLoading,
+    bool? hasLoaded,
     bool? isRefreshing,
     bool? isLoadingMore,
     String? errorMessage,
@@ -40,6 +43,7 @@ class ReportAdminState {
     return ReportAdminState(
       filter: filter ?? this.filter,
       isInitialLoading: isInitialLoading ?? this.isInitialLoading,
+      hasLoaded: hasLoaded ?? this.hasLoaded,
       isRefreshing: isRefreshing ?? this.isRefreshing,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,

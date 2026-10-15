@@ -69,7 +69,7 @@ class InvalidCredentialsException extends LoginException {
 
 class UserSanctionedException extends LoginException {
   const UserSanctionedException(
-      [String message = "현재 제재 중인 계정입니다. 자세한 내용은 고객센터에 문의해 주세요."])
+      [String message = "현재 제재 중인 계정입니다. 자세한 내용은 동숲에 문의해 주세요."])
       : super(message);
 
   @override

@@ -19,7 +19,7 @@ class ReportSanctionSelectBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,12 +78,13 @@ class ReportSanctionSelectBottomSheet extends StatelessWidget {
                           ),
                         ),
                         Icon(
+                          size: 20,
                           selectedSanction == sanction
                               ? Icons.radio_button_checked
                               : Icons.radio_button_unchecked,
                           color: selectedSanction == sanction
                               ? ColorStyles.primaryColor
-                              : ColorStyles.gray3,
+                              : ColorStyles.gray5,
                         ),
                       ],
                     ),

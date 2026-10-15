@@ -10,8 +10,9 @@ class ReportAdminViewModel extends StateNotifier<ReportAdminState> {
   int _requestGeneration = 0;
 
   ReportAdminViewModel(
-    this._getReportsUseCase,
-  ) : super(const ReportAdminState());
+    this._getReportsUseCase, {
+    ReportAdminFilter initialFilter = ReportAdminFilter.unprocessed,
+  }) : super(ReportAdminState(filter: initialFilter));
 
   Future<void> loadReports({ReportAdminFilter? filter}) async {
     final nextFilter = filter ?? state.filter;
@@ -30,6 +31,7 @@ class ReportAdminViewModel extends StateNotifier<ReportAdminState> {
 
       state = state.copyWith(
         isInitialLoading: false,
+        hasLoaded: true,
         reports: reports,
         page: 0,
         hasNext: reports.length == _pageSize,
@@ -41,6 +43,7 @@ class ReportAdminViewModel extends StateNotifier<ReportAdminState> {
 
       state = state.copyWith(
         isInitialLoading: false,
+        hasLoaded: true,
         errorMessage: '신고 목록을 불러오는 중 오류가 발생했습니다.',
         hasNext: false,
       );

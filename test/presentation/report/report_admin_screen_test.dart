@@ -15,6 +15,52 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('세그먼트 탭을 좌우로 밀어 신고 상태를 전환한다', (tester) async {
+    final repository = _FakeReportRepository();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          getReportsUseCaseProvider.overrideWithValue(
+            GetReportsUseCase(repository),
+          ),
+          reportAdminDismissUseCaseProvider.overrideWithValue(
+            ReportAdminDismissUseCase(repository),
+          ),
+        ],
+        child: MaterialApp(
+          home: ReportAdminScreen(
+            onTapReportSanction: (_) async => false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(repository.requestedTypes, ['UNPROCESSED']);
+
+    await tester.drag(find.byType(TabBarView), const Offset(-500, 0));
+    await tester.pumpAndSettle();
+
+    expect(
+      DefaultTabController.of(tester.element(find.byType(TabBarView))).index,
+      1,
+    );
+    expect(repository.requestedTypes, ['UNPROCESSED', 'ACTIVE_SANCTIONS']);
+
+    await tester.drag(find.byType(TabBarView), const Offset(-500, 0));
+    await tester.pumpAndSettle();
+
+    expect(
+      DefaultTabController.of(tester.element(find.byType(TabBarView))).index,
+      2,
+    );
+    expect(
+      repository.requestedTypes,
+      ['UNPROCESSED', 'ACTIVE_SANCTIONS', 'PROCESSED'],
+    );
+  });
+
   testWidgets('신고 메시지와 문맥을 보여주고 미처리 신고만 제재 검토로 연결한다', (tester) async {
     final repository = _FakeReportRepository();
     int? selectedReportId;
@@ -204,6 +250,7 @@ void main() {
 
 class _FakeReportRepository implements ReportRepository {
   int unprocessedCallCount = 0;
+  final List<String> requestedTypes = [];
   final List<int> dismissedReportIds = [];
   final ReportAdminSanction unprocessedReport;
   Object? dismissError;
@@ -225,6 +272,7 @@ class _FakeReportRepository implements ReportRepository {
     int page = 0,
     int size = 10,
   }) async {
+    requestedTypes.add(type);
     if (type == 'PROCESSED') {
       return [_processedReport];
     }

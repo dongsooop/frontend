@@ -10,10 +10,9 @@ import 'package:dongsoop/providers/report_providers.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class ReportAdminScreen extends HookConsumerWidget {
+class ReportAdminScreen extends ConsumerWidget {
   final Future<bool?> Function(ReportAdminSanction report) onTapReportSanction;
 
   const ReportAdminScreen({
@@ -23,71 +22,68 @@ class ReportAdminScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scrollController = useScrollController();
-    final viewModel = ref.read(reportAdminViewModelProvider.notifier);
-    final state = ref.watch(reportAdminViewModelProvider);
-
-    useEffect(() {
-      Future.microtask(viewModel.loadReports);
-      return null;
-    }, const []);
-
-    useEffect(() {
-      void scrollListener() {
-        if (!scrollController.hasClients) return;
-        if (scrollController.position.pixels >=
-            scrollController.position.maxScrollExtent - 200) {
-          viewModel.fetchNextPage();
-        }
-      }
-
-      scrollController.addListener(scrollListener);
-      return () => scrollController.removeListener(scrollListener);
-    }, [scrollController, viewModel]);
-
-    return Scaffold(
-      backgroundColor: ColorStyles.white,
-      appBar: const DetailHeader(title: '신고 관리'),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-              child: SizedBox(
-                height: 44,
-                child: Row(
+    return DefaultTabController(
+      length: ReportAdminFilter.values.length,
+      child: Scaffold(
+        backgroundColor: ColorStyles.white,
+        appBar: const DetailHeader(title: '신고 관리'),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                child: Container(
+                  height: 48,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: ColorStyles.gray7,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: TabBar(
+                    overlayColor:
+                        const WidgetStatePropertyAll(Colors.transparent),
+                    splashBorderRadius: BorderRadius.circular(8),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicator: BoxDecoration(
+                      color: ColorStyles.primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    dividerColor: Colors.transparent,
+                    labelColor: ColorStyles.white,
+                    labelStyle: TextStyles.normalTextBold,
+                    unselectedLabelColor: ColorStyles.gray6,
+                    unselectedLabelStyle: TextStyles.normalTextRegular,
+                    tabs: ReportAdminFilter.values
+                        .map(
+                          (filter) => Tab(
+                            key: Key('report-filter-${filter.label}'),
+                            text: filter.label,
+                          ),
+                        )
+                        .toList(growable: false),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
                   children: ReportAdminFilter.values
                       .map(
-                        (filter) => Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: _CategoryTab(
-                            label: filter.label,
-                            isSelected: state.filter == filter,
-                            onTap: () {
-                              if (filter == state.filter) return;
-                              if (scrollController.hasClients) {
-                                scrollController.jumpTo(0);
-                              }
-                              viewModel.selectFilter(filter);
-                            },
+                        (filter) => _ReportTabPage(
+                          key: PageStorageKey(filter),
+                          filter: filter,
+                          onOpenReport: (report, viewModel) => _openReport(
+                            context,
+                            filter,
+                            report,
+                            viewModel,
                           ),
                         ),
                       )
                       .toList(growable: false),
                 ),
               ),
-            ),
-            Expanded(
-              child: _ReportListBody(
-                state: state,
-                viewModel: viewModel,
-                scrollController: scrollController,
-                onOpenReport: (report) =>
-                    _openReport(context, state.filter, report, viewModel),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -125,54 +121,74 @@ class ReportAdminScreen extends HookConsumerWidget {
   }
 }
 
-class _CategoryTab extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
+class _ReportTabPage extends ConsumerStatefulWidget {
+  final ReportAdminFilter filter;
+  final Future<void> Function(
+    ReportAdminSanction report,
+    ReportAdminViewModel viewModel,
+  ) onOpenReport;
 
-  const _CategoryTab({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
+  const _ReportTabPage({
+    super.key,
+    required this.filter,
+    required this.onOpenReport,
   });
 
   @override
+  ConsumerState<_ReportTabPage> createState() => _ReportTabPageState();
+}
+
+class _ReportTabPageState extends ConsumerState<_ReportTabPage>
+    with AutomaticKeepAliveClientMixin {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+    Future.microtask(() {
+      if (!mounted) return;
+      final provider = reportAdminViewModelProvider(widget.filter);
+      final state = ref.read(provider);
+      if (!state.hasLoaded) {
+        ref.read(provider.notifier).loadReports();
+      }
+    });
+  }
+
+  void _handleScroll() {
+    if (!_scrollController.hasClients) return;
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      ref
+          .read(reportAdminViewModelProvider(widget.filter).notifier)
+          .fetchNextPage();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_handleScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      selected: isSelected,
-      child: InkWell(
-        key: Key('report-filter-$label'),
-        onTap: onTap,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.only(bottom: 3),
-              decoration: BoxDecoration(
-                border: isSelected
-                    ? const Border(
-                        bottom: BorderSide(
-                          color: ColorStyles.primaryColor,
-                          width: 1,
-                        ),
-                      )
-                    : null,
-              ),
-              child: Text(
-                label,
-                style: (isSelected
-                        ? TextStyles.largeTextBold
-                        : TextStyles.largeTextRegular)
-                    .copyWith(
-                  color:
-                      isSelected ? ColorStyles.primaryColor : ColorStyles.gray4,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    super.build(context);
+    final provider = reportAdminViewModelProvider(widget.filter);
+    final viewModel = ref.read(provider.notifier);
+    final state = ref.watch(provider);
+
+    return _ReportListBody(
+      state: state,
+      viewModel: viewModel,
+      scrollController: _scrollController,
+      onOpenReport: (report) => widget.onOpenReport(report, viewModel),
     );
   }
 }
@@ -220,7 +236,14 @@ class _ReportListBody extends StatelessWidget {
                   height: constraints.maxHeight,
                   child: Center(
                     child: Text(
-                      '해당하는 신고가 없습니다.',
+                      switch (state.filter) {
+                        ReportAdminFilter.unprocessed =>
+                          '현재 처리할 신고가 없습니다.',
+                        ReportAdminFilter.activeSanctions =>
+                          '현재 적용 중인 제재가 없습니다.',
+                        ReportAdminFilter.processed =>
+                          '처리 완료된 신고가 없습니다.',
+                      },
                       key: const Key('report-admin-empty'),
                       style: TextStyles.normalTextRegular.copyWith(
                         color: ColorStyles.gray4,
