@@ -57,7 +57,12 @@ class AuthDataSourceImpl implements AuthDataSource {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw InvalidCredentialsException();
       } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
-        throw UserSanctionedException();
+        throw UserSanctionedException(
+          _problemDetail(
+            e.response?.data,
+            fallback: const UserSanctionedException().message,
+          ),
+        );
       } else if (e.response?.statusCode == HttpStatusCode.notFound.code) {
         throw UserNotFoundException();
       }
@@ -81,7 +86,12 @@ class AuthDataSourceImpl implements AuthDataSource {
       "deviceToken": fcmToken,
     };
     try {
+      _logSignIn('request POST $url platform=${platform.name}');
       final response = await _plainDio.post(url, data: requestBody);
+      _logSignIn(
+        'response POST $url status=${response.statusCode} '
+        'type=${response.data.runtimeType}',
+      );
       if (response.statusCode == HttpStatusCode.ok.code) {
         final data = response.data;
 
@@ -89,11 +99,23 @@ class AuthDataSourceImpl implements AuthDataSource {
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
     } on DioException catch (e) {
+      _logSignIn(
+        'dio-error POST $url status=${e.response?.statusCode} '
+        'type=${e.type.name} body=${_redactSensitiveLogData(e.response?.data)}',
+      );
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw SocialLoginException();
+      } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
+        throw UserSanctionedException(
+          _problemDetail(
+            e.response?.data,
+            fallback: const UserSanctionedException().message,
+          ),
+        );
       }
       rethrow;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      _logSignIn('unexpected-error POST $url error=$e\n$stackTrace');
       rethrow;
     }
   }
@@ -359,5 +381,13 @@ class AuthDataSourceImpl implements AuthDataSource {
       return data.map(_redactSensitiveLogData).toList();
     }
     return data;
+  }
+
+  String _problemDetail(Object? data, {required String fallback}) {
+    if (data is Map) {
+      final detail = data['detail']?.toString().trim();
+      if (detail != null && detail.isNotEmpty) return detail;
+    }
+    return fallback;
   }
 }

@@ -25,5 +25,19 @@ class ReportSanctionStatus with _$ReportSanctionStatus {
 
   String get periodLabel => '$startDate ~ $endDateLabel';
 
+  String get noticeMessage {
+    final normalizedReason = reason.trim();
+    final normalizedDescription = description.trim();
+    final lines = <String>[
+      '제재 유형: ${sanctionType.message}',
+      '제재 사유: $normalizedReason',
+    ];
+    if (normalizedDescription != normalizedReason) {
+      lines.add('제재 내용: $normalizedDescription');
+    }
+    lines.add('제재 기간: $periodLabel');
+    return lines.join('\n');
+  }
+
   Map<String, dynamic> toJson() => _$ReportSanctionStatusToJson(this);
 }

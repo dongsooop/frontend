@@ -56,7 +56,7 @@ class SignInScreen extends HookConsumerWidget {
           context: context,
           barrierDismissible: false,
           builder: (dialogContext) => CustomConfirmDialog(
-            title: '소셜 로그인 오류',
+            title: loginState.dialogTitle ?? '로그인 오류',
             content: message,
             onConfirm: () {},
             onCancel: () {},

@@ -97,9 +97,7 @@ class SplashScreen extends HookConsumerWidget {
           barrierDismissible: false,
           builder: (_) => CustomConfirmDialog(
             title: '동숲 이용 제재',
-            content: '제재 유형: ${reportSanction.sanctionType.message}\n'
-                '${reportSanction.reason}\n${reportSanction.description}\n'
-                '${reportSanction.periodLabel}',
+            content: reportSanction.noticeMessage,
             isSingleAction: true,
             confirmText: '확인',
             onConfirm: () {},
@@ -115,14 +113,41 @@ class SplashScreen extends HookConsumerWidget {
         await viewModel.autoLogin();
         if (cancelled || !context.mounted) return;
 
+        // 저장된 로그인 정보가 있다면 다른 인증 작업보다 제재 상태를 먼저 확인한다.
+        final user = container.read(userSessionProvider);
+        if (user != null) {
+          while (!cancelled && context.mounted) {
+            ReportSanctionStatus? reportSanction;
+            try {
+              reportSanction = await viewModel.checkSanction();
+            } on SessionExpiredException {
+              // 전역 세션 종료 안내가 로그아웃과 화면 전환을 담당한다.
+              return;
+            } catch (error) {
+              await showSanctionStatusRetryDialog(error);
+              continue;
+            }
+
+            if (cancelled || !context.mounted) return;
+            if (reportSanction != null) {
+              await showSanctionDialog(reportSanction);
+            }
+            break;
+          }
+        }
+        if (cancelled || !context.mounted) return;
+
+        // 제재로 로그아웃되지 않은 사용자만 로그인 기반 백그라운드 복구를 수행한다.
+        if (container.read(userSessionProvider) != null) {
+          viewModel.restoreExpiredEclassLinkInBackground();
+        }
+
         // 회원/비회원 구분 없이 앱 실행마다(첫 설치·업데이트 포함) fid/deviceToken을 등록한다.
         // 로그인 상태여도 등록해야 기존 회원 기기에 fid가 백필된다.
         final message = await viewModel.requestDeviceTokenPreAuthOnce(
           tokenTimeout: const Duration(seconds: 3),
         );
         if (cancelled || !context.mounted) return;
-
-        viewModel.restoreExpiredEclassLinkInBackground();
 
         if (message != null) {
           rootScaffoldMessengerKey.currentState?.showSnackBar(
@@ -148,36 +173,6 @@ class SplashScreen extends HookConsumerWidget {
           await SchedulerBinding.instance.endOfFrame;
           await Future.delayed(const Duration(milliseconds: 200));
         }
-        if (cancelled || !context.mounted) return;
-
-        // 제재 대상 확인
-        final user = container.read(userSessionProvider);
-        if (cancelled || !context.mounted) return;
-
-        if (user != null) {
-          while (!cancelled && context.mounted) {
-            ReportSanctionStatus? reportSanction;
-            try {
-              reportSanction = await viewModel.checkSanction();
-            } on SessionExpiredException {
-              // 전역 세션 만료 안내가 로그아웃과 화면 전환을 담당한다.
-              return;
-            } catch (error) {
-              await showSanctionStatusRetryDialog(error);
-              continue;
-            }
-
-            if (cancelled || !context.mounted) return;
-            if (reportSanction != null) {
-              await showSanctionDialog(reportSanction);
-            }
-            if (cancelled || !context.mounted) return;
-            await goNextWithConsent();
-            return;
-          }
-          return;
-        }
-
         if (cancelled || !context.mounted) return;
         await goNextWithConsent();
       });

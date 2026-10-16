@@ -5,6 +5,7 @@ import 'package:dongsoop/data/report/repository/report_repository_impl.dart';
 import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
 import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
 import 'package:dongsoop/domain/report/enum/sanction_type.dart';
+import 'package:dongsoop/domain/report/model/report_sanction_status.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:dongsoop/domain/report/repository/report_repository.dart';
 import 'package:dongsoop/domain/report/use_case/get_sanction_status_use_case.dart';
@@ -115,6 +116,39 @@ void main() {
       expect(status?.endDate, isNull);
       expect(status?.endDateLabel, '영구');
       expect(status?.periodLabel, '2026. 10. 15 9:30 ~ 영구');
+    });
+
+    test('제재 안내는 유형, 사유, 내용, 기간을 구분해 표시한다', () async {
+      final useCase = GetSanctionStatusUseCase(
+        _ReportRepositoryStub(_temporaryBan),
+      );
+
+      final status = await useCase.execute();
+
+      expect(
+        status?.noticeMessage,
+        '제재 유형: 일시정지\n'
+        '제재 사유: 채팅 욕설\n'
+        '제재 내용: 운영정책 위반\n'
+        '제재 기간: 2026. 10. 15 9:30 ~ 2026. 10. 18 23:59',
+      );
+    });
+
+    test('제재 사유와 내용이 같으면 같은 문구를 두 번 표시하지 않는다', () {
+      const status = ReportSanctionStatus(
+        sanctionType: SanctionType.PERMANENT_BAN,
+        reason: '반복 욕설',
+        description: '반복 욕설',
+        startDate: '2026. 10. 15 9:30',
+        endDate: null,
+      );
+
+      expect(
+        status.noticeMessage,
+        '제재 유형: 영구정지\n'
+        '제재 사유: 반복 욕설\n'
+        '제재 기간: 2026. 10. 15 9:30 ~ 영구',
+      );
     });
 
     test('불완전한 일시정지는 앱 진입 가능한 상태로 변환하지 않는다', () {
