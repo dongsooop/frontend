@@ -75,34 +75,53 @@ class LoggedOutPromptCard extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          Container(
-            width: double.infinity,
-            decoration: ShapeDecoration(
-              color: ColorStyles.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          _section(
+            items: [
+              MyActivityItem(
+                label: '알림 설정',
+                description: '키워드 · 일정',
+                iconAsset: 'assets/icons/mypage_notification.svg',
+                onTap: onTapNotification,
               ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: [
-                MyActivityItem(
-                  label: '알림 설정',
-                  onTap: onTapNotification,
-                ),
-                MyActivityItem(
-                  label: '관심 학과 설정',
-                  onTap: onTapSubscribeDepartment,
-                ),
-                MyActivityItem(
-                  label: '피드백 하러가기',
-                  onTap: onTapUserFeedback,
-                ),
-              ],
-            ),
+              MyActivityItem(
+                label: '관심 학과',
+                description: '학과 공지 모아보기',
+                iconAsset: 'assets/icons/mypage_department.svg',
+                onTap: onTapSubscribeDepartment,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          _section(
+            items: [
+              MyActivityItem(
+                label: '의견 보내기',
+                description: '서비스 개선 제안',
+                iconAsset: 'assets/icons/mypage_feedback.svg',
+                onTap: onTapUserFeedback,
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _section({
+    required List<Widget> items,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: ShapeDecoration(
+        color: ColorStyles.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Column(children: items),
     );
   }
 }
