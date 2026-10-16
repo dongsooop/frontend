@@ -25,6 +25,9 @@ ReportAdminSanction _$ReportAdminSanctionFromJson(Map<String, dynamic> json) =>
       sanctionEndDate: json['sanctionEndDate'] as String?,
       isSanctionActive: json['isSanctionActive'] as bool?,
       chatRoomId: json['chatRoomId'] as String?,
+      chatRoomType: $enumDecodeNullable(
+          _$ReportChatRoomTypeEnumMap, json['chatRoomType']),
+      resolvedByReportId: (json['resolvedByReportId'] as num?)?.toInt(),
       messageId: json['messageId'] as String?,
       messageContent: json['messageContent'] as String?,
       messageSentAt: json['messageSentAt'] as String?,
@@ -56,9 +59,19 @@ Map<String, dynamic> _$ReportAdminSanctionToJson(
       'sanctionEndDate': instance.sanctionEndDate,
       'isSanctionActive': instance.isSanctionActive,
       'chatRoomId': instance.chatRoomId,
+      'chatRoomType': _$ReportChatRoomTypeEnumMap[instance.chatRoomType],
+      'resolvedByReportId': instance.resolvedByReportId,
       'messageId': instance.messageId,
       'messageContent': instance.messageContent,
       'messageSentAt': instance.messageSentAt,
       'messageContext': instance.messageContext,
       'createdAt': instance.createdAt,
     };
+
+const _$ReportChatRoomTypeEnumMap = {
+  ReportChatRoomType.ONE_TO_ONE: 'ONE_TO_ONE',
+  ReportChatRoomType.GROUP: 'GROUP',
+  ReportChatRoomType.CONTACT: 'CONTACT',
+  ReportChatRoomType.BLINDDATE: 'BLINDDATE',
+  ReportChatRoomType.UNKNOWN: 'UNKNOWN',
+};

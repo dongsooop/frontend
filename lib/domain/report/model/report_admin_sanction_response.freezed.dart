@@ -31,6 +31,8 @@ mixin _$ReportAdminSanctionResponse {
   DateTime? get sanctionEndDate;
   bool? get isSanctionActive;
   String? get chatRoomId;
+  ReportChatRoomType? get chatRoomType;
+  int? get resolvedByReportId;
   String? get messageId;
   String? get messageContent;
   DateTime? get messageSentAt;
@@ -84,6 +86,10 @@ mixin _$ReportAdminSanctionResponse {
                 other.isSanctionActive == isSanctionActive) &&
             (identical(other.chatRoomId, chatRoomId) ||
                 other.chatRoomId == chatRoomId) &&
+            (identical(other.chatRoomType, chatRoomType) ||
+                other.chatRoomType == chatRoomType) &&
+            (identical(other.resolvedByReportId, resolvedByReportId) ||
+                other.resolvedByReportId == resolvedByReportId) &&
             (identical(other.messageId, messageId) ||
                 other.messageId == messageId) &&
             (identical(other.messageContent, messageContent) ||
@@ -117,6 +123,8 @@ mixin _$ReportAdminSanctionResponse {
         sanctionEndDate,
         isSanctionActive,
         chatRoomId,
+        chatRoomType,
+        resolvedByReportId,
         messageId,
         messageContent,
         messageSentAt,
@@ -126,7 +134,7 @@ mixin _$ReportAdminSanctionResponse {
 
   @override
   String toString() {
-    return 'ReportAdminSanctionResponse(id: $id, reporterNickname: $reporterNickname, reportType: $reportType, targetId: $targetId, targetUrl: $targetUrl, targetMemberId: $targetMemberId, targetMemberNickname: $targetMemberNickname, reportReason: $reportReason, description: $description, isProcessed: $isProcessed, adminNickname: $adminNickname, sanctionType: $sanctionType, sanctionReason: $sanctionReason, sanctionStartDate: $sanctionStartDate, sanctionEndDate: $sanctionEndDate, isSanctionActive: $isSanctionActive, chatRoomId: $chatRoomId, messageId: $messageId, messageContent: $messageContent, messageSentAt: $messageSentAt, messageContext: $messageContext, createdAt: $createdAt)';
+    return 'ReportAdminSanctionResponse(id: $id, reporterNickname: $reporterNickname, reportType: $reportType, targetId: $targetId, targetUrl: $targetUrl, targetMemberId: $targetMemberId, targetMemberNickname: $targetMemberNickname, reportReason: $reportReason, description: $description, isProcessed: $isProcessed, adminNickname: $adminNickname, sanctionType: $sanctionType, sanctionReason: $sanctionReason, sanctionStartDate: $sanctionStartDate, sanctionEndDate: $sanctionEndDate, isSanctionActive: $isSanctionActive, chatRoomId: $chatRoomId, chatRoomType: $chatRoomType, resolvedByReportId: $resolvedByReportId, messageId: $messageId, messageContent: $messageContent, messageSentAt: $messageSentAt, messageContext: $messageContext, createdAt: $createdAt)';
   }
 }
 
@@ -155,6 +163,8 @@ abstract mixin class $ReportAdminSanctionResponseCopyWith<$Res> {
       DateTime? sanctionEndDate,
       bool? isSanctionActive,
       String? chatRoomId,
+      ReportChatRoomType? chatRoomType,
+      int? resolvedByReportId,
       String? messageId,
       String? messageContent,
       DateTime? messageSentAt,
@@ -192,6 +202,8 @@ class _$ReportAdminSanctionResponseCopyWithImpl<$Res>
     Object? sanctionEndDate = freezed,
     Object? isSanctionActive = freezed,
     Object? chatRoomId = freezed,
+    Object? chatRoomType = freezed,
+    Object? resolvedByReportId = freezed,
     Object? messageId = freezed,
     Object? messageContent = freezed,
     Object? messageSentAt = freezed,
@@ -267,6 +279,14 @@ class _$ReportAdminSanctionResponseCopyWithImpl<$Res>
           ? _self.chatRoomId
           : chatRoomId // ignore: cast_nullable_to_non_nullable
               as String?,
+      chatRoomType: freezed == chatRoomType
+          ? _self.chatRoomType
+          : chatRoomType // ignore: cast_nullable_to_non_nullable
+              as ReportChatRoomType?,
+      resolvedByReportId: freezed == resolvedByReportId
+          ? _self.resolvedByReportId
+          : resolvedByReportId // ignore: cast_nullable_to_non_nullable
+              as int?,
       messageId: freezed == messageId
           ? _self.messageId
           : messageId // ignore: cast_nullable_to_non_nullable

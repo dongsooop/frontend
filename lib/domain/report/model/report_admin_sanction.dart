@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_response.dart';
 import 'package:dongsoop/domain/report/model/report_message_context.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -26,6 +27,8 @@ class ReportAdminSanction with _$ReportAdminSanction {
   final String? sanctionEndDate;
   final bool? isSanctionActive;
   final String? chatRoomId;
+  final ReportChatRoomType? chatRoomType;
+  final int? resolvedByReportId;
   final String? messageId;
   final String? messageContent;
   final String? messageSentAt;
@@ -50,6 +53,8 @@ class ReportAdminSanction with _$ReportAdminSanction {
     this.sanctionEndDate,
     this.isSanctionActive,
     this.chatRoomId,
+    this.chatRoomType,
+    this.resolvedByReportId,
     this.messageId,
     this.messageContent,
     this.messageSentAt,
@@ -76,6 +81,8 @@ class ReportAdminSanction with _$ReportAdminSanction {
       sanctionEndDate: formatSanctionTime(entity.sanctionEndDate),
       isSanctionActive: entity.isSanctionActive,
       chatRoomId: entity.chatRoomId,
+      chatRoomType: entity.chatRoomType,
+      resolvedByReportId: entity.resolvedByReportId,
       messageId: entity.messageId,
       messageContent: entity.messageContent,
       messageSentAt: formatSanctionTime(entity.messageSentAt),

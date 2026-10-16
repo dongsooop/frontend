@@ -31,6 +31,8 @@ mixin _$ReportAdminSanction {
   String? get sanctionEndDate;
   bool? get isSanctionActive;
   String? get chatRoomId;
+  ReportChatRoomType? get chatRoomType;
+  int? get resolvedByReportId;
   String? get messageId;
   String? get messageContent;
   String? get messageSentAt;
@@ -83,6 +85,10 @@ mixin _$ReportAdminSanction {
                 other.isSanctionActive == isSanctionActive) &&
             (identical(other.chatRoomId, chatRoomId) ||
                 other.chatRoomId == chatRoomId) &&
+            (identical(other.chatRoomType, chatRoomType) ||
+                other.chatRoomType == chatRoomType) &&
+            (identical(other.resolvedByReportId, resolvedByReportId) ||
+                other.resolvedByReportId == resolvedByReportId) &&
             (identical(other.messageId, messageId) ||
                 other.messageId == messageId) &&
             (identical(other.messageContent, messageContent) ||
@@ -115,6 +121,8 @@ mixin _$ReportAdminSanction {
         sanctionEndDate,
         isSanctionActive,
         chatRoomId,
+        chatRoomType,
+        resolvedByReportId,
         messageId,
         messageContent,
         messageSentAt,
@@ -124,7 +132,7 @@ mixin _$ReportAdminSanction {
 
   @override
   String toString() {
-    return 'ReportAdminSanction(id: $id, reporterNickname: $reporterNickname, reportType: $reportType, targetId: $targetId, targetUrl: $targetUrl, targetMemberId: $targetMemberId, targetMemberNickname: $targetMemberNickname, reportReason: $reportReason, description: $description, isProcessed: $isProcessed, adminNickname: $adminNickname, sanctionType: $sanctionType, sanctionReason: $sanctionReason, sanctionStartDate: $sanctionStartDate, sanctionEndDate: $sanctionEndDate, isSanctionActive: $isSanctionActive, chatRoomId: $chatRoomId, messageId: $messageId, messageContent: $messageContent, messageSentAt: $messageSentAt, messageContext: $messageContext, createdAt: $createdAt)';
+    return 'ReportAdminSanction(id: $id, reporterNickname: $reporterNickname, reportType: $reportType, targetId: $targetId, targetUrl: $targetUrl, targetMemberId: $targetMemberId, targetMemberNickname: $targetMemberNickname, reportReason: $reportReason, description: $description, isProcessed: $isProcessed, adminNickname: $adminNickname, sanctionType: $sanctionType, sanctionReason: $sanctionReason, sanctionStartDate: $sanctionStartDate, sanctionEndDate: $sanctionEndDate, isSanctionActive: $isSanctionActive, chatRoomId: $chatRoomId, chatRoomType: $chatRoomType, resolvedByReportId: $resolvedByReportId, messageId: $messageId, messageContent: $messageContent, messageSentAt: $messageSentAt, messageContext: $messageContext, createdAt: $createdAt)';
   }
 }
 
@@ -152,6 +160,8 @@ abstract mixin class $ReportAdminSanctionCopyWith<$Res> {
       String? sanctionEndDate,
       bool? isSanctionActive,
       String? chatRoomId,
+      ReportChatRoomType? chatRoomType,
+      int? resolvedByReportId,
       String? messageId,
       String? messageContent,
       String? messageSentAt,
@@ -189,6 +199,8 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
     Object? sanctionEndDate = freezed,
     Object? isSanctionActive = freezed,
     Object? chatRoomId = freezed,
+    Object? chatRoomType = freezed,
+    Object? resolvedByReportId = freezed,
     Object? messageId = freezed,
     Object? messageContent = freezed,
     Object? messageSentAt = freezed,
@@ -264,6 +276,14 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
           ? _self.chatRoomId
           : chatRoomId // ignore: cast_nullable_to_non_nullable
               as String?,
+      chatRoomType: freezed == chatRoomType
+          ? _self.chatRoomType
+          : chatRoomType // ignore: cast_nullable_to_non_nullable
+              as ReportChatRoomType?,
+      resolvedByReportId: freezed == resolvedByReportId
+          ? _self.resolvedByReportId
+          : resolvedByReportId // ignore: cast_nullable_to_non_nullable
+              as int?,
       messageId: freezed == messageId
           ? _self.messageId
           : messageId // ignore: cast_nullable_to_non_nullable

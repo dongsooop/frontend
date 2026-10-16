@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:dongsoop/domain/report/enum/report_reason.dart';
 import 'package:dongsoop/domain/report/enum/report_type.dart';
 import 'package:dongsoop/domain/report/enum/sanction_type.dart';
@@ -64,6 +65,8 @@ void main() {
       'isProcessed': false,
       'createdAt': '2026-10-08T21:13:40',
       'chatRoomId': 'session-1',
+      'chatRoomType': 'BLINDDATE',
+      'resolvedByReportId': 99,
       'messageId': 'message-1',
       'messageContent': '신고된 메시지',
       'messageSentAt': '2026-10-08T21:12:58',
@@ -106,11 +109,54 @@ void main() {
       expect(report.targetId, isNull);
       expect(report.isProcessed, isFalse);
       expect(report.chatRoomId, 'session-1');
+      expect(report.chatRoomType, ReportChatRoomType.BLINDDATE);
+      expect(report.resolvedByReportId, 99);
       expect(report.messageId, 'message-1');
       expect(report.messageContext.map((context) => context.content), [
         '첫 번째',
         '두 번째',
       ]);
+    });
+
+    test('신규 필드가 없는 기존 신고 응답도 파싱된다', () {
+      final legacyJson = Map<String, dynamic>.from(json)
+        ..remove('chatRoomType')
+        ..remove('resolvedByReportId');
+
+      final response = ReportAdminSanctionResponse.fromJson(legacyJson);
+      final report = ReportAdminSanction.fromEntity(response);
+
+      expect(response.chatRoomType, isNull);
+      expect(response.resolvedByReportId, isNull);
+      expect(report.chatRoomType, isNull);
+      expect(report.resolvedByReportId, isNull);
+    });
+
+    test('알 수 없는 채팅방 유형은 UNKNOWN으로 파싱된다', () {
+      final unknownJson = Map<String, dynamic>.from(json)
+        ..['chatRoomType'] = 'NEW_CHAT_ROOM';
+
+      final response = ReportAdminSanctionResponse.fromJson(unknownJson);
+
+      expect(response.chatRoomType, ReportChatRoomType.UNKNOWN);
+    });
+
+    test('지원하는 채팅방 유형을 모두 파싱한다', () {
+      const types = {
+        'ONE_TO_ONE': ReportChatRoomType.ONE_TO_ONE,
+        'GROUP': ReportChatRoomType.GROUP,
+        'CONTACT': ReportChatRoomType.CONTACT,
+        'BLINDDATE': ReportChatRoomType.BLINDDATE,
+      };
+
+      for (final entry in types.entries) {
+        final typedJson = Map<String, dynamic>.from(json)
+          ..['chatRoomType'] = entry.key;
+
+        final response = ReportAdminSanctionResponse.fromJson(typedJson);
+
+        expect(response.chatRoomType, entry.value);
+      }
     });
 
     test('대상 닉네임이 없으면 사용자 ID를 표시한다', () {
