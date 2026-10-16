@@ -266,6 +266,114 @@ void main() {
     await _unmount(tester, fixture);
   });
 
+  testWidgets('/join KICKED이면 전송을 차단하고 안내 후 과팅 홈으로 돌아간다', (tester) async {
+    final fixture = await _mount(tester, emitStart: false);
+
+    fixture.repository.join.add(
+      BlindJoinInfo(name: '', state: 'KICKED'),
+    );
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    final state = fixture.container.read(blindDateDetailViewModelProvider);
+    final viewModel =
+        fixture.container.read(blindDateDetailViewModelProvider.notifier);
+    expect(state.isKicked, isTrue);
+    expect(state.isVoteTime, isFalse);
+    expect(find.text('관리자에 의해 퇴장되었습니다.'), findsOneWidget);
+    expect(fixture.repository.disconnectCount, 1);
+    expect(
+      viewModel.send(
+        BlindDateRequest(message: '차단되어야 하는 메시지', senderId: 54),
+      ),
+      isFalse,
+    );
+    expect(
+      await viewModel.choice(BlindChoice(choicerId: 54, targetId: 52)),
+      isFalse,
+    );
+    expect(fixture.repository.sentMessages, isEmpty);
+    expect(fixture.repository.choices, isEmpty);
+
+    await tester.tap(find.text('확인'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('과팅 홈'), findsOneWidget);
+    expect(find.byType(BlindDateDetailScreen), findsNothing);
+    expect(fixture.repository.disconnectCount, 1);
+    expect(tester.takeException(), isNull);
+    await _unmount(tester, fixture);
+  });
+
+  testWidgets('진행 중 KICKED이면 선택 타이머를 취소하고 한 번만 종료한다', (tester) async {
+    final fixture = await _mount(tester);
+    await _openVote(tester, fixture.repository);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('익명2'));
+
+    fixture.repository.join.add(
+      BlindJoinInfo(name: '', state: 'KICKED'),
+    );
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MatchVoteBottomSheet), findsNothing);
+    expect(find.text('관리자에 의해 퇴장되었습니다.'), findsOneWidget);
+    expect(fixture.repository.disconnectCount, 1);
+    expect(fixture.repository.choices, isEmpty);
+
+    fixture.repository.join.add(
+      BlindJoinInfo(name: '', state: 'KICKED'),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 11));
+
+    expect(find.text('관리자에 의해 퇴장되었습니다.'), findsOneWidget);
+    expect(fixture.repository.disconnectCount, 1);
+    expect(fixture.repository.choices, isEmpty);
+    expect(fixture.repository.sentMessages, isEmpty);
+
+    await tester.tap(find.text('확인'));
+    await tester.pumpAndSettle();
+    expect(find.text('과팅 홈'), findsOneWidget);
+    expect(fixture.repository.operations, [
+      'disconnect',
+      'disconnected',
+      'pop:blind',
+    ]);
+    expect(tester.takeException(), isNull);
+    await _unmount(tester, fixture);
+  });
+
+  testWidgets('추방된 과팅을 종료한 뒤 새 과팅에서는 메시지를 전송할 수 있다', (tester) async {
+    final kickedFixture = await _mount(tester, emitStart: false);
+    kickedFixture.repository.join.add(
+      BlindJoinInfo(name: '', state: 'KICKED'),
+    );
+    await tester.pump();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('확인'));
+    await tester.pumpAndSettle();
+    await _unmount(tester, kickedFixture);
+
+    final nextFixture = await _mount(tester);
+    final viewModel =
+        nextFixture.container.read(blindDateDetailViewModelProvider.notifier);
+    expect(
+      viewModel.send(
+        BlindDateRequest(message: '새 과팅 메시지', senderId: 54),
+      ),
+      isTrue,
+    );
+    expect(nextFixture.repository.sentMessages, hasLength(1));
+    expect(nextFixture.repository.sentMessages.single.message, '새 과팅 메시지');
+    expect(
+      nextFixture.container.read(blindDateDetailViewModelProvider).isKicked,
+      isFalse,
+    );
+    await _unmount(tester, nextFixture);
+  });
+
   testWidgets('새 과팅 연결 시 이전 세션 메시지를 제거한다', (tester) async {
     final fixture = await _mount(
       tester,

@@ -10,6 +10,7 @@ class BlindDateDetailState {
   final Map<int, String> participants;
   final String? ended;
   final String? disconnectReason;
+  final bool isKicked;
   final bool isLoading;
   final BlindDateVoteIntroStage voteIntroStage;
   final bool isVoteTime;
@@ -26,6 +27,7 @@ class BlindDateDetailState {
     this.participants = const {},
     this.ended,
     this.disconnectReason,
+    this.isKicked = false,
     this.isLoading = false,
     this.voteIntroStage = BlindDateVoteIntroStage.none,
     this.isVoteTime = false,
@@ -41,7 +43,10 @@ class BlindDateDetailState {
     String? nickname,
     Map<int, String>? participants,
     String? ended,
+    bool clearEnded = false,
     String? disconnectReason,
+    bool clearDisconnectReason = false,
+    bool? isKicked,
     bool? isLoading,
     BlindDateVoteIntroStage? voteIntroStage,
     bool? isVoteTime,
@@ -54,8 +59,11 @@ class BlindDateDetailState {
       maxCount: maxCount ?? this.maxCount,
       nickname: nickname ?? this.nickname,
       participants: participants ?? this.participants,
-      ended: ended ?? this.ended,
-      disconnectReason: disconnectReason ?? this.disconnectReason,
+      ended: clearEnded ? null : ended ?? this.ended,
+      disconnectReason: clearDisconnectReason
+          ? null
+          : disconnectReason ?? this.disconnectReason,
+      isKicked: isKicked ?? this.isKicked,
       isLoading: isLoading ?? this.isLoading,
       voteIntroStage: voteIntroStage ?? this.voteIntroStage,
       isVoteTime: isVoteTime ?? this.isVoteTime,

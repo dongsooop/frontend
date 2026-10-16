@@ -43,10 +43,13 @@ void main() {
       );
     });
 
-    test('시스템 메시지나 식별자가 없는 메시지는 신고할 수 없다', () {
+    test('관리자 추방 시스템 메시지나 식별자가 없는 메시지는 신고할 수 없다', () {
       expect(
         canReportBlindDateMessage(
-          _message.copyWith(type: 'SYSTEM'),
+          _message.copyWith(
+            message: '익명2님이 관리자에 의해 퇴장되었습니다.',
+            type: 'SYSTEM',
+          ),
           currentUserId: 54,
           sessionId: 'session-11',
         ),
@@ -92,13 +95,13 @@ void main() {
     expect(longPressCount, 1);
   });
 
-  testWidgets('과팅 SYSTEM 말풍선은 메시지 메뉴를 열지 않는다', (tester) async {
+  testWidgets('관리자 추방 SYSTEM 말풍선은 메시지 메뉴를 열지 않는다', (tester) async {
     var longPressCount = 0;
     await tester.pumpWidget(
       _app(
         BlindBubble(
           '동냥이',
-          '시스템 안내',
+          '익명2님이 관리자에 의해 퇴장되었습니다.',
           '오후 1:00',
           false,
           'SYSTEM',
@@ -107,7 +110,7 @@ void main() {
       ),
     );
 
-    await tester.longPress(find.text('시스템 안내'));
+    await tester.longPress(find.text('익명2님이 관리자에 의해 퇴장되었습니다.'));
     await tester.pump();
 
     expect(longPressCount, 0);
