@@ -1,5 +1,6 @@
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
 import 'package:dongsoop/domain/report/enum/report_admin_filter.dart';
+import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:dongsoop/domain/report/use_case/get_sanction_status_use_case.dart';
 import 'package:dongsoop/domain/report/use_case/report_admin_dismiss_use_case.dart';
 import 'package:dongsoop/domain/report/use_case/report_blind_date_message_use_case.dart';
@@ -85,19 +86,24 @@ final messageReportViewModelProvider = StateNotifierProvider.autoDispose
 );
 
 // View Model
-final reportAdminViewModelProvider = StateNotifierProvider.autoDispose.family<
-    ReportAdminViewModel, ReportAdminState, ReportAdminFilter>((ref, filter) {
+final reportAdminViewModelProvider = StateNotifierProvider.autoDispose
+    .family<ReportAdminViewModel, ReportAdminState, ReportAdminFilter>(
+        (ref, filter) {
   final getReportsUseCase = ref.watch(getReportsUseCaseProvider);
 
   return ReportAdminViewModel(getReportsUseCase, initialFilter: filter);
 });
 
-final reportAdminSanctionViewModelProvider = StateNotifierProvider.autoDispose<
-    ReportAdminSanctionViewModel, ReportAdminSanctionState>((ref) {
+final reportAdminSanctionViewModelProvider = StateNotifierProvider.autoDispose
+    .family<ReportAdminSanctionViewModel, ReportAdminSanctionState,
+        ReportChatRoomType?>((ref, chatRoomType) {
   final reportAdminSanctionWriteUseCase =
       ref.watch(reportAdminSanctionWriteUseCaseProvider);
 
-  return ReportAdminSanctionViewModel(reportAdminSanctionWriteUseCase);
+  return ReportAdminSanctionViewModel(
+    reportAdminSanctionWriteUseCase,
+    chatRoomType: chatRoomType,
+  );
 });
 
 final reportAdminDismissViewModelProvider = StateNotifierProvider.autoDispose<

@@ -20,6 +20,7 @@ class ReportAdminCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final reportType = ReportType.fromString(report.reportType);
     final reportReason = ReportReason.fromString(report.reportReason);
+    final roomTypeLabel = report.chatRoomType?.label;
     final sanctionType = report.sanctionType == null
         ? null
         : SanctionType.tryFromString(report.sanctionType!);
@@ -92,6 +93,12 @@ class ReportAdminCard extends StatelessWidget {
                     backgroundColor: ColorStyles.primary5,
                     textColor: ColorStyles.primaryColor,
                   ),
+                  if (roomTypeLabel != null)
+                    _Tag(
+                      label: roomTypeLabel,
+                      backgroundColor: ColorStyles.gray7,
+                      textColor: ColorStyles.gray6,
+                    ),
                   _Tag(
                     label: reportReason.message,
                     backgroundColor: ColorStyles.labelColorRed10,

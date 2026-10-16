@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:dongsoop/domain/report/enum/sanction_type.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
 import 'package:dongsoop/domain/report/use_case/report_admin_sanction_write_use_case.dart';
@@ -8,20 +9,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ReportAdminSanctionViewModel
     extends StateNotifier<ReportAdminSanctionState> {
   final ReportAdminSanctionWriteUseCase _adminSanctionWriteUseCase;
+  final ReportChatRoomType? chatRoomType;
   final DateTime Function() _now;
 
   ReportAdminSanctionViewModel(
     this._adminSanctionWriteUseCase, {
+    required this.chatRoomType,
     DateTime Function()? now,
   })  : _now = now ?? DateTime.now,
         super(const ReportAdminSanctionState());
 
   bool get canSubmit {
     final sanctionType = state.sanctionType;
+    final sanctionReason = state.sanctionReason.trim();
     if (state.isSubmitting ||
         sanctionType == null ||
-        !sanctionType.isAvailableForMessageReport ||
-        state.sanctionReason.length > 500) {
+        !sanctionType.isAvailableFor(chatRoomType) ||
+        sanctionReason.length > 500 ||
+        (sanctionType.requiresReason && sanctionReason.isEmpty)) {
       return false;
     }
 
@@ -30,8 +35,11 @@ class ReportAdminSanctionViewModel
     return sanctionEndAt != null && sanctionEndAt.isAfter(_now());
   }
 
+  List<SanctionType> get availableSanctions =>
+      SanctionType.availableFor(chatRoomType);
+
   void selectSanctionType(SanctionType sanctionType) {
-    if (!sanctionType.isAvailableForMessageReport) return;
+    if (!sanctionType.isAvailableFor(chatRoomType)) return;
 
     state = state.copyWith(
       sanctionType: sanctionType,

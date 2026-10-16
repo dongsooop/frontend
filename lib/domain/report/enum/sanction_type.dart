@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 enum SanctionType {
@@ -38,13 +39,28 @@ enum SanctionType {
       case SanctionType.PERMANENT_BAN:
         return '로그인을 영구적으로 제한합니다.';
       case SanctionType.CHAT_KICK:
-        return '그룹 채팅방에서 추방하고 재입장을 제한합니다.';
+        return '단체 채팅 또는 과팅에서 추방하고 재입장을 제한합니다.';
     }
   }
 
   bool get requiresEndAt => this == SanctionType.TEMPORARY_BAN;
 
+  bool get requiresReason => this == SanctionType.WARNING;
+
   bool get isAvailableForMessageReport => messageReportValues.contains(this);
+
+  bool isAvailableFor(ReportChatRoomType? chatRoomType) {
+    return isAvailableForMessageReport ||
+        (this == SanctionType.CHAT_KICK &&
+            chatRoomType?.allowsChatKick == true);
+  }
+
+  static List<SanctionType> availableFor(
+    ReportChatRoomType? chatRoomType,
+  ) {
+    if (chatRoomType?.allowsChatKick != true) return messageReportValues;
+    return [...messageReportValues, CHAT_KICK];
+  }
 
   static SanctionType? tryFromString(String value) {
     switch (value) {

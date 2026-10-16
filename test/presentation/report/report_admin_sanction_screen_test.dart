@@ -1,3 +1,4 @@
+import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
 import 'package:dongsoop/domain/report/model/chat_report_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
@@ -12,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('경고는 선택 사유 없이 확인 후 제출하고 성공 결과를 반환한다', (tester) async {
+  testWidgets('경고는 사유를 작성해야 제출하고 성공 결과를 반환한다', (tester) async {
     final repository = _FakeReportRepository();
     bool? routeResult;
 
@@ -65,6 +66,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('sanction-end-at-field')), findsNothing);
+    expect(
+      find.text('경고 사유는 필수이며 최대 500자까지 입력할 수 있어요.'),
+      findsOneWidget,
+    );
+    expect(_submitButton(tester).onPressed, isNull);
+
+    await tester.enterText(find.byType(TextFormField), '반복적인 욕설');
+    await tester.pump();
+
     expect(_submitButton(tester).onPressed, isNotNull);
 
     await tester.tap(find.text('제재 적용'));
@@ -81,8 +91,42 @@ void main() {
     expect(routeResult, isTrue);
     expect(repository.request?.reportId, 101);
     expect(repository.request?.targetMemberId, 42);
-    expect(repository.request?.sanctionReason, isNull);
+    expect(repository.request?.sanctionReason, '반복적인 욕설');
     expect(repository.request?.sanctionEndAt, isNull);
+  });
+
+  testWidgets('단체 채팅과 과팅에서만 채팅방 추방을 선택할 수 있다', (tester) async {
+    for (final report in [_groupReport, _blindDateReport]) {
+      final repository = _FakeReportRepository();
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            reportAdminSanctionWriteUseCaseProvider.overrideWithValue(
+              ReportAdminSanctionWriteUseCase(repository),
+            ),
+          ],
+          child: MaterialApp(
+            home: ReportAdminSanctionScreen(report: report),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('sanction-type-field')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('sanction-type-CHAT_KICK')),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const Key('sanction-type-CHAT_KICK')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('sanction-end-at-field')), findsNothing);
+      expect(_submitButton(tester).onPressed, isNotNull);
+    }
   });
 
   testWidgets('일시정지만 종료 시각을 필수로 요구한다', (tester) async {
@@ -172,5 +216,32 @@ const _report = ReportAdminSanction(
   reportReason: 'HATE_SPEECH',
   isProcessed: false,
   messageContent: '문제가 된 메시지',
+  chatRoomType: ReportChatRoomType.ONE_TO_ONE,
+  createdAt: '2026.10.15 12:00',
+);
+
+const _groupReport = ReportAdminSanction(
+  id: 102,
+  reporterNickname: '신고자',
+  reportType: 'CHAT_MESSAGE',
+  targetMemberId: 43,
+  targetMemberNickname: '단체 채팅 신고 대상',
+  reportReason: 'HATE_SPEECH',
+  isProcessed: false,
+  messageContent: '문제가 된 메시지',
+  chatRoomType: ReportChatRoomType.GROUP,
+  createdAt: '2026.10.15 12:00',
+);
+
+const _blindDateReport = ReportAdminSanction(
+  id: 103,
+  reporterNickname: '신고자',
+  reportType: 'BLINDDATE_MESSAGE',
+  targetMemberId: 44,
+  targetMemberNickname: '과팅 신고 대상',
+  reportReason: 'HATE_SPEECH',
+  isProcessed: false,
+  messageContent: '문제가 된 메시지',
+  chatRoomType: ReportChatRoomType.BLINDDATE,
   createdAt: '2026.10.15 12:00',
 );

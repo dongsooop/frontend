@@ -25,8 +25,9 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(reportAdminSanctionViewModelProvider);
-    final viewModel = ref.read(reportAdminSanctionViewModelProvider.notifier);
+    final provider = reportAdminSanctionViewModelProvider(report.chatRoomType);
+    final state = ref.watch(provider);
+    final viewModel = ref.read(provider.notifier);
     final sanctionReasonController = useTextEditingController();
 
     Future<void> showDateTimePicker() async {
@@ -144,7 +145,7 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
         return;
       }
 
-      final resultState = ref.read(reportAdminSanctionViewModelProvider);
+      final resultState = ref.read(provider);
       final failure = resultState.failure;
       if (failure == ReportAdminSanctionFailure.alreadyProcessed ||
           failure == ReportAdminSanctionFailure.notFound) {
@@ -205,6 +206,7 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
                         builder: (_) => ReportSanctionSelectBottomSheet(
                           selectedSanction: state.sanctionType,
                           onSelected: viewModel.selectSanctionType,
+                          sanctions: viewModel.availableSanctions,
                         ),
                       ),
                       borderRadius: BorderRadius.circular(8),
@@ -242,10 +244,15 @@ class ReportAdminSanctionScreen extends HookConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const _FieldLabel(label: '제재 사유', required: false),
+                    _FieldLabel(
+                      label: '제재 사유',
+                      required: state.sanctionType?.requiresReason == true,
+                    ),
                     const SizedBox(height: 4),
                     Text(
-                      '선택 사항이며 최대 500자까지 입력할 수 있어요.',
+                      state.sanctionType?.requiresReason == true
+                          ? '경고 사유는 필수이며 최대 500자까지 입력할 수 있어요.'
+                          : '선택 사항이며 최대 500자까지 입력할 수 있어요.',
                       style: TextStyles.smallTextRegular.copyWith(
                         color: ColorStyles.gray4,
                       ),
@@ -346,6 +353,14 @@ class _ReportSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final roomTypeLabel = report.chatRoomType?.label;
+    final summaryItems = [
+      reportType.message,
+      if (roomTypeLabel != null) roomTypeLabel,
+      reportReason.message,
+      '신고 #${report.id}',
+    ];
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -364,7 +379,7 @@ class _ReportSummary extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '${reportType.message} · ${reportReason.message} · 신고 #${report.id}',
+            summaryItems.join(' · '),
             style: TextStyles.smallTextRegular.copyWith(
               color: ColorStyles.gray4,
             ),

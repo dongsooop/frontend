@@ -1,4 +1,5 @@
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
 import 'package:dongsoop/domain/report/model/chat_report_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
@@ -91,11 +92,13 @@ void main() {
 
     expect(find.text('신고 대상 사용자'), findsOneWidget);
     expect(find.text('문제가 된 메시지'), findsOneWidget);
+    expect(find.text('단체 채팅'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('report-admin-card-1')));
     await tester.pumpAndSettle();
 
     expect(find.text('신고 상세'), findsOneWidget);
+    expect(find.text('단체 채팅'), findsNWidgets(2));
     expect(find.text('첫 번째 문맥'), findsOneWidget);
     expect(find.text('두 번째 문맥'), findsOneWidget);
     expect(
@@ -313,6 +316,7 @@ const _unprocessedReport = ReportAdminSanction(
   chatRoomId: 'room-1',
   messageId: 'message-1',
   messageContent: '문제가 된 메시지',
+  chatRoomType: ReportChatRoomType.GROUP,
   messageSentAt: '2026.10.15 09:59',
   messageContext: [
     ReportMessageContext(
@@ -341,6 +345,7 @@ const _processedReport = ReportAdminSanction(
   sanctionType: 'WARNING',
   sanctionReason: '운영 정책 위반',
   messageContent: '처리된 메시지',
+  chatRoomType: ReportChatRoomType.BLINDDATE,
   createdAt: '2026.10.15 11:00',
 );
 
@@ -352,5 +357,6 @@ const _unprocessedReportWithoutNickname = ReportAdminSanction(
   reportReason: 'HATE_SPEECH',
   isProcessed: false,
   messageContent: '신고된 메시지',
+  chatRoomType: ReportChatRoomType.ONE_TO_ONE,
   createdAt: '2026.10.15 12:00',
 );

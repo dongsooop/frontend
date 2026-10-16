@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dongsoop/core/exception/exception.dart';
+import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:dongsoop/domain/report/enum/sanction_type.dart';
 import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
 import 'package:dongsoop/domain/report/model/chat_report_request.dart';
@@ -17,11 +18,15 @@ void main() {
   final now = DateTime(2026, 10, 15, 12);
 
   group('ReportAdminSanctionViewModel', () {
-    test('경고는 사유와 종료 시각 없이 제출할 수 있다', () async {
+    test('경고는 사유를 필수로 요구하고 종료 시각 없이 제출한다', () async {
       final repository = _FakeReportRepository();
       final viewModel = _viewModel(repository, now);
 
       viewModel.selectSanctionType(SanctionType.WARNING);
+
+      expect(viewModel.canSubmit, isFalse);
+
+      viewModel.updateSanctionReason('반복적인 욕설');
 
       expect(viewModel.canSubmit, isTrue);
       expect(
@@ -29,8 +34,16 @@ void main() {
         isTrue,
       );
       expect(repository.request?.sanctionType, SanctionType.WARNING);
-      expect(repository.request?.sanctionReason, isNull);
+      expect(repository.request?.sanctionReason, '반복적인 욕설');
       expect(repository.request?.sanctionEndAt, isNull);
+    });
+
+    test('공백으로만 작성한 경고 사유는 제출할 수 없다', () {
+      final viewModel = _viewModel(_FakeReportRepository(), now);
+      viewModel.selectSanctionType(SanctionType.WARNING);
+      viewModel.updateSanctionReason('   ');
+
+      expect(viewModel.canSubmit, isFalse);
     });
 
     test('일시정지는 미래 종료 시각을 필수로 요구하고 초를 제거한다', () {
@@ -62,13 +75,52 @@ void main() {
       expect(viewModel.canSubmit, isTrue);
     });
 
-    test('메시지 신고에서 안전하게 판별할 수 없는 채팅방 추방은 선택하지 않는다', () {
-      final viewModel = _viewModel(_FakeReportRepository(), now);
+    group('채팅방 추방', () {
+      test('단체 채팅과 과팅에서 선택할 수 있다', () {
+        for (final roomType in [
+          ReportChatRoomType.GROUP,
+          ReportChatRoomType.BLINDDATE,
+        ]) {
+          final viewModel = _viewModel(
+            _FakeReportRepository(),
+            now,
+            chatRoomType: roomType,
+          );
 
-      viewModel.selectSanctionType(SanctionType.CHAT_KICK);
+          viewModel.selectSanctionType(SanctionType.CHAT_KICK);
 
-      expect(viewModel.state.sanctionType, isNull);
-      expect(viewModel.canSubmit, isFalse);
+          expect(viewModel.state.sanctionType, SanctionType.CHAT_KICK);
+          expect(viewModel.canSubmit, isTrue);
+          expect(
+            viewModel.availableSanctions,
+            contains(SanctionType.CHAT_KICK),
+          );
+        }
+      });
+
+      test('1:1, 문의, 구형 신고에서는 선택할 수 없다', () {
+        for (final roomType in [
+          ReportChatRoomType.ONE_TO_ONE,
+          ReportChatRoomType.CONTACT,
+          ReportChatRoomType.UNKNOWN,
+          null,
+        ]) {
+          final viewModel = _viewModel(
+            _FakeReportRepository(),
+            now,
+            chatRoomType: roomType,
+          );
+
+          viewModel.selectSanctionType(SanctionType.CHAT_KICK);
+
+          expect(viewModel.state.sanctionType, isNull);
+          expect(viewModel.canSubmit, isFalse);
+          expect(
+            viewModel.availableSanctions,
+            isNot(contains(SanctionType.CHAT_KICK)),
+          );
+        }
+      });
     });
 
     test('제재 사유의 앞뒤 공백을 제거해 요청한다', () async {
@@ -87,6 +139,7 @@ void main() {
       final repository = _FakeReportRepository()..pending = pending;
       final viewModel = _viewModel(repository, now);
       viewModel.selectSanctionType(SanctionType.WARNING);
+      viewModel.updateSanctionReason('반복적인 욕설');
 
       final first = viewModel.sanctionWrite(
         reportId: 101,
@@ -111,6 +164,7 @@ void main() {
         ..error = const AlreadyProcessedException('이미 처리된 신고입니다. ID : 101');
       final viewModel = _viewModel(repository, now);
       viewModel.selectSanctionType(SanctionType.WARNING);
+      viewModel.updateSanctionReason('반복적인 욕설');
 
       final success = await viewModel.sanctionWrite(
         reportId: 101,
@@ -129,10 +183,12 @@ void main() {
 
 ReportAdminSanctionViewModel _viewModel(
   _FakeReportRepository repository,
-  DateTime now,
-) {
+  DateTime now, {
+  ReportChatRoomType? chatRoomType,
+}) {
   return ReportAdminSanctionViewModel(
     ReportAdminSanctionWriteUseCase(repository),
+    chatRoomType: chatRoomType,
     now: () => now,
   );
 }
