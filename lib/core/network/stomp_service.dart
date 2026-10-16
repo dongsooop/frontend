@@ -1,19 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:dongsoop/core/network/session_end_reason_parser.dart';
+import 'package:dongsoop/domain/auth/enum/session_end_reason.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
-import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 
 class StompService {
-  late StompClient _chatDetailClient;
-  late StompClient _chatRoomClient;
+  StompClient? _chatDetailClient;
+  StompClient? _chatRoomClient;
 
   final _chatController = StreamController<ChatMessage>.broadcast();
   final _blockController = StreamController<String>.broadcast();
   final _chatRoomController = StreamController<ChatRoomWs>.broadcast();
+  final _sessionEndController = StreamController<SessionEndReason>.broadcast();
 
   final SecureStorageService _secureStorageService;
 
@@ -27,7 +29,7 @@ class StompService {
       final url = '$baseUrl$endpoint';
       final accessToken = await _secureStorageService.read('accessToken');
 
-      _chatRoomClient = StompClient(
+      final client = StompClient(
         config: StompConfig.sockJS(
           url: url,
           onConnect: (frame) => _onConnectRoomList(frame, userId),
@@ -37,29 +39,26 @@ class StompService {
           webSocketConnectHeaders: {
             'Authorization': 'Bearer $accessToken',
           },
-          onWebSocketError: (error) {
-            if (error.toString().contains('403')) {
-              throw ChatForbiddenException();
-            } else if (error.toString().contains('401')) {
-              throw LoginRequiredException();
-            } else {
-              throw Exception('WebSocket Error: $error');
-            }
-          },
+          onStompError: (frame) => _handleRealtimeError(
+            '${frame.headers} ${frame.body ?? ''}',
+          ),
+          onWebSocketError: _handleRealtimeError,
         ),
       );
 
-      _chatRoomClient.activate();
+      _chatRoomClient = client;
+      client.activate();
     } catch (e) {
       rethrow;
     }
   }
 
   void _onConnectRoomList(StompFrame frame, int userId) {
-    if (!_chatRoomClient.connected) return;
+    final client = _chatRoomClient;
+    if (client == null || !client.connected) return;
     final chatRoomDestination = '/topic/user';
 
-    _chatRoomClient.subscribe(
+    client.subscribe(
       destination: '$chatRoomDestination/$userId',
       callback: (frame) {
         if (frame.body != null) {
@@ -72,7 +71,8 @@ class StompService {
   }
 
   void disconnectChatRoom() {
-    _chatRoomClient.deactivate();
+    _chatRoomClient?.deactivate();
+    _chatRoomClient = null;
   }
 
   Stream<ChatRoomWs> get chatRoomStream => _chatRoomController.stream;
@@ -85,7 +85,7 @@ class StompService {
       final url = '$baseUrl$endpoint';
       final accessToken = await _secureStorageService.read('accessToken');
 
-      _chatDetailClient = StompClient(
+      final client = StompClient(
         config: StompConfig.sockJS(
           url: url,
           onConnect: (frame) => _onConnect(frame, roomId),
@@ -95,30 +95,28 @@ class StompService {
           webSocketConnectHeaders: {
             'Authorization': 'Bearer $accessToken',
           },
-          onWebSocketError: (error) {
-            if (error.toString().contains('403')) {
-              throw ChatForbiddenException();
-            } else if (error.toString().contains('401')) {
-              throw LoginRequiredException();
-            } else {
-              throw Exception('WebSocket Error: $error');
-            }
-          },
+          onStompError: (frame) => _handleRealtimeError(
+            '${frame.headers} ${frame.body ?? ''}',
+          ),
+          onWebSocketError: _handleRealtimeError,
         ),
       );
 
-      _chatDetailClient.activate();
+      _chatDetailClient = client;
+      client.activate();
     } catch (e) {
       rethrow;
     }
   }
 
   void _onConnect(StompFrame frame, String roomId) {
+    final client = _chatDetailClient;
+    if (client == null || !client.connected) return;
     final enterDestination = '/app/enter';
     final chatDestination = '/topic/chat/room';
     final blockDestination = '/user/topic/chat/room';
 
-    _chatDetailClient.subscribe(
+    client.subscribe(
       destination: '$blockDestination/$roomId',
       callback: (frame) {
         if (frame.body != null) {
@@ -129,7 +127,7 @@ class StompService {
       },
     );
 
-    _chatDetailClient.subscribe(
+    client.subscribe(
       destination: '$chatDestination/$roomId',
       callback: (frame) {
         if (frame.body != null) {
@@ -140,12 +138,16 @@ class StompService {
       },
     );
 
-    _chatDetailClient.send(
+    client.send(
       destination: '$enterDestination/$roomId',
     );
   }
 
   void sendMessage(ChatMessageRequest message) {
+    final client = _chatDetailClient;
+    if (client == null || !client.connected) {
+      throw StateError('STOMP is not connected');
+    }
     final endpoint = '/app/message';
     final destination = '$endpoint/${message.roomId}';
 
@@ -154,16 +156,30 @@ class StompService {
       "type": message.type,
     });
 
-    _chatDetailClient.send(
+    client.send(
       destination: destination,
       body: bodyData,
     );
   }
 
   void disconnect() {
-    _chatDetailClient.deactivate();
+    _chatDetailClient?.deactivate();
+    _chatDetailClient = null;
+  }
+
+  void disconnectAll() {
+    disconnectChatRoom();
+    disconnect();
+  }
+
+  void _handleRealtimeError(Object? error) {
+    final reason = sessionEndReasonFromRealtimeError(error);
+    if (reason != null) {
+      _sessionEndController.add(reason);
+    }
   }
 
   Stream<ChatMessage> get messageStream => _chatController.stream;
   Stream<String> get blockStream => _blockController.stream;
+  Stream<SessionEndReason> get sessionEndStream => _sessionEndController.stream;
 }

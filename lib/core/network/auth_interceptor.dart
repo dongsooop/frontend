@@ -2,10 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/core/network/app_check_interceptor.dart';
+import 'package:dongsoop/core/network/session_end_reason_parser.dart';
 import 'package:dongsoop/core/network/user_agent.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/providers/session_provider.dart';
+import 'package:dongsoop/domain/auth/enum/session_end_reason.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -21,10 +23,11 @@ class AuthInterceptor extends Interceptor {
   final Ref _ref;
   final AppCheckTokenProvider _appCheckTokenProvider;
   final AuthDioFactory _dioFactory;
-  final Future<void> Function()? _onSessionExpired;
+  final Future<void> Function(SessionEndReason reason)? _onSessionEnded;
 
   Future<_IssuedTokens>? _refreshInFlight;
   Future<void>? _sessionExpirationInFlight;
+  SessionEndReason? _pendingSessionEndReason;
 
   AuthInterceptor(
     this._secureStorageService,
@@ -32,9 +35,9 @@ class AuthInterceptor extends Interceptor {
     this._ref,
     this._appCheckTokenProvider, {
     AuthDioFactory? dioFactory,
-    Future<void> Function()? onSessionExpired,
+    Future<void> Function(SessionEndReason reason)? onSessionEnded,
   })  : _dioFactory = dioFactory ?? ((options) => Dio(options)),
-        _onSessionExpired = onSessionExpired;
+        _onSessionEnded = onSessionEnded;
 
   Future<void> _attachAppCheckHeader(Map<String, dynamic> headers) async {
     try {
@@ -66,18 +69,28 @@ class AuthInterceptor extends Interceptor {
       return super.onError(err, handler);
     }
 
+    final initialReason = sessionEndReasonFromResponseData(err.response?.data);
+    if (initialReason == SessionEndReason.sanctioned) {
+      await _expireSession(SessionEndReason.sanctioned);
+      return handler.reject(_sessionExpiredError(err.requestOptions));
+    }
+
     try {
       final tokens = await _refreshTokens();
       final retryResponse =
           await _retry(err.requestOptions, tokens.accessToken);
       return handler.resolve(retryResponse);
-    } on _TerminalRefreshException {
+    } on _TerminalRefreshException catch (error) {
+      await _expireSession(error.reason);
       return handler.reject(_sessionExpiredError(err.requestOptions));
     } on DioException catch (refreshError) {
       if (refreshError.response?.statusCode ==
           HttpStatusCode.unauthorized.code) {
         _log('retried request rejected; expiring session');
-        await _expireSession();
+        await _expireSession(
+          sessionEndReasonFromResponseData(refreshError.response?.data) ??
+              SessionEndReason.expired,
+        );
         return handler.reject(_sessionExpiredError(err.requestOptions));
       }
 
@@ -127,8 +140,7 @@ class AuthInterceptor extends Interceptor {
     final refreshToken = await _secureStorageService.read('refreshToken');
     if (refreshToken == null || refreshToken.trim().isEmpty) {
       _log('reissue skipped: refresh token missing');
-      await _expireSession();
-      throw const _TerminalRefreshException();
+      throw const _TerminalRefreshException(SessionEndReason.expired);
     }
 
     _log('reissue start tokenPresent=true length=${refreshToken.length}');
@@ -175,8 +187,10 @@ class AuthInterceptor extends Interceptor {
       if (statusCode == HttpStatusCode.badRequest.code ||
           statusCode == HttpStatusCode.unauthorized.code) {
         _log('reissue rejected status=$statusCode; expiring session');
-        await _expireSession();
-        throw const _TerminalRefreshException();
+        throw _TerminalRefreshException(
+          sessionEndReasonFromResponseData(error.response?.data) ??
+              SessionEndReason.expired,
+        );
       }
       rethrow;
     }
@@ -216,7 +230,12 @@ class AuthInterceptor extends Interceptor {
     );
   }
 
-  Future<void> _expireSession() {
+  Future<void> _expireSession(SessionEndReason reason) {
+    if (reason == SessionEndReason.sanctioned ||
+        _pendingSessionEndReason == null) {
+      _pendingSessionEndReason = reason;
+    }
+
     final inFlight = _sessionExpirationInFlight;
     if (inFlight != null) return inFlight;
 
@@ -224,6 +243,7 @@ class AuthInterceptor extends Interceptor {
     operation = _clearSession().whenComplete(() {
       if (identical(_sessionExpirationInFlight, operation)) {
         _sessionExpirationInFlight = null;
+        _pendingSessionEndReason = null;
       }
     });
     _sessionExpirationInFlight = operation;
@@ -231,19 +251,23 @@ class AuthInterceptor extends Interceptor {
   }
 
   Future<void> _clearSession() async {
-    await _secureStorageService.delete();
-    await _preferencesService.clearUser();
-
-    final onSessionExpired = _onSessionExpired;
-    if (onSessionExpired != null) {
-      await onSessionExpired();
+    final onSessionEnded = _onSessionEnded;
+    if (onSessionEnded != null) {
+      await Future<void>.delayed(Duration.zero);
+      await onSessionEnded(
+        _pendingSessionEndReason ?? SessionEndReason.expired,
+      );
       return;
     }
+
+    await _secureStorageService.delete();
+    await _preferencesService.clearUser();
 
     await Future<void>.microtask(() {
       _ref.read(userSessionProvider.notifier).state = null;
       _ref.read(myPageViewModelProvider.notifier).reset();
-      _ref.read(sessionExpiredProvider.notifier).state = true;
+      _ref.read(sessionEndReasonProvider.notifier).state =
+          _pendingSessionEndReason ?? SessionEndReason.expired;
     });
   }
 
@@ -270,5 +294,7 @@ class _IssuedTokens {
 }
 
 class _TerminalRefreshException implements Exception {
-  const _TerminalRefreshException();
+  const _TerminalRefreshException(this.reason);
+
+  final SessionEndReason reason;
 }
