@@ -111,6 +111,7 @@ void main() {
       expect(report.chatRoomId, 'session-1');
       expect(report.chatRoomType, ReportChatRoomType.BLINDDATE);
       expect(report.resolvedByReportId, 99);
+      expect(report.relatedResolutionLabel, '신고 #99 처리로 함께 해결됨');
       expect(report.messageId, 'message-1');
       expect(report.messageContext.map((context) => context.content), [
         '첫 번째',
@@ -130,6 +131,7 @@ void main() {
       expect(response.resolvedByReportId, isNull);
       expect(report.chatRoomType, isNull);
       expect(report.resolvedByReportId, isNull);
+      expect(report.relatedResolutionLabel, isNull);
     });
 
     test('알 수 없는 채팅방 유형은 UNKNOWN으로 파싱된다', () {

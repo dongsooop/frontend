@@ -105,4 +105,11 @@ extension ReportAdminSanctionDisplay on ReportAdminSanction {
 
     return '알 수 없는 사용자';
   }
+
+  String? get relatedResolutionLabel {
+    final reportId = resolvedByReportId;
+    if (reportId == null) return null;
+
+    return '신고 #$reportId 처리로 함께 해결됨';
+  }
 }

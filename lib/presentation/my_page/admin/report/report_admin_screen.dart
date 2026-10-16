@@ -12,7 +12,7 @@ import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class ReportAdminScreen extends ConsumerWidget {
+class ReportAdminScreen extends ConsumerStatefulWidget {
   final Future<bool?> Function(ReportAdminSanction report) onTapReportSanction;
 
   const ReportAdminScreen({
@@ -21,7 +21,14 @@ class ReportAdminScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ReportAdminScreen> createState() => _ReportAdminScreenState();
+}
+
+class _ReportAdminScreenState extends ConsumerState<ReportAdminScreen> {
+  int _refreshRevision = 0;
+
+  @override
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: ReportAdminFilter.values.length,
       child: Scaffold(
@@ -71,11 +78,11 @@ class ReportAdminScreen extends ConsumerWidget {
                         (filter) => _ReportTabPage(
                           key: PageStorageKey(filter),
                           filter: filter,
-                          onOpenReport: (report, viewModel) => _openReport(
+                          refreshRevision: _refreshRevision,
+                          onOpenReport: (report) => _openReport(
                             context,
                             filter,
                             report,
-                            viewModel,
                           ),
                         ),
                       )
@@ -93,7 +100,6 @@ class ReportAdminScreen extends ConsumerWidget {
     BuildContext context,
     ReportAdminFilter filter,
     ReportAdminSanction report,
-    ReportAdminViewModel viewModel,
   ) async {
     final reportType = ReportType.fromString(report.reportType);
     final isMessageReport = reportType == ReportType.CHAT_MESSAGE ||
@@ -113,24 +119,27 @@ class ReportAdminScreen extends ConsumerWidget {
     if (!context.mounted) return;
 
     if (result == ReportAdminDetailResult.refresh) {
-      await viewModel.refresh();
+      _refreshAllTabs();
     } else if (result == ReportAdminDetailResult.reviewSanction) {
-      final processed = await onTapReportSanction(report);
-      if (processed == true) await viewModel.refresh();
+      final processed = await widget.onTapReportSanction(report);
+      if (processed == true && mounted) _refreshAllTabs();
     }
+  }
+
+  void _refreshAllTabs() {
+    setState(() => _refreshRevision += 1);
   }
 }
 
 class _ReportTabPage extends ConsumerStatefulWidget {
   final ReportAdminFilter filter;
-  final Future<void> Function(
-    ReportAdminSanction report,
-    ReportAdminViewModel viewModel,
-  ) onOpenReport;
+  final int refreshRevision;
+  final Future<void> Function(ReportAdminSanction report) onOpenReport;
 
   const _ReportTabPage({
     super.key,
     required this.filter,
+    required this.refreshRevision,
     required this.onOpenReport,
   });
 
@@ -146,14 +155,27 @@ class _ReportTabPageState extends ConsumerState<_ReportTabPage>
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
-    Future.microtask(() {
-      if (!mounted) return;
-      final provider = reportAdminViewModelProvider(widget.filter);
-      final state = ref.read(provider);
-      if (!state.hasLoaded) {
-        ref.read(provider.notifier).loadReports();
-      }
-    });
+    Future.microtask(_loadOrRefresh);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReportTabPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshRevision != widget.refreshRevision) {
+      Future.microtask(_loadOrRefresh);
+    }
+  }
+
+  void _loadOrRefresh() {
+    if (!mounted) return;
+    final provider = reportAdminViewModelProvider(widget.filter);
+    final state = ref.read(provider);
+    final viewModel = ref.read(provider.notifier);
+    if (state.hasLoaded) {
+      viewModel.refresh();
+    } else {
+      viewModel.loadReports();
+    }
   }
 
   void _handleScroll() {
@@ -188,7 +210,7 @@ class _ReportTabPageState extends ConsumerState<_ReportTabPage>
       state: state,
       viewModel: viewModel,
       scrollController: _scrollController,
-      onOpenReport: (report) => widget.onOpenReport(report, viewModel),
+      onOpenReport: widget.onOpenReport,
     );
   }
 }
@@ -237,12 +259,10 @@ class _ReportListBody extends StatelessWidget {
                   child: Center(
                     child: Text(
                       switch (state.filter) {
-                        ReportAdminFilter.unprocessed =>
-                          '현재 처리할 신고가 없습니다.',
+                        ReportAdminFilter.unprocessed => '현재 처리할 신고가 없습니다.',
                         ReportAdminFilter.activeSanctions =>
                           '현재 적용 중인 제재가 없습니다.',
-                        ReportAdminFilter.processed =>
-                          '처리 완료된 신고가 없습니다.',
+                        ReportAdminFilter.processed => '처리 완료된 신고가 없습니다.',
                       },
                       key: const Key('report-admin-empty'),
                       style: TextStyles.normalTextRegular.copyWith(

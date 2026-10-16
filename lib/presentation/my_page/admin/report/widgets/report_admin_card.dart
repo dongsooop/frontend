@@ -21,6 +21,7 @@ class ReportAdminCard extends StatelessWidget {
     final reportType = ReportType.fromString(report.reportType);
     final reportReason = ReportReason.fromString(report.reportReason);
     final roomTypeLabel = report.chatRoomType?.label;
+    final relatedResolutionLabel = report.relatedResolutionLabel;
     final sanctionType = report.sanctionType == null
         ? null
         : SanctionType.tryFromString(report.sanctionType!);
@@ -112,6 +113,27 @@ class ReportAdminCard extends StatelessWidget {
                     ),
                 ],
               ),
+              if (relatedResolutionLabel != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  key: Key('report-related-resolution-${report.id}'),
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: ColorStyles.primary5,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    relatedResolutionLabel,
+                    style: TextStyles.smallTextBold.copyWith(
+                      color: ColorStyles.primaryGray,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               Text(
                 '신고자 ${report.reporterNickname}',

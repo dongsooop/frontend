@@ -60,6 +60,7 @@ class ReportAdminDetailBottomSheet extends ConsumerWidget {
     final reportType = ReportType.fromString(report.reportType);
     final reportReason = ReportReason.fromString(report.reportReason);
     final roomTypeLabel = report.chatRoomType?.label;
+    final relatedResolutionLabel = report.relatedResolutionLabel;
     final sanctionType = report.sanctionType == null
         ? null
         : SanctionType.tryFromString(report.sanctionType!);
@@ -269,6 +270,12 @@ class ReportAdminDetailBottomSheet extends ConsumerWidget {
                     _InfoRow(label: '신고자', value: report.reporterNickname),
                     const SizedBox(height: 8),
                     _InfoRow(label: '신고 시각', value: report.createdAt),
+                    if (relatedResolutionLabel != null) ...[
+                      const SizedBox(height: 24),
+                      _RelatedResolutionNotice(
+                        label: relatedResolutionLabel,
+                      ),
+                    ],
                     if (sanctionType != null) ...[
                       const SizedBox(height: 24),
                       _SectionTitle(label: '제재 처리'),
@@ -314,6 +321,43 @@ class ReportAdminDetailBottomSheet extends ConsumerWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _RelatedResolutionNotice extends StatelessWidget {
+  final String label;
+
+  const _RelatedResolutionNotice({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('report-related-resolution-detail'),
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: ColorStyles.primary5,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyles.normalTextBold.copyWith(
+              color: ColorStyles.primaryGray,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '이 신고에 별도 제재가 생성된 것은 아닙니다.',
+            style: TextStyles.smallTextRegular.copyWith(
+              color: ColorStyles.gray4,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
 import 'package:dongsoop/domain/report/model/chat_report_request.dart';
@@ -95,6 +96,66 @@ void main() {
     expect(repository.request?.sanctionEndAt, isNull);
   });
 
+  testWidgets('409 충돌은 상태 변경을 안내하고 목록 갱신 결과를 반환한다', (tester) async {
+    final repository = _FakeReportRepository()
+      ..error = const AlreadyProcessedException(
+        '이미 처리된 신고입니다. ID : 101',
+      );
+    bool? routeResult;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          reportAdminSanctionWriteUseCaseProvider.overrideWithValue(
+            ReportAdminSanctionWriteUseCase(repository),
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: ElevatedButton(
+                key: const Key('open-sanction-conflict-screen'),
+                onPressed: () async {
+                  routeResult = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(
+                      builder: (_) => ReportAdminSanctionScreen(
+                        report: _report,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('열기'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(
+      find.byKey(const Key('open-sanction-conflict-screen')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('sanction-type-field')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('sanction-type-WARNING')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), '반복적인 욕설');
+    await tester.pump();
+    await tester.tap(find.text('제재 적용'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('적용'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('신고 상태가 변경됐어요'), findsOneWidget);
+    expect(find.text('이미 처리된 신고입니다. ID : 101'), findsNWidgets(2));
+
+    await tester.tap(find.text('확인'));
+    await tester.pumpAndSettle();
+
+    expect(routeResult, isTrue);
+  });
+
   testWidgets('단체 채팅과 과팅에서만 채팅방 추방을 선택할 수 있다', (tester) async {
     for (final report in [_groupReport, _blindDateReport]) {
       final repository = _FakeReportRepository();
@@ -170,6 +231,7 @@ ElevatedButton _submitButton(WidgetTester tester) {
 
 class _FakeReportRepository implements ReportRepository {
   ReportAdminSanctionRequest? request;
+  Object? error;
 
   @override
   Future<void> dismissReport(int reportId) {
@@ -179,6 +241,7 @@ class _FakeReportRepository implements ReportRepository {
   @override
   Future<void> sanctionWriteReport(ReportAdminSanctionRequest request) async {
     this.request = request;
+    if (error case final Object submissionError) throw submissionError;
   }
 
   @override

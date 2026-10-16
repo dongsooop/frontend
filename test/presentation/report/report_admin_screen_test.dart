@@ -90,6 +90,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await _visitAllTabs(tester);
+
     expect(find.text('신고 대상 사용자'), findsOneWidget);
     expect(find.text('문제가 된 메시지'), findsOneWidget);
     expect(find.text('단체 채팅'), findsOneWidget);
@@ -114,13 +116,16 @@ void main() {
 
     expect(selectedReportId, 1);
     expect(selectedMemberId, 7);
-    expect(repository.unprocessedCallCount, 2);
+    _expectEachFilterRequestedTwice(repository);
 
     await tester.tap(find.byKey(const Key('report-filter-처리 완료')));
     await tester.pumpAndSettle();
+    expect(find.text('신고 #1 처리로 함께 해결됨'), findsOneWidget);
     await tester.tap(find.byKey(const Key('report-admin-card-2')));
     await tester.pumpAndSettle();
 
+    expect(find.text('신고 #1 처리로 함께 해결됨'), findsNWidgets(2));
+    expect(find.text('이 신고에 별도 제재가 생성된 것은 아닙니다.'), findsOneWidget);
     expect(find.text('처리 관리자'), findsOneWidget);
     expect(find.text('관리자'), findsOneWidget);
     expect(find.text('제재 검토'), findsNothing);
@@ -149,6 +154,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await _visitAllTabs(tester);
+
     await tester.tap(find.byKey(const Key('report-admin-card-1')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('report-dismiss-button')));
@@ -173,7 +180,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('신고 상세'), findsNothing);
-    expect(repository.unprocessedCallCount, 2);
+    _expectEachFilterRequestedTwice(repository);
   });
 
   testWidgets('다른 관리자가 먼저 처리한 신고는 안내 후 목록을 갱신한다', (tester) async {
@@ -199,6 +206,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await _visitAllTabs(tester);
+
     await tester.tap(find.byKey(const Key('report-admin-card-1')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('report-dismiss-button')));
@@ -213,7 +222,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('신고 상세'), findsNothing);
-    expect(repository.unprocessedCallCount, 2);
+    _expectEachFilterRequestedTwice(repository);
   });
 
   testWidgets('대상 닉네임이 없으면 목록과 상세에 사용자 ID를 표시한다', (tester) async {
@@ -249,6 +258,25 @@ void main() {
     expect(find.text('사용자 ID 52'), findsNWidgets(2));
     expect(find.text('알 수 없는 사용자'), findsNothing);
   });
+}
+
+Future<void> _visitAllTabs(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key('report-filter-활성 제재')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key('report-filter-처리 완료')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key('report-filter-미처리')));
+  await tester.pumpAndSettle();
+}
+
+void _expectEachFilterRequestedTwice(_FakeReportRepository repository) {
+  for (final type in ['UNPROCESSED', 'ACTIVE_SANCTIONS', 'PROCESSED']) {
+    expect(
+      repository.requestedTypes.where((requested) => requested == type),
+      hasLength(2),
+      reason: '$type 탭이 최신화되어야 합니다.',
+    );
+  }
 }
 
 class _FakeReportRepository implements ReportRepository {
@@ -344,6 +372,7 @@ const _processedReport = ReportAdminSanction(
   adminNickname: '관리자',
   sanctionType: 'WARNING',
   sanctionReason: '운영 정책 위반',
+  resolvedByReportId: 1,
   messageContent: '처리된 메시지',
   chatRoomType: ReportChatRoomType.BLINDDATE,
   createdAt: '2026.10.15 11:00',
