@@ -1,3 +1,5 @@
+import 'package:dongsoop/domain/report/model/report_sanction_status.dart';
+
 class LoginRequiredException implements Exception {
   final String message;
 
@@ -68,9 +70,12 @@ class InvalidCredentialsException extends LoginException {
 }
 
 class UserSanctionedException extends LoginException {
-  const UserSanctionedException(
-      [String message = "현재 제재 중인 계정입니다. 자세한 내용은 동숲에 문의해 주세요."])
-      : super(message);
+  final ReportSanctionStatus? sanction;
+
+  const UserSanctionedException([
+    String message = "현재 제재 중인 계정입니다. 자세한 내용은 동숲에 문의해 주세요.",
+    this.sanction,
+  ]) : super(message);
 
   @override
   String toString() => message;

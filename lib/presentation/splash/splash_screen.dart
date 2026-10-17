@@ -16,8 +16,6 @@ import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:dongsoop/core/app_scaffold_messenger.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:dongsoop/core/routing/push_router.dart';
-import 'package:dongsoop/core/exception/exception.dart';
-import 'package:dongsoop/domain/report/model/report_sanction_status.dart';
 
 class SplashScreen extends HookConsumerWidget {
   @override
@@ -68,43 +66,6 @@ class SplashScreen extends HookConsumerWidget {
         _goNext();
       }
 
-      Future<void> showSanctionStatusRetryDialog(Object error) async {
-        if (cancelled || !context.mounted) return;
-
-        final message = error is SanctionStatusException
-            ? error.message
-            : '제재 상태를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.';
-        await showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => CustomConfirmDialog(
-            title: '제재 상태 확인 오류',
-            content: message,
-            isSingleAction: true,
-            confirmText: '다시 시도',
-            onConfirm: () {},
-          ),
-        );
-      }
-
-      Future<void> showSanctionDialog(
-        ReportSanctionStatus reportSanction,
-      ) async {
-        if (cancelled || !context.mounted) return;
-
-        await showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => CustomConfirmDialog(
-            title: '동숲 이용 제재',
-            content: reportSanction.noticeMessage,
-            isSingleAction: true,
-            confirmText: '확인',
-            onConfirm: () {},
-          ),
-        );
-      }
-
       Future(() async {
         await Future.delayed(const Duration(seconds: 2));
         // 자동 로그인
@@ -113,31 +74,7 @@ class SplashScreen extends HookConsumerWidget {
         await viewModel.autoLogin();
         if (cancelled || !context.mounted) return;
 
-        // 저장된 로그인 정보가 있다면 다른 인증 작업보다 제재 상태를 먼저 확인한다.
-        final user = container.read(userSessionProvider);
-        if (user != null) {
-          while (!cancelled && context.mounted) {
-            ReportSanctionStatus? reportSanction;
-            try {
-              reportSanction = await viewModel.checkSanction();
-            } on SessionExpiredException {
-              // 전역 세션 종료 안내가 로그아웃과 화면 전환을 담당한다.
-              return;
-            } catch (error) {
-              await showSanctionStatusRetryDialog(error);
-              continue;
-            }
-
-            if (cancelled || !context.mounted) return;
-            if (reportSanction != null) {
-              await showSanctionDialog(reportSanction);
-            }
-            break;
-          }
-        }
-        if (cancelled || !context.mounted) return;
-
-        // 제재로 로그아웃되지 않은 사용자만 로그인 기반 백그라운드 복구를 수행한다.
+        // 로그인 상태에서만 로그인 기반 백그라운드 복구를 수행한다.
         if (container.read(userSessionProvider) != null) {
           viewModel.restoreExpiredEclassLinkInBackground();
         }

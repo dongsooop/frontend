@@ -8,6 +8,8 @@ import 'package:dongsoop/domain/auth/model/sign_in_response.dart';
 import 'package:dongsoop/domain/auth/model/sign_up_request.dart';
 import 'package:dongsoop/domain/auth/model/stored_user.dart';
 import 'package:dongsoop/domain/auth/model/user.dart';
+import 'package:dongsoop/domain/report/mapper/sanction_status_mapper.dart';
+import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:flutter/foundation.dart';
 import 'auth_data_source.dart';
 
@@ -57,10 +59,12 @@ class AuthDataSourceImpl implements AuthDataSource {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw InvalidCredentialsException();
       } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
-        throw UserSanctionedException(
+        final sanctioned = _userSanctionedException(e.response?.data);
+        if (sanctioned != null) throw sanctioned;
+        throw LoginException(
           _problemDetail(
             e.response?.data,
-            fallback: const UserSanctionedException().message,
+            fallback: '로그인 권한을 확인할 수 없습니다.',
           ),
         );
       } else if (e.response?.statusCode == HttpStatusCode.notFound.code) {
@@ -106,10 +110,12 @@ class AuthDataSourceImpl implements AuthDataSource {
       if (e.response?.statusCode == HttpStatusCode.badRequest.code) {
         throw SocialLoginException();
       } else if (e.response?.statusCode == HttpStatusCode.forbidden.code) {
-        throw UserSanctionedException(
+        final sanctioned = _userSanctionedException(e.response?.data);
+        if (sanctioned != null) throw sanctioned;
+        throw OAuthException(
           _problemDetail(
             e.response?.data,
-            fallback: const UserSanctionedException().message,
+            fallback: '소셜 로그인 권한을 확인할 수 없습니다.',
           ),
         );
       }
@@ -389,5 +395,34 @@ class AuthDataSourceImpl implements AuthDataSource {
       if (detail != null && detail.isNotEmpty) return detail;
     }
     return fallback;
+  }
+
+  UserSanctionedException? _userSanctionedException(Object? data) {
+    if (data is! Map || !data.containsKey('sanction')) return null;
+
+    final message = _problemDetail(
+      data,
+      fallback: const UserSanctionedException().message,
+    );
+    final rawSanction = data['sanction'];
+    if (rawSanction is! Map) {
+      _logSignIn('invalid-sanction type=${rawSanction.runtimeType}');
+      return UserSanctionedException(message);
+    }
+
+    try {
+      final response = ReportSanctionResponse.fromJson(
+        Map<String, dynamic>.from(rawSanction),
+      );
+      final sanction = SanctionStatusMapper.tryFromResponse(response);
+      if (sanction == null) {
+        _logSignIn('invalid-sanction fields=${rawSanction.keys.toList()}');
+        return UserSanctionedException(message);
+      }
+      return UserSanctionedException(message, sanction);
+    } catch (error) {
+      _logSignIn('invalid-sanction parse-error=$error');
+      return UserSanctionedException(message);
+    }
   }
 }

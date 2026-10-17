@@ -23,3 +23,11 @@ SessionEndReason? sessionEndReasonFromRealtimeError(Object? error) {
   }
   return null;
 }
+
+SessionEndReason? sessionEndReasonFromRealtimeConnectError(
+  Object? error, {
+  required bool hasConnected,
+}) {
+  if (hasConnected) return null;
+  return sessionEndReasonFromRealtimeError(error);
+}

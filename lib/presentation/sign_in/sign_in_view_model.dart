@@ -41,6 +41,7 @@ class SignInViewModel extends StateNotifier<SignInState> {
         isLoading: false,
         dialogTitle: '동숲 이용 제재',
         dialogMessage: e.message,
+        sanction: e.sanction,
       );
     } on LoginException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
@@ -70,6 +71,7 @@ class SignInViewModel extends StateNotifier<SignInState> {
         isLoading: false,
         dialogTitle: '동숲 이용 제재',
         dialogMessage: e.message,
+        sanction: e.sanction,
       );
     } on OAuthException catch (e) {
       state = state.copyWith(

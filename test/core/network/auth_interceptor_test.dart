@@ -361,6 +361,23 @@ void main() {
       expect(sessionEndReasonFromRealtimeError('connection closed'), isNull);
     });
 
+    test('이미 연결된 STOMP의 403은 전역 세션 종료로 번역하지 않는다', () {
+      expect(
+        sessionEndReasonFromRealtimeConnectError(
+          'STOMP ERROR 403',
+          hasConnected: true,
+        ),
+        isNull,
+      );
+      expect(
+        sessionEndReasonFromRealtimeConnectError(
+          'STOMP ERROR 403',
+          hasConnected: false,
+        ),
+        SessionEndReason.sanctioned,
+      );
+    });
+
     test('연결 전에도 모든 실시간 연결 종료를 안전하게 호출할 수 있다', () async {
       final storage = _SecureStorageStub();
       final stompService = StompService(storage);

@@ -11,6 +11,8 @@ import 'package:dongsoop/core/storage/secure_storage_service.dart';
 class StompService {
   StompClient? _chatDetailClient;
   StompClient? _chatRoomClient;
+  bool _chatDetailHasConnected = false;
+  bool _chatRoomHasConnected = false;
 
   final _chatController = StreamController<ChatMessage>.broadcast();
   final _blockController = StreamController<String>.broadcast();
@@ -24,6 +26,7 @@ class StompService {
   // chat room list
   Future<void> connectRoomList(int userId) async {
     try {
+      _chatRoomHasConnected = false;
       final baseUrl = 'https://dongsoop.site';
       final endpoint = '/ws/chat';
       final url = '$baseUrl$endpoint';
@@ -33,6 +36,8 @@ class StompService {
         config: StompConfig.sockJS(
           url: url,
           onConnect: (frame) => _onConnectRoomList(frame, userId),
+          onDisconnect: (_) => _chatRoomHasConnected = false,
+          onWebSocketDone: () => _chatRoomHasConnected = false,
           stompConnectHeaders: {
             'Authorization': 'Bearer $accessToken',
           },
@@ -41,8 +46,12 @@ class StompService {
           },
           onStompError: (frame) => _handleRealtimeError(
             '${frame.headers} ${frame.body ?? ''}',
+            hasConnected: _chatRoomHasConnected,
           ),
-          onWebSocketError: _handleRealtimeError,
+          onWebSocketError: (error) => _handleRealtimeError(
+            error,
+            hasConnected: _chatRoomHasConnected,
+          ),
         ),
       );
 
@@ -56,6 +65,7 @@ class StompService {
   void _onConnectRoomList(StompFrame frame, int userId) {
     final client = _chatRoomClient;
     if (client == null || !client.connected) return;
+    _chatRoomHasConnected = true;
     final chatRoomDestination = '/topic/user';
 
     client.subscribe(
@@ -73,6 +83,7 @@ class StompService {
   void disconnectChatRoom() {
     _chatRoomClient?.deactivate();
     _chatRoomClient = null;
+    _chatRoomHasConnected = false;
   }
 
   Stream<ChatRoomWs> get chatRoomStream => _chatRoomController.stream;
@@ -80,6 +91,7 @@ class StompService {
   // chat detail
   Future<void> connect(String roomId) async {
     try {
+      _chatDetailHasConnected = false;
       final baseUrl = 'https://dongsoop.site';
       final endpoint = '/ws/chat';
       final url = '$baseUrl$endpoint';
@@ -89,6 +101,8 @@ class StompService {
         config: StompConfig.sockJS(
           url: url,
           onConnect: (frame) => _onConnect(frame, roomId),
+          onDisconnect: (_) => _chatDetailHasConnected = false,
+          onWebSocketDone: () => _chatDetailHasConnected = false,
           stompConnectHeaders: {
             'Authorization': 'Bearer $accessToken',
           },
@@ -97,8 +111,12 @@ class StompService {
           },
           onStompError: (frame) => _handleRealtimeError(
             '${frame.headers} ${frame.body ?? ''}',
+            hasConnected: _chatDetailHasConnected,
           ),
-          onWebSocketError: _handleRealtimeError,
+          onWebSocketError: (error) => _handleRealtimeError(
+            error,
+            hasConnected: _chatDetailHasConnected,
+          ),
         ),
       );
 
@@ -112,6 +130,7 @@ class StompService {
   void _onConnect(StompFrame frame, String roomId) {
     final client = _chatDetailClient;
     if (client == null || !client.connected) return;
+    _chatDetailHasConnected = true;
     final enterDestination = '/app/enter';
     final chatDestination = '/topic/chat/room';
     final blockDestination = '/user/topic/chat/room';
@@ -165,6 +184,7 @@ class StompService {
   void disconnect() {
     _chatDetailClient?.deactivate();
     _chatDetailClient = null;
+    _chatDetailHasConnected = false;
   }
 
   void disconnectAll() {
@@ -172,8 +192,14 @@ class StompService {
     disconnect();
   }
 
-  void _handleRealtimeError(Object? error) {
-    final reason = sessionEndReasonFromRealtimeError(error);
+  void _handleRealtimeError(
+    Object? error, {
+    required bool hasConnected,
+  }) {
+    final reason = sessionEndReasonFromRealtimeConnectError(
+      error,
+      hasConnected: hasConnected,
+    );
     if (reason != null) {
       _sessionEndController.add(reason);
     }

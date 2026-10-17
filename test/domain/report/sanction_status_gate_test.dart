@@ -2,15 +2,11 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
 import 'package:dongsoop/data/report/repository/report_repository_impl.dart';
-import 'package:dongsoop/domain/auth/repository/auth_repository.dart';
-import 'package:dongsoop/domain/auth/use_case/load_user_use_case.dart';
 import 'package:dongsoop/domain/report/enum/sanction_type.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_status.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
 import 'package:dongsoop/domain/report/repository/report_repository.dart';
 import 'package:dongsoop/domain/report/use_case/get_sanction_status_use_case.dart';
-import 'package:dongsoop/presentation/splash/splash_view_model.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -162,24 +158,6 @@ void main() {
       );
     });
   });
-
-  test('제재 상태 조회 실패는 제재 없음으로 바꾸지 않고 호출자에게 전달한다', () async {
-    final viewModel = SplashViewModel(
-      LoadUserUseCase(_AuthRepositoryStub()),
-      GetSanctionStatusUseCase(_ThrowingReportRepositoryStub()),
-      _RefStub(),
-    );
-
-    await expectLater(
-      viewModel.checkSanction(),
-      throwsA(isA<SanctionStatusException>()),
-    );
-    expect(viewModel.state.isLoading, isFalse);
-    expect(viewModel.state.isSuccessed, isFalse);
-    expect(viewModel.state.errorMessage, isNull);
-
-    viewModel.dispose();
-  });
 }
 
 final _temporaryBan = ReportSanctionResponse(
@@ -243,29 +221,6 @@ class _ReportRepositoryStub implements ReportRepository {
 
   @override
   Future<ReportSanctionResponse?> getSanctionStatus() async => response;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class _ThrowingReportRepositoryStub implements ReportRepository {
-  @override
-  Future<ReportSanctionResponse?> getSanctionStatus() {
-    throw const SanctionStatusException('조회 실패');
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class _AuthRepositoryStub implements AuthRepository {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class _RefStub implements Ref {
-  @override
-  void onDispose(void Function() cb) {}
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

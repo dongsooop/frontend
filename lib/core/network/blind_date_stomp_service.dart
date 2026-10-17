@@ -22,6 +22,7 @@ class BlindDateStompService {
   int? _memberId;
   bool _isDisconnecting = false;
   bool _sessionEndNotified = false;
+  bool _hasConnected = false;
 
   final _joinedController = StreamController<int>.broadcast();
   final _startController = StreamController<String>.broadcast();
@@ -45,6 +46,7 @@ class BlindDateStompService {
 
     _isDisconnecting = false;
     _sessionEndNotified = false;
+    _hasConnected = false;
     _memberId = memberId;
     _sessionId = null;
 
@@ -70,6 +72,7 @@ class BlindDateStompService {
         },
         onDisconnect: (frame) {
           _joinResponseTimer?.cancel();
+          _hasConnected = false;
           _log('DISCONNECTED body=${frame.body ?? '-'}');
           if (!_isDisconnecting) {
             _disconnectController.add(
@@ -95,6 +98,7 @@ class BlindDateStompService {
         },
         onWebSocketDone: () {
           _joinResponseTimer?.cancel();
+          _hasConnected = false;
           _log('WEBSOCKET_CLOSED reconnecting=${!_isDisconnecting}');
           if (!_isDisconnecting) {
             _disconnectController.add('WebSocket connection closed');
@@ -109,7 +113,10 @@ class BlindDateStompService {
   }
 
   bool _handleSessionEndError(Object? error) {
-    final reason = sessionEndReasonFromRealtimeError(error);
+    final reason = sessionEndReasonFromRealtimeConnectError(
+      error,
+      hasConnected: _hasConnected,
+    );
     if (reason == null) return false;
     if (_sessionEndNotified) return true;
 
@@ -124,6 +131,7 @@ class BlindDateStompService {
     final client = _client;
     if (client == null || !client.connected) return;
 
+    _hasConnected = true;
     _log('CONNECTED');
     _sessionSubscriptions.clear();
     const joinDestination = '/user/queue/blinddate/join';
@@ -334,6 +342,7 @@ class BlindDateStompService {
     _client = null;
     _sessionId = null;
     _memberId = null;
+    _hasConnected = false;
   }
 
   Stream<int> get joinedStream => _joinedController.stream;
