@@ -10,13 +10,11 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SettingScreen extends HookConsumerWidget {
-  final VoidCallback onTapEclass;
   final VoidCallback onTapDevice;
   final VoidCallback onTapPasswordReset;
 
   const SettingScreen({
     super.key,
-    required this.onTapEclass,
     required this.onTapDevice,
     required this.onTapPasswordReset,
   });
@@ -72,7 +70,7 @@ class SettingScreen extends HookConsumerWidget {
                 title: '이용 안내',
                 children: [
                   buildSettingsItem(
-                    label: '버전  1.14.5',
+                    label: '버전  1.15.0',
                     onTap: () {},
                   ),
                   buildSettingsItem(
@@ -103,14 +101,10 @@ class SettingScreen extends HookConsumerWidget {
               ),
               SizedBox(height: 24),
 
-              buildSettingsSection(
-                title: '앱 설정',
-                children: [
-                  buildSettingsItem(
-                    label: '이클래스 연동 관리',
-                    onTap: onTapEclass,
-                  ),
-                  if (user != null)
+              if (user != null) ...[
+                buildSettingsSection(
+                  title: '앱 설정',
+                  children: [
                     buildSettingsItem(
                       label: '채팅 캐시 삭제',
                       onTap: () async {
@@ -128,9 +122,10 @@ class SettingScreen extends HookConsumerWidget {
                         );
                       },
                     ),
-                ],
-              ),
-              const SizedBox(height: 24),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
 
               if (user != null) ...[
                 buildSettingsSection(

@@ -70,48 +70,60 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     _hasVoteParticipants = false;
     _isLeaving = false;
     _disconnectFuture = null;
+    _ref.read(blindDateMessagesProvider.notifier).clear();
     state = state.copyWith(
+      clearSessionId: true,
       isConnecting: true,
       isLoading: true,
-      ended: null,
+      clearEnded: true,
+      clearDisconnectReason: true,
+      isKicked: false,
       voteIntroStage: BlindDateVoteIntroStage.none,
       isVoteTime: false,
       participants: const {},
       nickname: '',
-      disconnectReason: null,
     );
 
     _subs.add(_joined$().listen((data) {
+      if (_isLeaving) return;
       state = state.copyWith(volunteer: data);
     }));
 
     _subs.add(_start$().listen((sid) async {
-      state = state.copyWith(isLoading: false);
+      if (_isLeaving) return;
+      state = state.copyWith(sessionId: sid, isLoading: false);
     }));
 
     _subs.add(_system$().listen((msg) {
+      if (_isLeaving) return;
       if (msg.name.isNotEmpty) _systemSenderName = msg.name;
       _ref.read(blindDateMessagesProvider.notifier).addMessage(msg);
     }));
 
     _subs.add(_freeze$().listen((frozen) {
+      if (_isLeaving) return;
       state = state.copyWith(isFrozen: frozen);
     }));
 
     _subs.add(_broadcast$().listen((msg) {
+      if (_isLeaving) return;
       _ref.read(blindDateMessagesProvider.notifier).addMessage(msg);
     }));
 
     _subs.add(_join$().listen((info) {
-      switch (info.state.toUpperCase()) {
+      final joinState = info.state.toUpperCase();
+      if (_isLeaving && joinState != 'KICKED') return;
+      switch (joinState) {
         case 'WAITING':
           state = state.copyWith(
+            sessionId: info.sessionId,
             nickname: info.name,
             maxCount: info.maxCount,
             isLoading: true,
           );
         case 'PROCESSING':
           state = state.copyWith(
+            sessionId: info.sessionId,
             nickname: info.name,
             maxCount: info.maxCount,
             isLoading: false,
@@ -122,6 +134,8 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
         case 'TERMINATED':
           _cancelVotePreparation();
           state = state.copyWith(isLoading: false, ended: 'ended');
+        case 'KICKED':
+          unawaited(_handleKicked());
       }
     }));
 
@@ -137,11 +151,13 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     }));
 
     _subs.add(_ended$().listen((data) {
+      if (_isLeaving) return;
       _cancelVotePreparation();
       state = state.copyWith(ended: data);
     }));
 
     _subs.add(_disconnect$().listen((reason) async {
+      if (_isLeaving) return;
       _cancelVotePreparation();
       state = state.copyWith(disconnectReason: reason);
     }));
@@ -155,6 +171,29 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
       rethrow;
     } finally {
       state = state.copyWith(isConnecting: false);
+    }
+  }
+
+  Future<void> _handleKicked() async {
+    if (_isLeaving || state.isKicked) return;
+
+    _isLeaving = true;
+    _cancelVotePreparation();
+    if (mounted) {
+      state = state.copyWith(
+        isKicked: true,
+        isLoading: false,
+        isFrozen: true,
+        participants: const {},
+        voteIntroStage: BlindDateVoteIntroStage.none,
+        isVoteTime: false,
+      );
+    }
+
+    try {
+      await disconnect();
+    } catch (_) {
+      // 추방 안내와 화면 종료는 연결 해제 결과와 무관하게 진행한다.
     }
   }
 
@@ -234,17 +273,32 @@ class BlindDateDetailViewModel extends StateNotifier<BlindDateDetailState> {
     super.dispose();
   }
 
-  void send(BlindDateRequest message) {
+  bool send(BlindDateRequest message) {
+    if (!mounted ||
+        _isLeaving ||
+        state.isKicked ||
+        state.ended != null ||
+        state.isLoading ||
+        state.isFrozen ||
+        state.sessionId == null) {
+      return false;
+    }
     try {
       _blindSendMessageUseCase.execute(message);
     } on SessionExpiredException {
+      return false;
     } catch (e) {
       rethrow;
     }
+    return true;
   }
 
   Future<bool> choice(BlindChoice data) async {
-    if (!mounted || _isLeaving || !state.isVoteTime || state.ended != null) {
+    if (!mounted ||
+        _isLeaving ||
+        state.isKicked ||
+        !state.isVoteTime ||
+        state.ended != null) {
       return false;
     }
     state = state.copyWith(isVoteTime: false);

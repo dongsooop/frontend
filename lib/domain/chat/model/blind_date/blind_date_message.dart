@@ -6,6 +6,7 @@ part 'blind_date_message.g.dart';
 @freezed
 @JsonSerializable()
 class BlindDateMessage with _$BlindDateMessage {
+  final String? messageId;
   final String message;
   final int memberId;
   final String name;
@@ -14,6 +15,7 @@ class BlindDateMessage with _$BlindDateMessage {
   String type;
 
   BlindDateMessage({
+    this.messageId,
     required this.message,
     required this.memberId,
     required this.name,
@@ -28,6 +30,7 @@ class BlindDateMessage with _$BlindDateMessage {
 
   factory BlindDateMessage.fromSystemJson(Map<String, dynamic> json) {
     return BlindDateMessage(
+      messageId: json['messageId']?.toString(),
       message: _parseMessage(json['message']),
       memberId: (json['senderId'] as num?)?.toInt() ?? 0,
       name: json['senderName'] as String? ?? 'SYSTEM',
@@ -39,6 +42,7 @@ class BlindDateMessage with _$BlindDateMessage {
   // user payload -> USER
   factory BlindDateMessage.fromUserJson(Map<String, dynamic> json) {
     return BlindDateMessage(
+      messageId: json['messageId']?.toString(),
       message: _parseMessage(json['message']),
       memberId: (json['senderId'] as num?)?.toInt() ?? 0,
       name: json['senderName'] as String? ?? '익명',

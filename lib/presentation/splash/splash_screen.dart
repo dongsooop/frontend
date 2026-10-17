@@ -74,6 +74,11 @@ class SplashScreen extends HookConsumerWidget {
         await viewModel.autoLogin();
         if (cancelled || !context.mounted) return;
 
+        // 로그인 상태에서만 로그인 기반 백그라운드 복구를 수행한다.
+        if (container.read(userSessionProvider) != null) {
+          viewModel.restoreExpiredEclassLinkInBackground();
+        }
+
         // 회원/비회원 구분 없이 앱 실행마다(첫 설치·업데이트 포함) fid/deviceToken을 등록한다.
         // 로그인 상태여도 등록해야 기존 회원 기기에 fid가 백필된다.
         final message = await viewModel.requestDeviceTokenPreAuthOnce(
@@ -81,16 +86,13 @@ class SplashScreen extends HookConsumerWidget {
         );
         if (cancelled || !context.mounted) return;
 
-        viewModel.restoreExpiredEclassLinkInBackground();
-
         if (message != null) {
           rootScaffoldMessengerKey.currentState?.showSnackBar(
             SnackBar(
               content: Text(
                 message,
-                style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.white
-                ),
+                style: TextStyles.normalTextRegular
+                    .copyWith(color: ColorStyles.white),
               ),
               backgroundColor: ColorStyles.gray3,
               behavior: SnackBarBehavior.floating,
@@ -108,42 +110,6 @@ class SplashScreen extends HookConsumerWidget {
           await SchedulerBinding.instance.endOfFrame;
           await Future.delayed(const Duration(milliseconds: 200));
         }
-        if (cancelled || !context.mounted) return;
-
-        // 제재 대상 확인
-        final user = container.read(userSessionProvider);
-        if (cancelled || !context.mounted) return;
-
-        if (user != null) {
-          final reportSanction = await viewModel.checkSanction();
-          if (cancelled || !context.mounted) return;
-
-          if (reportSanction != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (cancelled || !context.mounted) return;
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) => CustomConfirmDialog(
-                  title: '동숲 이용 제재',
-                  content: '${reportSanction.reason}\n${reportSanction.description}\n'
-                    '${reportSanction.startDate} ~ ${reportSanction.endDate}',
-                  isSingleAction: true,
-                  confirmText: '확인',
-                  onConfirm: () async {
-                    if (cancelled || !context.mounted) return;
-                    await goNextWithConsent();
-                  },
-                ),
-              );
-            });
-          } else {
-            if (cancelled || !context.mounted) return;
-            await goNextWithConsent();
-          }
-          return;
-        }
-
         if (cancelled || !context.mounted) return;
         await goNextWithConsent();
       });
@@ -191,7 +157,8 @@ class SplashScreen extends HookConsumerWidget {
                 height: 24,
                 width: 24,
                 child: splashState.isLoading
-                    ? const CircularProgressIndicator(color: ColorStyles.primaryColor)
+                    ? const CircularProgressIndicator(
+                        color: ColorStyles.primaryColor)
                     : const SizedBox(height: 0),
               ),
             ],

@@ -46,6 +46,7 @@ class SignInScreen extends HookConsumerWidget {
     useEffect(() {
       final message = loginState.dialogMessage;
       if (message == null) return null;
+      final sanction = loginState.sanction;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
@@ -56,8 +57,8 @@ class SignInScreen extends HookConsumerWidget {
           context: context,
           barrierDismissible: false,
           builder: (dialogContext) => CustomConfirmDialog(
-            title: '소셜 로그인 오류',
-            content: message,
+            title: loginState.dialogTitle ?? '로그인 오류',
+            content: sanction?.noticeMessage ?? message,
             onConfirm: () {},
             onCancel: () {},
           ),
@@ -65,7 +66,7 @@ class SignInScreen extends HookConsumerWidget {
       });
 
       return null;
-    }, [loginState.dialogMessage]);
+    }, [loginState.dialogMessage, loginState.sanction]);
 
     return Scaffold(
       backgroundColor: ColorStyles.white,

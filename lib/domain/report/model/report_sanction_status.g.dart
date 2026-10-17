@@ -9,17 +9,26 @@ part of 'report_sanction_status.dart';
 ReportSanctionStatus _$ReportSanctionStatusFromJson(
         Map<String, dynamic> json) =>
     ReportSanctionStatus(
+      sanctionType: $enumDecode(_$SanctionTypeEnumMap, json['sanctionType']),
       reason: json['reason'] as String,
       startDate: json['startDate'] as String,
-      endDate: json['endDate'] as String,
+      endDate: json['endDate'] as String?,
       description: json['description'] as String,
     );
 
 Map<String, dynamic> _$ReportSanctionStatusToJson(
         ReportSanctionStatus instance) =>
     <String, dynamic>{
+      'sanctionType': _$SanctionTypeEnumMap[instance.sanctionType]!,
       'reason': instance.reason,
       'description': instance.description,
       'startDate': instance.startDate,
       'endDate': instance.endDate,
     };
+
+const _$SanctionTypeEnumMap = {
+  SanctionType.WARNING: 'WARNING',
+  SanctionType.TEMPORARY_BAN: 'TEMPORARY_BAN',
+  SanctionType.PERMANENT_BAN: 'PERMANENT_BAN',
+  SanctionType.CHAT_KICK: 'CHAT_KICK',
+};

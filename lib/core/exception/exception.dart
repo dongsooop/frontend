@@ -1,3 +1,5 @@
+import 'package:dongsoop/domain/report/model/report_sanction_status.dart';
+
 class LoginRequiredException implements Exception {
   final String message;
 
@@ -42,7 +44,6 @@ class PWResetException implements Exception {
   String toString() => message;
 }
 
-
 class LoginException implements Exception {
   final String message;
   const LoginException([this.message = "알 수 없는 오류가 발생했습니다."]);
@@ -69,17 +70,19 @@ class InvalidCredentialsException extends LoginException {
 }
 
 class UserSanctionedException extends LoginException {
-  const UserSanctionedException(
-      [String message = "현재 제재 중인 계정입니다. 자세한 내용은 고객센터에 문의해 주세요."])
-      : super(message);
+  final ReportSanctionStatus? sanction;
+
+  const UserSanctionedException([
+    String message = "현재 제재 중인 계정입니다. 자세한 내용은 동숲에 문의해 주세요.",
+    this.sanction,
+  ]) : super(message);
 
   @override
   String toString() => message;
 }
 
 class UserNotFoundException extends LoginException {
-  const UserNotFoundException(
-      [String message = "등록된 회원 정보를 찾을 수 없습니다."])
+  const UserNotFoundException([String message = "등록된 회원 정보를 찾을 수 없습니다."])
       : super(message);
 
   @override
@@ -152,7 +155,8 @@ class NoticeException implements Exception {
 
 class NoticeKeywordException implements Exception {
   final String message;
-  NoticeKeywordException([this.message = "키워드 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
+  NoticeKeywordException(
+      [this.message = "키워드 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요"]);
 
   @override
   String toString() => message;
@@ -173,32 +177,53 @@ class SanctionException implements Exception {
   @override
   String toString() => message;
 }
+
+class SanctionStatusException extends SanctionException {
+  const SanctionStatusException([
+    String message = '제재 상태를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+  ]) : super(message);
+
+  @override
+  String toString() => message;
+}
+
 class SanctionRequestValidationException extends SanctionException {
-  const SanctionRequestValidationException([String message = '요청 데이터 검증에 실패했어요.']) : super(message);
+  const SanctionRequestValidationException(
+      [String message = '요청 데이터 검증에 실패했어요.'])
+      : super(message);
 
   @override
   String toString() => message;
 }
+
 class AlreadyProcessedException extends SanctionException {
-  const AlreadyProcessedException([String message = "이미 처리된 신고예요."]) : super(message);
+  const AlreadyProcessedException([String message = "이미 처리된 신고예요."])
+      : super(message);
 
   @override
   String toString() => message;
 }
+
 class NotFoundSanctionException extends SanctionException {
-  const NotFoundSanctionException([String message = "신고 또는 회원을 찾을 수 없어요."]) : super(message);
+  const NotFoundSanctionException([String message = "신고 또는 회원을 찾을 수 없어요."])
+      : super(message);
 
   @override
   String toString() => message;
 }
+
 class BadRequestParameterException extends SanctionException {
-  const BadRequestParameterException([String message = '필터 또는 페이질 파라미터가 잘못됐어요.']) : super(message);
+  const BadRequestParameterException(
+      [String message = '필터 또는 페이질 파라미터가 잘못됐어요.'])
+      : super(message);
 
   @override
   String toString() => message;
 }
+
 class NoAdminAuthorityException extends SanctionException {
-  const NoAdminAuthorityException([String message = '관리자 권한이 없어요.']) : super(message);
+  const NoAdminAuthorityException([String message = '관리자 권한이 없어요.'])
+      : super(message);
 
   @override
   String toString() => message;
@@ -248,32 +273,31 @@ class TimetableException implements Exception {
 }
 
 class TimetableAnalysisFailedException extends TimetableException {
-  const TimetableAnalysisFailedException([
-    String message = "시간표 분석에 실패했어요. 이미지를 다시 첨부해 주세요"
-  ]) : super(message);
+  const TimetableAnalysisFailedException(
+      [String message = "시간표 분석에 실패했어요. 이미지를 다시 첨부해 주세요"])
+      : super(message);
 
   @override
   String toString() => message;
 }
 
 class JobAlreadyQueuedException extends TimetableException {
-  const JobAlreadyQueuedException([
-    String message = "등록된 작업이 있습니다. 작업이 완료될 때까지 기다려 주세요"
-  ]) : super(message);
+  const JobAlreadyQueuedException(
+      [String message = "등록된 작업이 있습니다. 작업이 완료될 때까지 기다려 주세요"])
+      : super(message);
 
   @override
   String toString() => message;
 }
 
 class TimetableQueueFullException extends TimetableException {
-  const TimetableQueueFullException([
-    String message = "현재 요청이 많아 분석 대기열이 가득 찼어요. 잠시 후 다시 시도해 주세요."
-  ]) : super(message);
+  const TimetableQueueFullException(
+      [String message = "현재 요청이 많아 분석 대기열이 가득 찼어요. 잠시 후 다시 시도해 주세요."])
+      : super(message);
 
   @override
   String toString() => message;
 }
-
 
 class ChatbotException implements Exception {
   final String message;
@@ -285,8 +309,7 @@ class ChatbotException implements Exception {
 
 class HomeException implements Exception {
   final String message;
-  HomeException(
-      [this.message = "화면을 불러오는 중 오류가 발생했어요\n잠시 후 다시 시도해주세요."]);
+  HomeException([this.message = "화면을 불러오는 중 오류가 발생했어요\n잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -299,6 +322,7 @@ class SendEmailFailed implements Exception {
   @override
   String toString() => message;
 }
+
 class BlindDateOpenException implements Exception {
   final String message;
   BlindDateOpenException([this.message = "과팅 오픈 기간이 아니에요.\n다음에 다시 만나요!"]);
@@ -325,8 +349,7 @@ class ChatLeaveManagerException implements Exception {
 
 class SearchException implements Exception {
   final String message;
-  SearchException(
-      [this.message = "검색 도중 오류가 발생했어요\n잠시 후 다시 시도해주세요."]);
+  SearchException([this.message = "검색 도중 오류가 발생했어요\n잠시 후 다시 시도해주세요."]);
 
   @override
   String toString() => message;
@@ -334,7 +357,8 @@ class SearchException implements Exception {
 
 class KaKaoSearchException implements Exception {
   final String message;
-  KaKaoSearchException([this.message = "가게 검색 중 오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요"]);
+  KaKaoSearchException(
+      [this.message = "가게 검색 중 오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요"]);
 
   @override
   String toString() => message;
@@ -359,8 +383,7 @@ class RestaurantsDuplicationException implements Exception {
 
 class FeedbackException implements Exception {
   final String message;
-  FeedbackException(
-      [this.message = "피드백 확인 중 서버 오류가 발생했어요."]);
+  FeedbackException([this.message = "피드백 확인 중 서버 오류가 발생했어요."]);
 
   @override
   String toString() => message;
@@ -395,27 +418,27 @@ class OAuthException implements Exception {
 }
 
 class SocialUnlinkUserException extends OAuthException {
-  const SocialUnlinkUserException([
-    String message = "회원 정보를 확인하는 데 실패했어요\n잠시 후에 다시 시도해 주세요"
-  ]) : super(message);
+  const SocialUnlinkUserException(
+      [String message = "회원 정보를 확인하는 데 실패했어요\n잠시 후에 다시 시도해 주세요"])
+      : super(message);
 
   @override
   String toString() => message;
 }
 
 class SocialException extends OAuthException {
-  const SocialException([
-    String message = "소셜 로그인 중 오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요"
-  ]) : super(message);
+  const SocialException(
+      [String message = "소셜 로그인 중 오류가 발생했습니다.\n잠시 후에 다시 시도해 주세요"])
+      : super(message);
 
   @override
   String toString() => message;
 }
 
 class KakaoRateLimitException extends OAuthException {
-  const KakaoRateLimitException([
-    String message = "카카오 로그인 요청이 너무 자주 발생했습니다.\n잠시 후 다시 시도해 주세요."
-  ]) : super(message);
+  const KakaoRateLimitException(
+      [String message = "카카오 로그인 요청이 너무 자주 발생했습니다.\n잠시 후 다시 시도해 주세요."])
+      : super(message);
 
   @override
   String toString() => message;
@@ -423,7 +446,9 @@ class KakaoRateLimitException extends OAuthException {
 
 class SocialLoginException implements OAuthException {
   final String message;
-  const SocialLoginException([this.message = "회원가입 또는 소셜 로그인 연결 정보가 없습니다.\n로그인 후 마이페이지에서 소셜 로그인 연결을 먼저 해주세요"]);
+  const SocialLoginException(
+      [this.message =
+          "회원가입 또는 소셜 로그인 연결 정보가 없습니다.\n로그인 후 마이페이지에서 소셜 로그인 연결을 먼저 해주세요"]);
 
   @override
   String toString() => message;

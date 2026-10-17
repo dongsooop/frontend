@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dongsoop/core/network/session_end_reason_parser.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
+import 'package:dongsoop/domain/auth/enum/session_end_reason.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_message.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
@@ -19,6 +21,8 @@ class BlindDateStompService {
   String? _sessionId;
   int? _memberId;
   bool _isDisconnecting = false;
+  bool _sessionEndNotified = false;
+  bool _hasConnected = false;
 
   final _joinedController = StreamController<int>.broadcast();
   final _startController = StreamController<String>.broadcast();
@@ -30,6 +34,7 @@ class BlindDateStompService {
       StreamController<Map<int, String>>.broadcast();
   final _endedController = StreamController<String>.broadcast();
   final _disconnectController = StreamController<String>.broadcast();
+  final _sessionEndController = StreamController<SessionEndReason>.broadcast();
 
   BlindDateStompService(this._secureStorageService);
 
@@ -40,6 +45,8 @@ class BlindDateStompService {
     final accessToken = await _secureStorageService.read('accessToken');
 
     _isDisconnecting = false;
+    _sessionEndNotified = false;
+    _hasConnected = false;
     _memberId = memberId;
     _sessionId = null;
 
@@ -65,6 +72,7 @@ class BlindDateStompService {
         },
         onDisconnect: (frame) {
           _joinResponseTimer?.cancel();
+          _hasConnected = false;
           _log('DISCONNECTED body=${frame.body ?? '-'}');
           if (!_isDisconnecting) {
             _disconnectController.add(
@@ -75,15 +83,22 @@ class BlindDateStompService {
         onStompError: (frame) {
           _joinResponseTimer?.cancel();
           _log('STOMP_ERROR body=${frame.body ?? '-'}');
+          if (_handleSessionEndError(
+            '${frame.headers} ${frame.body ?? ''}',
+          )) {
+            return;
+          }
           _disconnectController.add(frame.body ?? 'STOMP protocol error');
         },
         onWebSocketError: (error) {
           _joinResponseTimer?.cancel();
           _log('WEBSOCKET_ERROR error=$error');
+          if (_handleSessionEndError(error)) return;
           _disconnectController.add(error.toString());
         },
         onWebSocketDone: () {
           _joinResponseTimer?.cancel();
+          _hasConnected = false;
           _log('WEBSOCKET_CLOSED reconnecting=${!_isDisconnecting}');
           if (!_isDisconnecting) {
             _disconnectController.add('WebSocket connection closed');
@@ -97,10 +112,26 @@ class BlindDateStompService {
     _log('ACTIVATED waitingFor=CONNECTED');
   }
 
+  bool _handleSessionEndError(Object? error) {
+    final reason = sessionEndReasonFromRealtimeConnectError(
+      error,
+      hasConnected: _hasConnected,
+    );
+    if (reason == null) return false;
+    if (_sessionEndNotified) return true;
+
+    _sessionEndNotified = true;
+    _isDisconnecting = true;
+    _client?.deactivate();
+    _sessionEndController.add(reason);
+    return true;
+  }
+
   void _onConnect(StompFrame frame) {
     final client = _client;
     if (client == null || !client.connected) return;
 
+    _hasConnected = true;
     _log('CONNECTED');
     _sessionSubscriptions.clear();
     const joinDestination = '/user/queue/blinddate/join';
@@ -148,6 +179,7 @@ class BlindDateStompService {
 
       _joinController.add(
         BlindJoinInfo(
+          sessionId: sessionId,
           name: data['name']?.toString() ?? '',
           state: state,
           maxCount: (data['maxCount'] as num?)?.toInt(),
@@ -310,6 +342,7 @@ class BlindDateStompService {
     _client = null;
     _sessionId = null;
     _memberId = null;
+    _hasConnected = false;
   }
 
   Stream<int> get joinedStream => _joinedController.stream;
@@ -322,6 +355,7 @@ class BlindDateStompService {
       _participantsController.stream;
   Stream<String> get endedStream => _endedController.stream;
   Stream<String> get disconnectStream => _disconnectController.stream;
+  Stream<SessionEndReason> get sessionEndStream => _sessionEndController.stream;
 
   bool get isConnected => _client?.connected ?? false;
 

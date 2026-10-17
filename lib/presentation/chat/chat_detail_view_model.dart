@@ -41,24 +41,36 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   bool _hasLeaved = false;
 
   ChatDetailViewModel(
-      this._chatRoomConnectUseCase,
-      this._chatRoomDisconnectUseCase,
-      this._sendMessageUseCase,
-      this._subscribeMessagesUseCase,
-      this._subscribeBlockUseCase,
-      this._getUserNicknamesUseCase,
-      this._getRoomDetailUseCase,
-      this._saveChatMessageUseCase,
-      this._getPagedMessages,
-      this._getOfflineMessagesUseCase,
-      this._leaveChatRoomUseCase,
-      this._kickUserUseCase,
-      this._userBlockUseCase,
-      this._ref,
-      ) : super(ChatDetailState(isLoading: false, roomDetail: null));
+    this._chatRoomConnectUseCase,
+    this._chatRoomDisconnectUseCase,
+    this._sendMessageUseCase,
+    this._subscribeMessagesUseCase,
+    this._subscribeBlockUseCase,
+    this._getUserNicknamesUseCase,
+    this._getRoomDetailUseCase,
+    this._saveChatMessageUseCase,
+    this._getPagedMessages,
+    this._getOfflineMessagesUseCase,
+    this._leaveChatRoomUseCase,
+    this._kickUserUseCase,
+    this._userBlockUseCase,
+    this._ref,
+  ) : super(ChatDetailState(isLoading: false, roomDetail: null));
 
   void clearError() {
     state = state.copyWith(errorMessage: null);
+  }
+
+  void resetForSessionEnd() {
+    unawaited(_messagesSubscription?.cancel());
+    unawaited(_blockSubscription?.cancel());
+    _messagesSubscription = null;
+    _blockSubscription = null;
+    _latestMessage = null;
+    _hasLeaved = false;
+    state = ChatDetailState(isLoading: false, roomDetail: null);
+    _ref.read(chatMessagesProvider.notifier).clear();
+    _ref.read(chatBlockProvider.notifier).blockStatus('');
   }
 
   Future<void> fetchOfflineMessages(String roomId) async {
@@ -93,21 +105,27 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       _blockSubscription?.cancel();
 
       // block
-      _blockSubscription = _subscribeBlockUseCase.execute().listen((blockStatus) async {
+      _blockSubscription =
+          _subscribeBlockUseCase.execute().listen((blockStatus) async {
         _ref.read(chatBlockProvider.notifier).blockStatus(blockStatus);
       });
 
       // message
-      _messagesSubscription = _subscribeMessagesUseCase.execute().listen((msg) async {
+      _messagesSubscription =
+          _subscribeMessagesUseCase.execute().listen((msg) async {
         if (!state.nicknameMap.containsKey(msg.senderId)) {
           // 새로운 사용자 등장 → 닉네임 요청 후 상태 갱신
-          final nicknameMap = await _getUserNicknamesUseCase.execute(msg.roomId);
+          final nicknameMap =
+              await _getUserNicknamesUseCase.execute(msg.roomId);
           state = state.copyWith(nicknameMap: nicknameMap);
         }
 
         // 날짜 메시지
         if (_shouldInsertDateMessage(msg)) {
-          final dateMessage = ChatMessage.dateMessage(msg.roomId, DateTime(msg.timestamp.year, msg.timestamp.month, msg.timestamp.day));
+          final dateMessage = ChatMessage.dateMessage(
+              msg.roomId,
+              DateTime(
+                  msg.timestamp.year, msg.timestamp.month, msg.timestamp.day));
           await _saveChatMessageUseCase.execute(dateMessage);
           _ref.read(chatMessagesProvider.notifier).addMessage(dateMessage);
         }
@@ -139,8 +157,10 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
   bool _shouldInsertDateMessage(ChatMessage newMsg) {
     if (_latestMessage == null) return true;
 
-    final prevDate = DateTime(_latestMessage!.timestamp.year, _latestMessage!.timestamp.month, _latestMessage!.timestamp.day);
-    final newDate = DateTime(newMsg.timestamp.year, newMsg.timestamp.month, newMsg.timestamp.day);
+    final prevDate = DateTime(_latestMessage!.timestamp.year,
+        _latestMessage!.timestamp.month, _latestMessage!.timestamp.day);
+    final newDate = DateTime(
+        newMsg.timestamp.year, newMsg.timestamp.month, newMsg.timestamp.day);
 
     return prevDate != newDate;
   }
@@ -173,7 +193,7 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     try {
       _chatRoomDisconnectUseCase.execute();
 
-      _messagesSubscription?.cancel();  // 구독 해제
+      _messagesSubscription?.cancel(); // 구독 해제
       _blockSubscription?.cancel();
       _messagesSubscription = null;
 
@@ -250,9 +270,11 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       );
     }
   }
+
   String getNickname(String userId) {
     return state.nicknameMap[userId] ?? "{알 수 없음}";
   }
+
   void getOtherUserId(int userId) {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
@@ -269,7 +291,8 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
     );
   }
 
-  Future<List<ChatMessage>> getPagedMessages(String roomId, int offset, int limit) async {
+  Future<List<ChatMessage>> getPagedMessages(
+      String roomId, int offset, int limit) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final result = await _getPagedMessages.execute(roomId, offset, limit);
@@ -364,6 +387,13 @@ class ChatDetailViewModel extends StateNotifier<ChatDetailState> {
       rethrow;
     }
   }
+
+  @override
+  void dispose() {
+    unawaited(_messagesSubscription?.cancel());
+    unawaited(_blockSubscription?.cancel());
+    super.dispose();
+  }
 }
 
 class ChatBlockNotifier extends StateNotifier<String> {
@@ -375,7 +405,8 @@ class ChatBlockNotifier extends StateNotifier<String> {
 }
 
 class ChatMessagesNotifier extends StateNotifier<List<ChatMessage>> {
-  final Future<List<ChatMessage>> Function(String roomId, int offset, int limit) getPagedMessages;
+  final Future<List<ChatMessage>> Function(String roomId, int offset, int limit)
+      getPagedMessages;
 
   ChatMessagesNotifier(this.getPagedMessages) : super([]);
 

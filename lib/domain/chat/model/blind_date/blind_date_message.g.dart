@@ -8,6 +8,7 @@ part of 'blind_date_message.dart';
 
 BlindDateMessage _$BlindDateMessageFromJson(Map<String, dynamic> json) =>
     BlindDateMessage(
+      messageId: json['messageId'] as String?,
       message: json['message'] as String,
       memberId: (json['memberId'] as num).toInt(),
       name: json['name'] as String,
@@ -17,6 +18,7 @@ BlindDateMessage _$BlindDateMessageFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$BlindDateMessageToJson(BlindDateMessage instance) =>
     <String, dynamic>{
+      'messageId': instance.messageId,
       'message': instance.message,
       'memberId': instance.memberId,
       'name': instance.name,

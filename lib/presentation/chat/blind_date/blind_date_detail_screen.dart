@@ -3,6 +3,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/presentation/chat/widgets/blind_date_message_action_sheet.dart';
 import 'package:dongsoop/presentation/chat/widgets/blind_bubble.dart';
 import 'package:dongsoop/presentation/chat/widgets/match_vote_bottom_sheet.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -36,6 +37,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     final route = ModalRoute.of(context);
     final isVoteSheetOpen = useRef(false);
     final isVoteExitPending = useRef(false);
+    final isKickExitHandled = useRef(false);
 
     void exitBlindDateIfReady() {
       if (!isVoteExitPending.value ||
@@ -185,6 +187,44 @@ class BlindDateDetailScreen extends HookConsumerWidget {
       return null;
     }, [state.ended]);
 
+    useEffect(() {
+      if (!state.isKicked) {
+        isKickExitHandled.value = false;
+        return null;
+      }
+      if (isKickExitHandled.value) return null;
+      isKickExitHandled.value = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!context.mounted) return;
+
+        final navigator = Navigator.of(context, rootNavigator: true);
+        if (route != null) {
+          navigator.popUntil((candidate) => candidate == route);
+        }
+        isVoteSheetOpen.value = false;
+
+        if (!context.mounted) return;
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          useRootNavigator: true,
+          builder: (_) => CustomConfirmDialog(
+            title: '과팅 참여 제한',
+            content: '관리자에 의해 퇴장되었습니다.',
+            onConfirm: () {},
+            confirmText: '확인',
+            isSingleAction: true,
+          ),
+        );
+
+        if (context.mounted && (route?.isCurrent ?? false)) {
+          context.pop(true);
+        }
+      });
+      return null;
+    }, [state.isKicked]);
+
     if (state.isLoading) {
       return Scaffold(
         backgroundColor: ColorStyles.white,
@@ -327,6 +367,14 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                           formatTimestamp(msg.sendAt),
                           msg.memberId == userId,
                           msg.type,
+                          onLongPress: msg.type.toUpperCase() == 'USER'
+                              ? () => showBlindDateMessageActions(
+                                    context,
+                                    message: msg,
+                                    currentUserId: userId,
+                                    sessionId: state.sessionId,
+                                  )
+                              : null,
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(
@@ -337,7 +385,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                 ),
 
                 // 채팅 입력창
-                if (!state.isFrozen) ...[
+                if (!state.isFrozen && !state.isKicked) ...[
                   Container(
                     width: double.infinity,
                     height: 52,
@@ -376,7 +424,8 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                                   message: message,
                                   senderId: userId!,
                                 );
-                                viewModel.send(send);
+                                final sent = viewModel.send(send);
+                                if (!sent) return;
                                 textController.clear();
                                 // 스크롤 맨 아래로 이동
                                 scrollController.animateTo(

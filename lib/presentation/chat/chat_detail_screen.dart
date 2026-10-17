@@ -14,6 +14,7 @@ import 'package:dongsoop/core/presentation/components/custom_action_sheet.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
+import 'package:dongsoop/presentation/chat/widgets/chat_message_action_sheet.dart';
 
 class ChatDetailScreen extends HookConsumerWidget {
   final String roomId;
@@ -33,7 +34,6 @@ class ChatDetailScreen extends HookConsumerWidget {
     final viewModel = ref.read(chatDetailViewModelProvider.notifier);
 
     // 사용자
-    final String? userNickname = user?.nickname;
     final int? userId = user?.id;
     final bool isManager = chatDetailState.roomDetail?.managerId == userId;
 
@@ -54,7 +54,8 @@ class ChatDetailScreen extends HookConsumerWidget {
         final current = ref.read(chatDetailViewModelProvider);
         final isGroup = current.roomDetail?.groupChat ?? false;
         final participantsLength = current.roomDetail?.participants.length ?? 0;
-        if (!isGroup && userId != null && participantsLength > 1) viewModel.getOtherUserId(userId);
+        if (!isGroup && userId != null && participantsLength > 1)
+          viewModel.getOtherUserId(userId);
         // 채팅방 연결
         viewModel.enterRoom(roomId);
         FirebaseMessagingService.instance().setActiveChat(roomId);
@@ -102,7 +103,8 @@ class ChatDetailScreen extends HookConsumerWidget {
     }, [chatDetailState.errorMessage]);
 
     scrollController.addListener(() {
-      if (scrollController.offset >= scrollController.position.maxScrollExtent - 100) {
+      if (scrollController.offset >=
+          scrollController.position.maxScrollExtent - 100) {
         ref.read(chatMessagesProvider.notifier).loadMore();
       }
     });
@@ -115,7 +117,9 @@ class ChatDetailScreen extends HookConsumerWidget {
           backgroundColor: ColorStyles.gray1,
         ),
         body: Center(
-          child: CircularProgressIndicator(color: ColorStyles.primaryColor,),
+          child: CircularProgressIndicator(
+            color: ColorStyles.primaryColor,
+          ),
         ),
       );
     }
@@ -136,11 +140,14 @@ class ChatDetailScreen extends HookConsumerWidget {
               children: [
                 Text(
                   chatDetailState.roomDetail?.title ?? '',
-                  style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                  style: TextStyles.largeTextBold
+                      .copyWith(color: ColorStyles.black),
                 ),
                 Text(
-                  chatDetailState.roomDetail?.participants.length.toString() ?? '',
-                  style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
+                  chatDetailState.roomDetail?.participants.length.toString() ??
+                      '',
+                  style: TextStyles.largeTextRegular
+                      .copyWith(color: ColorStyles.gray3),
                 ),
               ],
             ),
@@ -167,8 +174,8 @@ class ChatDetailScreen extends HookConsumerWidget {
                       builder: (_) => CustomConfirmDialog(
                         title: '채팅방 나가기',
                         content: isManager
-                          ? '채팅방을 나가면 모집이 즉시 종료되며,\n미정인 지원자는 불합격처리 돼요.\n그래도 나가시겠어요?'
-                          : '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
+                            ? '채팅방을 나가면 모집이 즉시 종료되며,\n미정인 지원자는 불합격처리 돼요.\n그래도 나가시겠어요?'
+                            : '채팅방을 나가면 다시 참여할 수 없어요.\n정말로 나가시겠어요?',
                         confirmText: '나가기',
                         cancelText: '취소',
                         onConfirm: () async {
@@ -179,22 +186,25 @@ class ChatDetailScreen extends HookConsumerWidget {
                     );
                   },
                   deleteText: '채팅방 나가기',
-                  onBlock: chatDetailState.otherUserId != null && blockStatus != 'I_BLOCKED'
-                    ? () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => CustomConfirmDialog(
-                          title: '차단',
-                          content: '차단한 사용자와 1:1 채팅 및\n게시글 열람은 불가능해요.\n그래도 차단하시겠어요?',
-                          confirmText: '확인',
-                          cancelText: '취소',
-                          onConfirm: () async {
-                            await viewModel.userBlock(userId!, chatDetailState.otherUserId!);
-                          },
-                        ),
-                      );
-                    }
-                  : null,
+                  onBlock: chatDetailState.otherUserId != null &&
+                          blockStatus != 'I_BLOCKED'
+                      ? () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => CustomConfirmDialog(
+                              title: '차단',
+                              content:
+                                  '차단한 사용자와 1:1 채팅 및\n게시글 열람은 불가능해요.\n그래도 차단하시겠어요?',
+                              confirmText: '확인',
+                              cancelText: '취소',
+                              onConfirm: () async {
+                                await viewModel.userBlock(
+                                    userId!, chatDetailState.otherUserId!);
+                              },
+                            ),
+                          );
+                        }
+                      : null,
                 );
               },
               icon: SvgPicture.asset(
@@ -210,23 +220,24 @@ class ChatDetailScreen extends HookConsumerWidget {
           ],
         ),
       ),
-      bottomNavigationBar: blockStatus == 'I_BLOCKED' && !chatDetailState.roomDetail!.groupChat
-        ? SafeArea(
-          child: Container(
-              height: 64,
-              width: double.infinity,
-              color: ColorStyles.white,
-              child: Center(
-                child: Text(
-                  '차단한 사용자와는 채팅을 할 수 없어요',
-                  style: TextStyles.normalTextBold.copyWith(
-                    color: ColorStyles.gray4,
+      bottomNavigationBar:
+          blockStatus == 'I_BLOCKED' && !chatDetailState.roomDetail!.groupChat
+              ? SafeArea(
+                  child: Container(
+                    height: 64,
+                    width: double.infinity,
+                    color: ColorStyles.white,
+                    child: Center(
+                      child: Text(
+                        '차단한 사용자와는 채팅을 할 수 없어요',
+                        style: TextStyles.normalTextBold.copyWith(
+                          color: ColorStyles.gray4,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-        )
-        : null,
+                )
+              : null,
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -246,37 +257,49 @@ class ChatDetailScreen extends HookConsumerWidget {
                       itemCount: messages.length,
                       itemBuilder: (BuildContext context, int index) {
                         final msg = messages[index];
-                        final nickname = viewModel.getNickname(msg.senderId.toString());
+                        final nickname =
+                            viewModel.getNickname(msg.senderId.toString());
                         return ChatBubbleScreen(
-                          nickname,
-                          msg.senderId,
-                          msg.content,
-                          formatTimestamp(msg.timestamp),
-                          nickname == userNickname,
-                          msg.type,
-                          () async {
-                            if (!isManager) return;
-                            // 채팅 내보내기(관리자 == 사옹자)
-                            customActionSheet(
-                              context,
-                              onDelete: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (_) => CustomConfirmDialog(
-                                    title: '채팅 내보내기',
-                                    content: '퇴장한 채팅방은 다시 참여할 수 없어요.\n정말로 내보내시겠어요?',
-                                    confirmText: '내보내기',
-                                    cancelText: '취소',
-                                    onConfirm: () async {
-                                      await viewModel.kickUser(msg.roomId, msg.senderId);
-                                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                          nickname: nickname,
+                          senderId: msg.senderId,
+                          message: msg.content,
+                          timestamp: formatTimestamp(msg.timestamp),
+                          isMe: userId != null && msg.senderId == userId,
+                          type: msg.type,
+                          onLongPress: msg.type == 'CHAT'
+                              ? () => showChatMessageActions(
+                                    context,
+                                    message: msg,
+                                    currentUserId: userId,
+                                  )
+                              : null,
+                          onNicknameTap: isManager
+                              ? () {
+                                  // 채팅 내보내기(관리자 == 사옹자)
+                                  customActionSheet(
+                                    context,
+                                    onDelete: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => CustomConfirmDialog(
+                                          title: '채팅 내보내기',
+                                          content:
+                                              '퇴장한 채팅방은 다시 참여할 수 없어요.\n정말로 내보내시겠어요?',
+                                          confirmText: '내보내기',
+                                          cancelText: '취소',
+                                          onConfirm: () async {
+                                            await viewModel.kickUser(
+                                                msg.roomId, msg.senderId);
+                                            Navigator.of(context)
+                                                .pop(); // 다이얼로그 닫기
+                                          },
+                                        ),
+                                      );
                                     },
-                                  ),
-                                );
-                              },
-                              deleteText: '채팅 내보내기',
-                            );
-                          },
+                                    deleteText: '채팅 내보내기',
+                                  );
+                                }
+                              : null,
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(
@@ -293,8 +316,8 @@ class ChatDetailScreen extends HookConsumerWidget {
                     padding: EdgeInsets.only(left: 16, right: 8),
                     decoration: ShapeDecoration(
                         color: ColorStyles.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
-                    ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8))),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -305,8 +328,11 @@ class ChatDetailScreen extends HookConsumerWidget {
                             cursorColor: ColorStyles.gray4,
                             keyboardType: TextInputType.multiline,
                             controller: textController,
-                            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                            decoration: InputDecoration(border: InputBorder.none,),
+                            style: TextStyles.normalTextRegular
+                                .copyWith(color: ColorStyles.black),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
                         SizedBox(

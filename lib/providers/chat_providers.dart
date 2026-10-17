@@ -1,4 +1,3 @@
-import 'package:dongsoop/core/network/blind_date_stomp_service.dart';
 import 'package:dongsoop/core/storage/hive_service.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source.dart';
 import 'package:dongsoop/data/chat/data_source/chat_data_source_impl.dart';
@@ -40,9 +39,8 @@ import 'package:dongsoop/presentation/chat/chat_detail_state.dart';
 import 'package:dongsoop/presentation/chat/chat_view_model.dart';
 import 'package:dongsoop/providers/auth_dio.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
+import 'package:dongsoop/providers/realtime_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dongsoop/core/network/stomp_service.dart';
-import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/connect_chat_room_use_case.dart';
 import 'package:dongsoop/domain/chat/use_case/chat/disconnect_chat_room_use_case.dart';
@@ -50,17 +48,6 @@ import 'package:dongsoop/domain/chat/use_case/stream/subscribe_messages_use_case
 import 'package:dongsoop/presentation/chat/chat_detail_view_model.dart';
 import 'package:dongsoop/presentation/chat/chat_state.dart';
 import 'package:dongsoop/domain/chat/use_case/stream/subscribe_block_use_case.dart';
-
-// stomp
-final stompServiceProvider = Provider<StompService>((ref) {
-  final secureStorageService = ref.watch(secureStorageProvider);
-  return StompService(secureStorageService);
-});
-
-final blindDateStompServiceProvider = Provider<BlindDateStompService>((ref) {
-  final secureStorageService = ref.watch(secureStorageProvider);
-  return BlindDateStompService(secureStorageService);
-});
 
 // Data Source
 final chatDataSourceProvider = Provider<ChatDataSource>((ref) {

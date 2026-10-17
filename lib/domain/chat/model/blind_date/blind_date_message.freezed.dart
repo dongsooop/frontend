@@ -14,6 +14,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$BlindDateMessage {
+  String? get messageId;
   String get message;
   int get memberId;
   String get name;
@@ -34,6 +35,8 @@ mixin _$BlindDateMessage {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is BlindDateMessage &&
+            (identical(other.messageId, messageId) ||
+                other.messageId == messageId) &&
             (identical(other.message, message) || other.message == message) &&
             (identical(other.memberId, memberId) ||
                 other.memberId == memberId) &&
@@ -44,12 +47,12 @@ mixin _$BlindDateMessage {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, message, memberId, name, sendAt, type);
+  int get hashCode => Object.hash(
+      runtimeType, messageId, message, memberId, name, sendAt, type);
 
   @override
   String toString() {
-    return 'BlindDateMessage(message: $message, memberId: $memberId, name: $name, sendAt: $sendAt, type: $type)';
+    return 'BlindDateMessage(messageId: $messageId, message: $message, memberId: $memberId, name: $name, sendAt: $sendAt, type: $type)';
   }
 }
 
@@ -60,7 +63,8 @@ abstract mixin class $BlindDateMessageCopyWith<$Res> {
       _$BlindDateMessageCopyWithImpl;
   @useResult
   $Res call(
-      {String message,
+      {String? messageId,
+      String message,
       int memberId,
       String name,
       DateTime sendAt,
@@ -80,6 +84,7 @@ class _$BlindDateMessageCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? messageId = freezed,
     Object? message = null,
     Object? memberId = null,
     Object? name = null,
@@ -87,6 +92,10 @@ class _$BlindDateMessageCopyWithImpl<$Res>
     Object? type = null,
   }) {
     return _then(BlindDateMessage(
+      messageId: freezed == messageId
+          ? _self.messageId
+          : messageId // ignore: cast_nullable_to_non_nullable
+              as String?,
       message: null == message
           ? _self.message
           : message // ignore: cast_nullable_to_non_nullable

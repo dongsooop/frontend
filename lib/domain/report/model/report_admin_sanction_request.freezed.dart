@@ -17,7 +17,7 @@ mixin _$ReportAdminSanctionRequest {
   int get reportId;
   int get targetMemberId;
   SanctionType get sanctionType;
-  String get sanctionReason;
+  String? get sanctionReason;
   DateTime? get sanctionEndAt;
 
   /// Create a copy of ReportAdminSanctionRequest
@@ -66,7 +66,7 @@ abstract mixin class $ReportAdminSanctionRequestCopyWith<$Res> {
       {int reportId,
       int targetMemberId,
       SanctionType sanctionType,
-      String sanctionReason,
+      String? sanctionReason,
       DateTime? sanctionEndAt});
 }
 
@@ -86,7 +86,7 @@ class _$ReportAdminSanctionRequestCopyWithImpl<$Res>
     Object? reportId = null,
     Object? targetMemberId = null,
     Object? sanctionType = null,
-    Object? sanctionReason = null,
+    Object? sanctionReason = freezed,
     Object? sanctionEndAt = freezed,
   }) {
     return _then(ReportAdminSanctionRequest(
@@ -102,10 +102,10 @@ class _$ReportAdminSanctionRequestCopyWithImpl<$Res>
           ? _self.sanctionType
           : sanctionType // ignore: cast_nullable_to_non_nullable
               as SanctionType,
-      sanctionReason: null == sanctionReason
+      sanctionReason: freezed == sanctionReason
           ? _self.sanctionReason
           : sanctionReason // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       sanctionEndAt: freezed == sanctionEndAt
           ? _self.sanctionEndAt
           : sanctionEndAt // ignore: cast_nullable_to_non_nullable
