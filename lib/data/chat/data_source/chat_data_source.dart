@@ -6,7 +6,6 @@ import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
-import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 
 abstract class ChatDataSource {
@@ -22,7 +21,6 @@ abstract class ChatDataSource {
   Future<List<ChatMessage>?> getChatMessagesAfter(String roomId, String MessageId);
   Future<void> leaveChatRoom(String roomId);
   Future<void> kickUser(String roomId, int userId);
-  Future<String> createQNAChatRoom(ChatRoomRequest request);
   Future<Map<String, String?>> sendChatbot(String text);
   Future<bool> getBlindDateOpen();
 
@@ -51,7 +49,6 @@ abstract class ChatDataSource {
   Stream<BlindDateMessage> get broadcastStream;
   Stream<BlindJoinInfo> get joinStream;
   Stream<Map<int, String>> get participantsStream;
-  Stream<String> get matchStream;
   Stream<String> get endedStream;
   Stream<String> get disconnectStream;
   bool get isConnected;

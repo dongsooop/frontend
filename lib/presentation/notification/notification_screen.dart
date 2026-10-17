@@ -152,44 +152,6 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       }
     }
 
-    Future<void> onRecruitApplyToggle(bool nextValue) async {
-      final deviceToken = await _requireDeviceToken();
-      if (deviceToken == null) return;
-
-      try {
-        await vm.setRecruitApplyToggle(
-          target: target,
-          deviceToken: deviceToken,
-          nextValue: nextValue,
-        );
-        _showSnack(
-          context,
-          _consentMessage(label: '지원 현황', enabled: nextValue),
-        );
-      } catch (e) {
-        _showSnack(context, e.toString());
-      }
-    }
-
-    Future<void> onRecruitResultToggle(bool nextValue) async {
-      final deviceToken = await _requireDeviceToken();
-      if (deviceToken == null) return;
-
-      try {
-        await vm.setRecruitResultToggle(
-          target: target,
-          deviceToken: deviceToken,
-          nextValue: nextValue,
-        );
-        _showSnack(
-          context,
-          _consentMessage(label: '지원 결과', enabled: nextValue),
-        );
-      } catch (e) {
-        _showSnack(context, e.toString());
-      }
-    }
-
     return Scaffold(
       backgroundColor: ColorStyles.white,
       appBar: const DetailHeader(
@@ -278,29 +240,6 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                     ),
                   ],
                 ),
-                const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),
-
-                if (user != null)
-                  NotificationSection(
-                    title: '모집 알림',
-                    subtitle: '모집 지원·결과를 빠르게 알려드려요.',
-                    children: [
-                      NotificationToggleRow(
-                        label: '지원 현황',
-                        value: state.recruitApplyEnabled,
-                        loading: state.recruitApplyLoading,
-                        onChanged: onRecruitApplyToggle,
-                      ),
-                      const SizedBox(height: 4),
-                      NotificationToggleRow(
-                        label: '지원 결과',
-                        value: state.recruitResultEnabled,
-                        loading: state.recruitResultLoading,
-                        onChanged: onRecruitResultToggle,
-                      ),
-                    ],
-                  ),
-
                 const Divider(thickness: 4, height: 1, color: ColorStyles.gray1),
 
                 if (user != null)

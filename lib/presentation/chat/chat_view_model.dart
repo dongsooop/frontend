@@ -18,12 +18,12 @@ class ChatViewModel extends StateNotifier<ChatState> {
   final SubscribeChatListUseCase _subscribeChatListUseCase;
 
   ChatViewModel(
-      this._loadChatRoomsUseCase,
-      this._getBlindDateOpenUseCase,
-      this._connectChatListUseCase,
-      this._disconnectChatListUseCase,
-      this._subscribeChatListUseCase,
-      ) : super(ChatState(isLoading: false));
+    this._loadChatRoomsUseCase,
+    this._getBlindDateOpenUseCase,
+    this._connectChatListUseCase,
+    this._disconnectChatListUseCase,
+    this._subscribeChatListUseCase,
+  ) : super(ChatState(isLoading: false));
 
   StreamSubscription<ChatRoomWs>? _chatRoomListSubscription;
 
@@ -54,8 +54,8 @@ class ChatViewModel extends StateNotifier<ChatState> {
       // message
       _chatRoomListSubscription =
           _subscribeChatListUseCase.execute().listen((chatRoomData) async {
-            updateChatRoomFromWs(chatRoomData);
-          });
+        updateChatRoomFromWs(chatRoomData);
+      });
     } on SessionExpiredException {
       state = state.copyWith(isLoading: false);
     } catch (e) {
@@ -110,8 +110,14 @@ class ChatViewModel extends StateNotifier<ChatState> {
     }
   }
 
-  void resetChatRooms() async {
+  void resetChatRooms() {
     state = state.copyWith(chatRooms: []);
+  }
+
+  void resetForSessionEnd() {
+    unawaited(_chatRoomListSubscription?.cancel());
+    _chatRoomListSubscription = null;
+    state = ChatState(isLoading: false, chatRooms: const []);
   }
 
   Future<bool> isOpened() async {
@@ -133,9 +139,15 @@ class ChatViewModel extends StateNotifier<ChatState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '과팅 기능은 준비 중이에요!',
+        errorMessage: '과팅 오픈 확인 중 오류가 발생했습니다.',
       );
       return false;
     }
+  }
+
+  @override
+  void dispose() {
+    unawaited(_chatRoomListSubscription?.cancel());
+    super.dispose();
   }
 }

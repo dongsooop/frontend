@@ -4,10 +4,9 @@ import 'package:dongsoop/data/mypage/data_source/mypage_data_source.dart';
 import 'package:dongsoop/domain/auth/enum/login_platform.dart';
 import 'package:dongsoop/domain/mypage/model/blind_date_open_request.dart';
 import 'package:dongsoop/domain/mypage/model/blocked_user.dart';
-import 'package:dongsoop/domain/mypage/model/mypage_market.dart';
-import 'package:dongsoop/domain/mypage/model/mypage_recruit.dart';
 import 'package:dongsoop/domain/mypage/model/social_state.dart';
 import 'package:dongsoop/core/http_status_code.dart';
+import 'package:flutter/foundation.dart';
 
 class MypageDataSourceImpl implements MypageDataSource {
   final Dio _authDio;
@@ -15,50 +14,6 @@ class MypageDataSourceImpl implements MypageDataSource {
   MypageDataSourceImpl(
     this._authDio,
   );
-
-  @override
-  Future<List<MypageMarket>?> getMarketPosts({int page = 0, int size = 10,}) async {
-    final market = '/mypage/opened-marketplace';
-    final query = 'page=$page&size=$size&sort=createdAt,asc';
-    final endpoint = '$market?$query';
-
-    try {
-      final response = await _authDio.get(endpoint);
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        final List<dynamic> data = response.data;
-        final List<MypageMarket> posts = data.map((e) => MypageMarket.fromJson(e as Map<String, dynamic>)).toList();
-        return posts;
-      }
-      throw Exception('Unexpected status code: ${response.statusCode}');
-    } catch (e) {
-      if (e is DioException && e.error is SessionExpiredException) {
-        throw e.error!;
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<List<MypageRecruit>?> getRecruitPosts(bool isApply, {int page = 0, int size = 10,}) async {
-    final market = isApply ? '/mypage/apply-recruitments' : '/mypage/opened-recruitments';
-    final query = 'page=$page&size=$size';
-    final endpoint = '$market?$query';
-
-    try {
-      final response = await _authDio.get(endpoint);
-      if (response.statusCode == HttpStatusCode.ok.code) {
-        final List<dynamic> data = response.data;
-        final List<MypageRecruit> posts = data.map((e) => MypageRecruit.fromJson(e)).toList();
-        return posts;
-      }
-      throw Exception('Unexpected status code: ${response.statusCode}');
-    } catch (e) {
-      if (e is DioException && e.error is SessionExpiredException) {
-        throw e.error!;
-      }
-      rethrow;
-    }
-  }
 
   @override
   Future<List<BlockedUser>?> getBlockedUserList() async {
@@ -105,7 +60,47 @@ class MypageDataSourceImpl implements MypageDataSource {
         return true;
       }
       throw Exception('Unexpected status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == HttpStatusCode.conflict.code) {
+        print('blindDateOpen: ${e}');
+        throw BlindDateOpenConflictException();
+      }
+      rethrow;
     } catch (e) {
+      if (e is DioException && e.error is SessionExpiredException) {
+        throw e.error!;
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> resetBlindDateParticipants() async {
+    const endpoint = '/blinddate/participants';
+    _logBlindDateReset('REQUEST method=DELETE endpoint=$endpoint');
+
+    try {
+      final response = await _authDio.delete(endpoint);
+      final statusCode = response.statusCode;
+      _logBlindDateReset(
+        'RESPONSE status=$statusCode body=${response.data ?? '-'}',
+      );
+      if (statusCode != null && statusCode >= 200 && statusCode < 300) {
+        _logBlindDateReset('SUCCESS');
+        return;
+      }
+      throw Exception('Unexpected status code: $statusCode');
+    } catch (e) {
+      if (e is DioException) {
+        _logBlindDateReset(
+          'ERROR type=${e.type.name} '
+          'status=${e.response?.statusCode ?? '-'} '
+          'message=${e.message ?? '-'} '
+          'body=${e.response?.data ?? '-'}',
+        );
+      } else {
+        _logBlindDateReset('ERROR type=${e.runtimeType} message=$e');
+      }
       if (e is DioException && e.error is SessionExpiredException) {
         throw e.error!;
       }
@@ -182,6 +177,12 @@ class MypageDataSourceImpl implements MypageDataSource {
         throw e.error!;
       }
       rethrow;
+    }
+  }
+
+  void _logBlindDateReset(String message) {
+    if (kDebugMode) {
+      debugPrint('[BlindDate Admin] RESET $message');
     }
   }
 }

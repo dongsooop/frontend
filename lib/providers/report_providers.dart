@@ -1,10 +1,18 @@
 import 'package:dongsoop/data/report/data_source/report_data_source.dart';
+import 'package:dongsoop/domain/report/enum/report_admin_filter.dart';
+import 'package:dongsoop/domain/report/enum/report_chat_room_type.dart';
 import 'package:dongsoop/domain/report/use_case/get_sanction_status_use_case.dart';
-import 'package:dongsoop/domain/report/use_case/report_write_use_case.dart';
+import 'package:dongsoop/domain/report/use_case/report_admin_dismiss_use_case.dart';
+import 'package:dongsoop/domain/report/use_case/report_blind_date_message_use_case.dart';
+import 'package:dongsoop/domain/report/use_case/report_chat_message_use_case.dart';
+import 'package:dongsoop/presentation/my_page/admin/report/report_admin_dismiss_state.dart';
+import 'package:dongsoop/presentation/my_page/admin/report/report_admin_dismiss_view_model.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_state.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_view_model.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_state.dart';
-import 'package:dongsoop/presentation/report/report_state.dart';
+import 'package:dongsoop/presentation/report/message_report_state.dart';
+import 'package:dongsoop/presentation/report/message_report_view_model.dart';
+import 'package:dongsoop/presentation/report/model/message_report_target.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,7 +22,6 @@ import '../domain/report/repository/report_repository.dart';
 import '../domain/report/use_case/get_reports_use_case.dart';
 import '../domain/report/use_case/report_admin_sanction_write_use_case.dart';
 import '../presentation/my_page/admin/report/report_admin_view_model.dart';
-import '../presentation/report/report_view_model.dart';
 import 'auth_dio.dart';
 
 // Data Source
@@ -33,20 +40,22 @@ final reportRepositoryProvider = Provider<ReportRepository>((ref) {
 });
 
 // Use Case
-final reportWriteUseCaseProvider = Provider<ReportWriteUseCase>((ref) {
-  final repository = ref.watch(reportRepositoryProvider);
-  return ReportWriteUseCase(repository);
-});
-
-// Use Case
-final getSanctionStatusUseCaseProvider = Provider<GetSanctionStatusUseCase>((ref) {
+final getSanctionStatusUseCaseProvider =
+    Provider<GetSanctionStatusUseCase>((ref) {
   final repository = ref.watch(reportRepositoryProvider);
   return GetSanctionStatusUseCase(repository);
 });
 
-final reportAdminSanctionWriteUseCaseProvider = Provider<ReportAdminSanctionWriteUseCase>((ref) {
+final reportAdminSanctionWriteUseCaseProvider =
+    Provider<ReportAdminSanctionWriteUseCase>((ref) {
   final repository = ref.watch(reportRepositoryProvider);
   return ReportAdminSanctionWriteUseCase(repository);
+});
+
+final reportAdminDismissUseCaseProvider =
+    Provider<ReportAdminDismissUseCase>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+  return ReportAdminDismissUseCase(repository);
 });
 
 final getReportsUseCaseProvider = Provider<GetReportsUseCase>((ref) {
@@ -54,25 +63,51 @@ final getReportsUseCaseProvider = Provider<GetReportsUseCase>((ref) {
   return GetReportsUseCase(repository);
 });
 
+final reportChatMessageUseCaseProvider =
+    Provider<ReportChatMessageUseCase>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+  return ReportChatMessageUseCase(repository);
+});
+
+final reportBlindDateMessageUseCaseProvider =
+    Provider<ReportBlindDateMessageUseCase>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+  return ReportBlindDateMessageUseCase(repository);
+});
+
+final messageReportViewModelProvider = StateNotifierProvider.autoDispose
+    .family<MessageReportViewModel, MessageReportState, MessageReportTarget>(
+  (ref, target) => MessageReportViewModel(
+    target: target,
+    reportChatMessageUseCase: ref.watch(reportChatMessageUseCaseProvider),
+    reportBlindDateMessageUseCase:
+        ref.watch(reportBlindDateMessageUseCaseProvider),
+  ),
+);
 
 // View Model
-final reportViewModelProvider =
-StateNotifierProvider.autoDispose<ReportViewModel, ReportState>((ref) {
-  final reportWriteUseCese = ref.watch(reportWriteUseCaseProvider);
-
-  return ReportViewModel(reportWriteUseCese);
-});
-
-final reportAdminViewModelProvider =
-StateNotifierProvider<ReportAdminViewModel, ReportAdminState>((ref) {
+final reportAdminViewModelProvider = StateNotifierProvider.autoDispose
+    .family<ReportAdminViewModel, ReportAdminState, ReportAdminFilter>(
+        (ref, filter) {
   final getReportsUseCase = ref.watch(getReportsUseCaseProvider);
 
-  return ReportAdminViewModel(getReportsUseCase);
+  return ReportAdminViewModel(getReportsUseCase, initialFilter: filter);
 });
 
-final reportAdminSanctionViewModelProvider =
-StateNotifierProvider.autoDispose<ReportAdminSanctionViewModel, ReportAdminSanctionState>((ref) {
-  final reportAdminSanctionWriteUseCase = ref.watch(reportAdminSanctionWriteUseCaseProvider);
+final reportAdminSanctionViewModelProvider = StateNotifierProvider.autoDispose
+    .family<ReportAdminSanctionViewModel, ReportAdminSanctionState,
+        ReportChatRoomType?>((ref, chatRoomType) {
+  final reportAdminSanctionWriteUseCase =
+      ref.watch(reportAdminSanctionWriteUseCaseProvider);
 
-  return ReportAdminSanctionViewModel(reportAdminSanctionWriteUseCase);
+  return ReportAdminSanctionViewModel(
+    reportAdminSanctionWriteUseCase,
+    chatRoomType: chatRoomType,
+  );
+});
+
+final reportAdminDismissViewModelProvider = StateNotifierProvider.autoDispose<
+    ReportAdminDismissViewModel, ReportAdminDismissState>((ref) {
+  final dismissUseCase = ref.watch(reportAdminDismissUseCaseProvider);
+  return ReportAdminDismissViewModel(dismissUseCase);
 });

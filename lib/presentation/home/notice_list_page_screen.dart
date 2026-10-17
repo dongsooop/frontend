@@ -5,7 +5,6 @@ import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/domain/auth/enum/department_type_ext.dart';
 import 'package:dongsoop/domain/notice/entity/notice_entity.dart';
-import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/presentation/home/view_models/notice_list_view_model.dart';
 import 'package:dongsoop/presentation/notice/reminder/providers/notice_reminder_providers.dart';
 import 'package:dongsoop/presentation/notice/reminder/widgets/notice_reminder_bottom_sheet.dart';
@@ -179,10 +178,7 @@ class NoticeListPageScreen extends HookConsumerWidget {
                               color: ColorStyles.gray3,
                             ),
                             onPressed: () {
-                              context.push(
-                                RoutePaths.search,
-                                extra: SearchBoardType.notice,
-                              );
+                              context.push(RoutePaths.search);
                             },
                           ),
                         ],

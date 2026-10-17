@@ -17,7 +17,6 @@ mixin _$HomeResponse {
   List<TimeTableItemResponse> get timeTableItems;
   List<ScheduleItemResponse> get scheduleItems;
   List<NewNoticeItemResponse> get newNoticeItems;
-  List<PopularRecruitItemResponse> get popularRecruitItems;
   HomeEclassAssignmentResponse? get eclassAssignment;
 
   /// Create a copy of HomeResponse
@@ -39,8 +38,6 @@ mixin _$HomeResponse {
                 .equals(other.scheduleItems, scheduleItems) &&
             const DeepCollectionEquality()
                 .equals(other.newNoticeItems, newNoticeItems) &&
-            const DeepCollectionEquality()
-                .equals(other.popularRecruitItems, popularRecruitItems) &&
             (identical(other.eclassAssignment, eclassAssignment) ||
                 other.eclassAssignment == eclassAssignment));
   }
@@ -52,12 +49,11 @@ mixin _$HomeResponse {
       const DeepCollectionEquality().hash(timeTableItems),
       const DeepCollectionEquality().hash(scheduleItems),
       const DeepCollectionEquality().hash(newNoticeItems),
-      const DeepCollectionEquality().hash(popularRecruitItems),
       eclassAssignment);
 
   @override
   String toString() {
-    return 'HomeResponse(timeTableItems: $timeTableItems, scheduleItems: $scheduleItems, newNoticeItems: $newNoticeItems, popularRecruitItems: $popularRecruitItems, eclassAssignment: $eclassAssignment)';
+    return 'HomeResponse(timeTableItems: $timeTableItems, scheduleItems: $scheduleItems, newNoticeItems: $newNoticeItems, eclassAssignment: $eclassAssignment)';
   }
 }
 
@@ -71,7 +67,6 @@ abstract mixin class $HomeResponseCopyWith<$Res> {
       {List<TimeTableItemResponse> timeTableItems,
       List<ScheduleItemResponse> scheduleItems,
       List<NewNoticeItemResponse> newNoticeItems,
-      List<PopularRecruitItemResponse> popularRecruitItems,
       HomeEclassAssignmentResponse? eclassAssignment});
 }
 
@@ -90,7 +85,6 @@ class _$HomeResponseCopyWithImpl<$Res> implements $HomeResponseCopyWith<$Res> {
     Object? timeTableItems = null,
     Object? scheduleItems = null,
     Object? newNoticeItems = null,
-    Object? popularRecruitItems = null,
     Object? eclassAssignment = freezed,
   }) {
     return _then(HomeResponse(
@@ -106,10 +100,6 @@ class _$HomeResponseCopyWithImpl<$Res> implements $HomeResponseCopyWith<$Res> {
           ? _self.newNoticeItems
           : newNoticeItems // ignore: cast_nullable_to_non_nullable
               as List<NewNoticeItemResponse>,
-      popularRecruitItems: null == popularRecruitItems
-          ? _self.popularRecruitItems
-          : popularRecruitItems // ignore: cast_nullable_to_non_nullable
-              as List<PopularRecruitItemResponse>,
       eclassAssignment: freezed == eclassAssignment
           ? _self.eclassAssignment
           : eclassAssignment // ignore: cast_nullable_to_non_nullable

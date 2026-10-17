@@ -9,17 +9,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dongsoop/domain/auth/enum/department_type.dart';
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/auth/use_case/check_duplicate_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/check_nickname_profanity_use_case.dart';
 
 class SignUpViewModel extends StateNotifier<SignUpState> {
   Timer? _timer;
   final SignUpUseCase _signUpUseCase;
   final CheckDuplicateUseCase _checkDuplicateUseCase;
+  final CheckNicknameProfanityUseCase _checkNicknameProfanityUseCase;
   final CheckEmailCodeUseCase _checkEmailCodeUseCase;
   final SendEmailCodeUseCase _sendEmailCodeUseCase;
 
   SignUpViewModel(
     this._signUpUseCase,
     this._checkDuplicateUseCase,
+    this._checkNicknameProfanityUseCase,
     this._checkEmailCodeUseCase,
     this._sendEmailCodeUseCase,
   ) : super(
@@ -41,6 +44,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
   String _prevPassword = '';
   String _prevPasswordCheck = '';
   String _prevNicknameValue = '';
+  int _nicknameCheckRevision = 0;
 
   // 이메일
   // 이메일 유효성
@@ -385,6 +389,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
       return;
     }
     _prevNicknameValue = nickname;
+    _nicknameCheckRevision++;
 
     state = state.copyWith(isNicknameValid: false);
 
@@ -395,6 +400,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
           isNumberFormatValid: false,
           message: '2~8글자로 입력해 주세요',
           isError: true,
+          isLoading: false,
         ),
       );
       return;
@@ -409,6 +415,7 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
           isSpecialCharacterValid: false,
           message: '닉네임에 특수문자를 포함할 수 없어요',
           isError: true,
+          isLoading: false,
         ),
       );
       return;
@@ -419,9 +426,10 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
         nickname: nickname,
         isNumberFormatValid: true,
         isSpecialCharacterValid: true,
-        isDuplicate: false,
+        isDuplicate: null,
         message: '중복 확인이 필요해요',
         isError: true,
+        isLoading: false,
       ),
       errorMessage: null,
     );
@@ -429,37 +437,94 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
 
   // 닉네임 중복 확인
   Future<void> checkNicknameDuplication(String nickname) async {
-    // 닉네임 형식 일치 확인
-    if (state.nickname.isDuplicate == null) return;
+    final candidate = nickname.trim();
+    final nicknameState = state.nickname;
+
+    if (nicknameState.nickname != candidate ||
+        nicknameState.isNumberFormatValid != true ||
+        nicknameState.isSpecialCharacterValid != true ||
+        nicknameState.isDuplicate != null ||
+        nicknameState.isLoading) {
+      return;
+    }
+
+    final requestRevision = ++_nicknameCheckRevision;
 
     state = state.copyWith(
+      isNicknameValid: false,
       nickname: state.nickname.copyWith(
+        nickname: candidate,
+        isNumberFormatValid: true,
+        isSpecialCharacterValid: true,
+        isDuplicate: null,
         isLoading: true,
         message: '',
+        isError: null,
       ),
+      errorMessage: null,
     );
 
     try {
-      final isDuplicate = await _checkDuplicateUseCase.execute(nickname, 'nickname');
+      final isProfanityFree =
+          await _checkNicknameProfanityUseCase.execute(candidate);
+      if (!_isCurrentNicknameCheck(candidate, requestRevision)) return;
+
+      if (!isProfanityFree) {
+        state = state.copyWith(
+          isNicknameValid: false,
+          nickname: state.nickname.copyWith(
+            nickname: candidate,
+            isNumberFormatValid: true,
+            isSpecialCharacterValid: true,
+            isDuplicate: null,
+            message: '닉네임에 비속어가 포함될 수 없어요',
+            isError: true,
+            isLoading: false,
+          ),
+          errorMessage: null,
+        );
+        return;
+      }
+
+      final isDuplicate =
+          await _checkDuplicateUseCase.execute(candidate, 'nickname');
+      if (!_isCurrentNicknameCheck(candidate, requestRevision)) return;
+
       state = state.copyWith(
         isNicknameValid: !isDuplicate,
         nickname: state.nickname.copyWith(
-          nickname: nickname,
+          nickname: candidate,
+          isNumberFormatValid: true,
+          isSpecialCharacterValid: true,
           isDuplicate: isDuplicate,
           message: isDuplicate ? '사용 중인 닉네임이에요' : '',
           isError: isDuplicate,
           isLoading: false,
         ),
+        errorMessage: null,
       );
     } catch (e) {
+      if (!_isCurrentNicknameCheck(candidate, requestRevision)) return;
+
       state = state.copyWith(
+        isNicknameValid: false,
         errorMessage: "회원가입 중 오류가 발생했습니다.",
         nickname: state.nickname.copyWith(
+          nickname: candidate,
+          isNumberFormatValid: true,
+          isSpecialCharacterValid: true,
           isDuplicate: null,
+          message: '중복 확인이 필요해요',
+          isError: true,
           isLoading: false,
         ),
       );
     }
+  }
+
+  bool _isCurrentNicknameCheck(String nickname, int revision) {
+    return _nicknameCheckRevision == revision &&
+        state.nickname.nickname == nickname;
   }
 
   // 학과

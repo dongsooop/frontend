@@ -17,15 +17,26 @@ mixin _$ReportAdminSanction {
   int get id;
   String get reporterNickname;
   String get reportType;
-  int get targetId;
+  int? get targetId;
+  String? get targetUrl;
   int? get targetMemberId;
+  String? get targetMemberNickname;
   String get reportReason;
   String? get description;
+  bool get isProcessed;
   String? get adminNickname;
   String? get sanctionType;
   String? get sanctionReason;
   String? get sanctionStartDate;
   String? get sanctionEndDate;
+  bool? get isSanctionActive;
+  String? get chatRoomId;
+  ReportChatRoomType? get chatRoomType;
+  int? get resolvedByReportId;
+  String? get messageId;
+  String? get messageContent;
+  String? get messageSentAt;
+  List<ReportMessageContext> get messageContext;
   String get createdAt;
 
   /// Create a copy of ReportAdminSanction
@@ -48,12 +59,18 @@ mixin _$ReportAdminSanction {
                 other.reportType == reportType) &&
             (identical(other.targetId, targetId) ||
                 other.targetId == targetId) &&
+            (identical(other.targetUrl, targetUrl) ||
+                other.targetUrl == targetUrl) &&
             (identical(other.targetMemberId, targetMemberId) ||
                 other.targetMemberId == targetMemberId) &&
+            (identical(other.targetMemberNickname, targetMemberNickname) ||
+                other.targetMemberNickname == targetMemberNickname) &&
             (identical(other.reportReason, reportReason) ||
                 other.reportReason == reportReason) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.isProcessed, isProcessed) ||
+                other.isProcessed == isProcessed) &&
             (identical(other.adminNickname, adminNickname) ||
                 other.adminNickname == adminNickname) &&
             (identical(other.sanctionType, sanctionType) ||
@@ -64,30 +81,58 @@ mixin _$ReportAdminSanction {
                 other.sanctionStartDate == sanctionStartDate) &&
             (identical(other.sanctionEndDate, sanctionEndDate) ||
                 other.sanctionEndDate == sanctionEndDate) &&
+            (identical(other.isSanctionActive, isSanctionActive) ||
+                other.isSanctionActive == isSanctionActive) &&
+            (identical(other.chatRoomId, chatRoomId) ||
+                other.chatRoomId == chatRoomId) &&
+            (identical(other.chatRoomType, chatRoomType) ||
+                other.chatRoomType == chatRoomType) &&
+            (identical(other.resolvedByReportId, resolvedByReportId) ||
+                other.resolvedByReportId == resolvedByReportId) &&
+            (identical(other.messageId, messageId) ||
+                other.messageId == messageId) &&
+            (identical(other.messageContent, messageContent) ||
+                other.messageContent == messageContent) &&
+            (identical(other.messageSentAt, messageSentAt) ||
+                other.messageSentAt == messageSentAt) &&
+            const DeepCollectionEquality()
+                .equals(other.messageContext, messageContext) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      reporterNickname,
-      reportType,
-      targetId,
-      targetMemberId,
-      reportReason,
-      description,
-      adminNickname,
-      sanctionType,
-      sanctionReason,
-      sanctionStartDate,
-      sanctionEndDate,
-      createdAt);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        reporterNickname,
+        reportType,
+        targetId,
+        targetUrl,
+        targetMemberId,
+        targetMemberNickname,
+        reportReason,
+        description,
+        isProcessed,
+        adminNickname,
+        sanctionType,
+        sanctionReason,
+        sanctionStartDate,
+        sanctionEndDate,
+        isSanctionActive,
+        chatRoomId,
+        chatRoomType,
+        resolvedByReportId,
+        messageId,
+        messageContent,
+        messageSentAt,
+        const DeepCollectionEquality().hash(messageContext),
+        createdAt
+      ]);
 
   @override
   String toString() {
-    return 'ReportAdminSanction(id: $id, reporterNickname: $reporterNickname, reportType: $reportType, targetId: $targetId, targetMemberId: $targetMemberId, reportReason: $reportReason, description: $description, adminNickname: $adminNickname, sanctionType: $sanctionType, sanctionReason: $sanctionReason, sanctionStartDate: $sanctionStartDate, sanctionEndDate: $sanctionEndDate, createdAt: $createdAt)';
+    return 'ReportAdminSanction(id: $id, reporterNickname: $reporterNickname, reportType: $reportType, targetId: $targetId, targetUrl: $targetUrl, targetMemberId: $targetMemberId, targetMemberNickname: $targetMemberNickname, reportReason: $reportReason, description: $description, isProcessed: $isProcessed, adminNickname: $adminNickname, sanctionType: $sanctionType, sanctionReason: $sanctionReason, sanctionStartDate: $sanctionStartDate, sanctionEndDate: $sanctionEndDate, isSanctionActive: $isSanctionActive, chatRoomId: $chatRoomId, chatRoomType: $chatRoomType, resolvedByReportId: $resolvedByReportId, messageId: $messageId, messageContent: $messageContent, messageSentAt: $messageSentAt, messageContext: $messageContext, createdAt: $createdAt)';
   }
 }
 
@@ -101,15 +146,26 @@ abstract mixin class $ReportAdminSanctionCopyWith<$Res> {
       {int id,
       String reporterNickname,
       String reportType,
-      int targetId,
+      int? targetId,
+      String? targetUrl,
       int? targetMemberId,
+      String? targetMemberNickname,
       String reportReason,
       String? description,
+      bool isProcessed,
       String? adminNickname,
       String? sanctionType,
       String? sanctionReason,
       String? sanctionStartDate,
       String? sanctionEndDate,
+      bool? isSanctionActive,
+      String? chatRoomId,
+      ReportChatRoomType? chatRoomType,
+      int? resolvedByReportId,
+      String? messageId,
+      String? messageContent,
+      String? messageSentAt,
+      List<ReportMessageContext> messageContext,
       String createdAt});
 }
 
@@ -129,15 +185,26 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
     Object? id = null,
     Object? reporterNickname = null,
     Object? reportType = null,
-    Object? targetId = null,
+    Object? targetId = freezed,
+    Object? targetUrl = freezed,
     Object? targetMemberId = freezed,
+    Object? targetMemberNickname = freezed,
     Object? reportReason = null,
     Object? description = freezed,
+    Object? isProcessed = null,
     Object? adminNickname = freezed,
     Object? sanctionType = freezed,
     Object? sanctionReason = freezed,
     Object? sanctionStartDate = freezed,
     Object? sanctionEndDate = freezed,
+    Object? isSanctionActive = freezed,
+    Object? chatRoomId = freezed,
+    Object? chatRoomType = freezed,
+    Object? resolvedByReportId = freezed,
+    Object? messageId = freezed,
+    Object? messageContent = freezed,
+    Object? messageSentAt = freezed,
+    Object? messageContext = null,
     Object? createdAt = null,
   }) {
     return _then(ReportAdminSanction(
@@ -153,14 +220,22 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
           ? _self.reportType
           : reportType // ignore: cast_nullable_to_non_nullable
               as String,
-      targetId: null == targetId
+      targetId: freezed == targetId
           ? _self.targetId
           : targetId // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
+      targetUrl: freezed == targetUrl
+          ? _self.targetUrl
+          : targetUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
       targetMemberId: freezed == targetMemberId
           ? _self.targetMemberId
           : targetMemberId // ignore: cast_nullable_to_non_nullable
               as int?,
+      targetMemberNickname: freezed == targetMemberNickname
+          ? _self.targetMemberNickname
+          : targetMemberNickname // ignore: cast_nullable_to_non_nullable
+              as String?,
       reportReason: null == reportReason
           ? _self.reportReason
           : reportReason // ignore: cast_nullable_to_non_nullable
@@ -169,6 +244,10 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
           ? _self.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
+      isProcessed: null == isProcessed
+          ? _self.isProcessed
+          : isProcessed // ignore: cast_nullable_to_non_nullable
+              as bool,
       adminNickname: freezed == adminNickname
           ? _self.adminNickname
           : adminNickname // ignore: cast_nullable_to_non_nullable
@@ -189,6 +268,38 @@ class _$ReportAdminSanctionCopyWithImpl<$Res>
           ? _self.sanctionEndDate
           : sanctionEndDate // ignore: cast_nullable_to_non_nullable
               as String?,
+      isSanctionActive: freezed == isSanctionActive
+          ? _self.isSanctionActive
+          : isSanctionActive // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      chatRoomId: freezed == chatRoomId
+          ? _self.chatRoomId
+          : chatRoomId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      chatRoomType: freezed == chatRoomType
+          ? _self.chatRoomType
+          : chatRoomType // ignore: cast_nullable_to_non_nullable
+              as ReportChatRoomType?,
+      resolvedByReportId: freezed == resolvedByReportId
+          ? _self.resolvedByReportId
+          : resolvedByReportId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      messageId: freezed == messageId
+          ? _self.messageId
+          : messageId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      messageContent: freezed == messageContent
+          ? _self.messageContent
+          : messageContent // ignore: cast_nullable_to_non_nullable
+              as String?,
+      messageSentAt: freezed == messageSentAt
+          ? _self.messageSentAt
+          : messageSentAt // ignore: cast_nullable_to_non_nullable
+              as String?,
+      messageContext: null == messageContext
+          ? _self.messageContext
+          : messageContext // ignore: cast_nullable_to_non_nullable
+              as List<ReportMessageContext>,
       createdAt: null == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable

@@ -4,6 +4,7 @@ import 'package:dongsoop/core/network/user_agent.dart';
 import 'package:dongsoop/core/storage/preferences_service.dart';
 import 'package:dongsoop/core/storage/secure_storage_service.dart';
 import 'package:dongsoop/providers/app_check_dio.dart';
+import 'package:dongsoop/providers/session_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Dio createAuthDio({required Ref ref, bool useAi = false}) {
@@ -21,9 +22,18 @@ Dio createAuthDio({required Ref ref, bool useAi = false}) {
   final secureStorage = ref.watch(secureStorageProvider);
   final preferences = ref.watch(preferencesProvider);
   final appCheck = ref.watch(appCheckInterceptorProvider);
+  final sessionManager = ref.watch(sessionManagerProvider);
 
   dio.interceptors.clear();
-  dio.interceptors.add(AuthInterceptor(secureStorage, preferences, ref, appCheck));
+  dio.interceptors.add(
+    AuthInterceptor(
+      secureStorage,
+      preferences,
+      ref,
+      appCheck,
+      onSessionEnded: sessionManager.end,
+    ),
+  );
 
   return dio;
 }

@@ -2,7 +2,11 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 
-class AppCheckInterceptor extends Interceptor {
+abstract interface class AppCheckTokenProvider {
+  Future<String?> getToken();
+}
+
+class AppCheckInterceptor extends Interceptor implements AppCheckTokenProvider {
   String? _cached;
   Future<String?>? _inFlight;
   Timer? _refreshTimer;
@@ -34,6 +38,7 @@ class AppCheckInterceptor extends Interceptor {
     return _inFlight!;
   }
 
+  @override
   Future<String?> getToken() => _getTokenOnce();
 
   Future<void> attachTo(Map<String, dynamic> headers) async {
@@ -51,7 +56,8 @@ class AppCheckInterceptor extends Interceptor {
   }
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
     try {
       if (_isOurBackend(options.uri)) {
         await attachTo(options.headers);

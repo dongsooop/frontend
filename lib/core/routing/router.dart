@@ -3,25 +3,17 @@ import 'package:dongsoop/core/routing/utils/eclass_assignment_link_launcher.dart
 import 'package:dongsoop/domain/auth/enum/login_entry.dart';
 import 'package:dongsoop/domain/restaurants/model/restaurants_kakao_info.dart';
 import 'package:dongsoop/domain/feedback/enum/feedback_type.dart';
-import 'package:dongsoop/domain/search/enum/board_type.dart';
+import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
 import 'package:dongsoop/domain/timetable/enum/semester.dart';
 import 'package:dongsoop/domain/timetable/model/lecture.dart';
-import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
-import 'package:dongsoop/presentation/board/board_page_screen.dart';
 import 'package:dongsoop/presentation/campus/campus_map_screen.dart';
 import 'package:dongsoop/presentation/campus/campus_page_screen.dart';
-import 'package:dongsoop/presentation/board/market/detail/market_detail_page_screen.dart';
-import 'package:dongsoop/presentation/board/market/write/market_write_page_screen.dart';
-import 'package:dongsoop/presentation/board/recruit/apply/detail/recruit_applicant_detail_page_screen.dart';
-import 'package:dongsoop/presentation/board/recruit/apply/list/recruit_applicant_list_page_screen.dart';
-import 'package:dongsoop/presentation/board/recruit/apply/recruit_apply_page_screen.dart';
-import 'package:dongsoop/presentation/board/recruit/detail/recruit_detail_page_screen.dart';
-import 'package:dongsoop/presentation/board/recruit/write/recruit_write_page_screen.dart';
 import 'package:dongsoop/presentation/search/search_screen.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_detail_screen.dart';
 import 'package:dongsoop/presentation/chat/blind_date/blind_date_screen.dart';
 import 'package:dongsoop/presentation/home/chatbot/chatbot_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_screen.dart';
+import 'package:dongsoop/presentation/my_page/admin/blind_reset/blind_reset_screen.dart';
 import 'package:dongsoop/presentation/my_page/social_login_connect/social_login_connect_screen.dart';
 import 'package:dongsoop/presentation/restaurants/restaurants_screen.dart';
 import 'package:dongsoop/presentation/restaurants/search/restaurants_search_screen.dart';
@@ -38,13 +30,10 @@ import 'package:dongsoop/presentation/home/home_page_screen.dart';
 import 'package:dongsoop/presentation/home/notice_list_page_screen.dart';
 import 'package:dongsoop/presentation/home/notification_list_page_screen.dart';
 import 'package:dongsoop/presentation/main/main_screen.dart';
-import 'package:dongsoop/presentation/my_page/activity/activity_market_screen.dart';
-import 'package:dongsoop/presentation/my_page/activity/activity_recruit_screen.dart';
 import 'package:dongsoop/presentation/my_page/activity/blocked_user_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_sanction_screen.dart';
 import 'package:dongsoop/presentation/my_page/admin/report/report_admin_screen.dart';
 import 'package:dongsoop/presentation/my_page/my_page_screen.dart';
-import 'package:dongsoop/presentation/report/report_screen.dart';
 import 'package:dongsoop/presentation/my_page/feedback/feedback_more_screen.dart';
 import 'package:dongsoop/presentation/setting/device_management/device_management_screen.dart';
 import 'package:dongsoop/presentation/eclass/assignment/eclass_assignment_screen.dart';
@@ -214,14 +203,7 @@ final router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.blindDateDetail,
-      builder: (context, state) => BlindDateDetailScreen(
-        onTapChatDetail: (roomId) {
-          context.push (
-            RoutePaths.chatDetail,
-            extra: roomId,
-          );
-        },
-      ),
+      builder: (context, state) => const BlindDateDetailScreen(),
     ),
     GoRoute(
       path: RoutePaths.mypageWebView,
@@ -243,54 +225,38 @@ final router = GoRouter(
       builder: (context, state) => BlindAdminScreen()
     ),
     GoRoute(
+      path: RoutePaths.adminBlindDateReset,
+      builder: (context, state) => const BlindResetScreen(),
+    ),
+    GoRoute(
       path: RoutePaths.adminReport,
       builder: (context, state) => ReportAdminScreen(
-        onTapReportSanction: (reportId, targetMemberId) {
-          context.push(
+        onTapReportSanction: (report) {
+          return context.push<bool>(
             RoutePaths.adminReportSanction,
-            extra: {
-              'reportId': reportId,
-              'targetMemberId': targetMemberId,
-            },
-          );
-        },
-        onTapRecruit: (targetId, type) {
-          context.push(
-            RoutePaths.recruitDetail,
-            extra: {
-              'id': targetId,
-              'type': type,
-            },
-          );
-        },
-        onTapMarket: (targetId, type) {
-          context.push(
-            RoutePaths.marketDetail,
-            extra: {
-              'id': targetId,
-              'type': type,
-            },
+            extra: report,
           );
         },
       ),
     ),
     GoRoute(
       path: RoutePaths.adminReportSanction,
+      redirect: (context, state) {
+        final report = state.extra;
+        if (report is! ReportAdminSanction || report.targetMemberId == null) {
+          return RoutePaths.adminReport;
+        }
+        return null;
+      },
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final reportId = extra?['reportId'] as int? ?? 0;
-        final targetMemberId = extra?['targetMemberId'] as int? ?? 0;
-
         return ReportAdminSanctionScreen(
-          reportId: reportId,
-          targetMemberId: targetMemberId,
+          report: state.extra! as ReportAdminSanction,
         );
       }
     ),
     GoRoute(
       path: RoutePaths.setting,
       builder: (context, state) => SettingScreen(
-        onTapEclass: () => context.push(RoutePaths.eclassLink),
         onTapDevice: () {
           context.push(RoutePaths.deviceManagement);
         },
@@ -371,176 +337,8 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-      path: RoutePaths.recruitWrite,
-      builder: (context, state) => const RecruitWritePageScreen(),
-    ),
-    GoRoute(
-      path: RoutePaths.recruitDetail,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final id = extra?['id'];
-        final type = extra?['type'];
-        final status = extra?['status'];
-
-        return RecruitDetailPageScreen(
-          id: id,
-          type: type,
-          status: status,
-          onTapRecruitApply: () async {
-            final result = await GoRouter.of(context).push<bool>(
-              RoutePaths.recruitApply,
-              extra: {
-                'id': id,
-                'type': type,
-              },
-            );
-            return result == true;
-          },
-          onTapReport: (reportType, targetId) {
-            context.push(RoutePaths.report, extra: {
-              'reportType': reportType,
-              'targetId': targetId,
-            });
-          },
-          onTapApplicantList: () async {
-            context.push(
-              RoutePaths.recruitApplicantList,
-              extra: {
-                'id': id,
-                'type': type,
-              },
-            );
-          },
-          onTapApplicantDetail: () {
-            context.push(
-              RoutePaths.recruitApplicantDetail,
-              extra: {
-                'viewer': RecruitApplicantViewer.APPLICANT,
-                'type': type,
-                'id': id,
-              },
-            );
-          },
-          onTapChatDetail: (roomId) {
-            context.push(RoutePaths.chatDetail, extra: roomId);
-          },
-        );
-      },
-    ),
-    GoRoute(
-      path: RoutePaths.recruitApply,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final id = extra?['id'];
-        final type = extra?['type'];
-        return RecruitApplyPageScreen(id: id, type: type);
-      },
-    ),
-    GoRoute(
-      path: RoutePaths.recruitApplicantList,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final id = extra?['id'];
-        final type = extra?['type'];
-
-        return RecruitApplicantListPage(
-          boardId: id,
-          type: type,
-          onTapApplicantDetail: (memberId) async {
-            final result = await context.push<String>(
-              RoutePaths.recruitApplicantDetail,
-              extra: {
-                'viewer': RecruitApplicantViewer.OWNER,
-                'id': id,
-                'type': type,
-                'memberId': memberId,
-              },
-            );
-            return result;
-          },
-        );
-      },
-    ),
-    GoRoute(
-      path: RoutePaths.recruitApplicantDetail,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final viewer = extra?['viewer'];
-        final boardId = extra?['id'];
-        final type = extra?['type'];
-        final memberId = extra?['memberId'];
-
-        return RecruitApplicantDetailPage(
-          viewer: viewer!,
-          type: type!,
-          boardId: boardId!,
-          memberId: memberId,
-        );
-      },
-    ),
-    GoRoute(
-      path: RoutePaths.marketWrite,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-
-        final isEditing = extra?['isEditing'] as bool? ?? false;
-        final marketId = extra?['marketId'] as int?;
-
-        return MarketWritePageScreen(
-          isEditing: isEditing,
-          marketId: marketId,
-        );
-      },
-    ),
-    GoRoute(
-      path: RoutePaths.marketDetail,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-
-        final id = extra?['id'];
-        final type = extra?['type'];
-        final status = extra?['status'];
-
-        return MarketDetailPageScreen(
-          id: id,
-          type: type,
-          status: status,
-          onTapReport: (reportType, targetId) {
-            context.push(
-              RoutePaths.report,
-              extra: {
-                'reportType': reportType,
-                'targetId': targetId,
-              },
-            );
-          },
-          onTapChatDetail: (roomId) {
-            context.push(RoutePaths.chatDetail, extra: roomId);
-          },
-        );
-      },
-    ),
-    GoRoute(
       path: RoutePaths.search,
-      builder: (context, state) {
-        final boardType = state.extra as SearchBoardType;
-
-        return SearchScreen(
-          boardType: boardType,
-          onTapRecruitDetail: (id, type) async {
-            await context.push<bool>(
-              RoutePaths.recruitDetail,
-              extra: {'id': id, 'type': type},
-            );
-          },
-          onTapMarketDetail: (id, type) async {
-            await context.push<bool>(
-              RoutePaths.marketDetail,
-              extra: {'id': id, 'type': type},
-            );
-          },
-        );
-      },
+      builder: (context, state) => const SearchScreen(),
     ),
     GoRoute(
       path: RoutePaths.noticeWebView,
@@ -552,19 +350,6 @@ final router = GoRouter(
           child: NoticeWebViewScreen(path: path ?? ''),
         );
       },
-    ),
-    GoRoute(
-      path: RoutePaths.report,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final reportType = extra?['reportType'] as String? ?? '';
-        final targetId = extra?['targetId'] as int? ?? 0;
-
-        return ReportScreen(
-          reportType: reportType,
-          targetId: targetId,
-        );
-      }
     ),
     GoRoute(
       path: RoutePaths.restaurantsWrite,
@@ -684,41 +469,6 @@ final router = GoRouter(
                 );
               },
             ),
-            // 기존 게시판 딥링크도 같은 셸에 남겨 하단 탭으로 돌아갈 수 있게 한다.
-            GoRoute(
-              path: RoutePaths.board,
-              builder: (context, state) => BoardPageScreen(
-                onTapRecruitDetail: (id, type) async {
-                  final didApply = await context.push<bool>(
-                    RoutePaths.recruitDetail,
-                    extra: {'id': id, 'type': type},
-                  );
-                  return didApply ?? false;
-                },
-                onTapMarketDetail: (id, type) async {
-                  final didComplete = await context.push<bool>(
-                    RoutePaths.marketDetail,
-                    extra: {'id': id, 'type': type},
-                  );
-                  return didComplete ?? false;
-                },
-                onTapWrite: (isRecruit) async {
-                  if (isRecruit) {
-                    return await context.push<bool>(RoutePaths.recruitWrite) ??
-                        false;
-                  } else {
-                    return await context.push<bool>(
-                          RoutePaths.marketWrite,
-                          extra: {
-                            'isEditing': false,
-                            'marketId': null,
-                          },
-                        ) ??
-                        false;
-                  }
-                },
-              ),
-            ),
           ],
         ),
         StatefulShellBranch(
@@ -742,17 +492,20 @@ final router = GoRouter(
                 GoRoute(
                   path: RoutePaths.blindDate,
                   name: 'blindDate',
-                  builder: (context, state) => BlindDateScreen(
-                    onTapChat: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      } else {
-                        context.go(RoutePaths.chat);
-                      }
-                    },
-                    onTapBlindDateDetail: () {
-                      context.push(RoutePaths.blindDateDetail);
-                    },
+                  pageBuilder: (context, state) => NoTransitionPage(
+                    key: state.pageKey,
+                    child: BlindDateScreen(
+                      onTapChat: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(RoutePaths.chat);
+                        }
+                      },
+                      onTapBlindDateDetail: () {
+                        context.push(RoutePaths.blindDateDetail);
+                      },
+                    ),
                   ),
                 ),
               ],
@@ -779,44 +532,6 @@ final router = GoRouter(
                 path: RoutePaths.mypageBlock,
                 builder: (context, state) => BlockedUserScreen(),
               ),
-              GoRoute(
-                path: RoutePaths.mypageMarket,
-                builder: (context, state) => ActivityMarketScreen(
-                  onTapMarketDetail: (targetId, type, status) async {
-                    final isDeleted = await context.push<bool>(
-                      RoutePaths.marketDetail,
-                      extra: {
-                        'id': targetId,
-                        'type': type,
-                        'status': status,
-                      },
-                    );
-                    return isDeleted ?? false;
-                  },
-                ),
-              ),
-              GoRoute(
-                path: RoutePaths.mypageRecruit,
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>?;
-                  final isApply = extra?['isApply'] as bool? ?? false;
-
-                  return ActivityRecruitScreen(
-                    isApply: isApply,
-                    onTapRecruitDetail: (targetId, type, status) async {
-                      final isDeleted = await context.push<bool>(
-                        RoutePaths.recruitDetail,
-                        extra: {
-                          'id': targetId,
-                          'type': type,
-                          'status': status,
-                        },
-                      );
-                      return isDeleted ?? false;
-                    },
-                  );
-                }
-              ),
             ],
             builder: (context, state) => MyPageScreen(
               onTapSignIn: () {
@@ -824,14 +539,6 @@ final router = GoRouter(
               },
               onTapSetting: () {
                 context.push(RoutePaths.setting);
-              },
-              onTapMarket: () {
-                context.push(RoutePaths.mypage + RoutePaths.mypageMarket);
-              },
-              onTapRecruit: (isApply) {
-                context.push(RoutePaths.mypage + RoutePaths.mypageRecruit, extra: {
-                  'isApply': isApply,
-                });
               },
               onTapUserFeedback: () {
                 context.push(RoutePaths.userFeedback);
@@ -841,6 +548,9 @@ final router = GoRouter(
               },
               onTapAdminBlindDate: () {
                 context.push(RoutePaths.adminBlindDate);
+              },
+              onTapAdminBlindDateReset: () {
+                context.push(RoutePaths.adminBlindDateReset);
               },
               onTapAdminFeedback: () {
                 context.push(RoutePaths.feedbackResult);
@@ -859,6 +569,9 @@ final router = GoRouter(
               },
               onTapSubscribeDepartment: () {
                 context.push(RoutePaths.subscribeDepartmentSetting);
+              },
+              onTapEclass: () {
+                context.push(RoutePaths.eclassLink);
               },
               onTapSocialLoginConnect: () {
                 context.push(RoutePaths.mypage + RoutePaths.socialLoginConnect);

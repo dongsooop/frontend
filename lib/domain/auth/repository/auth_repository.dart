@@ -16,6 +16,7 @@ abstract class AuthRepository {
   Future<User?> getUser();
   Future<void> signUp(SignUpRequest request);
   Future<bool> checkValidate(String data, String type);
+  Future<bool> checkNicknameProfanity(String nickname);
   Future<bool> checkEmailCode(String userEmail, String code);
   Future<bool> sendEmailCode(String userEmail);
   Future<void> userBlock(int blockerId, int blockedMemberId);

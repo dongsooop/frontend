@@ -3,6 +3,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/utils/time_formatter.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_choice.dart';
 import 'package:dongsoop/domain/chat/model/blind_date/blind_date_request.dart';
+import 'package:dongsoop/presentation/chat/widgets/blind_date_message_action_sheet.dart';
 import 'package:dongsoop/presentation/chat/widgets/blind_bubble.dart';
 import 'package:dongsoop/presentation/chat/widgets/match_vote_bottom_sheet.dart';
 import 'package:dongsoop/providers/auth_providers.dart';
@@ -16,12 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class BlindDateDetailScreen extends HookConsumerWidget {
-  final void Function(String roomId) onTapChatDetail;
-
-  const BlindDateDetailScreen({
-    required this.onTapChatDetail,
-    super.key,
-  });
+  const BlindDateDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,8 +34,23 @@ class BlindDateDetailScreen extends HookConsumerWidget {
 
     final textController = useTextEditingController();
     final scrollController = useScrollController();
+    final route = ModalRoute.of(context);
     final isVoteSheetOpen = useRef(false);
-    final sheetCtxRef = useRef<BuildContext?>(null);
+    final isVoteExitPending = useRef(false);
+    final isKickExitHandled = useRef(false);
+
+    void exitBlindDateIfReady() {
+      if (!isVoteExitPending.value ||
+          !context.mounted ||
+          route?.isCurrent != true) return;
+
+      final lifecycleState = WidgetsBinding.instance.lifecycleState;
+      if (lifecycleState != null && lifecycleState != AppLifecycleState.resumed)
+        return;
+
+      isVoteExitPending.value = false;
+      context.pop(true);
+    }
 
     useEffect(() {
       if (userId != null)
@@ -51,6 +62,17 @@ class BlindDateDetailScreen extends HookConsumerWidget {
         Future.microtask(() => viewModel.disconnect());
       };
     }, const []);
+
+    useEffect(() {
+      final listener = AppLifecycleListener(
+        onResume: () {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            exitBlindDateIfReady();
+          });
+        },
+      );
+      return listener.dispose;
+    }, [route]);
 
     useEffect(() {
       if (state.nickname != '') {
@@ -71,20 +93,68 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     }, [state.nickname]);
 
     useEffect(() {
+      if (!state.isVotePreparing || state.isLoading) return null;
+      var cancelled = false;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (cancelled ||
+            !context.mounted ||
+            route?.isActive == false ||
+            !scrollController.hasClients) {
+          return;
+        }
+        FocusScope.of(context).unfocus();
+        scrollController.jumpTo(0);
+        // Let each scrolled message paint before starting its delay.
+        WidgetsBinding.instance.scheduleFrame();
+        await WidgetsBinding.instance.endOfFrame;
+        if (cancelled || !context.mounted || route?.isActive == false) return;
+        // A reversed, shrink-wrapped list can correct its offset when it first
+        // lays out the newly visible messages. Keep the full announcement visible.
+        if (scrollController.offset != 0) {
+          scrollController.jumpTo(0);
+          WidgetsBinding.instance.scheduleFrame();
+          await WidgetsBinding.instance.endOfFrame;
+          if (cancelled || !context.mounted || route?.isActive == false) return;
+        }
+        viewModel.onVoteIntroDisplayed(state.voteIntroStage);
+      });
+      return () => cancelled = true;
+    }, [state.voteIntroStage, state.isLoading]);
+
+    useEffect(() {
       if (state.isVoteTime && !isVoteSheetOpen.value) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!context.mounted ||
+              route?.isActive == false ||
+              !ref.read(blindDateDetailViewModelProvider).isVoteTime) {
+            return;
+          }
           isVoteSheetOpen.value = true;
           await MatchVoteBottomSheet.show(
             context,
             participants: state.participants,
             currentUserId: userId!,
-            onSubmit: (selected) {
-              viewModel.choice(BlindChoice(choicerId: userId, targetId: selected));
+            onSubmit: (selected) async {
+              try {
+                final completed = await viewModel.choice(
+                  BlindChoice(choicerId: userId, targetId: selected),
+                );
+                if (!completed) return;
+                isVoteExitPending.value = true;
+                exitBlindDateIfReady();
+              } catch (error) {
+                debugPrint('[BlindDate] CHOICE_END_ERROR error=$error');
+                if (!context.mounted || route?.isCurrent != true) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('과팅을 마무리하지 못했어요. 연결 상태를 확인해 주세요.'),
+                  ),
+                );
+              }
             },
             seconds: 10,
-            onSheetContext: (ctx) => sheetCtxRef.value = ctx,
           );
-          sheetCtxRef.value = null;
           isVoteSheetOpen.value = false;
         });
       }
@@ -92,65 +162,18 @@ class BlindDateDetailScreen extends HookConsumerWidget {
     }, [state.isVoteTime]);
 
     useEffect(() {
-      if (state.match == null) return null;
-
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!context.mounted) return;
-
-        final sheetCtx = sheetCtxRef.value;
-        if (sheetCtx != null) {
-          if (Navigator.of(sheetCtx).canPop()) {
-            Navigator.of(sheetCtx).pop();
-          }
-          sheetCtxRef.value = null;
-          isVoteSheetOpen.value = false;
-        }
-        if (!context.mounted) return;
-
-        showDialog(
-          context: context,
-          useRootNavigator: true,
-          barrierDismissible: false,
-          builder: (_) => state.match != 'failed'
-          ? CustomConfirmDialog(
-            title: '사랑의 작대기 성공',
-            content: '1:1 매칭에 성공했어요!\n바로 채팅방으로 이동할까요?',
-            onConfirm: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              onTapChatDetail(state.match!);
-            },
-            onCancel: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              context.pop();
-            },
-            confirmText: '확인',
-            isSingleAction: false,
-          )
-          : CustomConfirmDialog(
-            title: '사랑의 작대기 실패',
-            content: '아쉽게도 매칭 성사에 실패했어요\n다음 과팅을 노려봐요!',
-            onConfirm: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              context.pop();
-            },
-            confirmText: '확인',
-            isSingleAction: true,
-          ),
-        );
-      });
-
-      return null;
-    }, [state.match]);
-
-    useEffect(() {
-      if (state.ended == 'ended') {
+      if (state.ended != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          final isTerminated = state.ended == 'ended';
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (_) => CustomConfirmDialog(
               title: '과팅 참여',
-              content: '과팅은 하루에 한 번만 참여 가능해요.\n다음 기회를 노려봐요!',
+              content: isTerminated
+                  ? '과팅은 하루에 한 번만 참여 가능해요.\n다음 기회를 노려봐요!'
+                  : '과팅 참여에 실패했어요.\n잠시 후 다시 시도해 주세요.',
               onConfirm: () {
                 context.pop();
                 context.pop();
@@ -164,6 +187,44 @@ class BlindDateDetailScreen extends HookConsumerWidget {
       return null;
     }, [state.ended]);
 
+    useEffect(() {
+      if (!state.isKicked) {
+        isKickExitHandled.value = false;
+        return null;
+      }
+      if (isKickExitHandled.value) return null;
+      isKickExitHandled.value = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!context.mounted) return;
+
+        final navigator = Navigator.of(context, rootNavigator: true);
+        if (route != null) {
+          navigator.popUntil((candidate) => candidate == route);
+        }
+        isVoteSheetOpen.value = false;
+
+        if (!context.mounted) return;
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          useRootNavigator: true,
+          builder: (_) => CustomConfirmDialog(
+            title: '과팅 참여 제한',
+            content: '관리자에 의해 퇴장되었습니다.',
+            onConfirm: () {},
+            confirmText: '확인',
+            isSingleAction: true,
+          ),
+        );
+
+        if (context.mounted && (route?.isCurrent ?? false)) {
+          context.pop(true);
+        }
+      });
+      return null;
+    }, [state.isKicked]);
+
     if (state.isLoading) {
       return Scaffold(
         backgroundColor: ColorStyles.white,
@@ -171,28 +232,31 @@ class BlindDateDetailScreen extends HookConsumerWidget {
           title: '',
         ),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 8,
-            children: [
-              CircularProgressIndicator(color: ColorStyles.primaryColor,),
-              SizedBox(height: 16,),
-              Text(
-                '참여자를 모집하고 있어요...',
-                style: TextStyles.normalTextRegular.copyWith(
-                  color: ColorStyles.black,
-                ),
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          spacing: 8,
+          children: [
+            CircularProgressIndicator(
+              color: ColorStyles.primaryColor,
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            Text(
+              '참여자를 모집하고 있어요...',
+              style: TextStyles.normalTextRegular.copyWith(
+                color: ColorStyles.black,
               ),
-              Text(
-                '${state.volunteer}/7',
-                style: TextStyles.normalTextBold.copyWith(
-                  color: ColorStyles.black,
-                ),
+            ),
+            Text(
+              '${state.volunteer}/${state.maxCount}',
+              style: TextStyles.normalTextBold.copyWith(
+                color: ColorStyles.black,
               ),
-            ],
-          )
-        ),
+            ),
+          ],
+        )),
       );
     }
 
@@ -210,11 +274,13 @@ class BlindDateDetailScreen extends HookConsumerWidget {
             children: [
               Text(
                 '모여봐요 동숲',
-                style: TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
+                style:
+                    TextStyles.largeTextBold.copyWith(color: ColorStyles.black),
               ),
               Text(
-                '7',
-                style: TextStyles.largeTextRegular.copyWith(color: ColorStyles.gray3),
+                '${state.maxCount}',
+                style: TextStyles.largeTextRegular
+                    .copyWith(color: ColorStyles.gray3),
               ),
             ],
           ),
@@ -232,22 +298,22 @@ class BlindDateDetailScreen extends HookConsumerWidget {
         ),
       ),
       bottomNavigationBar: state.isFrozen
-        ? SafeArea(
-          child: Container(
-            height: 64,
-            width: double.infinity,
-            color: ColorStyles.gray2,
-            child: Center(
-              child: Text(
-                '동냥이가 얘기하는 중에는 채팅을 할 수 없어요',
-                style: TextStyles.normalTextBold.copyWith(
-                  color: ColorStyles.gray4,
+          ? SafeArea(
+              child: Container(
+                height: 64,
+                width: double.infinity,
+                color: ColorStyles.gray2,
+                child: Center(
+                  child: Text(
+                    '동냥이가 얘기하는 중에는 채팅을 할 수 없어요',
+                    style: TextStyles.normalTextBold.copyWith(
+                      color: ColorStyles.gray4,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        )
-        : null,
+            )
+          : null,
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -301,6 +367,14 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                           formatTimestamp(msg.sendAt),
                           msg.memberId == userId,
                           msg.type,
+                          onLongPress: msg.type.toUpperCase() == 'USER'
+                              ? () => showBlindDateMessageActions(
+                                    context,
+                                    message: msg,
+                                    currentUserId: userId,
+                                    sessionId: state.sessionId,
+                                  )
+                              : null,
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(
@@ -311,7 +385,7 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                 ),
 
                 // 채팅 입력창
-                if (!state.isFrozen) ...[
+                if (!state.isFrozen && !state.isKicked) ...[
                   Container(
                     width: double.infinity,
                     height: 52,
@@ -319,7 +393,8 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                     padding: EdgeInsets.only(left: 16, right: 8),
                     decoration: ShapeDecoration(
                       color: ColorStyles.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -331,8 +406,11 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                             cursorColor: ColorStyles.gray4,
                             keyboardType: TextInputType.multiline,
                             controller: textController,
-                            style: TextStyles.normalTextRegular.copyWith(color: ColorStyles.black),
-                            decoration: InputDecoration(border: InputBorder.none,),
+                            style: TextStyles.normalTextRegular
+                                .copyWith(color: ColorStyles.black),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -346,7 +424,8 @@ class BlindDateDetailScreen extends HookConsumerWidget {
                                   message: message,
                                   senderId: userId!,
                                 );
-                                viewModel.send(send);
+                                final sent = viewModel.send(send);
+                                if (!sent) return;
                                 textController.clear();
                                 // 스크롤 맨 아래로 이동
                                 scrollController.animateTo(

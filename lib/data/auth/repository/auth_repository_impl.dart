@@ -67,6 +67,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<bool> checkNicknameProfanity(String nickname) async {
+    return await _authDataSource.checkNicknameProfanity(nickname);
+  }
+
+  @override
   Future<User?> getUser() async {
     return await _authDataSource.getUser();
   }

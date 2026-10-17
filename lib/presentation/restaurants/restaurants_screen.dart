@@ -2,7 +2,7 @@ import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart
 import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/login_required_dialog.dart';
 import 'package:dongsoop/domain/restaurants/enum/restaurants_category.dart';
-import 'package:dongsoop/presentation/board/common/components/board_write_button.dart';
+import 'package:dongsoop/core/presentation/components/write_button.dart';
 import 'package:dongsoop/presentation/restaurants/widgets/category_tab.dart';
 import 'package:dongsoop/presentation/restaurants/widgets/restaurants_list.dart';
 import 'package:dongsoop/providers/auth_providers.dart';

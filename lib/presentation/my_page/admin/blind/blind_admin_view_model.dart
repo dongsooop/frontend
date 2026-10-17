@@ -1,3 +1,4 @@
+import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/domain/mypage/model/blind_date_open_request.dart';
 import 'package:dongsoop/domain/mypage/use_case/blind_date_open_use_case.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_state.dart';
@@ -19,6 +20,11 @@ class BlindAdminViewModel extends StateNotifier<BlindAdminState> {
         isLoading: false,
         result: result,
       );
+    } on BlindDateOpenConflictException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.message,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -29,7 +35,7 @@ class BlindAdminViewModel extends StateNotifier<BlindAdminState> {
 
   bool validateSelectedTime(
       DateTime selected, {
-        int minLeadMinutes = 5,
+        int minLeadMinutes = 1,
         bool inclusive = true,
       }) {
     state = state.copyWith(isLoading: true, errorMessage: null,);

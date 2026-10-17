@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="screen" x1="8" y1="7" x2="40" y2="36" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#65B4FF"/>
+      <stop offset="1" stop-color="#2868D9"/>
+    </linearGradient>
+    <linearGradient id="base" x1="7" y1="34" x2="41" y2="43" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#245C9F"/>
+      <stop offset="1" stop-color="#123D78"/>
+    </linearGradient>
+  </defs>
+  <rect x="7" y="6" width="34" height="31" rx="5.5" fill="url(#screen)"/>
+  <rect x="11" y="10" width="26" height="22" rx="3" fill="#F4FAFF"/>
+  <path d="M14 16.5c3.8-.9 7.1-.2 10 2v9c-2.9-2.2-6.2-2.9-10-2v-9Z" fill="#68ACF4"/>
+  <path d="M34 16.5c-3.8-.9-7.1-.2-10 2v9c2.9-2.2 6.2-2.9 10-2v-9Z" fill="#9DCFFF"/>
+  <path d="M24 18.5v9" stroke="#2E72C7" stroke-width="2" stroke-linecap="round"/>
+  <path d="m27.5 21.8 1.8 1.8 3.4-3.8" fill="none" stroke="#FF9A3C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M5 34h38l2.5 5.2A2.6 2.6 0 0 1 43.2 43H4.8a2.6 2.6 0 0 1-2.3-3.8L5 34Z" fill="url(#base)"/>
+  <path d="M19 37h10l-1.3 2.5h-7.4L19 37Z" fill="#8CB7E6"/>
+</svg>

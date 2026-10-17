@@ -3,7 +3,5 @@ enum ServiceFeature {
   mealInformation,
   academicSchedule,
   timetableAutoManage,
-  teamRecruitment,
-  marketplace,
   chatbotCampusInfo,
 }

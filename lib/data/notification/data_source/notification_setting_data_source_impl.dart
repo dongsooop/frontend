@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dongsoop/core/http_status_code.dart';
 import 'package:dongsoop/data/notification/model/notification_enable_model.dart';
-import 'package:dongsoop/data/notification/model/notification_recruit_model.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
 import 'notification_setting_data_source.dart';
 
@@ -80,41 +79,4 @@ class NotificationSettingDataSourceImpl implements NotificationSettingDataSource
     }
   }
 
-  @override
-  Future<void> setApply({
-    required NotificationTarget target,
-    required NotificationRecruitModel body,
-  }) async {
-    final url = '/notification-settings/recruitment-apply';
-
-    final response = await _dio(target).post(
-      url,
-      data: body.toJson(),
-    );
-
-    if (response.statusCode != HttpStatusCode.noContent.code) {
-      throw Exception(
-        'Notification APPLY failed. status: ${response.statusCode}',
-      );
-    }
-  }
-
-  @override
-  Future<void> setResult({
-    required NotificationTarget target,
-    required NotificationRecruitModel body,
-  }) async {
-    final url = '/notification-settings/recruitment-result';
-
-    final response = await _dio(target).post(
-      url,
-      data: body.toJson(),
-    );
-
-    if (response.statusCode != HttpStatusCode.noContent.code) {
-      throw Exception(
-        'Notification RESULT failed. status: ${response.statusCode}',
-      );
-    }
-  }
 }

@@ -5,8 +5,11 @@ import 'package:dongsoop/domain/auth/use_case/password_check_email_code_use_case
 import 'package:dongsoop/domain/auth/use_case/password_send_email_code_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/social_login_use_case.dart';
 import 'package:dongsoop/domain/mypage/use_case/blind_date_open_use_case.dart';
+import 'package:dongsoop/domain/mypage/use_case/blind_date_reset_use_case.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_state.dart';
 import 'package:dongsoop/presentation/my_page/admin/blind/blind_admin_view_model.dart';
+import 'package:dongsoop/presentation/my_page/admin/blind_reset/blind_reset_state.dart';
+import 'package:dongsoop/presentation/my_page/admin/blind_reset/blind_reset_view_model.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_state.dart';
 import 'package:dongsoop/presentation/sign_in/password_reset_view_model.dart';
 import 'package:dongsoop/presentation/sign_in/sign_in_state.dart';
@@ -28,6 +31,7 @@ import 'package:dongsoop/data/auth/data_source/auth_data_source.dart';
 import 'package:dongsoop/domain/auth/use_case/logout_use_case.dart';
 import 'package:dongsoop/presentation/my_page/my_page_view_model.dart';
 import 'package:dongsoop/domain/auth/use_case/check_duplicate_use_case.dart';
+import 'package:dongsoop/domain/auth/use_case/check_nickname_profanity_use_case.dart';
 import 'package:dongsoop/domain/auth/use_case/sign_up_use_case.dart';
 import 'package:dongsoop/presentation/sign_up/sign_up_view_model.dart';
 import 'package:dongsoop/domain/auth/use_case/check_email_code_use_case.dart';
@@ -98,6 +102,11 @@ final checkDuplicateUseCaseProvider = Provider<CheckDuplicateUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   return CheckDuplicateUseCase(repository);
 });
+final checkNicknameProfanityUseCaseProvider =
+    Provider<CheckNicknameProfanityUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return CheckNicknameProfanityUseCase(repository);
+});
 final checkEmailCodeUseCaseProvider = Provider<CheckEmailCodeUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   return CheckEmailCodeUseCase(repository);
@@ -125,6 +134,11 @@ final blindDateOpenUseCaseProvider = Provider<BlindDateOpenUseCase>((ref) {
   return BlindDateOpenUseCase(repository);
 });
 
+final blindDateResetUseCaseProvider = Provider<BlindDateResetUseCase>((ref) {
+  final repository = ref.watch(mypageRepositoryProvider);
+  return BlindDateResetUseCase(repository);
+});
+
 // View Model
 final signInViewModelProvider = StateNotifierProvider<SignInViewModel, SignInState>((ref) {
   final loginUseCase = ref.watch(SignInUseCaseProvider);
@@ -137,10 +151,18 @@ final signInViewModelProvider = StateNotifierProvider<SignInViewModel, SignInSta
 final signUpViewModelProvider = StateNotifierProvider.autoDispose<SignUpViewModel, SignUpState>((ref) {
   final signUpUseCase = ref.watch(signUpUseCaseProvider);
   final checkDuplicateUseCase = ref.watch(checkDuplicateUseCaseProvider);
+  final checkNicknameProfanityUseCase =
+      ref.watch(checkNicknameProfanityUseCaseProvider);
   final checkEmailCodeUseCase = ref.watch(checkEmailCodeUseCaseProvider);
   final sendEmailCodeUseCase = ref.watch(sendEmailCodeUseCaseProvider);
 
-  return SignUpViewModel(signUpUseCase, checkDuplicateUseCase, checkEmailCodeUseCase, sendEmailCodeUseCase);
+  return SignUpViewModel(
+    signUpUseCase,
+    checkDuplicateUseCase,
+    checkNicknameProfanityUseCase,
+    checkEmailCodeUseCase,
+    sendEmailCodeUseCase,
+  );
 });
 
 final passwordResetViewModelProvider = StateNotifierProvider.autoDispose<PasswordResetViewModel, PasswordResetState>((ref) {
@@ -164,6 +186,13 @@ StateNotifierProvider.autoDispose<BlindAdminViewModel, BlindAdminState>((ref) {
   final blindDateOpenUseCase = ref.watch(blindDateOpenUseCaseProvider);
 
   return BlindAdminViewModel(blindDateOpenUseCase);
+});
+
+final blindResetViewModelProvider =
+StateNotifierProvider.autoDispose<BlindResetViewModel, BlindResetState>((ref) {
+  final blindDateResetUseCase = ref.watch(blindDateResetUseCaseProvider);
+
+  return BlindResetViewModel(blindDateResetUseCase);
 });
 
 

@@ -1,14 +1,7 @@
 import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/data/search/data_source/search_data_source.dart';
-import 'package:dongsoop/data/search/model/search_market_model.dart';
 import 'package:dongsoop/data/search/model/search_notice_model.dart';
-import 'package:dongsoop/data/search/model/search_recruit_model.dart';
-import 'package:dongsoop/domain/board/market/enum/market_type.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
-import 'package:dongsoop/domain/search/entity/search_market_entity.dart';
 import 'package:dongsoop/domain/search/entity/search_notice_entity.dart';
-import 'package:dongsoop/domain/search/entity/search_recruit_entity.dart';
-import 'package:dongsoop/domain/search/enum/board_type.dart';
 import 'package:dongsoop/domain/search/repository/search_repository.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
@@ -54,56 +47,13 @@ class SearchRepositoryImpl implements SearchRepository {
   }
 
   @override
-  Future<List<SearchRecruitEntity>> searchRecruit({
-    required int page,
-    required String keyword,
-    required List<RecruitType> types,
-    required String departmentName,
-    required int size,
-    required String sort,
-  }) async {
-    return _handle(() async {
-      final models = await _dataSource.searchRecruit(
-        page: page,
-        keyword: keyword,
-        types: types,
-        departmentName: departmentName,
-        size: size,
-        sort: sort,
-      );
-      return models.map((model) => model.toEntity()).toList();
-    }, SearchException());
-  }
-
-  @override
-  Future<List<SearchMarketEntity>> searchMarket({
-    required int page,
-    required String keyword,
-    required List<MarketType> types,
-    required int size,
-    required String sort,
-  }) async {
-    return _handle(() async {
-      final models = await _dataSource.searchMarket(
-        page: page,
-        keyword: keyword,
-        types: types,
-        size: size,
-        sort: sort,
-      );
-      return models.map((model) => model.toEntity()).toList();
-    }, SearchException());
-  }
-
-  @override
   Future<List<String>> searchAuto({
     required String keyword,
-    required SearchBoardType boardType,
   }) {
-    return _handle(() => _dataSource.searchAuto(
-      keyword: keyword,
-      boardType: boardType
-    ), SearchException());
+    return _handle(
+      () => _dataSource.searchAuto(keyword: keyword),
+      SearchException(),
+    );
   }
 
   @override

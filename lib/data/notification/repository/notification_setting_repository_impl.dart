@@ -2,9 +2,7 @@ import 'package:dongsoop/core/exception/exception.dart';
 import 'package:dongsoop/core/network/error_handler_mixin.dart';
 import 'package:dongsoop/data/notification/data_source/notification_setting_data_source.dart';
 import 'package:dongsoop/data/notification/model/notification_enable_model.dart';
-import 'package:dongsoop/data/notification/model/notification_recruit_model.dart';
 import 'package:dongsoop/domain/notification/entity/notification_enable_entity.dart';
-import 'package:dongsoop/domain/notification/entity/notification_recruit_entity.dart';
 import 'package:dongsoop/domain/notification/enum/notification_target.dart';
 import 'package:dongsoop/domain/notification/enum/notification_type.dart';
 import 'package:dongsoop/domain/notification/repository/notification_setting_repository.dart';
@@ -18,13 +16,6 @@ class NotificationSettingRepositoryImpl with ErrorHandlerMixin implements Notifi
     return NotificationEnableModel(
       deviceToken: entity.deviceToken,
       notificationType: entity.notificationType,
-    );
-  }
-
-  NotificationRecruitModel _mapRecruitBody(NotificationRecruitEntity entity) {
-    return NotificationRecruitModel(
-      deviceToken: entity.deviceToken,
-      targetState: entity.targetState,
     );
   }
 
@@ -80,34 +71,6 @@ class NotificationSettingRepositoryImpl with ErrorHandlerMixin implements Notifi
           () => _dataSource.disable(
         target: target,
         body: _mapEnableBody(entity),
-      ),
-      NotificationSettingException(),
-    );
-  }
-
-  @override
-  Future<void> setApply({
-    required NotificationTarget target,
-    required NotificationRecruitEntity entity,
-  }) {
-    return _handle(
-          () => _dataSource.setApply(
-        target: target,
-        body: _mapRecruitBody(entity),
-      ),
-      NotificationSettingException(),
-    );
-  }
-
-  @override
-  Future<void> setResult({
-    required NotificationTarget target,
-    required NotificationRecruitEntity entity,
-  }) {
-    return _handle(
-          () => _dataSource.setResult(
-        target: target,
-        body: _mapRecruitBody(entity),
       ),
       NotificationSettingException(),
     );

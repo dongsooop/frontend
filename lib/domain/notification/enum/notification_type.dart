@@ -5,15 +5,6 @@ enum NotificationType {
   eclassAssignment('ECLASS_ASSIGNMENT'),
   chat('CHAT'),
 
-  tutoringApplicant('RECRUITMENT_TUTORING_APPLY'),
-  tutoringAppliedResult('RECRUITMENT_TUTORING_APPLY_RESULT'),
-
-  studyApplicant('RECRUITMENT_STUDY_APPLY'),
-  studyAppliedResult('RECRUITMENT_STUDY_APPLY_RESULT'),
-
-  projectApplicant('RECRUITMENT_PROJECT_APPLY'),
-  projectAppliedResult('RECRUITMENT_PROJECT_APPLY_RESULT'),
-
   newDevice('NEW_DEVICE_LOGIN'),
 
   marketing('MARKETING'),

@@ -7,7 +7,6 @@ import 'package:dongsoop/domain/chat/model/chat_message.dart';
 import 'package:dongsoop/domain/chat/model/chat_message_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_detail.dart';
-import 'package:dongsoop/domain/chat/model/chat_room_request.dart';
 import 'package:dongsoop/domain/chat/model/chat_room_ws.dart';
 import 'package:dongsoop/domain/chat/repository/chat_repository.dart';
 
@@ -17,11 +16,6 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl(
       this._chatDataSource,
       );
-
-  @override
-  Future<String> createQNAChatRoom(ChatRoomRequest request) async {
-    return await _chatDataSource.createQNAChatRoom(request);
-  }
 
   @override
   Future<List<ChatRoom>?> getChatRooms() async {
@@ -159,8 +153,6 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Stream<Map<int, String>> get participantsStream => _chatDataSource.participantsStream;
 
-  @override
-  Stream<String> get matchStream => _chatDataSource.matchStream;
   @override
   Stream<String> get endedStream => _chatDataSource.endedStream;
 

@@ -9,7 +9,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/custom_confirm_dialog.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
 import 'package:dongsoop/domain/notification/entity/notification_entity.dart';
-import 'package:dongsoop/presentation/board/utils/date_time_formatter.dart';
+import 'package:dongsoop/core/utils/date_time_formatter.dart';
 import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/presentation/home/state/notification_state.dart';
 

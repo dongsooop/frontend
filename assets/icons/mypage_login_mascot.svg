@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="830" height="982" viewBox="0 0 830 982" fill="none">
+  <defs>
+    <linearGradient id="fur" x1="250" y1="290" x2="720" y2="982" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF4345"/>
+      <stop offset="1" stop-color="#FC3F46"/>
+    </linearGradient>
+    <clipPath id="head-clip">
+      <path d="M707 131C681 109 638 108 611 124C586 139 563 172 540 207C477 207 403 240 339 296L254 292C215 287 187 310 177 346C165 385 178 427 194 460L216 515C209 560 214 616 229 659C251 735 307 797 400 831C373 881 353 930 346 982H707V131Z"/>
+    </clipPath>
+  </defs>
+  <g stroke="#006DFF" stroke-width="48" stroke-linecap="round">
+    <path d="M102 144 157 190"/>
+    <path d="M201 70 236 135"/>
+  </g>
+  <path d="M707 131C681 109 638 108 611 124C586 139 563 172 540 207C477 207 403 240 339 296L254 292C215 287 187 310 177 346C165 385 178 427 194 460L216 515C209 560 214 616 229 659C251 735 307 797 400 831C373 881 353 930 346 982H707V131Z" fill="url(#fur)"/>
+  <g clip-path="url(#head-clip)" stroke="white" stroke-width="17" stroke-linecap="round">
+    <path d="M382.41 266.29 413.55 353.8"/>
+    <path d="M433.29 237.79 467.31 331.53"/>
+    <path d="M486.93 219.85 520.66 308.4"/>
+  </g>
+  <ellipse cx="399" cy="554" rx="40" ry="43" fill="white"/>
+  <ellipse cx="649" cy="450" rx="41" ry="44" fill="white"/>
+  <ellipse cx="553" cy="579" rx="34" ry="21" transform="rotate(-24 553 579)" fill="white"/>
+  <path d="M573 814C571 751 621 693 690 695C764 691 821 742 824 803C830 868 781 921 720 928C673 937 627 921 597 899C581 880 572 845 573 814Z" fill="url(#fur)"/>
+  <path d="M573 813C570 752 622 694 690 696M599 900C629 925 671 937 716 929" stroke="#E44748" stroke-width="4" stroke-linecap="round"/>
+</svg>

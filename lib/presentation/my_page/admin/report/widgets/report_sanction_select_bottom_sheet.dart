@@ -1,85 +1,99 @@
-import 'package:flutter/material.dart';
+import 'package:dongsoop/domain/report/enum/sanction_type.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter/material.dart';
 
-import '../../../../../domain/report/enum/sanction_type.dart';
-
-class ReportSanctionSelectBottomSheet extends HookConsumerWidget {
+class ReportSanctionSelectBottomSheet extends StatelessWidget {
   final SanctionType? selectedSanction;
-  final void Function(SanctionType reason) onSelected;
+  final ValueChanged<SanctionType> onSelected;
+  final List<SanctionType> sanctions;
 
   const ReportSanctionSelectBottomSheet({
     super.key,
     required this.selectedSanction,
     required this.onSelected,
+    this.sanctions = SanctionType.messageReportValues,
   });
 
-
-  Widget build(BuildContext context, WidgetRef ref) {
-    final items = SanctionType.values;
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.of(context).pop(),
-      child: DraggableScrollableSheet(
-        initialChildSize: 0.4,
-        minChildSize: 0.3,
-        maxChildSize: 0.4,
-        builder: (context, scrollController) {
-          return GestureDetector(
-            onTap: () {},
-            child: Container(
-              decoration: BoxDecoration(
-                color: ColorStyles.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '제재 유형 선택',
+              style: TextStyles.titleTextBold.copyWith(
+                color: ColorStyles.black,
               ),
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '제재 사유 선택',
-                    style: TextStyles.titleTextBold.copyWith(
-                      color: ColorStyles.black,
+            ),
+            const SizedBox(height: 16),
+            ...sanctions.map(
+              (sanction) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: InkWell(
+                  key: Key('sanction-type-${sanction.name}'),
+                  onTap: () {
+                    onSelected(sanction);
+                    Navigator.of(context).pop();
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: selectedSanction == sanction
+                          ? ColorStyles.primary5
+                          : ColorStyles.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: selectedSanction == sanction
+                            ? ColorStyles.primaryColor
+                            : ColorStyles.gray2,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 24,),
-                  Divider(color: ColorStyles.gray2,),
-                  Expanded(
-                    child: ListView.separated(
-                      controller: scrollController,
-                      itemCount: items.length,
-                      separatorBuilder: (context, idx) => SizedBox(height: 8),
-                      itemBuilder: (context, idx) {
-                        final reason = items[idx];
-                        return SizedBox(
-                          height: 44,
-                          width: double.infinity,
-                          child: GestureDetector(
-                            onTap: () {
-                              onSelected(reason);
-                              Navigator.of(context).pop();
-                            },
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                reason.message,
-                                style: TextStyles.largeTextRegular.copyWith(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                sanction.message,
+                                style: TextStyles.normalTextBold.copyWith(
                                   color: ColorStyles.black,
                                 ),
                               ),
-                            ),
+                              const SizedBox(height: 4),
+                              Text(
+                                sanction.description,
+                                style: TextStyles.smallTextRegular.copyWith(
+                                  color: ColorStyles.gray4,
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
+                        ),
+                        Icon(
+                          size: 20,
+                          selectedSanction == sanction
+                              ? Icons.radio_button_checked
+                              : Icons.radio_button_unchecked,
+                          color: selectedSanction == sanction
+                              ? ColorStyles.primaryColor
+                              : ColorStyles.gray5,
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }

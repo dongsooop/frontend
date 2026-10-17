@@ -1,1 +1,0 @@
-enum RecruitApplicantViewer { OWNER, APPLICANT }

@@ -16,13 +16,13 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapTimetable;
   final VoidCallback onTapAdminReport;
   final VoidCallback onTapAdminBlindDate;
+  final VoidCallback onTapAdminBlindDateReset;
   final VoidCallback onTapAdminFeedback;
   final VoidCallback onTapUserFeedback;
-  final VoidCallback onTapMarket;
-  final void Function(bool isApply) onTapRecruit;
   final VoidCallback onTapBlockedUser;
   final VoidCallback onTapNotification;
   final VoidCallback onTapSubscribeDepartment;
+  final VoidCallback onTapEclass;
   final VoidCallback onTapSocialLoginConnect;
 
   const MyPageScreen({
@@ -33,13 +33,13 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapTimetable,
     required this.onTapAdminReport,
     required this.onTapAdminBlindDate,
+    required this.onTapAdminBlindDateReset,
     required this.onTapAdminFeedback,
     required this.onTapUserFeedback,
-    required this.onTapMarket,
-    required this.onTapRecruit,
     required this.onTapBlockedUser,
     required this.onTapNotification,
     required this.onTapSubscribeDepartment,
+    required this.onTapEclass,
     required this.onTapSocialLoginConnect,
   });
 
@@ -88,22 +88,23 @@ class MyPageScreen extends HookConsumerWidget {
                     onTapLogin: onTapSignIn,
                     onTapNotification: onTapNotification,
                     onTapSubscribeDepartment: onTapSubscribeDepartment,
+                    onTapEclass: onTapEclass,
                     onTapUserFeedback: onTapUserFeedback,
                   );
                 } else {
                   return LoggedInUserCard(
                     user: user,
                     onTapAdminReport: onTapAdminReport,
-                    onTapMarket: onTapMarket,
-                    onTapRecruit: onTapRecruit,
                     onTapCalendar: onTapCalendar,
                     onTapTimetable: onTapTimetable,
                     onTapBlockedUser: onTapBlockedUser,
                     onTapAdminBlindDate: onTapAdminBlindDate,
+                    onTapAdminBlindDateReset: onTapAdminBlindDateReset,
                     onTapAdminFeedback: onTapAdminFeedback,
                     onTapUserFeedback: onTapUserFeedback,
                     onTapNotification: onTapNotification,
                     onTapSubscribeDepartment: onTapSubscribeDepartment,
+                    onTapEclass: onTapEclass,
                     onTapSocialLoginConnect: onTapSocialLoginConnect,
                   );
                 }

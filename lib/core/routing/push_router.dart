@@ -2,11 +2,6 @@ import 'dart:async';
 import 'package:dongsoop/core/routing/router.dart';
 import 'package:dongsoop/core/routing/route_paths.dart';
 import 'package:dongsoop/core/routing/utils/eclass_assignment_link_launcher.dart';
-// 게시판을 닫으면서 이 파일에서 쓰는 곳이 주석으로 내려갔다. 되살릴 때
-// 다시 필요하므로 import 만 남겨 둔다
-// ignore: unused_import
-import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
-import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
 import 'package:flutter/widgets.dart';
 
 class NextRoute {
@@ -157,16 +152,6 @@ class PushRouter {
         case 'ECLASS_ASSIGNMENT':
           return await _routeEclassAssignmentCold(value);
 
-        case 'RECRUITMENT_STUDY_APPLY':
-        case 'RECRUITMENT_PROJECT_APPLY':
-        case 'RECRUITMENT_TUTORING_APPLY':
-          return await _routeRecruitApplyCold(type, value);
-
-        case 'RECRUITMENT_STUDY_APPLY_RESULT':
-        case 'RECRUITMENT_PROJECT_APPLY_RESULT':
-        case 'RECRUITMENT_TUTORING_APPLY_RESULT':
-          return await _routeRecruitResultCold(type, value);
-
         case 'NEW_DEVICE_LOGIN':
           return await _routeDeviceManagementCold();
 
@@ -223,16 +208,6 @@ class PushRouter {
         case 'ECLASS_ASSIGNMENT':
           return await _routeEclassAssignmentWarm(value);
 
-        case 'RECRUITMENT_STUDY_APPLY':
-        case 'RECRUITMENT_PROJECT_APPLY':
-        case 'RECRUITMENT_TUTORING_APPLY':
-          return await _routeRecruitApplyWarm(type, value);
-
-        case 'RECRUITMENT_STUDY_APPLY_RESULT':
-        case 'RECRUITMENT_PROJECT_APPLY_RESULT':
-        case 'RECRUITMENT_TUTORING_APPLY_RESULT':
-          return await _routeRecruitResultWarm(type, value);
-
         case 'NEW_DEVICE_LOGIN':
           router.go(RoutePaths.mypage);
           if (router.routeInformationProvider.value.uri.path != RoutePaths.setting) {
@@ -247,73 +222,6 @@ class PushRouter {
           router.goNamed('notificationList');
           return false;
       }
-    }
-
-    // warm
-    static Future<bool> _routeRecruitApplyWarm(
-        String type,
-        String value,
-        ) async {
-      final id = int.tryParse(value);
-      if (id == null || id <= 0) return false;
-
-      final recruitType = _parseRecruitTypeSafe(type);
-      if (recruitType == null) return false;
-
-      // 게시판을 닫으면서 모집 상세로 가는 길도 함께 닫았다. 알림을 눌러도
-      // 홈까지만 간다. 라우트와 화면은 그대로 살아 있으니 되살릴 때는 아래
-      // 주석만 풀면 된다
-      router.go(RoutePaths.home);
-
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   router.push(
-      //     RoutePaths.recruitDetail,
-      //     extra: {'id': id, 'type': recruitType},
-      //   );
-      //
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     router.push(
-      //       RoutePaths.recruitApplicantList,
-      //       extra: {'id': id, 'type': recruitType},
-      //     );
-      //   });
-      // });
-
-      return true;
-    }
-
-    // warm
-    static Future<bool> _routeRecruitResultWarm(
-        String type,
-        String value,
-        ) async {
-    final id = int.tryParse(value);
-    final recruitType = _parseRecruitTypeSafe(type);
-    if (id == null || id <= 0 || recruitType == null) return false;
-
-      // 게시판을 닫으면서 모집 상세로 가는 길도 함께 닫았다. 알림을 눌러도
-      // 홈까지만 간다
-      router.go(RoutePaths.home);
-
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   router.push(
-      //     RoutePaths.recruitDetail,
-      //     extra: {'id': id, 'type': recruitType},
-      //   );
-      //
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     router.push(
-      //       RoutePaths.recruitApplicantDetail,
-      //       extra: {
-      //         'viewer': RecruitApplicantViewer.APPLICANT,
-      //         'id': id,
-      //         'type': recruitType,
-      //       },
-      //     );
-      //   });
-      // });
-
-      return true;
     }
 
     // cold
@@ -365,61 +273,6 @@ class PushRouter {
     return true;
   }
 
-  static Future<bool> _routeRecruitApplyCold(String type, String value) async {
-    final id = int.tryParse(value);
-    final recruitType = _parseRecruitTypeSafe(type);
-    if (id == null || id <= 0 || recruitType == null) return _fallbackToNotificationList(isColdStart: true);
-
-      // 게시판을 닫아 모집 상세로 가지 않는다. 다음 목적지를 아예 두지
-      // 않으면 PushRouterHelper.goNextOrHome 이 스플래시에서 홈으로 한 번만
-      // 보낸다. home 을 목적지로 두면 그쪽 마지막 분기가 go(home) 뒤에
-      // push(home) 을 해서 홈이 두 장 쌓인다
-
-      // _setNextRoute(
-      //   RoutePaths.recruitDetail,
-      //   extra: {
-      //     'id': id,
-      //     'type': recruitType,
-      //     'first': {
-      //       'path': RoutePaths.recruitApplicantList,
-      //       'extra': {'id': id, 'type': recruitType},
-      //     },
-      //   },
-      // );
-
-      if (!_isAtSplash) router.go(RoutePaths.splash);
-      return true;
-    }
-
-  static Future<bool> _routeRecruitResultCold(String type, String value) async {
-    final id = int.tryParse(value);
-    final recruitType = _parseRecruitTypeSafe(type);
-    if (id == null || id <= 0 || recruitType == null) return _fallbackToNotificationList(isColdStart: true);
-
-      // 게시판을 닫아 모집 상세로 가지 않는다. 다음 목적지를 아예 두지
-      // 않으면 PushRouterHelper.goNextOrHome 이 스플래시에서 홈으로 한 번만
-      // 보낸다. home 을 목적지로 두면 그쪽 마지막 분기가 go(home) 뒤에
-      // push(home) 을 해서 홈이 두 장 쌓인다
-
-      // _setNextRoute(
-      //   RoutePaths.recruitDetail,
-      //   extra: {
-      //     'id': id,
-      //     'type': recruitType,
-      //     'first': {
-      //       'path': RoutePaths.recruitApplicantDetail,
-      //       'extra': {
-      //         'viewer': RecruitApplicantViewer.APPLICANT,
-      //         'id': id,
-      //         'type': recruitType,
-      //       },
-      //     },
-      //   },
-      // );
-      if (!_isAtSplash) router.go(RoutePaths.splash);
-      return true;
-  }
-
   static Future<bool> _routeDeviceManagementCold() async {
     _setNextRoute(RoutePaths.deviceManagement);
     if (!_isAtSplash) router.go(RoutePaths.splash);
@@ -448,13 +301,6 @@ class PushRouter {
       default:
         return true;
     }
-  }
-
-  static RecruitType? _parseRecruitTypeSafe(String type) {
-    if (type.contains('_STUDY')) return RecruitType.STUDY;
-    if (type.contains('_PROJECT')) return RecruitType.PROJECT;
-    if (type.contains('_TUTORING')) return RecruitType.TUTORING;
-    return null;
   }
 
   static Future<bool> _fallbackToNotificationList({

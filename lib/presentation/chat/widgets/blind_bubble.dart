@@ -8,6 +8,7 @@ class BlindBubble extends StatelessWidget {
   final String timestamp;
   final bool isMe;
   final String type;
+  final VoidCallback? onLongPress;
 
   const BlindBubble(
     this.nickname,
@@ -15,7 +16,8 @@ class BlindBubble extends StatelessWidget {
     this.timestamp,
     this.isMe,
     this.type, {
-      super.key,
+    super.key,
+    this.onLongPress,
   });
 
   bool get _isSystem => type.toUpperCase() == 'SYSTEM';
@@ -62,12 +64,14 @@ class BlindBubble extends StatelessWidget {
   Widget _bubbleColumn(double bubbleMaxWidth) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         if (!isMe)
           Text(
             nickname,
-            style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
+            style:
+                TextStyles.smallTextRegular.copyWith(color: ColorStyles.black),
           ),
         const SizedBox(height: 8),
         _messageLine(bubbleMaxWidth),
@@ -96,7 +100,7 @@ class BlindBubble extends StatelessWidget {
   }
 
   Widget _messageBubble() {
-    return Container(
+    final bubble = Container(
       decoration: BoxDecoration(
         color: isMe ? ColorStyles.white : ColorStyles.primaryColor,
         borderRadius: BorderRadius.circular(8),
@@ -108,6 +112,18 @@ class BlindBubble extends StatelessWidget {
         style: TextStyles.normalTextRegular.copyWith(
           color: isMe ? ColorStyles.black : ColorStyles.white,
         ),
+      ),
+    );
+
+    if (_isSystem || onLongPress == null) return bubble;
+
+    return Semantics(
+      button: true,
+      hint: '길게 눌러 메시지 메뉴 열기',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPress: onLongPress,
+        child: bubble,
       ),
     );
   }

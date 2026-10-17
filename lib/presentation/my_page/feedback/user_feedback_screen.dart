@@ -2,7 +2,7 @@ import 'package:dongsoop/core/presentation/components/detail_header.dart';
 import 'package:dongsoop/core/presentation/components/primary_bottom_button.dart';
 import 'package:dongsoop/domain/feedback/enum/service_feature.dart';
 import 'package:dongsoop/presentation/my_page/feedback/view_model/feedback_write_view_model.dart';
-import 'package:dongsoop/presentation/board/common/components/board_text_form_field.dart';
+import 'package:dongsoop/core/presentation/components/common_text_form_field.dart';
 import 'package:dongsoop/ui/color_styles.dart';
 import 'package:dongsoop/ui/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +13,6 @@ const Map<ServiceFeature, String> _serviceFeatureOptions = {
   ServiceFeature.mealInformation: '학식 정보 확인 서비스',
   ServiceFeature.academicSchedule: '학사 일정 확인 및 개인 일정 관리',
   ServiceFeature.timetableAutoManage: '시간표 자동 입력 및 관리',
-  ServiceFeature.teamRecruitment: '팀원 모집(스터디/튜터링/프로젝트)',
-  ServiceFeature.marketplace: '장터(교재 등 중고 거래)',
   ServiceFeature.chatbotCampusInfo: '챗봇을 통한 교내 정보 확인',
 };
 
@@ -111,7 +109,7 @@ class _UserFeedbackScreenState extends ConsumerState<UserFeedbackScreen> {
 
                 _requiredLabel("앱을 사용하며 개선되었으면 하는 부분이 있었나요?"),
                 const SizedBox(height: 16),
-                BoardTextFormField(
+                CommonTextFormField(
                   controller: _improveController,
                   hintText: '불편했던 점이나 개선 아이디어를 적어주세요',
                   maxLines: 4,
@@ -136,7 +134,7 @@ class _UserFeedbackScreenState extends ConsumerState<UserFeedbackScreen> {
                   style: TextStyles.smallTextRegular.copyWith(color: ColorStyles.gray4),
                 ),
                 const SizedBox(height: 16),
-                BoardTextFormField(
+                CommonTextFormField(
                   controller: _additionalController,
                   hintText: '있었으면 하는 기능이나 서비스를 적어주세요',
                   maxLines: 4,

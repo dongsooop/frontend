@@ -4,12 +4,8 @@ import 'package:dongsoop/domain/notification/entity/push_event.dart';
 import 'package:dongsoop/providers/eclass_link_restore_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:dongsoop/domain/board/recruit/enum/recruit_type.dart';
-import 'package:dongsoop/domain/board/recruit/apply/enum/recruit_applicant_viewer.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_badge_view_model.dart';
 import 'package:dongsoop/presentation/home/view_models/notification_view_model.dart';
-import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_applicant_list_view_model.dart';
-import 'package:dongsoop/presentation/board/recruit/apply/view_models/recruit_applicant_detail_view_model.dart';
 import 'package:dongsoop/core/routing/push_router.dart';
 import 'package:dongsoop/providers/activity_context_providers.dart';
 
@@ -33,10 +29,6 @@ class PushSyncController {
 
   DateTime? _lastChatListRefreshedAt;
   static const Duration _chatListDebounceDuration = Duration(milliseconds: 250);
-
-  final Map<String, DateTime> _lastListRefreshedAtByKey = <String, DateTime>{};
-  static const Duration _listDebounceDuration = Duration(milliseconds: 180);
-  DateTime? _lastDetailRefreshedAt;
 
   final Map<int, DateTime> _readOnceCacheTimestamps = <int, DateTime>{};
   static const Duration _readOnceTimeToLive = Duration(minutes: 5);
@@ -69,14 +61,6 @@ class PushSyncController {
         return;
       }
 
-      bool anyTargetMatched = false;
-      anyTargetMatched |= _maybeRefreshRecruitList(payload);
-      anyTargetMatched |= _maybeRefreshRecruitDetail(payload);
-
-      if (anyTargetMatched && payload.id != null && payload.id! > 0) {
-        await _readOnce(payload.id!);
-      }
-
       if (payload.badge != null) {
         ref
             .read(notificationBadgeViewModelProvider.notifier)
@@ -106,8 +90,7 @@ class PushSyncController {
         if (payload.type == 'NEW_DEVICE_LOGIN') {
           await PushRouter.routeFromTypeValue(
               type: payload.type, value: payload.value ?? '');
-        } else if (!_isSameRecruitListScreen(payload) &&
-            !_isSameRecruitDetailScreen(payload)) {
+        } else {
           if (payload.value != null) {
             await PushRouter.routeFromTypeValue(
                 type: payload.type, value: payload.value!);
@@ -175,128 +158,4 @@ class PushSyncController {
         .refreshBadge(force: force);
   }
 
-  RecruitType? _mapRecruitType(String upperCaseType) {
-    if (upperCaseType.contains('_STUDY')) return RecruitType.STUDY;
-    if (upperCaseType.contains('_PROJECT')) return RecruitType.PROJECT;
-    if (upperCaseType.contains('_TUTORING')) return RecruitType.TUTORING;
-    return null;
-  }
-
-  bool _maybeRefreshRecruitList(PushPayload payload) {
-    final activeContext = ref.read(activeRecruitListContextProvider);
-    if (activeContext == null) return false;
-
-    final String typeString = payload.type;
-    if (!typeString.startsWith('RECRUITMENT_') ||
-        !typeString.contains('_APPLY') ||
-        typeString.contains('_RESULT')) {
-      return false;
-    }
-
-    final RecruitType? pushRecruitType = _mapRecruitType(typeString);
-    final int? pushBoardId = int.tryParse(payload.value ?? '');
-    if (pushRecruitType == null || pushBoardId == null) return false;
-
-    if (pushRecruitType == activeContext.type &&
-        pushBoardId == activeContext.boardId) {
-      final String key = '${activeContext.type}|${activeContext.boardId}';
-      final DateTime now = DateTime.now();
-      final DateTime? lastRefreshedAt = _lastListRefreshedAtByKey[key];
-      if (lastRefreshedAt != null &&
-          now.difference(lastRefreshedAt) < _listDebounceDuration) {
-        return false;
-      }
-      _lastListRefreshedAtByKey[key] = now;
-
-      if (_lastListRefreshedAtByKey.length > 64) {
-        _lastListRefreshedAtByKey.removeWhere((_, timestamp) =>
-            now.difference(timestamp) > const Duration(seconds: 5));
-      }
-
-      ref.invalidate(
-        recruitApplicantListViewModelProvider(
-          boardId: activeContext.boardId,
-          type: activeContext.type,
-        ),
-      );
-      return true;
-    }
-    return false;
-  }
-
-  bool _maybeRefreshRecruitDetail(PushPayload payload) {
-    final activeContext = ref.read(activeRecruitDetailContextProvider);
-    if (activeContext == null) return false;
-
-    if (activeContext.viewer != RecruitApplicantViewer.APPLICANT) {
-      return false;
-    }
-
-    final String typeString = payload.type;
-    if (!typeString.contains('_APPLY_RESULT')) return false;
-
-    final RecruitType? pushRecruitType = _mapRecruitType(typeString);
-    final int? pushBoardId = int.tryParse(payload.value ?? '');
-    if (pushRecruitType == null || pushBoardId == null) return false;
-
-    if (pushRecruitType == activeContext.type &&
-        pushBoardId == activeContext.boardId) {
-      final DateTime now = DateTime.now();
-      if (_lastDetailRefreshedAt != null &&
-          now.difference(_lastDetailRefreshedAt!) <
-              const Duration(milliseconds: 300)) {
-        return false;
-      }
-      _lastDetailRefreshedAt = now;
-
-      ref.invalidate(
-        recruitApplicantDetailViewModelProvider(
-          RecruitApplicantDetailArgs(
-            viewer: activeContext.viewer,
-            type: activeContext.type,
-            boardId: activeContext.boardId,
-            memberId: activeContext.memberId,
-          ),
-        ),
-      );
-      return true;
-    }
-    return false;
-  }
-
-  bool _isSameRecruitListScreen(PushPayload payload) {
-    final activeContext = ref.read(activeRecruitListContextProvider);
-    if (activeContext == null) return false;
-
-    final String typeString = payload.type;
-    if (!typeString.startsWith('RECRUITMENT_') ||
-        !typeString.contains('_APPLY') ||
-        typeString.contains('_RESULT')) {
-      return false;
-    }
-
-    final RecruitType? pushType = _mapRecruitType(typeString);
-    final int? pushBoardId = int.tryParse(payload.value ?? '');
-    if (pushType == null || pushBoardId == null) return false;
-
-    return pushType == activeContext.type &&
-        pushBoardId == activeContext.boardId;
-  }
-
-  bool _isSameRecruitDetailScreen(PushPayload payload) {
-    final activeContext = ref.read(activeRecruitDetailContextProvider);
-    if (activeContext == null) return false;
-
-    if (activeContext.viewer != RecruitApplicantViewer.APPLICANT) return false;
-
-    final String typeString = payload.type;
-    if (!typeString.contains('_APPLY_RESULT')) return false;
-
-    final RecruitType? pushType = _mapRecruitType(typeString);
-    final int? pushBoardId = int.tryParse(payload.value ?? '');
-    if (pushType == null || pushBoardId == null) return false;
-
-    return pushType == activeContext.type &&
-        pushBoardId == activeContext.boardId;
-  }
 }

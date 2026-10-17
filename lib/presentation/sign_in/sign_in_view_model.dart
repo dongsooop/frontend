@@ -24,7 +24,7 @@ class SignInViewModel extends StateNotifier<SignInState> {
   ) : super(SignInState(isLoading: false));
 
   Future<void> login(String email, String password) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true);
 
     try {
       await _loginUseCase.execute(email + '@dongyang.ac.kr', password);
@@ -36,6 +36,13 @@ class SignInViewModel extends StateNotifier<SignInState> {
       state = state.copyWith(
         isLoading: false,
       );
+    } on UserSanctionedException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        dialogTitle: '동숲 이용 제재',
+        dialogMessage: e.message,
+        sanction: e.sanction,
+      );
     } on LoginException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
@@ -46,8 +53,7 @@ class SignInViewModel extends StateNotifier<SignInState> {
 
   Future<void> socialLogin(LoginPlatform platform) async {
     if (state.isLoading) return;
-    state = state.copyWith(
-        isLoading: true, errorMessage: null, dialogMessage: null);
+    state = state.copyWith(isLoading: true);
 
     try {
       // 소셜 로그인
@@ -60,16 +66,30 @@ class SignInViewModel extends StateNotifier<SignInState> {
       state = state.copyWith(
         isLoading: false,
       );
+    } on UserSanctionedException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        dialogTitle: '동숲 이용 제재',
+        dialogMessage: e.message,
+        sanction: e.sanction,
+      );
     } on OAuthException catch (e) {
-      state = state.copyWith(isLoading: false, dialogMessage: e.message);
+      state = state.copyWith(
+        isLoading: false,
+        dialogTitle: '소셜 로그인 오류',
+        dialogMessage: e.message,
+      );
     } catch (e) {
       state = state.copyWith(
-          isLoading: false, dialogMessage: "소셜 로그인 중 오류가 발생했습니다.");
+        isLoading: false,
+        dialogTitle: '소셜 로그인 오류',
+        dialogMessage: "소셜 로그인 중 오류가 발생했습니다.",
+      );
     }
   }
 
   void clearErrorMessage() {
-    state = state.copyWith(errorMessage: null, dialogMessage: null);
+    state = state.copyWith();
   }
 
   Future<void> _registerCurrentDeviceAfterLogin() async {

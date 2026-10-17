@@ -9,37 +9,42 @@ class ChatBubbleScreen extends StatelessWidget {
   final String timestamp;
   final bool isMe;
   final String type;
-  final VoidCallback onTap;
+  final VoidCallback? onNicknameTap;
+  final VoidCallback? onLongPress;
 
-  const ChatBubbleScreen(
-    this.nickname,
-    this.senderId,
-    this.message,
-    this.timestamp,
-    this.isMe,
-    this.type,
-    this.onTap,
-    {super.key}
-  );
+  const ChatBubbleScreen({
+    super.key,
+    required this.nickname,
+    required this.senderId,
+    required this.message,
+    required this.timestamp,
+    required this.isMe,
+    required this.type,
+    this.onNicknameTap,
+    this.onLongPress,
+  });
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final bubbleMaxWidth = screenWidth / 3 * 2;
-    final bool isInformation = type != 'CHAT' ? true : false;
+    final isInformation = type != 'CHAT';
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: isInformation ? CrossAxisAlignment.center
-        : isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: isInformation
+          ? CrossAxisAlignment.center
+          : isMe
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
       children: [
-        if(!isInformation && !isMe)
+        if (!isInformation && !isMe)
           GestureDetector(
-            onTap: onTap,
+            onTap: onNicknameTap,
             behavior: HitTestBehavior.translucent,
             child: ConstrainedBox(
-              constraints: BoxConstraints(
+              constraints: const BoxConstraints(
                 minWidth: 32, // Material Guideline 최소 터치영역 권장 크기
                 minHeight: 32,
               ),
@@ -48,7 +53,7 @@ class ChatBubbleScreen extends StatelessWidget {
                 child: Text(
                   nickname,
                   style: TextStyles.smallTextRegular.copyWith(
-                    color: ColorStyles.black
+                    color: ColorStyles.black,
                   ),
                 ),
               ),
@@ -58,28 +63,41 @@ class ChatBubbleScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           spacing: 8,
-          children: isInformation ? [buildInformationBubble(bubbleMaxWidth)]
-            : isMe
-            ? [buildTimestampText(), buildMessageBubble(bubbleMaxWidth)]
-            : [buildMessageBubble(bubbleMaxWidth), buildTimestampText()]
+          children: isInformation
+              ? [buildInformationBubble(bubbleMaxWidth)]
+              : isMe
+                  ? [buildTimestampText(), buildMessageBubble(bubbleMaxWidth)]
+                  : [buildMessageBubble(bubbleMaxWidth), buildTimestampText()],
         ),
       ],
     );
   }
 
   Widget buildMessageBubble(double bubbleMaxWidth) {
-    return Container(
+    final bubble = Container(
       decoration: BoxDecoration(
         color: isMe ? ColorStyles.white : ColorStyles.primaryColor,
         borderRadius: BorderRadius.circular(8),
       ),
       constraints: BoxConstraints(maxWidth: bubbleMaxWidth),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      child: SelectableText(
+      child: Text(
         message,
         style: TextStyles.normalTextRegular.copyWith(
           color: isMe ? ColorStyles.black : ColorStyles.white,
         ),
+      ),
+    );
+
+    if (onLongPress == null) return bubble;
+
+    return Semantics(
+      button: true,
+      hint: '길게 눌러 메시지 메뉴 열기',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPress: onLongPress,
+        child: bubble,
       ),
     );
   }
@@ -96,10 +114,10 @@ class ChatBubbleScreen extends StatelessWidget {
 
   Widget buildInformationBubble(double bubbleMaxWidth) {
     final String information = type == 'DATE'
-    ? message
-    : type == 'ENTER'
-      ? '$nickname님이 입장하셨습니다.'
-      : '$nickname님이 채팅방을 나갔습니다.';
+        ? message
+        : type == 'ENTER'
+            ? '$nickname님이 입장하셨습니다.'
+            : '$nickname님이 채팅방을 나갔습니다.';
 
     return Container(
       decoration: BoxDecoration(

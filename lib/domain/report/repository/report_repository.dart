@@ -1,12 +1,15 @@
+import 'package:dongsoop/domain/report/model/blind_date_report_request.dart';
+import 'package:dongsoop/domain/report/model/chat_report_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction_request.dart';
 import 'package:dongsoop/domain/report/model/report_admin_sanction.dart';
 import 'package:dongsoop/domain/report/model/report_sanction_response.dart';
-import 'package:dongsoop/domain/report/model/report_write_request.dart';
 
 abstract class ReportRepository {
-  Future<void> writeReport(ReportWriteRequest request);
+  Future<void> reportChatMessage(ChatReportRequest request);
+  Future<void> reportBlindDateMessage(BlindDateReportRequest request);
   Future<ReportSanctionResponse?> getSanctionStatus();
   Future<void> sanctionWriteReport(ReportAdminSanctionRequest request);
+  Future<void> dismissReport(int reportId);
   Future<List<ReportAdminSanction>?> getReports(
     String type,
     String sort, {
