@@ -257,7 +257,6 @@ final router = GoRouter(
     GoRoute(
       path: RoutePaths.setting,
       builder: (context, state) => SettingScreen(
-        onTapEclass: () => context.push(RoutePaths.eclassLink),
         onTapDevice: () {
           context.push(RoutePaths.deviceManagement);
         },
@@ -570,6 +569,9 @@ final router = GoRouter(
               },
               onTapSubscribeDepartment: () {
                 context.push(RoutePaths.subscribeDepartmentSetting);
+              },
+              onTapEclass: () {
+                context.push(RoutePaths.eclassLink);
               },
               onTapSocialLoginConnect: () {
                 context.push(RoutePaths.mypage + RoutePaths.socialLoginConnect);

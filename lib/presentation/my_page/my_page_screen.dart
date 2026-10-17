@@ -22,6 +22,7 @@ class MyPageScreen extends HookConsumerWidget {
   final VoidCallback onTapBlockedUser;
   final VoidCallback onTapNotification;
   final VoidCallback onTapSubscribeDepartment;
+  final VoidCallback onTapEclass;
   final VoidCallback onTapSocialLoginConnect;
 
   const MyPageScreen({
@@ -38,6 +39,7 @@ class MyPageScreen extends HookConsumerWidget {
     required this.onTapBlockedUser,
     required this.onTapNotification,
     required this.onTapSubscribeDepartment,
+    required this.onTapEclass,
     required this.onTapSocialLoginConnect,
   });
 
@@ -86,6 +88,7 @@ class MyPageScreen extends HookConsumerWidget {
                     onTapLogin: onTapSignIn,
                     onTapNotification: onTapNotification,
                     onTapSubscribeDepartment: onTapSubscribeDepartment,
+                    onTapEclass: onTapEclass,
                     onTapUserFeedback: onTapUserFeedback,
                   );
                 } else {
@@ -101,6 +104,7 @@ class MyPageScreen extends HookConsumerWidget {
                     onTapUserFeedback: onTapUserFeedback,
                     onTapNotification: onTapNotification,
                     onTapSubscribeDepartment: onTapSubscribeDepartment,
+                    onTapEclass: onTapEclass,
                     onTapSocialLoginConnect: onTapSocialLoginConnect,
                   );
                 }

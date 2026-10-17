@@ -18,6 +18,7 @@ class LoggedInUserCard extends HookConsumerWidget {
   final VoidCallback onTapBlockedUser;
   final VoidCallback onTapNotification;
   final VoidCallback onTapSubscribeDepartment;
+  final VoidCallback onTapEclass;
   final VoidCallback onTapSocialLoginConnect;
 
   const LoggedInUserCard({
@@ -33,6 +34,7 @@ class LoggedInUserCard extends HookConsumerWidget {
     required this.onTapBlockedUser,
     required this.onTapNotification,
     required this.onTapSubscribeDepartment,
+    required this.onTapEclass,
     required this.onTapSocialLoginConnect,
   });
 
@@ -135,6 +137,12 @@ class LoggedInUserCard extends HookConsumerWidget {
               description: '학과 공지 모아보기',
               iconAsset: 'assets/icons/mypage_department.svg',
               onTap: onTapSubscribeDepartment,
+            ),
+            MyActivityItem(
+              label: '이클래스 연동 관리',
+              description: '과제 · 연동',
+              iconAsset: 'assets/icons/mypage_eclass.svg',
+              onTap: onTapEclass,
             ),
             MyActivityItem(
               label: '소셜 계정 연동',
